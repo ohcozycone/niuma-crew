@@ -1,0 +1,76 @@
+{
+  "scope": "Successful execution comparison; factual quality is assessed separately",
+  "trials": [
+    {
+      "experiment": "kimi-raised-resume",
+      "model_requests": 9,
+      "tool_calls": 8,
+      "active_seconds": 128.17583708400514,
+      "usage": {
+        "input_tokens": 101078,
+        "output_tokens": 1985,
+        "total_tokens": 103063,
+        "cached_input_tokens": 84480,
+        "reasoning_tokens": 694
+      },
+      "uncached_input_tokens": 16598,
+      "final_answer": "**结论：OpenSpec 本质上是一个 CLI 工具 + 规范框架，不是单纯的 skill，也不是标准的 MCP server。** 它对不同 AI 助手采用不同的集成方式，具体形态取决于你用的工具：\n\n| 形态 | 说明 | 典型场景 |\n|------|------|----------|\n| **CLI 工具** | 核心本体，`npm install -g @fission-ai/openspec`，用 `openspec init/propose/apply` 等命令管理规范 | 所有工作流的基础 |\n| **Skill（技能）** | `openspec init` 会向你的 AI 工具安装 skill 文件（如 `.claude/skills/`、`.cursor/skills/`），通过 `/openspec-apply-change` 等命令触发 | Claude Code、Cursor、Kimi Code 等 |\n| **Slash commands** | 部分工具用命令而非 skill，如 `/opsx:propose`、`/opsx:apply` | GitHub Copilot、Amazon Q 等 |\n| **MCP server** | 社区有第三方 MCP 封装（如 `opencode-openspec`），提供 `openspec_list`、`openspec_view` 等工具调用，**非官方核心** | OpenCode 等支持 MCP 的工具 |\n\n简单判断：\n- 如果你用 **Claude Code / Cursor**：它表现为 **skill**（安装在 `.claude/skills/` 或 `.cursor/skills/`）。\n- 如果你用 **OpenCode**：可能通过 **MCP** 接入。\n- 无论如何：**CLI 是根基**，skill/MCP 只是调用 CLI 能力的入口。\n\n建议直接跑 `openspec init`，它会根据检测到的工具自动生成对应的 skill 或 command 文件。"
+    },
+    {
+      "experiment": "kimi-raised-fresh-1",
+      "model_requests": 2,
+      "tool_calls": 1,
+      "active_seconds": 27.077020083088428,
+      "usage": {
+        "input_tokens": 15462,
+        "output_tokens": 692,
+        "total_tokens": 16154,
+        "cached_input_tokens": 13785,
+        "reasoning_tokens": 232
+      },
+      "uncached_input_tokens": 1677,
+      "final_answer": "**都不是。OpenSpec 本质上是一个 CLI 工具（npm 包），既不是 Skill 也不是 MCP。**\n\n依据（刚核对过官方信息）：\n\n1. **它是命令行工具**：通过 `npm install -g @fission-ai/openspec` 安装，然后在项目里执行 `openspec init` 初始化。68k GitHub stars，开源，主仓库是 Fission-AI/OpenSpec。\n\n2. **它如何与 AI 助手协作**：`openspec init` 会在你的项目里生成一组指令文件（比如 Cursor 的 slash commands：`/openspec-proposal`、`/openspec-apply`、`/openspec-archive`），AI 编码助手读取这些项目内的指令来完成\"提案 → 实现 → 归档\"的 spec-driven 工作流。也就是说它依赖的是**项目内的提示词/指令文件**，而不是以 Skill 或 MCP Server 的形式挂载。\n\n简单区分：\n\n| 形态 | 含义 | OpenSpec 是否符合 |\n|---|---|---|\n| Skill | 平台/助手侧预置的能力包，由宿主加载 | ❌ 它安装在你的项目里，不是宿主能力 |\n| MCP | 通过 MCP 协议暴露工具/资源的服务 | ❌ 官方形态是 CLI，不走 MCP 协议 |\n| CLI + 项目内指令 | 本地命令行工具，生成提示词文件供 AI 读取 | ✅ 这正是它的工作方式 |\n\n补充一点：如果你在某个平台（如 Claude Code、Cursor）里看到\"OpenSpec 集成\"，那通常是社区或它自己生成的配置/命令文件，核心仍然是 CLI，而非原生的 Skill 或 MCP 服务。"
+    },
+    {
+      "experiment": "kimi-raised-fresh-2",
+      "model_requests": 5,
+      "tool_calls": 6,
+      "active_seconds": 58.3238695000764,
+      "usage": {
+        "input_tokens": 54448,
+        "output_tokens": 1572,
+        "total_tokens": 56020,
+        "cached_input_tokens": 45017,
+        "reasoning_tokens": 449
+      },
+      "uncached_input_tokens": 9431,
+      "final_answer": "**严格说，OpenSpec 本体既不是 skill 也不是 MCP——它是一个 CLI 工具 + 规范驱动开发（SDD）方法论；但在 AI 编码助手的集成方式上，它现在主要走 skill 路线，MCP 目前只是社区提案。**\n\n根据 OpenSpec 官方仓库（Fission-AI/OpenSpec）和文档核实：\n\n| 形态 | 现状 | 依据 |\n|---|---|---|\n| CLI 工具 | 核心形态 | `openspec` 命令行，负责 init、管理 `openspec/` 目录下的 specs/changes |\n| Agent Skills | **官方已支持** | 官方文档有专门的 Skills 页，`openspec init` 会在 `.agents/skills/` 下安装一组 skill（openspec-explore、openspec-propose、openspec-apply-change、openspec-sync-specs 等核心 skill，另有 verify、ff-change 等可选 skill） |\n| MCP Server | **仅提案，未官方实现** | GitHub Issue #319 有人提议做 OpenSpec MCP server，维护者态度谨慎（担心 context bloat），目前没有官方 MCP server |\n\n两点补充：\n\n1. 你遇到\"OpenSpec\"这个词时，大概率指的是 Fission-AI 的 spec-driven development 工具；它在早期主要通过往 `CLAUDE.md`/`AGENTS.md` 写约定 + slash commands 集成，后来转向了正式的 skills 形式（见 Issue #366，官方在实验性 workflow 中加入了 skills 支持）。\n2. 不要把 OpenSpec 和 Agent Skills 开放标准本身混淆——OpenSpec 是\"提供 skills 的项目\"，不是一个 skill。\n\n如果你是想在自己的环境里接入它：装 CLI 后跑 `openspec init`，skills 会自动落到 `.agents/skills/`；如果你需要 MCP 集成（比如给不读 skills 的助手用），目前只能自行封装或关注 Issue #319 的进展。"
+    },
+    {
+      "experiment": "codex-natural",
+      "model_requests": 6,
+      "tool_calls": 6,
+      "active_seconds": 87.388,
+      "usage": {
+        "input_tokens": 283456,
+        "cached_input_tokens": 247680,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1201,
+        "reasoning_output_tokens": 572,
+        "total_tokens": 284657
+      },
+      "uncached_input_tokens": 35776,
+      "final_answer": "**OpenSpec 主要通过 skills 接入 AI，但它本身是一套规范驱动开发工具，不是 MCP 服务。** 它包含命令行工具（CLI）、规范文件和工作流。[官方介绍](https://github.com/Fission-AI/OpenSpec)\n\n运行 `openspec init` 后，它会在项目中创建 `openspec/` 目录，并给选定的 AI 工具安装一组 skills，例如提案、实施、验证、归档。[初始化说明](https://openspec.dev/docs/setup)\n\n所以，如果你是在判断接入方式：**按 CLI 初始化并安装 skills 使用，无须配置 MCP 服务。**"
+    }
+  ],
+  "ratios": {
+    "codex_to_kimi_fresh_2_total_tokens": 5.081345947875759,
+    "codex_to_kimi_fresh_2_active_seconds": 1.4983230836542067
+  },
+  "limitations": [
+    "One Codex natural trial, two Kimi fresh trials; not a statistically controlled cross-model benchmark",
+    "Three guards raised only in isolated copies; prompt, model and tool snapshots preserved",
+    "A session-expiry setup rejection made no model call; same-user current session used without changing session records",
+    "Resume elapsed is original active execution time plus new execution time, excluding the pause"
+  ]
+}

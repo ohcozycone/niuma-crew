@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1580" role="img" aria-labelledby="title desc"><title id="title">一次发送：内容、运行和交付怎样配合</title><desc id="desc">先接受再执行；外部调用不占业务事务；只有最终提交成功后，页面才看到成功终态。</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#94a3b8"/></marker><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern><style>text{font-family:"JetBrains Mono","Noto Sans SC","PingFang SC",sans-serif}</style></defs>
+<rect width="1800" height="1580" fill="#0f172a"/>
+<rect width="1800" height="1580" fill="url(#grid)"/>
+<path d="M160 290V1450" stroke="#334155" stroke-dasharray="6 5" fill="none"/>
+<path d="M510 290V1450" stroke="#334155" stroke-dasharray="6 5" fill="none"/>
+<path d="M860 290V1450" stroke="#334155" stroke-dasharray="6 5" fill="none"/>
+<path d="M1210 290V1450" stroke="#334155" stroke-dasharray="6 5" fill="none"/>
+<path d="M1560 290V1450" stroke="#334155" stroke-dasharray="6 5" fill="none"/>
+<path d="M160 340L510 340" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M510 435L860 435" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M510 495L1210 495" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M510 650L160 650" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<path d="M1210 720L1560 720" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M1560 785L1210 785" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<path d="M1560 835H1690V890H1560" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M1560 980L1210 980" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<path d="M1210 1040L510 1040" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M510 1145L860 1145" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M510 1210L1210 1210" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M510 1400L160 1400" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<rect x="25" y="190" width="270" height="100" rx="12" fill="#0f172a"/>
+<rect x="25" y="190" width="270" height="100" rx="12" fill="#22d3ee" fill-opacity="0.085" stroke="#22d3ee" stroke-width="1.7"/>
+<rect x="375" y="190" width="270" height="100" rx="12" fill="#0f172a"/>
+<rect x="375" y="190" width="270" height="100" rx="12" fill="#22d3ee" fill-opacity="0.085" stroke="#22d3ee" stroke-width="1.7"/>
+<rect x="725" y="190" width="270" height="100" rx="12" fill="#0f172a"/>
+<rect x="725" y="190" width="270" height="100" rx="12" fill="#a78bfa" fill-opacity="0.085" stroke="#a78bfa" stroke-width="1.7"/>
+<rect x="1075" y="190" width="270" height="100" rx="12" fill="#0f172a"/>
+<rect x="1075" y="190" width="270" height="100" rx="12" fill="#34d399" fill-opacity="0.085" stroke="#34d399" stroke-width="1.7"/>
+<rect x="1425" y="190" width="270" height="100" rx="12" fill="#0f172a"/>
+<rect x="1425" y="190" width="270" height="100" rx="12" fill="#fbbf24" fill-opacity="0.085" stroke="#fbbf24" stroke-width="1.7"/>
+<rect x="440" y="375" width="840" height="235" rx="8" fill="none" stroke="#a78bfa" stroke-width="1.4" stroke-dasharray="8 5"/>
+<rect x="440" y="1080" width="840" height="250" rx="8" fill="none" stroke="#a78bfa" stroke-width="1.4" stroke-dasharray="8 5"/>
+<text x="48" y="70" font-size="34" fill="#e7edf7" font-weight="700" text-anchor="start">一次发送：内容、运行和交付怎样配合</text>
+<text x="48" y="112" font-size="20" fill="#94a3b8" font-weight="400" text-anchor="start">先接受再执行；外部调用不占业务事务；只有最终提交成功后，页面才看到成功终态。</text>
+<text x="1752" y="150" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="end">当前实施 · 职责边界 · 2026-10-27</text>
+<text x="45" y="226" font-size="24" fill="#22d3ee" font-weight="600" text-anchor="start">浏览器</text>
+<text x="45" y="263" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">输入与观察</text>
+<text x="395" y="226" font-size="24" fill="#22d3ee" font-weight="600" text-anchor="start">请求与共享流程</text>
+<text x="395" y="263" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">API 请求 / 对话发布</text>
+<text x="745" y="226" font-size="24" fill="#a78bfa" font-weight="600" text-anchor="start">业务存储</text>
+<text x="745" y="263" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">对话内容 / CI 数据</text>
+<text x="1095" y="226" font-size="24" fill="#34d399" font-weight="600" text-anchor="start">执行宿主</text>
+<text x="1095" y="263" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">Run / 动作 / 调度</text>
+<text x="1445" y="226" font-size="24" fill="#fbbf24" font-weight="600" text-anchor="start">具体执行器</text>
+<text x="1445" y="263" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">普通 Agent 或 CI</text>
+<text x="335.0" y="330.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">1. 发送内容与固定请求键</text>
+<text x="458" y="403" font-size="19" fill="#a78bfa" font-weight="400" text-anchor="start">接受事务：以下记录一起提交</text>
+<text x="685.0" y="425.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">2. 输入 + 空助手回复</text>
+<text x="860.0" y="485.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">3. Run + 关联 + 活动占用</text>
+<text x="675" y="580" font-size="20" fill="#a78bfa" font-weight="400" text-anchor="start">4. 提交；失败全部回滚</text>
+<text x="335.0" y="640.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">5. 202 + 稳定回复 ID</text>
+<text x="1385.0" y="710.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">6. 排队后启动执行</text>
+<text x="1385.0" y="775.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">7. 检查、预算与动作记录</text>
+<text x="1540" y="925" font-size="19" fill="#fbbf24" font-weight="400" text-anchor="middle">8. 模型 / 工具循环</text>
+<text x="1385.0" y="970.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">9. 普通进度与候选输出</text>
+<text x="860.0" y="1030.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">10. 请求业务发布</text>
+<text x="458" y="1108" font-size="19" fill="#a78bfa" font-weight="400" text-anchor="start">发布事务：状态与内容一起决定</text>
+<text x="685.0" y="1135.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">11. 回复正文 + CI 报告</text>
+<text x="860.0" y="1200.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">12. Run 终态 + 释放占用</text>
+<text x="675" y="1295" font-size="20" fill="#a78bfa" font-weight="400" text-anchor="start">13. 提交；失败不宣告成功</text>
+<text x="335.0" y="1390.0" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">14. GET / SSE 返回已保存快照</text>
+<text x="48" y="1515" font-size="20" fill="#94a3b8" font-weight="400" text-anchor="start">停止与发布按同一写入顺序决定；观察断线不取消后台；重试新建处理和回复，保留原问题。</text>
+<text x="48" y="1548" font-size="18" fill="#94a3b8" font-weight="400" text-anchor="start">发布回调指向 conversations/publication；后台不调用 API 请求服务。</text>
+</svg>

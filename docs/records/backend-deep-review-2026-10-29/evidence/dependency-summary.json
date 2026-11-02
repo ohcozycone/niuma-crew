@@ -1,0 +1,3380 @@
+{
+  "method": "AST imports; includes local imports; not a dynamic call graph",
+  "edges": [
+    {
+      "source": "@root",
+      "target": "agent_runtime",
+      "import_sites": 2
+    },
+    {
+      "source": "@root",
+      "target": "agents",
+      "import_sites": 1
+    },
+    {
+      "source": "@root",
+      "target": "api",
+      "import_sites": 6
+    },
+    {
+      "source": "@root",
+      "target": "auth",
+      "import_sites": 3
+    },
+    {
+      "source": "@root",
+      "target": "ci_diagnosis",
+      "import_sites": 1
+    },
+    {
+      "source": "@root",
+      "target": "conversations",
+      "import_sites": 5
+    },
+    {
+      "source": "@root",
+      "target": "execution",
+      "import_sites": 6
+    },
+    {
+      "source": "@root",
+      "target": "files",
+      "import_sites": 2
+    },
+    {
+      "source": "@root",
+      "target": "infrastructure",
+      "import_sites": 3
+    },
+    {
+      "source": "@root",
+      "target": "model_connections",
+      "import_sites": 2
+    },
+    {
+      "source": "@root",
+      "target": "sandboxes",
+      "import_sites": 2
+    },
+    {
+      "source": "@root",
+      "target": "skills",
+      "import_sites": 2
+    },
+    {
+      "source": "@root",
+      "target": "tools",
+      "import_sites": 2
+    },
+    {
+      "source": "agent_runtime",
+      "target": "@root",
+      "import_sites": 2
+    },
+    {
+      "source": "agent_runtime",
+      "target": "llm",
+      "import_sites": 5
+    },
+    {
+      "source": "agent_runtime",
+      "target": "tools",
+      "import_sites": 5
+    },
+    {
+      "source": "agents",
+      "target": "@root",
+      "import_sites": 7
+    },
+    {
+      "source": "agents",
+      "target": "ci_diagnosis",
+      "import_sites": 2
+    },
+    {
+      "source": "agents",
+      "target": "conversations",
+      "import_sites": 1
+    },
+    {
+      "source": "agents",
+      "target": "infrastructure",
+      "import_sites": 8
+    },
+    {
+      "source": "agents",
+      "target": "model_connections",
+      "import_sites": 1
+    },
+    {
+      "source": "agents",
+      "target": "skills",
+      "import_sites": 4
+    },
+    {
+      "source": "agents",
+      "target": "tools",
+      "import_sites": 6
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "import_sites": 13
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "import_sites": 10
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "import_sites": 14
+    },
+    {
+      "source": "api",
+      "target": "ci_diagnosis",
+      "import_sites": 4
+    },
+    {
+      "source": "api",
+      "target": "conversations",
+      "import_sites": 8
+    },
+    {
+      "source": "api",
+      "target": "execution",
+      "import_sites": 6
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "import_sites": 5
+    },
+    {
+      "source": "api",
+      "target": "model_connections",
+      "import_sites": 3
+    },
+    {
+      "source": "api",
+      "target": "organization_rules",
+      "import_sites": 2
+    },
+    {
+      "source": "api",
+      "target": "skills",
+      "import_sites": 8
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "import_sites": 5
+    },
+    {
+      "source": "auth",
+      "target": "@root",
+      "import_sites": 4
+    },
+    {
+      "source": "auth",
+      "target": "infrastructure",
+      "import_sites": 6
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "@root",
+      "import_sites": 1
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "agents",
+      "import_sites": 1
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "execution",
+      "import_sites": 5
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "infrastructure",
+      "import_sites": 4
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "llm",
+      "import_sites": 3
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "skills",
+      "import_sites": 2
+    },
+    {
+      "source": "conversations",
+      "target": "@root",
+      "import_sites": 7
+    },
+    {
+      "source": "conversations",
+      "target": "agent_runtime",
+      "import_sites": 3
+    },
+    {
+      "source": "conversations",
+      "target": "agents",
+      "import_sites": 5
+    },
+    {
+      "source": "conversations",
+      "target": "auth",
+      "import_sites": 4
+    },
+    {
+      "source": "conversations",
+      "target": "ci_diagnosis",
+      "import_sites": 5
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "import_sites": 14
+    },
+    {
+      "source": "conversations",
+      "target": "files",
+      "import_sites": 5
+    },
+    {
+      "source": "conversations",
+      "target": "infrastructure",
+      "import_sites": 6
+    },
+    {
+      "source": "conversations",
+      "target": "llm",
+      "import_sites": 2
+    },
+    {
+      "source": "conversations",
+      "target": "model_connections",
+      "import_sites": 2
+    },
+    {
+      "source": "conversations",
+      "target": "organization_rules",
+      "import_sites": 1
+    },
+    {
+      "source": "execution",
+      "target": "@root",
+      "import_sites": 3
+    },
+    {
+      "source": "execution",
+      "target": "agent_runtime",
+      "import_sites": 5
+    },
+    {
+      "source": "execution",
+      "target": "auth",
+      "import_sites": 4
+    },
+    {
+      "source": "execution",
+      "target": "infrastructure",
+      "import_sites": 6
+    },
+    {
+      "source": "execution",
+      "target": "tools",
+      "import_sites": 2
+    },
+    {
+      "source": "files",
+      "target": "@root",
+      "import_sites": 1
+    },
+    {
+      "source": "files",
+      "target": "infrastructure",
+      "import_sites": 4
+    },
+    {
+      "source": "infrastructure",
+      "target": "agents",
+      "import_sites": 1
+    },
+    {
+      "source": "infrastructure",
+      "target": "auth",
+      "import_sites": 1
+    },
+    {
+      "source": "infrastructure",
+      "target": "ci_diagnosis",
+      "import_sites": 1
+    },
+    {
+      "source": "infrastructure",
+      "target": "conversations",
+      "import_sites": 1
+    },
+    {
+      "source": "infrastructure",
+      "target": "execution",
+      "import_sites": 1
+    },
+    {
+      "source": "infrastructure",
+      "target": "files",
+      "import_sites": 1
+    },
+    {
+      "source": "infrastructure",
+      "target": "model_connections",
+      "import_sites": 1
+    },
+    {
+      "source": "infrastructure",
+      "target": "organization_rules",
+      "import_sites": 1
+    },
+    {
+      "source": "infrastructure",
+      "target": "sandboxes",
+      "import_sites": 1
+    },
+    {
+      "source": "infrastructure",
+      "target": "skills",
+      "import_sites": 1
+    },
+    {
+      "source": "infrastructure",
+      "target": "tools",
+      "import_sites": 1
+    },
+    {
+      "source": "model_connections",
+      "target": "@root",
+      "import_sites": 4
+    },
+    {
+      "source": "model_connections",
+      "target": "agents",
+      "import_sites": 1
+    },
+    {
+      "source": "model_connections",
+      "target": "execution",
+      "import_sites": 1
+    },
+    {
+      "source": "model_connections",
+      "target": "infrastructure",
+      "import_sites": 5
+    },
+    {
+      "source": "model_connections",
+      "target": "llm",
+      "import_sites": 1
+    },
+    {
+      "source": "organization_rules",
+      "target": "@root",
+      "import_sites": 2
+    },
+    {
+      "source": "organization_rules",
+      "target": "infrastructure",
+      "import_sites": 4
+    },
+    {
+      "source": "sandboxes",
+      "target": "@root",
+      "import_sites": 4
+    },
+    {
+      "source": "sandboxes",
+      "target": "infrastructure",
+      "import_sites": 5
+    },
+    {
+      "source": "sandboxes",
+      "target": "tools",
+      "import_sites": 1
+    },
+    {
+      "source": "skills",
+      "target": "@root",
+      "import_sites": 6
+    },
+    {
+      "source": "skills",
+      "target": "agents",
+      "import_sites": 1
+    },
+    {
+      "source": "skills",
+      "target": "infrastructure",
+      "import_sites": 4
+    },
+    {
+      "source": "tools",
+      "target": "@root",
+      "import_sites": 9
+    },
+    {
+      "source": "tools",
+      "target": "infrastructure",
+      "import_sites": 7
+    }
+  ],
+  "sites": [
+    {
+      "source": "agent_runtime",
+      "target": "llm",
+      "file": "backend/app/agent_runtime/contracts.py",
+      "line": 9,
+      "import": "app.llm.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "tools",
+      "file": "backend/app/agent_runtime/contracts.py",
+      "line": 10,
+      "import": "app.tools.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "llm",
+      "file": "backend/app/agent_runtime/langchain.py",
+      "line": 26,
+      "import": "app.llm.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "llm",
+      "file": "backend/app/agent_runtime/langchain.py",
+      "line": 27,
+      "import": "app.llm.factory",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "llm",
+      "file": "backend/app/agent_runtime/middleware.py",
+      "line": 26,
+      "import": "app.llm.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "llm",
+      "file": "backend/app/agent_runtime/middleware.py",
+      "line": 27,
+      "import": "app.llm.usage",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "tools",
+      "file": "backend/app/agent_runtime/resources.py",
+      "line": 7,
+      "import": "app.tools.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "@root",
+      "file": "backend/app/agent_runtime/sandbox_backend.py",
+      "line": 13,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "tools",
+      "file": "backend/app/agent_runtime/tool_calls.py",
+      "line": 22,
+      "import": "app.tools.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "tools",
+      "file": "backend/app/agent_runtime/tool_calls.py",
+      "line": 23,
+      "import": "app.tools.policy",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "@root",
+      "file": "backend/app/agent_runtime/workspace.py",
+      "line": 13,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agent_runtime",
+      "target": "tools",
+      "file": "backend/app/agent_runtime/workspace.py",
+      "line": 14,
+      "import": "app.tools.policy",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "@root",
+      "file": "backend/app/agents/access.py",
+      "line": 3,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "infrastructure",
+      "file": "backend/app/agents/models.py",
+      "line": 9,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "infrastructure",
+      "file": "backend/app/agents/models.py",
+      "line": 10,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "skills",
+      "file": "backend/app/agents/models.py",
+      "line": 20,
+      "import": "app.skills.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "@root",
+      "file": "backend/app/agents/personal_tools.py",
+      "line": 8,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "infrastructure",
+      "file": "backend/app/agents/personal_tools.py",
+      "line": 9,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "tools",
+      "file": "backend/app/agents/personal_tools.py",
+      "line": 10,
+      "import": "app.tools.access",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "tools",
+      "file": "backend/app/agents/personal_tools.py",
+      "line": 11,
+      "import": "app.tools.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "tools",
+      "file": "backend/app/agents/personal_tools.py",
+      "line": 12,
+      "import": "app.tools.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "ci_diagnosis",
+      "file": "backend/app/agents/schemas.py",
+      "line": 17,
+      "import": "app.ci_diagnosis.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "@root",
+      "file": "backend/app/agents/schemas.py",
+      "line": 18,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "ci_diagnosis",
+      "file": "backend/app/agents/service.py",
+      "line": 24,
+      "import": "app.ci_diagnosis.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "conversations",
+      "file": "backend/app/agents/service.py",
+      "line": 25,
+      "import": "app.conversations.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "@root",
+      "file": "backend/app/agents/service.py",
+      "line": 26,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "infrastructure",
+      "file": "backend/app/agents/service.py",
+      "line": 27,
+      "import": "app.infrastructure.database.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "infrastructure",
+      "file": "backend/app/agents/service.py",
+      "line": 28,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "infrastructure",
+      "file": "backend/app/agents/service.py",
+      "line": 29,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "infrastructure",
+      "file": "backend/app/agents/service.py",
+      "line": 30,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "model_connections",
+      "file": "backend/app/agents/service.py",
+      "line": 31,
+      "import": "app.model_connections.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "@root",
+      "file": "backend/app/agents/service.py",
+      "line": 32,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "skills",
+      "file": "backend/app/agents/service.py",
+      "line": 33,
+      "import": "app.skills.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "skills",
+      "file": "backend/app/agents/service.py",
+      "line": 34,
+      "import": "app.skills.parameters",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "skills",
+      "file": "backend/app/agents/service.py",
+      "line": 371,
+      "import": "app.skills.packages",
+      "scope": "capture_skills",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "@root",
+      "file": "backend/app/agents/tool_grants.py",
+      "line": 11,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "infrastructure",
+      "file": "backend/app/agents/tool_grants.py",
+      "line": 12,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "@root",
+      "file": "backend/app/agents/tool_grants.py",
+      "line": 13,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "tools",
+      "file": "backend/app/agents/tool_grants.py",
+      "line": 14,
+      "import": "app.tools.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "tools",
+      "file": "backend/app/agents/tool_grants.py",
+      "line": 15,
+      "import": "app.tools.policy",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "agents",
+      "target": "tools",
+      "file": "backend/app/agents/tool_grants.py",
+      "line": 16,
+      "import": "app.tools.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/dependencies.py",
+      "line": 7,
+      "import": "app.auth.actor",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/dependencies.py",
+      "line": 8,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/dependencies.py",
+      "line": 9,
+      "import": "app.auth.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "file": "backend/app/api/dependencies.py",
+      "line": 10,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/errors.py",
+      "line": 9,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "file": "backend/app/api/errors.py",
+      "line": 19,
+      "import": "app.infrastructure.database.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/rate_limit.py",
+      "line": 7,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "file": "backend/app/api/routes/agents.py",
+      "line": 8,
+      "import": "app.agents.access",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "file": "backend/app/api/routes/agents.py",
+      "line": 9,
+      "import": "app.agents.personal_tools",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "file": "backend/app/api/routes/agents.py",
+      "line": 10,
+      "import": "app.agents.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "file": "backend/app/api/routes/agents.py",
+      "line": 16,
+      "import": "app.agents.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "file": "backend/app/api/routes/agents.py",
+      "line": 17,
+      "import": "app.agents.tool_grants",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/routes/agents.py",
+      "line": 20,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/agents.py",
+      "line": 21,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "backend/app/api/routes/agents.py",
+      "line": 22,
+      "import": "app.tools.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "file": "backend/app/api/routes/agents.py",
+      "line": 134,
+      "import": "app.agents.service",
+      "scope": "agent_usage",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/routes/auth.py",
+      "line": 13,
+      "import": "app.auth.actor",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/routes/auth.py",
+      "line": 14,
+      "import": "app.auth.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/routes/auth.py",
+      "line": 15,
+      "import": "app.auth.github",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/routes/auth.py",
+      "line": 16,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/auth.py",
+      "line": 17,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/auth.py",
+      "line": 18,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/routes/ci_diagnosis.py",
+      "line": 6,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "ci_diagnosis",
+      "file": "backend/app/api/routes/ci_diagnosis.py",
+      "line": 7,
+      "import": "app.ci_diagnosis.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "skills",
+      "file": "backend/app/api/routes/ci_diagnosis.py",
+      "line": 8,
+      "import": "app.skills.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "file": "backend/app/api/routes/configuration_summary.py",
+      "line": 7,
+      "import": "app.agents.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "skills",
+      "file": "backend/app/api/routes/configuration_summary.py",
+      "line": 9,
+      "import": "app.skills.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "ci_diagnosis",
+      "file": "backend/app/api/routes/conversations/router.py",
+      "line": 12,
+      "import": "app.ci_diagnosis.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "conversations",
+      "file": "backend/app/api/routes/conversations/router.py",
+      "line": 13,
+      "import": "app.conversations.queries",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "conversations",
+      "file": "backend/app/api/routes/conversations/router.py",
+      "line": 14,
+      "import": "app.conversations.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/conversations/router.py",
+      "line": 27,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 7,
+      "import": "app.agents.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 8,
+      "import": "app.auth.actor",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 9,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "ci_diagnosis",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 10,
+      "import": "app.ci_diagnosis.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "ci_diagnosis",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 11,
+      "import": "app.ci_diagnosis.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "conversations",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 12,
+      "import": "app.conversations.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "conversations",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 13,
+      "import": "app.conversations.preparation",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "conversations",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 14,
+      "import": "app.conversations.publication",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "conversations",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 15,
+      "import": "app.conversations.queries",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "conversations",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 25,
+      "import": "app.conversations.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "conversations",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 26,
+      "import": "app.conversations.writes",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 27,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "execution",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 28,
+      "import": "app.execution.admission",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "execution",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 29,
+      "import": "app.execution.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "execution",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 30,
+      "import": "app.execution.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "execution",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 31,
+      "import": "app.execution.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "execution",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 32,
+      "import": "app.execution.queries",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 33,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 34,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "infrastructure",
+      "file": "backend/app/api/routes/conversations/service.py",
+      "line": 35,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/routes/conversations/streaming.py",
+      "line": 8,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/conversations/streaming.py",
+      "line": 9,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "execution",
+      "file": "backend/app/api/routes/conversations/streaming.py",
+      "line": 10,
+      "import": "app.execution.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/routes/files.py",
+      "line": 11,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/files.py",
+      "line": 12,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "model_connections",
+      "file": "backend/app/api/routes/model_connections.py",
+      "line": 9,
+      "import": "app.model_connections.presets",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "model_connections",
+      "file": "backend/app/api/routes/model_connections.py",
+      "line": 10,
+      "import": "app.model_connections.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "model_connections",
+      "file": "backend/app/api/routes/model_connections.py",
+      "line": 17,
+      "import": "app.model_connections.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/model_connections.py",
+      "line": 18,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "organization_rules",
+      "file": "backend/app/api/routes/organization_rules.py",
+      "line": 7,
+      "import": "app.organization_rules.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "organization_rules",
+      "file": "backend/app/api/routes/organization_rules.py",
+      "line": 8,
+      "import": "app.organization_rules.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "file": "backend/app/api/routes/public.py",
+      "line": 8,
+      "import": "app.agents.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "agents",
+      "file": "backend/app/api/routes/public.py",
+      "line": 9,
+      "import": "app.agents.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/public.py",
+      "line": 11,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "skills",
+      "file": "backend/app/api/routes/public.py",
+      "line": 12,
+      "import": "app.skills.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "skills",
+      "file": "backend/app/api/routes/public.py",
+      "line": 13,
+      "import": "app.skills.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/skills.py",
+      "line": 11,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "skills",
+      "file": "backend/app/api/routes/skills.py",
+      "line": 12,
+      "import": "app.skills.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "skills",
+      "file": "backend/app/api/routes/skills.py",
+      "line": 22,
+      "import": "app.skills.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "backend/app/api/routes/tools.py",
+      "line": 8,
+      "import": "app.tools",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "backend/app/api/routes/tools.py",
+      "line": 9,
+      "import": "app.tools.definitions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "backend/app/api/routes/tools.py",
+      "line": 10,
+      "import": "app.tools.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "@root",
+      "file": "backend/app/api/routes/tools.py",
+      "line": 171,
+      "import": "app.errors",
+      "scope": "capabilities",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "skills",
+      "file": "backend/app/api/routes/tools.py",
+      "line": 172,
+      "import": "app.skills.models",
+      "scope": "capabilities",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "tools",
+      "file": "backend/app/api/routes/tools.py",
+      "line": 173,
+      "import": "app.tools.models",
+      "scope": "capabilities",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "skills",
+      "file": "backend/app/api/routes/tools.py",
+      "line": 213,
+      "import": "app.skills.packages",
+      "scope": "capabilities",
+      "category": "application_import"
+    },
+    {
+      "source": "api",
+      "target": "auth",
+      "file": "backend/app/api/security.py",
+      "line": 6,
+      "import": "app.auth.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "auth",
+      "target": "@root",
+      "file": "backend/app/auth/cli.py",
+      "line": 9,
+      "import": "app.config",
+      "scope": "module",
+      "category": "cli_composition"
+    },
+    {
+      "source": "auth",
+      "target": "infrastructure",
+      "file": "backend/app/auth/cli.py",
+      "line": 10,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "cli_composition"
+    },
+    {
+      "source": "auth",
+      "target": "@root",
+      "file": "backend/app/auth/github.py",
+      "line": 16,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "auth",
+      "target": "infrastructure",
+      "file": "backend/app/auth/github.py",
+      "line": 17,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "auth",
+      "target": "infrastructure",
+      "file": "backend/app/auth/models.py",
+      "line": 8,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "auth",
+      "target": "infrastructure",
+      "file": "backend/app/auth/models.py",
+      "line": 9,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "auth",
+      "target": "@root",
+      "file": "backend/app/auth/permissions.py",
+      "line": 4,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "auth",
+      "target": "@root",
+      "file": "backend/app/auth/service.py",
+      "line": 15,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "auth",
+      "target": "infrastructure",
+      "file": "backend/app/auth/service.py",
+      "line": 16,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "auth",
+      "target": "infrastructure",
+      "file": "backend/app/auth/service.py",
+      "line": 17,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "agent_runtime",
+      "file": "backend/app/bootstrap.py",
+      "line": 9,
+      "import": "app.agent_runtime.checkpoints",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "agent_runtime",
+      "file": "backend/app/bootstrap.py",
+      "line": 10,
+      "import": "app.agent_runtime.langchain",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "agents",
+      "file": "backend/app/bootstrap.py",
+      "line": 11,
+      "import": "app.agents.tool_grants",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "api",
+      "file": "backend/app/bootstrap.py",
+      "line": 12,
+      "import": "app.api.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "api",
+      "file": "backend/app/bootstrap.py",
+      "line": 13,
+      "import": "app.api.frontend_delivery",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "api",
+      "file": "backend/app/bootstrap.py",
+      "line": 14,
+      "import": "app.api.rate_limit",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "api",
+      "file": "backend/app/bootstrap.py",
+      "line": 15,
+      "import": "app.api.router",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "api",
+      "file": "backend/app/bootstrap.py",
+      "line": 16,
+      "import": "app.api.routes.conversations.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "api",
+      "file": "backend/app/bootstrap.py",
+      "line": 17,
+      "import": "app.api.security",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "auth",
+      "file": "backend/app/bootstrap.py",
+      "line": 18,
+      "import": "app.auth.github",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "auth",
+      "file": "backend/app/bootstrap.py",
+      "line": 19,
+      "import": "app.auth.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "ci_diagnosis",
+      "file": "backend/app/bootstrap.py",
+      "line": 20,
+      "import": "app.ci_diagnosis.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "conversations",
+      "file": "backend/app/bootstrap.py",
+      "line": 22,
+      "import": "app.conversations.authorization",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "conversations",
+      "file": "backend/app/bootstrap.py",
+      "line": 23,
+      "import": "app.conversations.files",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "conversations",
+      "file": "backend/app/bootstrap.py",
+      "line": 24,
+      "import": "app.conversations.preparation",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "conversations",
+      "file": "backend/app/bootstrap.py",
+      "line": 25,
+      "import": "app.conversations.publication",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "conversations",
+      "file": "backend/app/bootstrap.py",
+      "line": 26,
+      "import": "app.conversations.queries",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "execution",
+      "file": "backend/app/bootstrap.py",
+      "line": 27,
+      "import": "app.execution.admission",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "execution",
+      "file": "backend/app/bootstrap.py",
+      "line": 28,
+      "import": "app.execution.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "execution",
+      "file": "backend/app/bootstrap.py",
+      "line": 29,
+      "import": "app.execution.coordinator",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "execution",
+      "file": "backend/app/bootstrap.py",
+      "line": 30,
+      "import": "app.execution.scheduler",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "execution",
+      "file": "backend/app/bootstrap.py",
+      "line": 31,
+      "import": "app.execution.store",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "files",
+      "file": "backend/app/bootstrap.py",
+      "line": 32,
+      "import": "app.files.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "infrastructure",
+      "file": "backend/app/bootstrap.py",
+      "line": 33,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "model_connections",
+      "file": "backend/app/bootstrap.py",
+      "line": 34,
+      "import": "app.model_connections.credentials",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "model_connections",
+      "file": "backend/app/bootstrap.py",
+      "line": 35,
+      "import": "app.model_connections.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "sandboxes",
+      "file": "backend/app/bootstrap.py",
+      "line": 36,
+      "import": "app.sandboxes.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "skills",
+      "file": "backend/app/bootstrap.py",
+      "line": 37,
+      "import": "app.skills.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "tools",
+      "file": "backend/app/bootstrap.py",
+      "line": 38,
+      "import": "app.tools.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "execution",
+      "file": "backend/app/ci_diagnosis/executor.py",
+      "line": 15,
+      "import": "app.execution.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "llm",
+      "file": "backend/app/ci_diagnosis/executor.py",
+      "line": 16,
+      "import": "app.llm.factory",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "llm",
+      "file": "backend/app/ci_diagnosis/executor.py",
+      "line": 17,
+      "import": "app.llm.usage",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "execution",
+      "file": "backend/app/ci_diagnosis/mcp.py",
+      "line": 9,
+      "import": "app.execution.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "infrastructure",
+      "file": "backend/app/ci_diagnosis/models.py",
+      "line": 6,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "infrastructure",
+      "file": "backend/app/ci_diagnosis/models.py",
+      "line": 7,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "agents",
+      "file": "backend/app/ci_diagnosis/service.py",
+      "line": 9,
+      "import": "app.agents.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "@root",
+      "file": "backend/app/ci_diagnosis/service.py",
+      "line": 13,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "execution",
+      "file": "backend/app/ci_diagnosis/service.py",
+      "line": 14,
+      "import": "app.execution.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "execution",
+      "file": "backend/app/ci_diagnosis/service.py",
+      "line": 15,
+      "import": "app.execution.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "execution",
+      "file": "backend/app/ci_diagnosis/service.py",
+      "line": 16,
+      "import": "app.execution.queries",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "infrastructure",
+      "file": "backend/app/ci_diagnosis/service.py",
+      "line": 17,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "infrastructure",
+      "file": "backend/app/ci_diagnosis/service.py",
+      "line": 18,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "llm",
+      "file": "backend/app/ci_diagnosis/service.py",
+      "line": 19,
+      "import": "app.llm.factory",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "skills",
+      "file": "backend/app/ci_diagnosis/service.py",
+      "line": 20,
+      "import": "app.skills.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "ci_diagnosis",
+      "target": "skills",
+      "file": "backend/app/ci_diagnosis/service.py",
+      "line": 21,
+      "import": "app.skills.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "auth",
+      "file": "backend/app/config.py",
+      "line": 11,
+      "import": "app.auth.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "execution",
+      "file": "backend/app/config.py",
+      "line": 17,
+      "import": "app.execution.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "files",
+      "file": "backend/app/config.py",
+      "line": 18,
+      "import": "app.files.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "infrastructure",
+      "file": "backend/app/config.py",
+      "line": 19,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "sandboxes",
+      "file": "backend/app/config.py",
+      "line": 20,
+      "import": "app.sandboxes.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "skills",
+      "file": "backend/app/config.py",
+      "line": 21,
+      "import": "app.skills.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "tools",
+      "file": "backend/app/config.py",
+      "line": 22,
+      "import": "app.tools.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "agents",
+      "file": "backend/app/conversations/authorization.py",
+      "line": 5,
+      "import": "app.agents.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "agents",
+      "file": "backend/app/conversations/authorization.py",
+      "line": 6,
+      "import": "app.agents.tool_grants",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "auth",
+      "file": "backend/app/conversations/authorization.py",
+      "line": 7,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "@root",
+      "file": "backend/app/conversations/authorization.py",
+      "line": 8,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/authorization.py",
+      "line": 9,
+      "import": "app.execution.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/authorization.py",
+      "line": 10,
+      "import": "app.execution.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "auth",
+      "file": "backend/app/conversations/files.py",
+      "line": 5,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "@root",
+      "file": "backend/app/conversations/files.py",
+      "line": 8,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/files.py",
+      "line": 9,
+      "import": "app.execution.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "files",
+      "file": "backend/app/conversations/files.py",
+      "line": 10,
+      "import": "app.files.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "files",
+      "file": "backend/app/conversations/files.py",
+      "line": 11,
+      "import": "app.files.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "infrastructure",
+      "file": "backend/app/conversations/models.py",
+      "line": 17,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "infrastructure",
+      "file": "backend/app/conversations/models.py",
+      "line": 18,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "agents",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 6,
+      "import": "app.agents.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "agents",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 7,
+      "import": "app.agents.tool_grants",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "@root",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 8,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 9,
+      "import": "app.execution.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "model_connections",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 10,
+      "import": "app.model_connections.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "model_connections",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 11,
+      "import": "app.model_connections.presets",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "organization_rules",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 12,
+      "import": "app.organization_rules.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "agent_runtime",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 159,
+      "import": "app.agent_runtime.contracts",
+      "scope": "ConversationPreparation.execution",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "agent_runtime",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 160,
+      "import": "app.agent_runtime.resources",
+      "scope": "ConversationPreparation.execution",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "ci_diagnosis",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 161,
+      "import": "app.ci_diagnosis.executor",
+      "scope": "ConversationPreparation.execution",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 162,
+      "import": "app.execution.contracts",
+      "scope": "ConversationPreparation.execution",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/preparation.py",
+      "line": 163,
+      "import": "app.execution.errors",
+      "scope": "ConversationPreparation.execution",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/publication.py",
+      "line": 10,
+      "import": "app.execution.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/publication.py",
+      "line": 11,
+      "import": "app.execution.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/publication.py",
+      "line": 12,
+      "import": "app.execution.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/publication.py",
+      "line": 13,
+      "import": "app.execution.queries",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/publication.py",
+      "line": 14,
+      "import": "app.execution.store",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "infrastructure",
+      "file": "backend/app/conversations/publication.py",
+      "line": 15,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "infrastructure",
+      "file": "backend/app/conversations/publication.py",
+      "line": 16,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "ci_diagnosis",
+      "file": "backend/app/conversations/publication.py",
+      "line": 56,
+      "import": "app.ci_diagnosis.service",
+      "scope": "PublishRun.finish",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "files",
+      "file": "backend/app/conversations/publication.py",
+      "line": 61,
+      "import": "app.files.models",
+      "scope": "PublishRun.finish",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "agent_runtime",
+      "file": "backend/app/conversations/queries.py",
+      "line": 9,
+      "import": "app.agent_runtime.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "agents",
+      "file": "backend/app/conversations/queries.py",
+      "line": 10,
+      "import": "app.agents.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "auth",
+      "file": "backend/app/conversations/queries.py",
+      "line": 11,
+      "import": "app.auth.actor",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "auth",
+      "file": "backend/app/conversations/queries.py",
+      "line": 12,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "ci_diagnosis",
+      "file": "backend/app/conversations/queries.py",
+      "line": 13,
+      "import": "app.ci_diagnosis.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "@root",
+      "file": "backend/app/conversations/queries.py",
+      "line": 31,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/queries.py",
+      "line": 32,
+      "import": "app.execution.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/queries.py",
+      "line": 33,
+      "import": "app.execution.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "files",
+      "file": "backend/app/conversations/queries.py",
+      "line": 34,
+      "import": "app.files.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "files",
+      "file": "backend/app/conversations/queries.py",
+      "line": 35,
+      "import": "app.files.service",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "infrastructure",
+      "file": "backend/app/conversations/queries.py",
+      "line": 36,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "llm",
+      "file": "backend/app/conversations/queries.py",
+      "line": 37,
+      "import": "app.llm.usage",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "@root",
+      "file": "backend/app/conversations/queries.py",
+      "line": 38,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "ci_diagnosis",
+      "file": "backend/app/conversations/queries.py",
+      "line": 532,
+      "import": "app.ci_diagnosis.service",
+      "scope": "ConversationQueries.diagnosis",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "ci_diagnosis",
+      "file": "backend/app/conversations/schemas.py",
+      "line": 7,
+      "import": "app.ci_diagnosis.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "llm",
+      "file": "backend/app/conversations/schemas.py",
+      "line": 8,
+      "import": "app.llm.usage",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "@root",
+      "file": "backend/app/conversations/schemas.py",
+      "line": 9,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "@root",
+      "file": "backend/app/conversations/writes.py",
+      "line": 8,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "execution",
+      "file": "backend/app/conversations/writes.py",
+      "line": 9,
+      "import": "app.execution.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "conversations",
+      "target": "infrastructure",
+      "file": "backend/app/conversations/writes.py",
+      "line": 10,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "agent_runtime",
+      "file": "backend/app/execution/admission.py",
+      "line": 10,
+      "import": "app.agent_runtime.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "auth",
+      "file": "backend/app/execution/admission.py",
+      "line": 11,
+      "import": "app.auth.actor",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "auth",
+      "file": "backend/app/execution/admission.py",
+      "line": 12,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "@root",
+      "file": "backend/app/execution/admission.py",
+      "line": 13,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "agent_runtime",
+      "file": "backend/app/execution/contracts.py",
+      "line": 7,
+      "import": "app.agent_runtime.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "agent_runtime",
+      "file": "backend/app/execution/control.py",
+      "line": 6,
+      "import": "app.agent_runtime.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "tools",
+      "file": "backend/app/execution/control.py",
+      "line": 8,
+      "import": "app.tools.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "infrastructure",
+      "file": "backend/app/execution/coordinator.py",
+      "line": 22,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "agent_runtime",
+      "file": "backend/app/execution/errors.py",
+      "line": 3,
+      "import": "app.agent_runtime.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "infrastructure",
+      "file": "backend/app/execution/models.py",
+      "line": 19,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "infrastructure",
+      "file": "backend/app/execution/models.py",
+      "line": 20,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "auth",
+      "file": "backend/app/execution/queries.py",
+      "line": 5,
+      "import": "app.auth.actor",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "auth",
+      "file": "backend/app/execution/queries.py",
+      "line": 6,
+      "import": "app.auth.permissions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "@root",
+      "file": "backend/app/execution/queries.py",
+      "line": 7,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "infrastructure",
+      "file": "backend/app/execution/scheduler.py",
+      "line": 12,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "agent_runtime",
+      "file": "backend/app/execution/store.py",
+      "line": 5,
+      "import": "app.agent_runtime.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "@root",
+      "file": "backend/app/execution/store.py",
+      "line": 6,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "infrastructure",
+      "file": "backend/app/execution/store.py",
+      "line": 11,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "infrastructure",
+      "file": "backend/app/execution/store.py",
+      "line": 12,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "execution",
+      "target": "tools",
+      "file": "backend/app/execution/store.py",
+      "line": 13,
+      "import": "app.tools.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "files",
+      "target": "infrastructure",
+      "file": "backend/app/files/models.py",
+      "line": 6,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "files",
+      "target": "infrastructure",
+      "file": "backend/app/files/models.py",
+      "line": 7,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "files",
+      "target": "@root",
+      "file": "backend/app/files/service.py",
+      "line": 15,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "files",
+      "target": "infrastructure",
+      "file": "backend/app/files/service.py",
+      "line": 17,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "files",
+      "target": "infrastructure",
+      "file": "backend/app/files/service.py",
+      "line": 18,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "infrastructure",
+      "target": "agents",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 3,
+      "import": "app.agents.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "infrastructure",
+      "target": "auth",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 4,
+      "import": "app.auth.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "infrastructure",
+      "target": "ci_diagnosis",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 5,
+      "import": "app.ci_diagnosis.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "infrastructure",
+      "target": "conversations",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 6,
+      "import": "app.conversations.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "infrastructure",
+      "target": "execution",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 7,
+      "import": "app.execution.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "infrastructure",
+      "target": "files",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 8,
+      "import": "app.files.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "infrastructure",
+      "target": "model_connections",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 10,
+      "import": "app.model_connections.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "infrastructure",
+      "target": "organization_rules",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 11,
+      "import": "app.organization_rules.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "infrastructure",
+      "target": "sandboxes",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 12,
+      "import": "app.sandboxes.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "infrastructure",
+      "target": "skills",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 13,
+      "import": "app.skills.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "infrastructure",
+      "target": "tools",
+      "file": "backend/app/infrastructure/database/models.py",
+      "line": 14,
+      "import": "app.tools.models",
+      "scope": "module",
+      "category": "metadata_registry"
+    },
+    {
+      "source": "model_connections",
+      "target": "@root",
+      "file": "backend/app/model_connections/credentials.py",
+      "line": 9,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "infrastructure",
+      "file": "backend/app/model_connections/models.py",
+      "line": 6,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "infrastructure",
+      "file": "backend/app/model_connections/models.py",
+      "line": 7,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "@root",
+      "file": "backend/app/model_connections/schemas.py",
+      "line": 17,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "agents",
+      "file": "backend/app/model_connections/service.py",
+      "line": 9,
+      "import": "app.agents.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "@root",
+      "file": "backend/app/model_connections/service.py",
+      "line": 10,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "execution",
+      "file": "backend/app/model_connections/service.py",
+      "line": 11,
+      "import": "app.execution.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "infrastructure",
+      "file": "backend/app/model_connections/service.py",
+      "line": 12,
+      "import": "app.infrastructure.database.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "infrastructure",
+      "file": "backend/app/model_connections/service.py",
+      "line": 13,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "infrastructure",
+      "file": "backend/app/model_connections/service.py",
+      "line": 14,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "llm",
+      "file": "backend/app/model_connections/service.py",
+      "line": 15,
+      "import": "app.llm.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "model_connections",
+      "target": "@root",
+      "file": "backend/app/model_connections/service.py",
+      "line": 26,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "organization_rules",
+      "target": "infrastructure",
+      "file": "backend/app/organization_rules/models.py",
+      "line": 8,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "organization_rules",
+      "target": "infrastructure",
+      "file": "backend/app/organization_rules/models.py",
+      "line": 9,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "organization_rules",
+      "target": "@root",
+      "file": "backend/app/organization_rules/schemas.py",
+      "line": 8,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "organization_rules",
+      "target": "@root",
+      "file": "backend/app/organization_rules/service.py",
+      "line": 6,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "organization_rules",
+      "target": "infrastructure",
+      "file": "backend/app/organization_rules/service.py",
+      "line": 7,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "organization_rules",
+      "target": "infrastructure",
+      "file": "backend/app/organization_rules/service.py",
+      "line": 8,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "sandboxes",
+      "target": "@root",
+      "file": "backend/app/sandboxes/cli.py",
+      "line": 6,
+      "import": "app.config",
+      "scope": "module",
+      "category": "cli_composition"
+    },
+    {
+      "source": "sandboxes",
+      "target": "infrastructure",
+      "file": "backend/app/sandboxes/cli.py",
+      "line": 7,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "cli_composition"
+    },
+    {
+      "source": "sandboxes",
+      "target": "infrastructure",
+      "file": "backend/app/sandboxes/models.py",
+      "line": 8,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "sandboxes",
+      "target": "infrastructure",
+      "file": "backend/app/sandboxes/models.py",
+      "line": 9,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "sandboxes",
+      "target": "@root",
+      "file": "backend/app/sandboxes/provider.py",
+      "line": 15,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "sandboxes",
+      "target": "@root",
+      "file": "backend/app/sandboxes/service.py",
+      "line": 10,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "sandboxes",
+      "target": "infrastructure",
+      "file": "backend/app/sandboxes/service.py",
+      "line": 11,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "sandboxes",
+      "target": "infrastructure",
+      "file": "backend/app/sandboxes/service.py",
+      "line": 12,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "sandboxes",
+      "target": "tools",
+      "file": "backend/app/sandboxes/service.py",
+      "line": 15,
+      "import": "app.tools.contracts",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "sandboxes",
+      "target": "@root",
+      "file": "backend/app/sandboxes/verify.py",
+      "line": 15,
+      "import": "app.config",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "@root",
+      "target": "infrastructure",
+      "file": "backend/app/schemas.py",
+      "line": 7,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "@root",
+      "file": "backend/app/skills/library.py",
+      "line": 21,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "infrastructure",
+      "file": "backend/app/skills/models.py",
+      "line": 6,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "infrastructure",
+      "file": "backend/app/skills/models.py",
+      "line": 7,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "@root",
+      "file": "backend/app/skills/packages.py",
+      "line": 25,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "@root",
+      "file": "backend/app/skills/parameters.py",
+      "line": 7,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "@root",
+      "file": "backend/app/skills/schemas.py",
+      "line": 8,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "agents",
+      "file": "backend/app/skills/service.py",
+      "line": 16,
+      "import": "app.agents.models",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "@root",
+      "file": "backend/app/skills/service.py",
+      "line": 17,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "infrastructure",
+      "file": "backend/app/skills/service.py",
+      "line": 18,
+      "import": "app.infrastructure.database.session",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "infrastructure",
+      "file": "backend/app/skills/service.py",
+      "line": 19,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "skills",
+      "target": "@root",
+      "file": "backend/app/skills/service.py",
+      "line": 20,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "@root",
+      "file": "backend/app/tools/access.py",
+      "line": 3,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "@root",
+      "file": "backend/app/tools/adapters/mcp.py",
+      "line": 11,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "@root",
+      "file": "backend/app/tools/adapters/stdio.py",
+      "line": 18,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "@root",
+      "file": "backend/app/tools/catalogs.py",
+      "line": 3,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "infrastructure",
+      "file": "backend/app/tools/catalogs.py",
+      "line": 4,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "@root",
+      "file": "backend/app/tools/definitions.py",
+      "line": 10,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "infrastructure",
+      "file": "backend/app/tools/definitions.py",
+      "line": 11,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "infrastructure",
+      "file": "backend/app/tools/models.py",
+      "line": 6,
+      "import": "app.infrastructure.database.base",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "infrastructure",
+      "file": "backend/app/tools/models.py",
+      "line": 7,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "@root",
+      "file": "backend/app/tools/network.py",
+      "line": 10,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "@root",
+      "file": "backend/app/tools/policy.py",
+      "line": 9,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "@root",
+      "file": "backend/app/tools/schemas.py",
+      "line": 8,
+      "import": "app.schemas",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "@root",
+      "file": "backend/app/tools/service.py",
+      "line": 11,
+      "import": "app.errors",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "infrastructure",
+      "file": "backend/app/tools/service.py",
+      "line": 12,
+      "import": "app.infrastructure.database.fields",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "infrastructure",
+      "file": "backend/app/tools/service.py",
+      "line": 13,
+      "import": "app.infrastructure.database.transactions",
+      "scope": "module",
+      "category": "application_import"
+    },
+    {
+      "source": "tools",
+      "target": "infrastructure",
+      "file": "backend/app/tools/service.py",
+      "line": 213,
+      "import": "app.infrastructure.database.errors",
+      "scope": "ToolService.create",
+      "category": "application_import"
+    }
+  ]
+}

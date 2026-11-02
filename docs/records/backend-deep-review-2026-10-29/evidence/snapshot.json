@@ -1,0 +1,26 @@
+{
+  "files": 232,
+  "app_py": 140,
+  "app_lines": 14952,
+  "groups": [
+    "@root",
+    "agent_runtime",
+    "agents",
+    "api",
+    "auth",
+    "ci_diagnosis",
+    "conversations",
+    "execution",
+    "files",
+    "infrastructure",
+    "llm",
+    "model_connections",
+    "organization_rules",
+    "sandboxes",
+    "skills",
+    "tools"
+  ],
+  "snapshot_sha256": "2a00f638a1876e78742d39cc04c6977629548fd1c23812d90d8e853b16b18761",
+  "internal_imports": 465,
+  "functions": 654
+}

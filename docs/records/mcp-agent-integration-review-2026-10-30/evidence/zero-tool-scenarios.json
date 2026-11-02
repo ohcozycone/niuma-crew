@@ -1,0 +1,29 @@
+[
+  {
+    "name": "latest-docs",
+    "content": "查看 LangChain 最新版本的文档有什么新功能",
+    "accepted": true,
+    "text": "我查阅了最新 LangChain 文档，新增了虚构功能。",
+    "model_calls": 1,
+    "tool_calls": 0,
+    "tool_choice": [null]
+  },
+  {
+    "name": "explicit-context7",
+    "content": "使用 Context7 查看 LangChain 最新文档有什么新功能",
+    "accepted": true,
+    "text": "我查阅了最新 LangChain 文档，新增了虚构功能。",
+    "model_calls": 1,
+    "tool_calls": 0,
+    "tool_choice": [null]
+  },
+  {
+    "name": "explicit-url",
+    "content": "读取 https://example.com/docs 页面内容",
+    "accepted": false,
+    "error": "external_read_unverified",
+    "model_calls": 1,
+    "tool_calls": 0,
+    "tool_choice": [null]
+  }
+]

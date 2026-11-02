@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 920" role="img" aria-labelledby="title desc">
+<title id="title">共享模型连接与凭据：模块结构与协作</title>
+<desc id="desc">箭头表示配置维护和执行解析两条链。秘密留在连接服务及受管调用参数中，不写入员工或运行快照。</desc>
+<defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern><marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0L9 3.5L0 7" fill="#94a3b8"/></marker></defs>
+<style>text{font-family:"PingFang SC","Noto Sans SC",sans-serif;fill:#e2e8f0}.muted{fill:#94a3b8}.label{fill:#cbd5e1}.title{font-weight:600}.edge{fill:none;stroke:#94a3b8;stroke-width:1.7;marker-end:url(#arrow)}</style>
+<rect width="1280" height="920" fill="#0f172a"/><rect width="1280" height="920" fill="url(#grid)"/>
+<path class="edge" d="M360 265H480"/>
+<path class="edge" d="M800 265H920"/>
+<path class="edge" d="M1080 350V385H200V560"/>
+<path class="edge" d="M360 645H480"/>
+<path class="edge" d="M1080 350V419H640V560"/>
+<path class="edge" d="M800 645H920"/>
+<rect x="40" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="40" y="180" width="320" height="170" rx="10" fill="#22d3ee" fill-opacity="0.08" stroke="#22d3ee" stroke-width="1.6"/>
+<text x="200" y="215" text-anchor="middle" font-size="21" class="title">管理员模型配置</text>
+<text x="200" y="249" text-anchor="middle" font-size="15" class="muted">API / 大脑页面</text>
+<text x="200" y="278" text-anchor="middle" font-size="15" class="">名称、预设、模型标识与 Key</text>
+<rect x="480" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="480" y="180" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="640" y="215" text-anchor="middle" font-size="21" class="title">连接业务服务</text>
+<text x="640" y="249" text-anchor="middle" font-size="15" class="muted">service.py</text>
+<text x="640" y="278" text-anchor="middle" font-size="15" class="">授权、修订、引用与保存</text>
+<rect x="920" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="920" y="180" width="320" height="170" rx="10" fill="#a78bfa" fill-opacity="0.08" stroke="#a78bfa" stroke-width="1.6"/>
+<text x="1080" y="215" text-anchor="middle" font-size="21" class="title">连接记录和密文</text>
+<text x="1080" y="249" text-anchor="middle" font-size="15" class="muted">models.py + CredentialVault</text>
+<text x="1080" y="278" text-anchor="middle" font-size="15" class="">非秘密设置与加密身份</text>
+<rect x="40" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="40" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="200" y="595" text-anchor="middle" font-size="21" class="title">工作接受时固定版本</text>
+<text x="200" y="629" text-anchor="middle" font-size="15" class="muted">conversations</text>
+<text x="200" y="658" text-anchor="middle" font-size="15" class="">连接 ID + 两类修订</text>
+<rect x="480" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="480" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="640" y="595" text-anchor="middle" font-size="21" class="title">执行前解析</text>
+<text x="640" y="629" text-anchor="middle" font-size="15" class="muted">service.resolve / assert_current</text>
+<text x="640" y="658" text-anchor="middle" font-size="15" class="">当前有效性及预期版本检查</text>
+<rect x="920" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="920" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="1080" y="595" text-anchor="middle" font-size="21" class="title">模型客户端</text>
+<text x="1080" y="629" text-anchor="middle" font-size="15" class="muted">llm / LLMConfig</text>
+<text x="1080" y="658" text-anchor="middle" font-size="15" class="">使用明确参数进行请求</text>
+<rect x="399.0" y="233" width="42" height="24" rx="3" fill="#0f172a"/>
+<text x="420.0" y="250" text-anchor="middle" font-size="14" class="label">维护</text>
+<rect x="825.0" y="233" width="70" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="250" text-anchor="middle" font-size="14" class="label">共同保存</text>
+<rect x="605.0" y="356" width="70" height="24" rx="3" fill="#0f172a"/>
+<text x="640.0" y="373" text-anchor="middle" font-size="14" class="label">捕获依据</text>
+<rect x="385.0" y="613" width="70" height="24" rx="3" fill="#0f172a"/>
+<text x="420.0" y="630" text-anchor="middle" font-size="14" class="label">预期版本</text>
+<rect x="818.0" y="390" width="84" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="407" text-anchor="middle" font-size="14" class="label">核对与解密</text>
+<rect x="811.0" y="613" width="98" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="630" text-anchor="middle" font-size="14" class="label">明确连接参数</text>
+<text x="40" y="52" text-anchor="start" font-size="26" class="title">共享模型连接与凭据：内部结构与协作</text>
+<text x="40" y="88" font-size="16" class="muted">节点对应实际实现；箭头标明调用或数据交付，具体事务和授权边界见正文。</text>
+<text x="40" y="875" font-size="15" class="muted">当前实现的模块协作图；目录结构和图中职责不表示已经独立部署为多个服务。</text>
+</svg>

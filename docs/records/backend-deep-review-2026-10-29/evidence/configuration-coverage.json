@@ -1,0 +1,2304 @@
+{
+  "review_started_local_date": "2026-10-29",
+  "review_completed_local_date": "2026-10-30",
+  "reviewer_scope": "configuration_review",
+  "scope_modules": ["auth", "agents", "skills", "model_connections", "organization_rules"],
+  "scope_note": "逐文件全文读取并核对职责/依赖/错误与事务边界；不宣称完整覆盖 scope 外模块。",
+  "source_file_count": 33,
+  "source_line_count": 3794,
+  "source_files": [
+    {
+      "path": "backend/app/agents/__init__.py",
+      "sha256": "cefbad080c27da534724d81ddb8cb5a32f28e759fa64cca40d95dda73c575ac5",
+      "line_count": 1,
+      "read_ranges": [[1, 1]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "员工配置与装配包说明。",
+      "definitions": []
+    },
+    {
+      "path": "backend/app/agents/access.py",
+      "sha256": "d0558b243f8941bf75d4593dce535f9968aeea3b18cf4ef0a7c9b04d3d3ca017",
+      "line_count": 10,
+      "read_ranges": [[1, 10]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "共享员工创建者编辑规则与历史员工管理员例外。",
+      "definitions": [
+        {
+          "name": "edit_agent",
+          "kind": "FunctionDef",
+          "start_line": 6,
+          "end_line": 10
+        }
+      ]
+    },
+    {
+      "path": "backend/app/agents/models.py",
+      "sha256": "02113c2e0d830eccfec03084f6b9b70f6287c67759ce160ff095e8304ee6df2b",
+      "line_count": 142,
+      "read_ranges": [[1, 142]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "员工、技能装配、工具许可、个人连接绑定持久化。",
+      "definitions": [
+        {
+          "name": "Agent",
+          "kind": "ClassDef",
+          "start_line": 23,
+          "end_line": 74
+        },
+        {
+          "name": "validate_required_text",
+          "kind": "FunctionDef",
+          "start_line": 69,
+          "end_line": 70
+        },
+        {
+          "name": "validate_optional_text",
+          "kind": "FunctionDef",
+          "start_line": 73,
+          "end_line": 74
+        },
+        {
+          "name": "AgentSkill",
+          "kind": "ClassDef",
+          "start_line": 77,
+          "end_line": 107
+        },
+        {
+          "name": "AgentToolGrant",
+          "kind": "ClassDef",
+          "start_line": 110,
+          "end_line": 129
+        },
+        {
+          "name": "PersonalToolBinding",
+          "kind": "ClassDef",
+          "start_line": 132,
+          "end_line": 142
+        }
+      ]
+    },
+    {
+      "path": "backend/app/agents/personal_tools.py",
+      "sha256": "927b6b640d6b6264d26c8be9a7d62c1aadc20e34546649042118502cb8a23949",
+      "line_count": 91,
+      "read_ranges": [[1, 91]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "列出与维护本人 MCP 账号绑定、兼容性和修订检查。",
+      "definitions": [
+        {
+          "name": "PersonalToolService",
+          "kind": "ClassDef",
+          "start_line": 15,
+          "end_line": 91
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 16,
+          "end_line": 17
+        },
+        {
+          "name": "get",
+          "kind": "FunctionDef",
+          "start_line": 19,
+          "end_line": 45
+        },
+        {
+          "name": "bind",
+          "kind": "FunctionDef",
+          "start_line": 47,
+          "end_line": 91
+        }
+      ]
+    },
+    {
+      "path": "backend/app/agents/schemas.py",
+      "sha256": "aecf2531d2a669f07dccea523cd457f9e862178c8074516fe8489c0c8271ba16",
+      "line_count": 156,
+      "read_ranges": [[1, 156]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "创建/PATCH/详情/摘要/公开白名单与技能装配DTO。",
+      "definitions": [
+        {
+          "name": "CiAgentInput",
+          "kind": "ClassDef",
+          "start_line": 21,
+          "end_line": 27
+        },
+        {
+          "name": "ci_scope",
+          "kind": "FunctionDef",
+          "start_line": 26,
+          "end_line": 27
+        },
+        {
+          "name": "SkillAssignmentInput",
+          "kind": "ClassDef",
+          "start_line": 30,
+          "end_line": 33
+        },
+        {
+          "name": "SkillAssignmentRead",
+          "kind": "ClassDef",
+          "start_line": 36,
+          "end_line": 41
+        },
+        {
+          "name": "AgentCreate",
+          "kind": "ClassDef",
+          "start_line": 44,
+          "end_line": 58
+        },
+        {
+          "name": "AgentPatch",
+          "kind": "ClassDef",
+          "start_line": 61,
+          "end_line": 76
+        },
+        {
+          "name": "AgentResourceCounts",
+          "kind": "ClassDef",
+          "start_line": 79,
+          "end_line": 84
+        },
+        {
+          "name": "AgentRead",
+          "kind": "ClassDef",
+          "start_line": 87,
+          "end_line": 100
+        },
+        {
+          "name": "PublicAgent",
+          "kind": "ClassDef",
+          "start_line": 103,
+          "end_line": 127
+        },
+        {
+          "name": "project",
+          "kind": "FunctionDef",
+          "start_line": 121,
+          "end_line": 127
+        },
+        {
+          "name": "AgentSkillSummary",
+          "kind": "ClassDef",
+          "start_line": 130,
+          "end_line": 133
+        },
+        {
+          "name": "AgentSummary",
+          "kind": "ClassDef",
+          "start_line": 136,
+          "end_line": 156
+        }
+      ]
+    },
+    {
+      "path": "backend/app/agents/service.py",
+      "sha256": "0060f6bd0bbed2f15fda09dbe3ef18cf27d0588b59bc6ffa574bb297fa3cc456",
+      "line_count": 456,
+      "read_ranges": [[1, 456]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "员工CRUD、原子技能装配、目录查询、技能冻结及实时许可检查。",
+      "definitions": [
+        {
+          "name": "require_agent",
+          "kind": "FunctionDef",
+          "start_line": 37,
+          "end_line": 41
+        },
+        {
+          "name": "validate_model_binding",
+          "kind": "FunctionDef",
+          "start_line": 44,
+          "end_line": 51
+        },
+        {
+          "name": "agent_conflict",
+          "kind": "FunctionDef",
+          "start_line": 54,
+          "end_line": 59
+        },
+        {
+          "name": "validate_agent_name",
+          "kind": "FunctionDef",
+          "start_line": 62,
+          "end_line": 67
+        },
+        {
+          "name": "assignments",
+          "kind": "FunctionDef",
+          "start_line": 70,
+          "end_line": 75
+        },
+        {
+          "name": "agent_response",
+          "kind": "FunctionDef",
+          "start_line": 78,
+          "end_line": 121
+        },
+        {
+          "name": "replace_assignments",
+          "kind": "FunctionDef",
+          "start_line": 124,
+          "end_line": 150
+        },
+        {
+          "name": "AgentService",
+          "kind": "ClassDef",
+          "start_line": 153,
+          "end_line": 367
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 154,
+          "end_line": 155
+        },
+        {
+          "name": "create",
+          "kind": "FunctionDef",
+          "start_line": 157,
+          "end_line": 181
+        },
+        {
+          "name": "get",
+          "kind": "FunctionDef",
+          "start_line": 183,
+          "end_line": 186
+        },
+        {
+          "name": "list",
+          "kind": "FunctionDef",
+          "start_line": 188,
+          "end_line": 309
+        },
+        {
+          "name": "update",
+          "kind": "FunctionDef",
+          "start_line": 311,
+          "end_line": 358
+        },
+        {
+          "name": "delete",
+          "kind": "FunctionDef",
+          "start_line": 360,
+          "end_line": 367
+        },
+        {
+          "name": "capture_skills",
+          "kind": "FunctionDef",
+          "start_line": 370,
+          "end_line": 420
+        },
+        {
+          "name": "authorize_execution",
+          "kind": "FunctionDef",
+          "start_line": 423,
+          "end_line": 445
+        },
+        {
+          "name": "configured_agent",
+          "kind": "FunctionDef",
+          "start_line": 448,
+          "end_line": 456
+        }
+      ]
+    },
+    {
+      "path": "backend/app/agents/tool_grants.py",
+      "sha256": "55fbb9ddae778990fd54285c7adb5bac66aec366fb90f4726014c89e151843cb",
+      "line_count": 347,
+      "read_ranges": [[1, 347]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "工具许可输入、替换、账号选择、运行冻结、动作授权和结果读取授权。",
+      "definitions": [
+        {
+          "name": "GrantInput",
+          "kind": "ClassDef",
+          "start_line": 19,
+          "end_line": 30
+        },
+        {
+          "name": "valid_connection",
+          "kind": "FunctionDef",
+          "start_line": 29,
+          "end_line": 30
+        },
+        {
+          "name": "GrantsInput",
+          "kind": "ClassDef",
+          "start_line": 33,
+          "end_line": 35
+        },
+        {
+          "name": "grant_read",
+          "kind": "FunctionDef",
+          "start_line": 38,
+          "end_line": 47
+        },
+        {
+          "name": "grants_for",
+          "kind": "FunctionDef",
+          "start_line": 50,
+          "end_line": 57
+        },
+        {
+          "name": "grant_count",
+          "kind": "FunctionDef",
+          "start_line": 60,
+          "end_line": 61
+        },
+        {
+          "name": "ToolGrantService",
+          "kind": "ClassDef",
+          "start_line": 64,
+          "end_line": 111
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 65,
+          "end_line": 66
+        },
+        {
+          "name": "assert_connections_unused",
+          "kind": "FunctionDef",
+          "start_line": 69,
+          "end_line": 85
+        },
+        {
+          "name": "get",
+          "kind": "FunctionDef",
+          "start_line": 87,
+          "end_line": 95
+        },
+        {
+          "name": "replace",
+          "kind": "FunctionDef",
+          "start_line": 97,
+          "end_line": 111
+        },
+        {
+          "name": "apply_grants",
+          "kind": "FunctionDef",
+          "start_line": 114,
+          "end_line": 184
+        },
+        {
+          "name": "capture_tools",
+          "kind": "FunctionDef",
+          "start_line": 187,
+          "end_line": 246
+        },
+        {
+          "name": "authorize_tool",
+          "kind": "FunctionDef",
+          "start_line": 249,
+          "end_line": 282
+        },
+        {
+          "name": "assert_binding",
+          "kind": "FunctionDef",
+          "start_line": 285,
+          "end_line": 311
+        },
+        {
+          "name": "resolve_account",
+          "kind": "FunctionDef",
+          "start_line": 314,
+          "end_line": 347
+        }
+      ]
+    },
+    {
+      "path": "backend/app/auth/__init__.py",
+      "sha256": "d83352b37ac63590c7b4a77241febe24e593d6901c6856ac976b97b4c6ef9b57",
+      "line_count": 1,
+      "read_ranges": [[1, 1]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "身份权限包说明，无聚合导出。",
+      "definitions": []
+    },
+    {
+      "path": "backend/app/auth/actor.py",
+      "sha256": "baad6ea61a8e8fe3268e55673288d1ce76f104b2a6038fff0a20d946bad3bbf5",
+      "line_count": 14,
+      "read_ranges": [[1, 14]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "与 HTTP、ORM Session 无关的不可变操作主体。",
+      "definitions": [
+        {
+          "name": "Actor",
+          "kind": "ClassDef",
+          "start_line": 8,
+          "end_line": 14
+        }
+      ]
+    },
+    {
+      "path": "backend/app/auth/cli.py",
+      "sha256": "51806e54837d1ec926f24a7906437cd12e1ef6a730eb49068ac8199466190eb5",
+      "line_count": 55,
+      "read_ranges": [[1, 55]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "本机管理员初始化、密码重置、启停和会话清理；密码交互读取。",
+      "definitions": [
+        {
+          "name": "read_password",
+          "kind": "FunctionDef",
+          "start_line": 13,
+          "end_line": 17
+        },
+        {
+          "name": "main",
+          "kind": "FunctionDef",
+          "start_line": 20,
+          "end_line": 51
+        }
+      ]
+    },
+    {
+      "path": "backend/app/auth/config.py",
+      "sha256": "bf6756b855c850cdba90f9af2e2291ff67412d3ef5a388217526c0b3cf0076d0",
+      "line_count": 109,
+      "read_ranges": [[1, 109]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "来源归一、Cookie安全、会话期限、OAuth完整配置校验。",
+      "definitions": [
+        {
+          "name": "normalize_origin",
+          "kind": "FunctionDef",
+          "start_line": 7,
+          "end_line": 23
+        },
+        {
+          "name": "AuthConfig",
+          "kind": "ClassDef",
+          "start_line": 27,
+          "end_line": 51
+        },
+        {
+          "name": "__post_init__",
+          "kind": "FunctionDef",
+          "start_line": 37,
+          "end_line": 51
+        },
+        {
+          "name": "load_auth_config",
+          "kind": "FunctionDef",
+          "start_line": 54,
+          "end_line": 68
+        },
+        {
+          "name": "GitHubOAuthConfig",
+          "kind": "ClassDef",
+          "start_line": 72,
+          "end_line": 99
+        },
+        {
+          "name": "enabled",
+          "kind": "FunctionDef",
+          "start_line": 80,
+          "end_line": 81
+        },
+        {
+          "name": "validate",
+          "kind": "FunctionDef",
+          "start_line": 83,
+          "end_line": 99
+        },
+        {
+          "name": "load_github_oauth_config",
+          "kind": "FunctionDef",
+          "start_line": 102,
+          "end_line": 109
+        }
+      ]
+    },
+    {
+      "path": "backend/app/auth/github.py",
+      "sha256": "b56f1c9e8be1f8064200698a9cd252eb549f75e4866951b47677349620f9f30f",
+      "line_count": 168,
+      "read_ranges": [[1, 168]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "OAuth state/PKCE暂存、跳转白名单、有限上游身份请求。",
+      "definitions": [
+        {
+          "name": "safe_return_path",
+          "kind": "FunctionDef",
+          "start_line": 29,
+          "end_line": 42
+        },
+        {
+          "name": "GitHubOAuth",
+          "kind": "ClassDef",
+          "start_line": 45,
+          "end_line": 168
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 46,
+          "end_line": 54
+        },
+        {
+          "name": "start",
+          "kind": "FunctionDef",
+          "start_line": 56,
+          "end_line": 82
+        },
+        {
+          "name": "context",
+          "kind": "FunctionDef",
+          "start_line": 84,
+          "end_line": 106
+        },
+        {
+          "name": "_json",
+          "kind": "FunctionDef",
+          "start_line": 109,
+          "end_line": 121
+        },
+        {
+          "name": "identity",
+          "kind": "FunctionDef",
+          "start_line": 123,
+          "end_line": 168
+        }
+      ]
+    },
+    {
+      "path": "backend/app/auth/models.py",
+      "sha256": "a05de5cca9ef4a463004c47e7e168bd1b9973733476a4e7d7df89b4af9cd9391",
+      "line_count": 77,
+      "read_ranges": [[1, 77]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "账号、外部身份和随机token摘要会话的数据约束。",
+      "definitions": [
+        {
+          "name": "User",
+          "kind": "ClassDef",
+          "start_line": 18,
+          "end_line": 37
+        },
+        {
+          "name": "ExternalIdentity",
+          "kind": "ClassDef",
+          "start_line": 40,
+          "end_line": 52
+        },
+        {
+          "name": "AuthSession",
+          "kind": "ClassDef",
+          "start_line": 55,
+          "end_line": 77
+        }
+      ]
+    },
+    {
+      "path": "backend/app/auth/permissions.py",
+      "sha256": "07cf22866670576f98a6e6783a32ee0c354dcf8d01e1063faff602cab7ecf4be",
+      "line_count": 61,
+      "read_ranges": [[1, 61]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "固定角色能力、资源范围的纯策略。",
+      "definitions": [
+        {
+          "name": "permissions_for",
+          "kind": "FunctionDef",
+          "start_line": 50,
+          "end_line": 51
+        },
+        {
+          "name": "require_permission",
+          "kind": "FunctionDef",
+          "start_line": 54,
+          "end_line": 56
+        },
+        {
+          "name": "require_resource_access",
+          "kind": "FunctionDef",
+          "start_line": 59,
+          "end_line": 61
+        }
+      ]
+    },
+    {
+      "path": "backend/app/auth/service.py",
+      "sha256": "de557deb0b935e4286cb4c58f2b8e4a33d430ff33def54197e67b37181036acf",
+      "line_count": 283,
+      "read_ranges": [[1, 283]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "密码验证、会话签发解析撤销、账号维护和活动更新。",
+      "definitions": [
+        {
+          "name": "token_digest",
+          "kind": "FunctionDef",
+          "start_line": 23,
+          "end_line": 24
+        },
+        {
+          "name": "normalize_username",
+          "kind": "FunctionDef",
+          "start_line": 27,
+          "end_line": 31
+        },
+        {
+          "name": "hash_password",
+          "kind": "FunctionDef",
+          "start_line": 34,
+          "end_line": 37
+        },
+        {
+          "name": "authentication_required",
+          "kind": "FunctionDef",
+          "start_line": 40,
+          "end_line": 41
+        },
+        {
+          "name": "AuthService",
+          "kind": "ClassDef",
+          "start_line": 44,
+          "end_line": 283
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 45,
+          "end_line": 48
+        },
+        {
+          "name": "initialize_admin",
+          "kind": "FunctionDef",
+          "start_line": 50,
+          "end_line": 61
+        },
+        {
+          "name": "maintain_user",
+          "kind": "FunctionDef",
+          "start_line": 63,
+          "end_line": 86
+        },
+        {
+          "name": "login",
+          "kind": "FunctionDef",
+          "start_line": 88,
+          "end_line": 128
+        },
+        {
+          "name": "github_login",
+          "kind": "FunctionDef",
+          "start_line": 130,
+          "end_line": 177
+        },
+        {
+          "name": "guest",
+          "kind": "FunctionDef",
+          "start_line": 179,
+          "end_line": 197
+        },
+        {
+          "name": "_actor",
+          "kind": "FunctionDef",
+          "start_line": 200,
+          "end_line": 208
+        },
+        {
+          "name": "resolve",
+          "kind": "FunctionDef",
+          "start_line": 210,
+          "end_line": 234
+        },
+        {
+          "name": "validate_session",
+          "kind": "FunctionDef",
+          "start_line": 236,
+          "end_line": 240
+        },
+        {
+          "name": "_validated_actor",
+          "kind": "FunctionDef",
+          "start_line": 242,
+          "end_line": 252
+        },
+        {
+          "name": "resolve_session",
+          "kind": "FunctionDef",
+          "start_line": 254,
+          "end_line": 256
+        },
+        {
+          "name": "logout",
+          "kind": "FunctionDef",
+          "start_line": 258,
+          "end_line": 265
+        },
+        {
+          "name": "cleanup",
+          "kind": "FunctionDef",
+          "start_line": 267,
+          "end_line": 283
+        }
+      ]
+    },
+    {
+      "path": "backend/app/model_connections/__init__.py",
+      "sha256": "769f3f77bf8c71f7ea348fd3d454655d329d982b7a6644ac90610e20b26dc4e3",
+      "line_count": 1,
+      "read_ranges": [[1, 1]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "共享模型连接包说明。",
+      "definitions": []
+    },
+    {
+      "path": "backend/app/model_connections/credentials.py",
+      "sha256": "e60ad75f1e141cfd617c5eb865e4eab682bbaf435673609c2a581b532414070b",
+      "line_count": 51,
+      "read_ranges": [[1, 51]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "稳定Fernet主密钥初始化、加密解密及安全故障。",
+      "definitions": [
+        {
+          "name": "unavailable",
+          "kind": "FunctionDef",
+          "start_line": 12,
+          "end_line": 15
+        },
+        {
+          "name": "CredentialVault",
+          "kind": "ClassDef",
+          "start_line": 18,
+          "end_line": 51
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 19,
+          "end_line": 20
+        },
+        {
+          "name": "_cipher",
+          "kind": "FunctionDef",
+          "start_line": 22,
+          "end_line": 42
+        },
+        {
+          "name": "encrypt",
+          "kind": "FunctionDef",
+          "start_line": 44,
+          "end_line": 45
+        },
+        {
+          "name": "decrypt",
+          "kind": "FunctionDef",
+          "start_line": 47,
+          "end_line": 51
+        }
+      ]
+    },
+    {
+      "path": "backend/app/model_connections/models.py",
+      "sha256": "b368c084ba61cb01bbf3b3d2ca332433f54f56e7435d683743975fc1a886388d",
+      "line_count": 38,
+      "read_ranges": [[1, 38]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "共享模型配置、加密凭证和配置/凭证修订。",
+      "definitions": [
+        {
+          "name": "ModelConnection",
+          "kind": "ClassDef",
+          "start_line": 10,
+          "end_line": 38
+        }
+      ]
+    },
+    {
+      "path": "backend/app/model_connections/presets.py",
+      "sha256": "cd77ef763549fab578d3fc0d80676e3ebdbf5b8e8534948109ce68b271ea1b2f",
+      "line_count": 27,
+      "read_ranges": [[1, 27]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "服务端固定供应商端点、协议与默认模型元数据。",
+      "definitions": [
+        {
+          "name": "ModelPreset",
+          "kind": "ClassDef",
+          "start_line": 6,
+          "end_line": 14
+        }
+      ]
+    },
+    {
+      "path": "backend/app/model_connections/schemas.py",
+      "sha256": "e964c12fee0b97277299dd7ad6d9fa4d8477392226558a9b92a8b2a9fbf081b2",
+      "line_count": 94,
+      "read_ranges": [[1, 94]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "只写秘密、固定预设、严格修订PATCH与安全响应白名单。",
+      "definitions": [
+        {
+          "name": "KeyValidation",
+          "kind": "ClassDef",
+          "start_line": 35,
+          "end_line": 45
+        },
+        {
+          "name": "clean_key",
+          "kind": "FunctionDef",
+          "start_line": 38,
+          "end_line": 45
+        },
+        {
+          "name": "ConnectionCreate",
+          "kind": "ClassDef",
+          "start_line": 48,
+          "end_line": 53
+        },
+        {
+          "name": "ConnectionPatch",
+          "kind": "ClassDef",
+          "start_line": 56,
+          "end_line": 62
+        },
+        {
+          "name": "AgentReference",
+          "kind": "ClassDef",
+          "start_line": 65,
+          "end_line": 67
+        },
+        {
+          "name": "ConnectionRead",
+          "kind": "ClassDef",
+          "start_line": 70,
+          "end_line": 85
+        },
+        {
+          "name": "ConnectionTestResult",
+          "kind": "ClassDef",
+          "start_line": 88,
+          "end_line": 90
+        },
+        {
+          "name": "ConnectionTestRequest",
+          "kind": "ClassDef",
+          "start_line": 93,
+          "end_line": 94
+        }
+      ]
+    },
+    {
+      "path": "backend/app/model_connections/service.py",
+      "sha256": "e3e72e2a7681be85f9a3e903acb84ba75963dab01966884abcbd7cc56e835dd7",
+      "line_count": 265,
+      "read_ranges": [[1, 265]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "共享连接CRUD、员工/活跃Run删除保护、运行配置解析和有限目录检查。",
+      "definitions": [
+        {
+          "name": "require_connection",
+          "kind": "FunctionDef",
+          "start_line": 29,
+          "end_line": 33
+        },
+        {
+          "name": "connection_response",
+          "kind": "FunctionDef",
+          "start_line": 36,
+          "end_line": 59
+        },
+        {
+          "name": "ModelConnectionService",
+          "kind": "ClassDef",
+          "start_line": 62,
+          "end_line": 265
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 63,
+          "end_line": 64
+        },
+        {
+          "name": "_encrypt",
+          "kind": "FunctionDef",
+          "start_line": 66,
+          "end_line": 71
+        },
+        {
+          "name": "create",
+          "kind": "FunctionDef",
+          "start_line": 73,
+          "end_line": 92
+        },
+        {
+          "name": "list",
+          "kind": "FunctionDef",
+          "start_line": 94,
+          "end_line": 108
+        },
+        {
+          "name": "get",
+          "kind": "FunctionDef",
+          "start_line": 110,
+          "end_line": 112
+        },
+        {
+          "name": "update",
+          "kind": "FunctionDef",
+          "start_line": 114,
+          "end_line": 145
+        },
+        {
+          "name": "delete",
+          "kind": "FunctionDef",
+          "start_line": 147,
+          "end_line": 164
+        },
+        {
+          "name": "assert_current",
+          "kind": "FunctionDef",
+          "start_line": 166,
+          "end_line": 175
+        },
+        {
+          "name": "_current",
+          "kind": "FunctionDef",
+          "start_line": 178,
+          "end_line": 193
+        },
+        {
+          "name": "resolve",
+          "kind": "FunctionDef",
+          "start_line": 195,
+          "end_line": 210
+        },
+        {
+          "name": "test",
+          "kind": "FunctionDef",
+          "start_line": 212,
+          "end_line": 265
+        }
+      ]
+    },
+    {
+      "path": "backend/app/organization_rules/__init__.py",
+      "sha256": "b6166745edaad9913902cbee7ae335bcbd0a51f025d37fb57c7f22b2f64f297e",
+      "line_count": 1,
+      "read_ranges": [[1, 1]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "全员规则包说明。",
+      "definitions": []
+    },
+    {
+      "path": "backend/app/organization_rules/models.py",
+      "sha256": "c10c7e8739010ed61acb3d4aeba95e6db816423f189ebf1da9ae6616b41af28f",
+      "line_count": 25,
+      "read_ranges": [[1, 25]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "部署唯一规则行、正文长度和非负修订约束。",
+      "definitions": [
+        {
+          "name": "OrganizationRules",
+          "kind": "ClassDef",
+          "start_line": 12,
+          "end_line": 25
+        }
+      ]
+    },
+    {
+      "path": "backend/app/organization_rules/schemas.py",
+      "sha256": "0e76b23435b645ca5e7f67bd09ff93ddb4423ceff19470f92a512be227a5a26b",
+      "line_count": 26,
+      "read_ranges": [[1, 26]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "整体替换、严格预期修订、纯空白归一、安全管理响应。",
+      "definitions": [
+        {
+          "name": "OrganizationRulesUpdate",
+          "kind": "ClassDef",
+          "start_line": 11,
+          "end_line": 18
+        },
+        {
+          "name": "normalize_empty",
+          "kind": "FunctionDef",
+          "start_line": 17,
+          "end_line": 18
+        },
+        {
+          "name": "OrganizationRulesRead",
+          "kind": "ClassDef",
+          "start_line": 21,
+          "end_line": 26
+        }
+      ]
+    },
+    {
+      "path": "backend/app/organization_rules/service.py",
+      "sha256": "df983ff7f5723a75654d497a9a4bc326ac1047eb69756231f6cd327077f01e7b",
+      "line_count": 47,
+      "read_ranges": [[1, 47]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "读取唯一规则与先条件UPDATE的无变化/竞争处理。",
+      "definitions": [
+        {
+          "name": "current_rules",
+          "kind": "FunctionDef",
+          "start_line": 13,
+          "end_line": 17
+        },
+        {
+          "name": "OrganizationRulesService",
+          "kind": "ClassDef",
+          "start_line": 20,
+          "end_line": 47
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 21,
+          "end_line": 22
+        },
+        {
+          "name": "get",
+          "kind": "FunctionDef",
+          "start_line": 24,
+          "end_line": 26
+        },
+        {
+          "name": "update",
+          "kind": "FunctionDef",
+          "start_line": 28,
+          "end_line": 47
+        }
+      ]
+    },
+    {
+      "path": "backend/app/skills/__init__.py",
+      "sha256": "8c94b927162511c8676a72a5cfac146822f503c86b4b6dd36e6cd7cf4300c287",
+      "line_count": 1,
+      "read_ranges": [[1, 1]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "共享方法包说明。",
+      "definitions": []
+    },
+    {
+      "path": "backend/app/skills/config.py",
+      "sha256": "2d2466e6f9987e08fecfee5e50353ceb2bcd9136c648bda0db810876e890e244",
+      "line_count": 10,
+      "read_ranges": [[1, 10]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "不可变字节目录与可编辑标准技能目录的独立配置。",
+      "definitions": [
+        {
+          "name": "SkillConfig",
+          "kind": "ClassDef",
+          "start_line": 8,
+          "end_line": 10
+        }
+      ]
+    },
+    {
+      "path": "backend/app/skills/library.py",
+      "sha256": "ed81427135a1bb46f3a88ccaeca58eddf8766615b53910c8c622f450b205b787",
+      "line_count": 157,
+      "read_ranges": [[1, 157]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "可编辑目录文件锁、有限读取、fingerprint冲突、整目录替换与异常回滚。",
+      "definitions": [
+        {
+          "name": "fingerprint",
+          "kind": "FunctionDef",
+          "start_line": 31,
+          "end_line": 37
+        },
+        {
+          "name": "SkillLibrary",
+          "kind": "ClassDef",
+          "start_line": 40,
+          "end_line": 157
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 41,
+          "end_line": 42
+        },
+        {
+          "name": "locked",
+          "kind": "FunctionDef",
+          "start_line": 45,
+          "end_line": 52
+        },
+        {
+          "name": "path",
+          "kind": "FunctionDef",
+          "start_line": 54,
+          "end_line": 66
+        },
+        {
+          "name": "read",
+          "kind": "FunctionDef",
+          "start_line": 68,
+          "end_line": 101
+        },
+        {
+          "name": "names",
+          "kind": "FunctionDef",
+          "start_line": 103,
+          "end_line": 114
+        },
+        {
+          "name": "replace",
+          "kind": "FunctionDef",
+          "start_line": 117,
+          "end_line": 157
+        }
+      ]
+    },
+    {
+      "path": "backend/app/skills/models.py",
+      "sha256": "8b2227e693f59d87555d213a54f46049ebc400096a98b2492ea150f08ac10cf3",
+      "line_count": 50,
+      "read_ranges": [[1, 50]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "共享方法、标准主文、包清单和目录关联持久化。",
+      "definitions": [
+        {
+          "name": "Skill",
+          "kind": "ClassDef",
+          "start_line": 10,
+          "end_line": 50
+        },
+        {
+          "name": "validate_name",
+          "kind": "FunctionDef",
+          "start_line": 49,
+          "end_line": 50
+        }
+      ]
+    },
+    {
+      "path": "backend/app/skills/packages.py",
+      "sha256": "c10e61db75369d9da89adf04d2f4a60bae64da3c354bd8007aaf1d74896de5a8",
+      "line_count": 306,
+      "read_ranges": [[1, 306]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "YAML/ZIP/路径/容量校验、旧表单编译、文件摘要、不可变blob持久化。",
+      "definitions": [
+        {
+          "name": "UniqueSafeLoader",
+          "kind": "ClassDef",
+          "start_line": 35,
+          "end_line": 36
+        },
+        {
+          "name": "_unique_mapping",
+          "kind": "FunctionDef",
+          "start_line": 39,
+          "end_line": 48
+        },
+        {
+          "name": "_bounded_metadata",
+          "kind": "FunctionDef",
+          "start_line": 54,
+          "end_line": 68
+        },
+        {
+          "name": "package_error",
+          "kind": "FunctionDef",
+          "start_line": 71,
+          "end_line": 72
+        },
+        {
+          "name": "checked_package_path",
+          "kind": "FunctionDef",
+          "start_line": 75,
+          "end_line": 88
+        },
+        {
+          "name": "parse_skill_md",
+          "kind": "FunctionDef",
+          "start_line": 91,
+          "end_line": 134
+        },
+        {
+          "name": "legacy_skill_md",
+          "kind": "FunctionDef",
+          "start_line": 137,
+          "end_line": 151
+        },
+        {
+          "name": "decode_file",
+          "kind": "FunctionDef",
+          "start_line": 154,
+          "end_line": 165
+        },
+        {
+          "name": "validate_files",
+          "kind": "FunctionDef",
+          "start_line": 168,
+          "end_line": 188
+        },
+        {
+          "name": "archive_files",
+          "kind": "FunctionDef",
+          "start_line": 191,
+          "end_line": 245
+        },
+        {
+          "name": "file_manifest",
+          "kind": "FunctionDef",
+          "start_line": 248,
+          "end_line": 261
+        },
+        {
+          "name": "SkillBlobStore",
+          "kind": "ClassDef",
+          "start_line": 264,
+          "end_line": 306
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 265,
+          "end_line": 266
+        },
+        {
+          "name": "put",
+          "kind": "FunctionDef",
+          "start_line": 268,
+          "end_line": 293
+        },
+        {
+          "name": "read",
+          "kind": "FunctionDef",
+          "start_line": 295,
+          "end_line": 306
+        }
+      ]
+    },
+    {
+      "path": "backend/app/skills/parameters.py",
+      "sha256": "a74b4ee854a6fe273ffd607eb79ec46eb60023c15e2f3a965368b78c2b15052d",
+      "line_count": 62,
+      "read_ranges": [[1, 62]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "本地有限JSON Schema和非秘密装配参数校验，禁远程引用。",
+      "definitions": [
+        {
+          "name": "json_size",
+          "kind": "FunctionDef",
+          "start_line": 10,
+          "end_line": 14
+        },
+        {
+          "name": "validate_schema",
+          "kind": "FunctionDef",
+          "start_line": 17,
+          "end_line": 42
+        },
+        {
+          "name": "visit",
+          "kind": "FunctionDef",
+          "start_line": 25,
+          "end_line": 35
+        },
+        {
+          "name": "validate_parameters",
+          "kind": "FunctionDef",
+          "start_line": 45,
+          "end_line": 62
+        }
+      ]
+    },
+    {
+      "path": "backend/app/skills/schemas.py",
+      "sha256": "b2f2d71749009ba9e997e4fa5d95b794b5ba8480b041f8e98bf210f67459873d",
+      "line_count": 133,
+      "read_ranges": [[1, 133]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "技能创建更新、包文件、导入预览、同步结果、目录摘要与公开投影DTO。",
+      "definitions": [
+        {
+          "name": "SkillFileInput",
+          "kind": "ClassDef",
+          "start_line": 12,
+          "end_line": 15
+        },
+        {
+          "name": "SkillFileRead",
+          "kind": "ClassDef",
+          "start_line": 18,
+          "end_line": 23
+        },
+        {
+          "name": "SkillImport",
+          "kind": "ClassDef",
+          "start_line": 26,
+          "end_line": 29
+        },
+        {
+          "name": "SkillImportPreview",
+          "kind": "ClassDef",
+          "start_line": 32,
+          "end_line": 38
+        },
+        {
+          "name": "SkillFileContent",
+          "kind": "ClassDef",
+          "start_line": 41,
+          "end_line": 46
+        },
+        {
+          "name": "SkillConfiguration",
+          "kind": "ClassDef",
+          "start_line": 49,
+          "end_line": 53
+        },
+        {
+          "name": "schema_valid",
+          "kind": "FunctionDef",
+          "start_line": 52,
+          "end_line": 53
+        },
+        {
+          "name": "SkillCreate",
+          "kind": "ClassDef",
+          "start_line": 56,
+          "end_line": 67
+        },
+        {
+          "name": "SkillPatch",
+          "kind": "ClassDef",
+          "start_line": 70,
+          "end_line": 82
+        },
+        {
+          "name": "SkillRead",
+          "kind": "ClassDef",
+          "start_line": 85,
+          "end_line": 97
+        },
+        {
+          "name": "SkillSyncItem",
+          "kind": "ClassDef",
+          "start_line": 100,
+          "end_line": 104
+        },
+        {
+          "name": "SkillSyncResult",
+          "kind": "ClassDef",
+          "start_line": 107,
+          "end_line": 109
+        },
+        {
+          "name": "PublicSkill",
+          "kind": "ClassDef",
+          "start_line": 112,
+          "end_line": 121
+        },
+        {
+          "name": "SkillSummary",
+          "kind": "ClassDef",
+          "start_line": 124,
+          "end_line": 133
+        }
+      ]
+    },
+    {
+      "path": "backend/app/skills/service.py",
+      "sha256": "45b07700175d37a935d54893b7c2b0741334f06aa74119c2b08fff58ed6dcad3",
+      "line_count": 529,
+      "read_ranges": [[1, 529]],
+      "review_status": "full_source_read_and_semantic_review",
+      "responsibility": "技能CRUD、标准包导入导出、目录同步、跨存储发布与修订。",
+      "definitions": [
+        {
+          "name": "require_skill",
+          "kind": "FunctionDef",
+          "start_line": 39,
+          "end_line": 43
+        },
+        {
+          "name": "SkillService",
+          "kind": "ClassDef",
+          "start_line": 46,
+          "end_line": 529
+        },
+        {
+          "name": "__init__",
+          "kind": "FunctionDef",
+          "start_line": 47,
+          "end_line": 57
+        },
+        {
+          "name": "read_blob",
+          "kind": "FunctionDef",
+          "start_line": 59,
+          "end_line": 60
+        },
+        {
+          "name": "_response",
+          "kind": "FunctionDef",
+          "start_line": 62,
+          "end_line": 81
+        },
+        {
+          "name": "_package",
+          "kind": "FunctionDef",
+          "start_line": 83,
+          "end_line": 94
+        },
+        {
+          "name": "_files_input",
+          "kind": "FunctionDef",
+          "start_line": 96,
+          "end_line": 103
+        },
+        {
+          "name": "create",
+          "kind": "FunctionDef",
+          "start_line": 105,
+          "end_line": 140
+        },
+        {
+          "name": "_published_files",
+          "kind": "FunctionDef",
+          "start_line": 142,
+          "end_line": 148
+        },
+        {
+          "name": "sync_library",
+          "kind": "FunctionDef",
+          "start_line": 150,
+          "end_line": 252
+        },
+        {
+          "name": "get",
+          "kind": "FunctionDef",
+          "start_line": 254,
+          "end_line": 260
+        },
+        {
+          "name": "read_file",
+          "kind": "FunctionDef",
+          "start_line": 262,
+          "end_line": 282
+        },
+        {
+          "name": "preview_import",
+          "kind": "FunctionDef",
+          "start_line": 284,
+          "end_line": 294
+        },
+        {
+          "name": "import_package",
+          "kind": "FunctionDef",
+          "start_line": 296,
+          "end_line": 308
+        },
+        {
+          "name": "export_package",
+          "kind": "FunctionDef",
+          "start_line": 310,
+          "end_line": 322
+        },
+        {
+          "name": "list",
+          "kind": "FunctionDef",
+          "start_line": 324,
+          "end_line": 387
+        },
+        {
+          "name": "update",
+          "kind": "FunctionDef",
+          "start_line": 389,
+          "end_line": 464
+        },
+        {
+          "name": "_update_record",
+          "kind": "FunctionDef",
+          "start_line": 466,
+          "end_line": 508
+        },
+        {
+          "name": "delete",
+          "kind": "FunctionDef",
+          "start_line": 510,
+          "end_line": 529
+        }
+      ]
+    }
+  ],
+  "tests_read": [
+    {
+      "path": "backend/tests/test_authentication.py",
+      "sha256": "efe6e2cda73a487ffc7e473643bd1c030240b41da4067b3ed3b841f6642e4b20",
+      "line_count": 399,
+      "read_ranges": [[1, 399]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_password_boundaries_support_creation_reset_and_login",
+          "start_line": 34,
+          "end_line": 42
+        },
+        {
+          "name": "test_invalid_password_length_preserves_account_and_session",
+          "start_line": 46,
+          "end_line": 58
+        },
+        {
+          "name": "test_session_cookie_logout_rotation_and_restart",
+          "start_line": 61,
+          "end_line": 91
+        },
+        {
+          "name": "test_guest_reads_same_records_without_private_configuration",
+          "start_line": 94,
+          "end_line": 149
+        },
+        {
+          "name": "test_all_management_entrypoints_deny_unprivileged_access",
+          "start_line": 153,
+          "end_line": 184
+        },
+        {
+          "name": "test_assignment_permission_also_applies_to_patch_and_create",
+          "start_line": 187,
+          "end_line": 216
+        },
+        {
+          "name": "test_csrf_protection_includes_login_guest_logout_and_business_writes",
+          "start_line": 230,
+          "end_line": 244
+        },
+        {
+          "name": "test_credentials_validation_never_echoes_secrets",
+          "start_line": 247,
+          "end_line": 265
+        },
+        {
+          "name": "test_absolute_idle_revocation_and_account_maintenance",
+          "start_line": 268,
+          "end_line": 305
+        },
+        {
+          "name": "test_guest_absolute_expiry_and_user_idle_touch",
+          "start_line": 308,
+          "end_line": 327
+        },
+        {
+          "name": "test_cli_initialization_and_password_reset_do_not_echo_credentials",
+          "start_line": 330,
+          "end_line": 344
+        },
+        {
+          "name": "test_rate_limiter_is_bounded_and_forwarded_headers_do_not_bypass_it",
+          "start_line": 347,
+          "end_line": 366
+        },
+        {
+          "name": "test_invalid_auth_configuration_fails_closed",
+          "start_line": 380,
+          "end_line": 382
+        },
+        {
+          "name": "test_secure_cookie_and_production_api_docs",
+          "start_line": 385,
+          "end_line": 399
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_github_signin.py",
+      "sha256": "b6cb29018d5d6aeea669e6112cc1c9d211ac5fb921d8b5f94aa891c9f08000ba",
+      "line_count": 448,
+      "read_ranges": [[1, 448]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_disabled_provider_keeps_existing_entries_available",
+          "start_line": 79,
+          "end_line": 90
+        },
+        {
+          "name": "test_oauth_input_and_dependency_failures_are_distinct",
+          "start_line": 93,
+          "end_line": 108
+        },
+        {
+          "name": "test_callback_limit_keeps_wait_header_and_cleans_temporary_cookie",
+          "start_line": 111,
+          "end_line": 127
+        },
+        {
+          "name": "test_minimal_scopes_pkce_cookie_and_first_login",
+          "start_line": 130,
+          "end_line": 182
+        },
+        {
+          "name": "test_repeated_login_rename_and_admin_name_collision",
+          "start_line": 185,
+          "end_line": 222
+        },
+        {
+          "name": "test_first_member_does_not_block_local_admin_initialization",
+          "start_line": 225,
+          "end_line": 231
+        },
+        {
+          "name": "test_two_github_ids_never_merge_by_username",
+          "start_line": 234,
+          "end_line": 242
+        },
+        {
+          "name": "test_disabled_member_cannot_login_and_existing_session_is_invalid",
+          "start_line": 245,
+          "end_line": 254
+        },
+        {
+          "name": "test_invalid_callbacks_do_not_create_accounts",
+          "start_line": 261,
+          "end_line": 286
+        },
+        {
+          "name": "test_successful_callback_cannot_be_replayed",
+          "start_line": 289,
+          "end_line": 300
+        },
+        {
+          "name": "test_upstream_failure_is_sanitized_and_preserves_old_session",
+          "start_line": 306,
+          "end_line": 333
+        },
+        {
+          "name": "test_start_requires_trusted_origin_and_is_rate_limited",
+          "start_line": 336,
+          "end_line": 346
+        },
+        {
+          "name": "test_allowed_alias_cannot_lose_oauth_cookie_on_another_host",
+          "start_line": 349,
+          "end_line": 354
+        },
+        {
+          "name": "test_callback_database_failure_clears_only_temporary_cookie",
+          "start_line": 357,
+          "end_line": 371
+        },
+        {
+          "name": "test_production_oauth_and_session_cookies_are_secure",
+          "start_line": 374,
+          "end_line": 395
+        },
+        {
+          "name": "test_concurrent_first_logins_create_one_account",
+          "start_line": 398,
+          "end_line": 407
+        },
+        {
+          "name": "test_return_url_is_confined_to_business_routes",
+          "start_line": 422,
+          "end_line": 426
+        },
+        {
+          "name": "test_partial_or_untrusted_configuration_fails_closed",
+          "start_line": 445,
+          "end_line": 448
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_configuration_api.py",
+      "sha256": "2d79fe20da723fc51ea8e56199a2bfa3a8f0d10d385b2000ae1f0e86a56fac63",
+      "line_count": 465,
+      "read_ranges": [[1, 465]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_agent_name_conflicts_normalize_whitespace_and_preserve_aggregate",
+          "start_line": 37,
+          "end_line": 65
+        },
+        {
+          "name": "test_agent_names_compare_exactly_after_trimming",
+          "start_line": 68,
+          "end_line": 73
+        },
+        {
+          "name": "test_concurrent_agent_names_only_one_wins",
+          "start_line": 77,
+          "end_line": 94
+        },
+        {
+          "name": "test_create_and_restart_preserve_configuration",
+          "start_line": 97,
+          "end_line": 114
+        },
+        {
+          "name": "test_revisions_reject_stale_and_concurrent_edits",
+          "start_line": 117,
+          "end_line": 135
+        },
+        {
+          "name": "test_partial_edit_omits_preserve_explicit_empty_clears",
+          "start_line": 138,
+          "end_line": 159
+        },
+        {
+          "name": "test_parameter_validation_relationship_revision_and_atomic_rollback",
+          "start_line": 162,
+          "end_line": 212
+        },
+        {
+          "name": "test_empty_schema_draft_readiness_and_invalid_schema",
+          "start_line": 215,
+          "end_line": 242
+        },
+        {
+          "name": "test_assignment_keeps_identity_and_prevents_remove_readd_aba",
+          "start_line": 245,
+          "end_line": 273
+        },
+        {
+          "name": "test_missing_skill_and_duplicate_code_roll_back_every_field",
+          "start_line": 276,
+          "end_line": 289
+        },
+        {
+          "name": "test_shared_skill_delete_protected_and_agent_delete_cascades",
+          "start_line": 292,
+          "end_line": 299
+        },
+        {
+          "name": "test_skill_revisions_and_summary_projections",
+          "start_line": 302,
+          "end_line": 323
+        },
+        {
+          "name": "test_list_filters_current_page_and_literal_search",
+          "start_line": 326,
+          "end_line": 349
+        },
+        {
+          "name": "test_invalid_or_removed_create_fields_rejected",
+          "start_line": 363,
+          "end_line": 365
+        },
+        {
+          "name": "test_null_patch_rejected_without_changes",
+          "start_line": 371,
+          "end_line": 375
+        },
+        {
+          "name": "test_removed_assignment_writes_and_readonly_fields_rejected",
+          "start_line": 378,
+          "end_line": 391
+        },
+        {
+          "name": "test_resource_and_query_validation",
+          "start_line": 395,
+          "end_line": 402
+        },
+        {
+          "name": "test_database_lock_is_retryable_and_does_not_claim_success",
+          "start_line": 405,
+          "end_line": 422
+        },
+        {
+          "name": "test_shell_aggregate_is_independent_of_page_and_safe_for_guest",
+          "start_line": 425,
+          "end_line": 435
+        },
+        {
+          "name": "test_directory_queries_are_bounded_and_do_not_load_method_bodies",
+          "start_line": 438,
+          "end_line": 465
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_agent_identity.py",
+      "sha256": "35d81a0d037865d55741e448f753a344b34b2054a47387d2cf389875e1ba2347",
+      "line_count": 72,
+      "read_ranges": [[1, 72]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_identity_is_included_without_rules_or_employee_instructions",
+          "start_line": 14,
+          "end_line": 20
+        },
+        {
+          "name": "test_name_with_control_characters_is_quoted_as_data",
+          "start_line": 23,
+          "end_line": 27
+        },
+        {
+          "name": "test_rename_freezes_identity_per_run_and_sdk_uses_name_only",
+          "start_line": 30,
+          "end_line": 61
+        },
+        {
+          "name": "test_identity_counts_toward_input_limit",
+          "start_line": 64,
+          "end_line": 72
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_agent_skill_storage.py",
+      "sha256": "a2dfb2ec498e271c5afd79782b1a567768da43eb4507f22e254efe0a43e926d8",
+      "line_count": 312,
+      "read_ranges": [[1, 312]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_configuration_survives_reopening_and_skill_is_reusable",
+          "start_line": 42,
+          "end_line": 105
+        },
+        {
+          "name": "test_defaults_and_in_place_list_edits_are_persisted_without_sharing",
+          "start_line": 108,
+          "end_line": 130
+        },
+        {
+          "name": "test_renaming_keeps_ids_and_saved_ids_cannot_be_reassigned",
+          "start_line": 133,
+          "end_line": 146
+        },
+        {
+          "name": "test_agent_name_unique_index_protects_direct_sql",
+          "start_line": 150,
+          "end_line": 173
+        },
+        {
+          "name": "test_optional_values_normalize_to_null_and_codes_are_unique",
+          "start_line": 176,
+          "end_line": 189
+        },
+        {
+          "name": "test_assignments_require_existing_records",
+          "start_line": 193,
+          "end_line": 202
+        },
+        {
+          "name": "test_duplicate_assignment_is_rejected",
+          "start_line": 205,
+          "end_line": 209
+        },
+        {
+          "name": "test_delete_rules_preserve_shared_skills_and_other_agents",
+          "start_line": 212,
+          "end_line": 232
+        },
+        {
+          "name": "test_agent_edit_and_assignment_replacement_roll_back_together",
+          "start_line": 235,
+          "end_line": 244
+        },
+        {
+          "name": "test_json_fields_reject_non_string_arrays",
+          "start_line": 249,
+          "end_line": 252
+        },
+        {
+          "name": "test_required_text_is_validated_before_persistence",
+          "start_line": 263,
+          "end_line": 265
+        },
+        {
+          "name": "test_uuid_and_timezone_normalization",
+          "start_line": 268,
+          "end_line": 288
+        },
+        {
+          "name": "test_database_constraints_also_protect_direct_sql_writes",
+          "start_line": 305,
+          "end_line": 312
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_skill_library.py",
+      "sha256": "a7e767aa43d3d6961d544611c35249defc71ce36b3af5a2cb2500b730787fee9",
+      "line_count": 190,
+      "read_ranges": [[1, 190]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_user_library_default_and_explicit_root_discover_installed_packages",
+          "start_line": 22,
+          "end_line": 41
+        },
+        {
+          "name": "test_upload_and_directory_sync_share_files_and_preserve_alias_and_assignment",
+          "start_line": 44,
+          "end_line": 67
+        },
+        {
+          "name": "test_command_line_install_is_discovered_without_execution",
+          "start_line": 70,
+          "end_line": 80
+        },
+        {
+          "name": "test_external_edits_block_platform_overwrite_until_synced",
+          "start_line": 83,
+          "end_line": 101
+        },
+        {
+          "name": "test_missing_source_preserves_published_skill_and_can_be_restored",
+          "start_line": 104,
+          "end_line": 116
+        },
+        {
+          "name": "test_directory_conflicts_and_links_do_not_replace_published_content",
+          "start_line": 119,
+          "end_line": 127
+        },
+        {
+          "name": "test_database_rejection_restores_directory",
+          "start_line": 130,
+          "end_line": 151
+        },
+        {
+          "name": "test_legacy_directory_materialization_does_not_duplicate_or_increment_revision",
+          "start_line": 154,
+          "end_line": 164
+        },
+        {
+          "name": "test_delete_unused_skill_removes_source_but_keeps_immutable_blobs",
+          "start_line": 167,
+          "end_line": 173
+        },
+        {
+          "name": "test_standard_creation_defaults_to_original_name_and_alias_can_be_reset",
+          "start_line": 176,
+          "end_line": 190
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_skill_packages.py",
+      "sha256": "f27a4fa386208f78348e5b72c076522e918b5bd25b38bf1975e4f42ab6bfd65b",
+      "line_count": 370,
+      "read_ranges": [[1, 370]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_import_preview_is_inert_and_export_preserves_standard_source_and_binary",
+          "start_line": 64,
+          "end_line": 89
+        },
+        {
+          "name": "test_archive_paths_duplicates_and_multiple_roots_are_rejected",
+          "start_line": 103,
+          "end_line": 105
+        },
+        {
+          "name": "test_zip_links_and_compression_bombs_are_rejected",
+          "start_line": 108,
+          "end_line": 119
+        },
+        {
+          "name": "test_bad_yaml_is_a_classified_validation_failure",
+          "start_line": 132,
+          "end_line": 134
+        },
+        {
+          "name": "test_standard_unicode_lowercase_name_is_supported",
+          "start_line": 137,
+          "end_line": 141
+        },
+        {
+          "name": "test_skill_json_upload_above_normal_request_ceiling_is_supported",
+          "start_line": 144,
+          "end_line": 154
+        },
+        {
+          "name": "test_package_resource_edit_is_atomic_and_old_run_reads_frozen_bytes",
+          "start_line": 157,
+          "end_line": 207
+        },
+        {
+          "name": "test_legacy_inputs_outputs_and_examples_are_present_when_pinned",
+          "start_line": 210,
+          "end_line": 228
+        },
+        {
+          "name": "test_standard_description_has_one_source_and_legacy_patch_still_works",
+          "start_line": 231,
+          "end_line": 256
+        },
+        {
+          "name": "test_resources_cannot_be_read_from_unassigned_package",
+          "start_line": 259,
+          "end_line": 286
+        },
+        {
+          "name": "test_skill_tool_declarations_never_install_or_grant_execution",
+          "start_line": 289,
+          "end_line": 296
+        },
+        {
+          "name": "test_storage_failure_never_publishes_partial_skill",
+          "start_line": 299,
+          "end_line": 314
+        },
+        {
+          "name": "test_skill_bytes_materialize_only_for_active_skill_and_remain_readonly",
+          "start_line": 317,
+          "end_line": 370
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_model_connections.py",
+      "sha256": "99280e481da33828198ed51794770caea68c06f9f23979a811868efddcc52362",
+      "line_count": 346,
+      "read_ranges": [[1, 346]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_crud_encrypts_never_returns_secret_and_survives_restart",
+          "start_line": 29,
+          "end_line": 71
+        },
+        {
+          "name": "test_binding_reuse_preserves_agent_context_and_prevents_deletion",
+          "start_line": 74,
+          "end_line": 114
+        },
+        {
+          "name": "test_invalid_updates_never_echo_secrets_or_change_configuration",
+          "start_line": 129,
+          "end_line": 137
+        },
+        {
+          "name": "test_auth_permissions_public_projection_and_assignment_capability",
+          "start_line": 140,
+          "end_line": 184
+        },
+        {
+          "name": "test_missing_or_changed_master_key_fails_without_replacing_it",
+          "start_line": 187,
+          "end_line": 200
+        },
+        {
+          "name": "test_explicit_key_is_not_repr_or_written_to_disk",
+          "start_line": 203,
+          "end_line": 216
+        },
+        {
+          "name": "test_parallel_first_use_shares_one_complete_key",
+          "start_line": 219,
+          "end_line": 229
+        },
+        {
+          "name": "test_provider_check_is_bounded_safe_and_does_not_generate",
+          "start_line": 245,
+          "end_line": 267
+        },
+        {
+          "name": "test_provider_timeout_response_limit_and_rate_limit",
+          "start_line": 270,
+          "end_line": 301
+        },
+        {
+          "name": "test_connection_revisions_and_disabled_bindings",
+          "start_line": 304,
+          "end_line": 346
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_organization_rules.py",
+      "sha256": "4c2b3c2d9a5d3a107f9a66b1d1405bd54e869440167b14690514bcb4ae5b792b",
+      "line_count": 113,
+      "read_ranges": [[1, 113]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_rules_lifecycle_revision_and_restart",
+          "start_line": 15,
+          "end_line": 33
+        },
+        {
+          "name": "test_rules_permissions_and_origin",
+          "start_line": 36,
+          "end_line": 69
+        },
+        {
+          "name": "test_rules_reject_invalid_replacements",
+          "start_line": 86,
+          "end_line": 88
+        },
+        {
+          "name": "test_concurrent_rule_updates_only_one_wins",
+          "start_line": 91,
+          "end_line": 101
+        },
+        {
+          "name": "test_rules_database_constraints",
+          "start_line": 104,
+          "end_line": 113
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_mcp_accounts.py",
+      "sha256": "b62b2a6d4fd2c656609504661ab4fd6b9b6e9c22302a5751db7511d8bf6894c6",
+      "line_count": 449,
+      "read_ranges": [[1, 449]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_personal_account_is_not_shared_and_missing_connection_is_lazy",
+          "start_line": 50,
+          "end_line": 97
+        },
+        {
+          "name": "test_personal_binding_selects_only_own_compatible_account_and_rechecks",
+          "start_line": 100,
+          "end_line": 131
+        },
+        {
+          "name": "test_shared_account_requires_explicit_shared_connection",
+          "start_line": 134,
+          "end_line": 179
+        },
+        {
+          "name": "test_catalog_annotations_and_stale_grant_do_not_change_authority",
+          "start_line": 182,
+          "end_line": 212
+        },
+        {
+          "name": "test_config_import_is_inert_and_never_echoes_secrets",
+          "start_line": 215,
+          "end_line": 241
+        },
+        {
+          "name": "test_protocol_auth_rejection_is_sanitized_and_does_not_start_oauth",
+          "start_line": 244,
+          "end_line": 274
+        },
+        {
+          "name": "test_protocol_preserves_local_network_failures_without_sending_credentials",
+          "start_line": 278,
+          "end_line": 324
+        },
+        {
+          "name": "test_exact_deployer_private_host_preserves_tls_and_metadata_rejection",
+          "start_line": 328,
+          "end_line": 363
+        },
+        {
+          "name": "test_other_admin_cannot_edit_employee_and_atomic_save_rolls_back",
+          "start_line": 366,
+          "end_line": 414
+        },
+        {
+          "name": "test_capability_list_is_globally_paginated_without_remote_discovery",
+          "start_line": 417,
+          "end_line": 427
+        },
+        {
+          "name": "test_malformed_binding_identifiers_are_rejected_as_input",
+          "start_line": 430,
+          "end_line": 449
+        }
+      ]
+    },
+    {
+      "path": "backend/tests/test_mcp_management.py",
+      "sha256": "c179148bcd657cb591d1f11d497562e3af6f07ca80687a1ae32c4b0d4c9fb265",
+      "line_count": 228,
+      "read_ranges": [[1, 228]],
+      "status": "full_source_read;execution_reported_separately_by_root_review",
+      "test_functions": [
+        {
+          "name": "test_existing_anonymous_connection_can_add_key_without_recreating_service",
+          "start_line": 56,
+          "end_line": 92
+        },
+        {
+          "name": "test_http_auth_can_change_from_anonymous_to_key_and_back",
+          "start_line": 95,
+          "end_line": 111
+        },
+        {
+          "name": "test_duplicate_service_definition_and_casefolded_name_are_rejected",
+          "start_line": 114,
+          "end_line": 133
+        },
+        {
+          "name": "test_concurrent_service_creation_has_one_winner",
+          "start_line": 136,
+          "end_line": 153
+        },
+        {
+          "name": "test_service_deletion_removes_only_unused_owned_connections",
+          "start_line": 156,
+          "end_line": 165
+        },
+        {
+          "name": "test_employee_reference_blocks_service_and_connection_deletion",
+          "start_line": 168,
+          "end_line": 190
+        },
+        {
+          "name": "test_other_users_connections_block_service_deletion",
+          "start_line": 193,
+          "end_line": 211
+        },
+        {
+          "name": "test_unchanged_catalog_does_not_require_reapproval",
+          "start_line": 214,
+          "end_line": 228
+        }
+      ]
+    }
+  ],
+  "supporting_reads": [
+    "backend/app/api/routes/auth.py",
+    "backend/app/api/routes/agents.py",
+    "backend/app/api/routes/skills.py",
+    "backend/app/api/routes/model_connections.py",
+    "backend/app/api/routes/organization_rules.py",
+    "backend/app/api/routes/public.py",
+    "backend/app/api/dependencies.py",
+    "backend/app/api/errors.py",
+    "backend/app/conversations/preparation.py",
+    "backend/app/conversations/authorization.py",
+    "backend/app/tools/access.py",
+    "backend/app/tools/service.py:58-90",
+    "backend/app/infrastructure/database/session.py",
+    "backend/app/infrastructure/database/transactions.py",
+    "backend/app/infrastructure/database/fields.py:1-70",
+    "backend/tests/conftest.py",
+    "backend/tests/configuration_helpers.py",
+    "backend/pyproject.toml"
+  ],
+  "validation": {
+    "root_runs": "全量测试与 lint 由主审查统一记录，本子任务不重复或冒报结果。",
+    "isolated_reproductions": [
+      "configuration-reproduction.py: real Alembic 0011 + TestClient; configured NULL filter and no-op revisions; malformed ZIP preview HTTP 500",
+      "configuration-corrupt-zip.py: pure parser malformed DEFLATE raises zlib.error"
+    ],
+    "external_calls": false,
+    "developer_database_or_credentials_accessed": false,
+    "business_code_modified": false
+  },
+  "uncovered_in_scope_source_files": [],
+  "key_function_records": [
+    "../context/functions/configuration-auth-login.md",
+    "../context/functions/configuration-skill-update.md",
+    "../context/functions/configuration-capture-tools.md",
+    "../context/functions/configuration-rules-update.md"
+  ]
+}

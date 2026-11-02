@@ -1,0 +1,122 @@
+{
+  "schema_version": "ecc.agent-architecture-audit.report.v1",
+  "date": "2026-10-30",
+  "timezone": "Asia/Shanghai",
+  "executive_verdict": {
+    "overall_health": "high_risk",
+    "primary_failure_mode": "查新任务没有通用外部证据完成条件，零调用或查询失败仍可交付已核实正文。",
+    "most_urgent_fix": "把需要外部核实的本轮要求与相关成功证据纳入完成判定。"
+  },
+  "scope": {
+    "target_name": "NiumaCrew MCP 与普通 Agent 集成",
+    "model_stack": [
+      "langchain 1.4.7",
+      "langchain-core 1.6.13",
+      "langchain-openai 1.7.2",
+      "openai 3.31.0",
+      "kimi-for-coding（历史记录；本轮未新增真实模型调用）"
+    ],
+    "layers_to_audit": [
+      "system_prompt",
+      "session_history",
+      "tool_selection",
+      "tool_execution",
+      "tool_interpretation",
+      "answer_shaping",
+      "platform_rendering",
+      "hidden_repair_loops",
+      "persistence"
+    ]
+  },
+  "findings": [
+    {
+      "severity": "high",
+      "priority": 1,
+      "title": "查新任务无外部证据完成条件",
+      "mechanism": "无URL请求跳过verify_web_reads；非空无待执行tool_calls的正文可被发布为成功；失败查询后也没有对应的结果验收。",
+      "source_layer": "tool_selection / tool_interpretation / persistence",
+      "root_cause": "授权允许集与本轮取证完成要求没有分开建模和执行。",
+      "evidence_refs": [
+        "backend/app/agent_runtime/langchain.py:210-225",
+        "backend/app/agent_runtime/tool_results.py:124-148",
+        "backend/app/agent_runtime/middleware.py:46-94",
+        "historical run 2b532d98-af7a-4605-a486-fa38ec673a00",
+        "probes/test_model_wire.py"
+      ],
+      "confidence": 1.0,
+      "recommended_fix": "为需核实任务冻结证据要求，并按相关成功结果验收；失败可解释但不能声称已核实。"
+    },
+    {
+      "severity": "medium",
+      "priority": 2,
+      "title": "SDK注入服务版本影响工具许可摘要",
+      "mechanism": "仅serverInfo.version变化也改变descriptor_hash，调用被拒绝，目录确认后旧grant被过滤。",
+      "source_layer": "tool_execution / persistence",
+      "root_cause": "工具原始契约与握手服务身份元数据混用一个许可摘要。",
+      "evidence_refs": [
+        "backend/app/tools/adapters/mcp.py:33-43",
+        "backend/app/tools/adapters/mcp.py:142-155",
+        "backend/app/agents/tool_grants.py:222-225",
+        "probes/test_mcp_extra_probes.py"
+      ],
+      "confidence": 1.0,
+      "recommended_fix": "分开工具契约与服务部署身份的修订，并保留失效原因。"
+    },
+    {
+      "severity": "medium",
+      "priority": 2,
+      "title": "网页提取策略被应用到通用MCP同名参数",
+      "mechanism": "所有非native工具的url/urls被限制公开HTTP(S)与最多3条，缺少能力语义区分。",
+      "source_layer": "tool_execution",
+      "root_cause": "从参数名推断业务操作，把网页专用策略放在通用调用授权中。",
+      "evidence_refs": ["backend/app/tools/policy.py:94-120", "probes/test_mcp_extra_probes.py"],
+      "confidence": 1.0,
+      "recommended_fix": "通用调用依据schema与显式范围；网页特有约束绑定明确能力，并反映到模型可见有效定义。"
+    }
+  ],
+  "ordered_fix_plan": [
+    {
+      "order": 1,
+      "goal": "明确本轮外部证据要求",
+      "why_now": "当前成功状态可掩盖完全未执行的查新。",
+      "expected_effect": "完成条件不再由模型正文自报。"
+    },
+    {
+      "order": 2,
+      "goal": "落地取证选择与结果验收",
+      "why_now": "强prompt和调用次数都不足以证明取得所需文档。",
+      "expected_effect": "零调用、仅resolve、失败或无关查询无法冒充已核实。"
+    },
+    {
+      "order": 3,
+      "goal": "补日期与通用检索指引",
+      "why_now": "模型缺少平台提供的当前时间锚点。",
+      "expected_effect": "提高查新任务的上下文明确性，但不替代证据门槛。"
+    },
+    {
+      "order": 4,
+      "goal": "分开摘要与能力参数语义",
+      "why_now": "当前普通更新和通用参数可造成工具不可用。",
+      "expected_effect": "避免未变工具失效及合法参数误拒绝。"
+    },
+    {
+      "order": 5,
+      "goal": "真实模型与Context7有界行为对照",
+      "why_now": "离线探针只证明可达路径，不衡量遵从率。",
+      "expected_effect": "量化真实集成的正确取证与如实失败比例。"
+    }
+  ],
+  "validation": {
+    "existing_pytest_passed": 95,
+    "diagnostic_pytest_passed": 12,
+    "memory_scenarios": 3,
+    "business_code_changed": false,
+    "live_model_requests_added": 0,
+    "live_context7_calls_added": 0
+  },
+  "unknowns": [
+    "真实模型跳过工具的概率及具体内在原因",
+    "Kimi非标准reasoning回传要求与参数兼容性",
+    "Context7本轮实际文档覆盖范围与最新发布版本证据"
+  ]
+}

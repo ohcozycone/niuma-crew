@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1000" role="img" aria-label="员工模块的数据关系：岗位、装配与本人账号">
+<defs><marker id="a" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0L9 3.5L0 7" fill="#94a3b8"/></marker></defs>
+<style>text{font-family:"PingFang SC","Noto Sans SC",sans-serif;fill:#e2e8f0}.sub{fill:#94a3b8}.edge{fill:none;stroke:#94a3b8;stroke-width:1.6;marker-end:url(#a)}</style>
+<rect width="1280" height="1000" fill="#0f172a"/>
+<text x="40" y="48" font-size="26" font-weight="600">员工模块的数据关系：岗位、装配与本人账号</text>
+<text x="40" y="84" font-size="16" class="sub">箭头表示对象关系，标签说明归属与资源选择；关系参数与资源内容分别拥有生命周期。</text>
+<rect x="910" y="115" width="330" height="600" rx="12" fill="none" stroke="#a78bfa" stroke-dasharray="7 4"/>
+<text x="1075" y="107" text-anchor="middle" font-size="14">资源模块拥有本体</text>
+<path class="edge" d="M800 195H940"/>
+<path class="edge" d="M640 250V350"/>
+<path class="edge" d="M480 195H400V615H480"/>
+<path class="edge" d="M800 405H940"/>
+<path class="edge" d="M800 615H940"/>
+<path class="edge" d="M640 770V670"/>
+<path class="edge" d="M340 825H480"/>
+<path class="edge" d="M800 825H885V660H940"/>
+<rect x="480" y="140" width="320" height="110" rx="8" fill="#0f172a"/>
+<rect x="480" y="140" width="320" height="110" rx="8" fill="#34d399" fill-opacity="0.1" stroke="#34d399"/>
+<text x="640.0" y="172" text-anchor="middle" font-size="20" font-weight="600">员工 Agent</text>
+<text class="sub" x="640.0" y="199" text-anchor="middle" font-size="15">姓名、职责、岗位指令</text>
+<text x="640.0" y="224" text-anchor="middle" font-size="15">模型选择与员工版本</text>
+<rect x="940" y="140" width="280" height="110" rx="8" fill="#0f172a"/>
+<rect x="940" y="140" width="280" height="110" rx="8" fill="#a78bfa" fill-opacity="0.1" stroke="#a78bfa"/>
+<text x="1080.0" y="172" text-anchor="middle" font-size="20" font-weight="600">ModelConnection</text>
+<text class="sub" x="1080.0" y="199" text-anchor="middle" font-size="15">共享模型配置与秘密</text>
+<text x="1080.0" y="224" text-anchor="middle" font-size="15">0 或 1 份当前大脑</text>
+<rect x="480" y="350" width="320" height="110" rx="8" fill="#0f172a"/>
+<rect x="480" y="350" width="320" height="110" rx="8" fill="#34d399" fill-opacity="0.1" stroke="#34d399"/>
+<text x="640.0" y="382" text-anchor="middle" font-size="20" font-weight="600">AgentSkill</text>
+<text class="sub" x="640.0" y="409" text-anchor="middle" font-size="15">员工 ↔ 技能的关系</text>
+<text x="640.0" y="434" text-anchor="middle" font-size="15">启停、非秘密参数、关系版本</text>
+<rect x="940" y="350" width="280" height="110" rx="8" fill="#0f172a"/>
+<rect x="940" y="350" width="280" height="110" rx="8" fill="#a78bfa" fill-opacity="0.1" stroke="#a78bfa"/>
+<text x="1080.0" y="382" text-anchor="middle" font-size="20" font-weight="600">Skill</text>
+<text class="sub" x="1080.0" y="409" text-anchor="middle" font-size="15">共享主文、包与文件</text>
+<text x="1080.0" y="434" text-anchor="middle" font-size="15">不为每位员工复制</text>
+<rect x="480" y="560" width="320" height="110" rx="8" fill="#0f172a"/>
+<rect x="480" y="560" width="320" height="110" rx="8" fill="#34d399" fill-opacity="0.1" stroke="#34d399"/>
+<text x="640.0" y="592" text-anchor="middle" font-size="20" font-weight="600">AgentToolGrant</text>
+<text class="sub" x="640.0" y="619" text-anchor="middle" font-size="15">员工的具体工具许可</text>
+<text x="640.0" y="644" text-anchor="middle" font-size="15">操作、范围、预算、账号模式</text>
+<rect x="940" y="560" width="280" height="110" rx="8" fill="#0f172a"/>
+<rect x="940" y="560" width="280" height="110" rx="8" fill="#a78bfa" fill-opacity="0.1" stroke="#a78bfa"/>
+<text x="1080.0" y="592" text-anchor="middle" font-size="20" font-weight="600">ToolConnection</text>
+<text class="sub" x="1080.0" y="619" text-anchor="middle" font-size="15">账号连接及确认操作</text>
+<text x="1080.0" y="644" text-anchor="middle" font-size="15">原始身份由 tools 保管</text>
+<rect x="480" y="770" width="320" height="110" rx="8" fill="#0f172a"/>
+<rect x="480" y="770" width="320" height="110" rx="8" fill="#34d399" fill-opacity="0.1" stroke="#34d399"/>
+<text x="640.0" y="802" text-anchor="middle" font-size="20" font-weight="600">PersonalToolBinding</text>
+<text class="sub" x="640.0" y="829" text-anchor="middle" font-size="15">某用户 + 某份员工许可</text>
+<text x="640.0" y="854" text-anchor="middle" font-size="15">选择本人相容连接</text>
+<rect x="40" y="770" width="300" height="110" rx="8" fill="#0f172a"/>
+<rect x="40" y="770" width="300" height="110" rx="8" fill="#22d3ee" fill-opacity="0.1" stroke="#22d3ee"/>
+<text x="190.0" y="802" text-anchor="middle" font-size="20" font-weight="600">使用者 User</text>
+<text class="sub" x="190.0" y="829" text-anchor="middle" font-size="15">登录身份，不是数字员工</text>
+<text x="190.0" y="854" text-anchor="middle" font-size="15">一份许可可供不同人各自绑定</text>
+<text x="870" y="178" text-anchor="middle" font-size="14">引用大脑</text>
+<text x="705" y="305" text-anchor="middle" font-size="14">1 对多</text>
+<text x="330" y="510" text-anchor="middle" font-size="14">1 对多许可</text>
+<text x="870" y="390" text-anchor="middle" font-size="14">引用技能</text>
+<text x="870" y="600" text-anchor="middle" font-size="14">装配时的连接</text>
+<text x="702" y="725" text-anchor="middle" font-size="14">引用已有许可</text>
+<text x="410" y="807" text-anchor="middle" font-size="14">本人选择</text>
+<text x="1050" y="752" text-anchor="middle" font-size="14">同服务、相容操作定义</text>
+<text x="640" y="945" text-anchor="middle" font-size="16">关系归 agents；技能、模型与工具账号归各资源模块。执行快照捕获内容，当前许可检查决定能否继续。</text>
+</svg>

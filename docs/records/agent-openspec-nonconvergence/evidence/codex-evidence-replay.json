@@ -1,0 +1,112 @@
+{
+  "schema_version": "niuma.codex.experiment.v1",
+  "experiment": "codex-evidence-replay",
+  "agent_path": "/root/openspec_evidence_replay",
+  "session_id": "01a18d54-e3c0-7550-9014-fb07d197906a",
+  "forked_from_id": null,
+  "source_rollout": "/Users/minjo/.codex/sessions/2026/10/30/rollout-2026-10-30T23-01-53-01a18d54-e3c0-7550-9014-fb07d197906a.jsonl",
+  "source_sha256": "93a2f458590b4b3053c893449406a4494c4ba314370a19b893fd98c38a951127",
+  "question": "OpenSpec 是 skill 还是 mcp ？",
+  "model": {
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "turn_id": "01a18d54-e420-7961-8a18-9fd1d7f118dc"
+  },
+  "counts": {
+    "observed_model_requests": 2,
+    "model_visible_tool_batches": 1,
+    "nested_tool_invocations": 1
+  },
+  "timing": {
+    "duration_ms": 27934,
+    "time_to_first_token_ms": 8351,
+    "started_at": 1793372513,
+    "completed_at": 1793372541
+  },
+  "usage": {
+    "input_tokens": 73418,
+    "cached_input_tokens": 57856,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 619,
+    "reasoning_output_tokens": 431,
+    "total_tokens": 74037
+  },
+  "uncached_input_tokens": 15562,
+  "per_request_usage": [
+    {
+      "line": 18,
+      "timestamp": "2026-10-30T15:02:02.253Z",
+      "last_token_usage": {
+        "input_tokens": 34902,
+        "cached_input_tokens": 34560,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 48,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 34950
+      },
+      "total_token_usage": {
+        "input_tokens": 34902,
+        "cached_input_tokens": 34560,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 48,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 34950
+      }
+    },
+    {
+      "line": 24,
+      "timestamp": "2026-10-30T15:02:21.243Z",
+      "last_token_usage": {
+        "input_tokens": 38516,
+        "cached_input_tokens": 23296,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 571,
+        "reasoning_output_tokens": 431,
+        "total_tokens": 39087
+      },
+      "total_token_usage": {
+        "input_tokens": 73418,
+        "cached_input_tokens": 57856,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 619,
+        "reasoning_output_tokens": 431,
+        "total_tokens": 74037
+      }
+    }
+  ],
+  "tool_calls": [
+    {
+      "line": 14,
+      "timestamp": "2026-10-30T15:02:01.669Z",
+      "name": "exec",
+      "call_id": "call_32cdcd16977944aab030834be44f791c",
+      "code": "text(await tools.exec_command({cmd:\"cat /private/tmp/niuma-codex-openspec-comparison/frozen-official-evidence.json\", max_output_tokens:14000}));\n",
+      "nested_tool_names": ["exec_command"]
+    }
+  ],
+  "tool_result_summaries": [
+    {
+      "line": 17,
+      "timestamp": "2026-10-30T15:02:02.252Z",
+      "call_id": "call_32cdcd16977944aab030834be44f791c",
+      "output_sha256": "26395f447cb70988fdd4825322c2e85b22c1266cc6ccc37ecec48eb2b8b54abb",
+      "output_characters": 13629,
+      "error_markers": [],
+      "returned_document_titles": []
+    }
+  ],
+  "assistant_messages": [
+    {
+      "timestamp": "2026-10-30T15:02:20.635Z",
+      "text": "OpenSpec 本体是**规范驱动开发框架和 CLI**，通过 **Skills、斜杠命令**接入 AI 编程工具，不只是单个 Skill。[官方介绍](https://openspec.dev/)\n\n例如，官方安装文档说明，在 Codex 中可用 `$openspec-propose` 这样的 Skill 名称调用。[安装文档](https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/install.md)\n\n因此，按这份资料，应把它理解为 **CLI + Skills/命令的方案**；资料没有提供 MCP 服务或配置，不能据此将它归类为 MCP。"
+    }
+  ],
+  "final_answer": "OpenSpec 本体是**规范驱动开发框架和 CLI**，通过 **Skills、斜杠命令**接入 AI 编程工具，不只是单个 Skill。[官方介绍](https://openspec.dev/)\n\n例如，官方安装文档说明，在 Codex 中可用 `$openspec-propose` 这样的 Skill 名称调用。[安装文档](https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/install.md)\n\n因此，按这份资料，应把它理解为 **CLI + Skills/命令的方案**；资料没有提供 MCP 服务或配置，不能据此将它归类为 MCP。",
+  "limitations": [
+    "No prior parent conversation was forked. System/developer runtime and tools were still present.",
+    "Model request count is derived from distinct cumulative token_count updates, checked against last_token_usage sums.",
+    "Reasoning text and complete system prompts are intentionally not copied.",
+    "Token figures exclude the parent audit/reporting work and are not a currency cost comparison.",
+    "Only one sample per experimental condition was run."
+  ]
+}

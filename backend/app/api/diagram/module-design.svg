@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 920" role="img" aria-labelledby="title desc">
+<title id="title">HTTP 接入、协议与观察连接：模块结构与协作</title>
+<desc id="desc">箭头表示请求及读取的数据流。路由只适配协议，业务负责保存；观察连接读取已提交状态，不承担执行生命周期。</desc>
+<defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern><marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0L9 3.5L0 7" fill="#94a3b8"/></marker></defs>
+<style>text{font-family:"PingFang SC","Noto Sans SC",sans-serif;fill:#e2e8f0}.muted{fill:#94a3b8}.label{fill:#cbd5e1}.title{font-weight:600}.edge{fill:none;stroke:#94a3b8;stroke-width:1.7;marker-end:url(#arrow)}</style>
+<rect width="1280" height="920" fill="#0f172a"/><rect width="1280" height="920" fill="url(#grid)"/>
+<path class="edge" d="M360 265H480"/>
+<path class="edge" d="M800 265H920"/>
+<path class="edge" d="M1080 350V385H200V560"/>
+<path class="edge" d="M200 730V795H1080V730"/>
+<path class="edge" d="M1080 350V419H640V560"/>
+<path class="edge" d="M800 645H920"/>
+<rect x="40" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="40" y="180" width="320" height="170" rx="10" fill="#22d3ee" fill-opacity="0.08" stroke="#22d3ee" stroke-width="1.6"/>
+<text x="200" y="215" text-anchor="middle" font-size="21" class="title">浏览器操作</text>
+<text x="200" y="249" text-anchor="middle" font-size="15" class="muted">页面 / HTTP 请求</text>
+<text x="200" y="278" text-anchor="middle" font-size="15" class="">字段、Cookie 与请求标识</text>
+<rect x="480" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="480" y="180" width="320" height="170" rx="10" fill="#22d3ee" fill-opacity="0.08" stroke="#22d3ee" stroke-width="1.6"/>
+<text x="640" y="215" text-anchor="middle" font-size="21" class="title">安全与路由入口</text>
+<text x="640" y="249" text-anchor="middle" font-size="15" class="muted">security / router / dependencies</text>
+<text x="640" y="278" text-anchor="middle" font-size="15" class="">来源、格式、身份和能力</text>
+<rect x="920" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="920" y="180" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="1080" y="215" text-anchor="middle" font-size="21" class="title">所属业务服务</text>
+<text x="1080" y="249" text-anchor="middle" font-size="15" class="muted">agents / conversations / 其他模块</text>
+<text x="1080" y="278" text-anchor="middle" font-size="15" class="">资源规则、事务与普通结果</text>
+<rect x="40" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="40" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="200" y="595" text-anchor="middle" font-size="21" class="title">协议响应</text>
+<text x="200" y="629" text-anchor="middle" font-size="15" class="muted">schemas / errors / 文件与跳转</text>
+<text x="200" y="658" text-anchor="middle" font-size="15" class="">JSON、Cookie、文件或安全错误</text>
+<rect x="480" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="480" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="640" y="595" text-anchor="middle" font-size="21" class="title">持久回复观察</text>
+<text x="640" y="629" text-anchor="middle" font-size="15" class="muted">conversation_streaming.py</text>
+<text x="640" y="658" text-anchor="middle" font-size="15" class="">读取快照、心跳和当前访问权</text>
+<rect x="920" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="920" y="560" width="320" height="170" rx="10" fill="#22d3ee" fill-opacity="0.08" stroke="#22d3ee" stroke-width="1.6"/>
+<text x="1080" y="595" text-anchor="middle" font-size="21" class="title">浏览器读取</text>
+<text x="1080" y="629" text-anchor="middle" font-size="15" class="muted">页面状态与下载</text>
+<text x="1080" y="658" text-anchor="middle" font-size="15" class="">接受确认、进展或正式结果</text>
+<rect x="399.0" y="233" width="42" height="24" rx="3" fill="#0f172a"/>
+<text x="420.0" y="250" text-anchor="middle" font-size="14" class="label">请求</text>
+<rect x="811.0" y="233" width="98" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="250" text-anchor="middle" font-size="14" class="label">明确业务操作</text>
+<rect x="579.24" y="356" width="121.52" height="24" rx="3" fill="#0f172a"/>
+<text x="640.0" y="373" text-anchor="middle" font-size="14" class="label">结果 / 业务错误</text>
+<rect x="605.0" y="765" width="70" height="24" rx="3" fill="#0f172a"/>
+<text x="640.0" y="782" text-anchor="middle" font-size="14" class="label">协议返回</text>
+<rect x="818.0" y="390" width="84" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="407" text-anchor="middle" font-size="14" class="label">已提交回复</text>
+<rect x="823.32" y="613" width="73.36" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="630" text-anchor="middle" font-size="14" class="label">SSE 快照</text>
+<text x="40" y="52" text-anchor="start" font-size="26" class="title">HTTP 接入、协议与观察连接：内部结构与协作</text>
+<text x="40" y="88" font-size="16" class="muted">节点对应实际实现；箭头标明调用或数据交付，具体事务和授权边界见正文。</text>
+<text x="40" y="875" font-size="15" class="muted">当前实现的模块协作图；目录结构和图中职责不表示已经独立部署为多个服务。</text>
+</svg>

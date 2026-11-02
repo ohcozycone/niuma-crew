@@ -1,0 +1,47 @@
+{
+  "probe_type": "stdlib pure-function probes and AST assertions; not end-to-end tests",
+  "unknown_citation": "已知 [1]；未知 。",
+  "no_marker_card_count": 1,
+  "parser_declared_formats": [
+    ".doc",
+    ".docx",
+    ".htm",
+    ".html",
+    ".markdown",
+    ".md",
+    ".pdf",
+    ".txt"
+  ],
+  "memory_recall_discards_query_and_limit": true,
+  "niuma_sha256": {
+    "backend/app/conversations/preparation.py": "f2ea36cc10b45c813261ef24e01266ebc7d281a3a7562fbb2b9197d93eefeb4b",
+    "backend/app/agent_runtime/langchain.py": "f2c5fc7b4fc40f22ff2c52da4ae23b5542f89f0c9e24631b39b4b7125d931e2f",
+    "backend/app/agent_runtime/tool_calls.py": "69201f7b795082661705a737a5562c528b4ee5decc60e12d4226ca80ab8b0071",
+    "backend/app/agents/tool_grants.py": "277a22f14c1181fe36fad7a0b4a79e2fd762700552144057ef1101653028b01e",
+    "backend/app/execution/store.py": "ac943029c4d71e467941bec66bdae32a1f94ae6af1e554c22190468aadeaac65",
+    "backend/app/execution/config.py": "a12ef6bb8ece362bbae9478fbc140a9fb7cbbeff4aeafe52f22c2097773ede4b",
+    "backend/app/knowledge/employee.py": "94a57f02673067ef9fb8e944e1cc2dcbb9de3bb64fb48bae25d78f6332f83e65",
+    "backend/app/knowledge/service.py": "78371fb8b7bb493acd32de84c69b1123a4a2c70c07999021278157b2ba61416b",
+    "backend/app/knowledge/vectors.py": "b162fc3d5881dd6cdf92689e3660e31b4f484482bb3ab8b43a5bd46758270388",
+    "backend/app/model_connections/presets.py": "088c2fab1e5e1575e94fd6905d959f53f99a9f80b3515725078618d7eb772f63",
+    "backend/app/tools/invocation.py": "16855109958fbad9357d7a073ec88ff2bb04bb360e0ed129162e57916ce17816",
+    "backend/app/skills/packages.py": "5393af1224876c4f806ace0389222caa5dd1230bc8fcd4d4f13141aa3082bec5",
+    "backend/app/conversations/publication.py": "96aefd5fe7f41a277267ec050e1c8bcaef90b915cf612bc2e33f9bab7606f39e",
+    "backend/pyproject.toml": "85f278f03e8bf9fe394e7f76f7eb70612a99a2fd37907e0eafb4819afa4381ec"
+  },
+  "date": "2026-11-01",
+  "staffdeck_commit": "fcc28c003ef188e6d0a11596d44fdfb3723b275b",
+  "niuma_snapshot": "Uncommitted working tree; selected-file hashes only, not a full checkout archive",
+  "validation": {
+    "local_report_and_indices_link_errors": 0,
+    "staffdeck_source_files_verified": 52,
+    "niuma_core_hashes_unchanged": 14,
+    "repository_docs_existing_missing_links": 13,
+    "repository_docs_existing_error_sources": [
+      "docs/proposals/component-encapsulation.md",
+      "docs/records/component-encapsulation.md"
+    ],
+    "business_suites_run": false,
+    "real_models_or_channels_tested": false
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "status": "succeeded",
+  "error_code": null,
+  "model_calls": 2,
+  "tool_calls": 1,
+  "skill_reads": 0,
+  "usage": {
+    "input_tokens": 15462,
+    "output_tokens": 692,
+    "total_tokens": 16154,
+    "cached_input_tokens": 13785,
+    "reasoning_tokens": 232
+  },
+  "final_answer": "**都不是。OpenSpec 本质上是一个 CLI 工具（npm 包），既不是 Skill 也不是 MCP。**\n\n依据（刚核对过官方信息）：\n\n1. **它是命令行工具**：通过 `npm install -g @fission-ai/openspec` 安装，然后在项目里执行 `openspec init` 初始化。68k GitHub stars，开源，主仓库是 Fission-AI/OpenSpec。\n\n2. **它如何与 AI 助手协作**：`openspec init` 会在你的项目里生成一组指令文件（比如 Cursor 的 slash commands：`/openspec-proposal`、`/openspec-apply`、`/openspec-archive`），AI 编码助手读取这些项目内的指令来完成\"提案 → 实现 → 归档\"的 spec-driven 工作流。也就是说它依赖的是**项目内的提示词/指令文件**，而不是以 Skill 或 MCP Server 的形式挂载。\n\n简单区分：\n\n| 形态 | 含义 | OpenSpec 是否符合 |\n|---|---|---|\n| Skill | 平台/助手侧预置的能力包，由宿主加载 | ❌ 它安装在你的项目里，不是宿主能力 |\n| MCP | 通过 MCP 协议暴露工具/资源的服务 | ❌ 官方形态是 CLI，不走 MCP 协议 |\n| CLI + 项目内指令 | 本地命令行工具，生成提示词文件供 AI 读取 | ✅ 这正是它的工作方式 |\n\n补充一点：如果你在某个平台（如 Claude Code、Cursor）里看到\"OpenSpec 集成\"，那通常是社区或它自己生成的配置/命令文件，核心仍然是 CLI，而非原生的 Skill 或 MCP 服务。",
+  "actions": [
+    {
+      "sequence": 1,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:22:59.507166Z",
+      "finished_at": "2026-10-30T15:23:06.224706Z",
+      "details": {
+        "round": 1,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 2,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:23:06.240224Z",
+      "finished_at": "2026-10-30T15:23:10.349006Z",
+      "details": {
+        "tool": "tavily_search",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+        "query": "OpenSpec spec-driven development AI coding tool what is it"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"query\\\": \\\"OpenSpec spec-driven development AI coding tool what is it\\\", \\\"follow_up_questions\\\": null, \\\"answer\\\": null, \\\"images\\\": [], \\\"results\\\": [{\\\"url\\\": \\\"https://forum.cursor.com/t/openspec-lightweight-portable-spec-driven-framework-for-ai-coding-assistants/134052\\\", \\\"title\\\": \\\"OpenSpec - Lightweight & portable spec driven framework for AI coding assistants! - Built for Cursor - Cursor - Community Forum\\\", \\\"content\\\": \\\"`npm install -g @fission-ai/openspec@latest\\\\ncd your-project\\\\nopenspec init\\\\n# Select \\\\\\\"Cursor\\\\\\\" when prompted`\\\\n\\\\nThat’s it. Your Cursor slash commands are ready to go.\\\\n\\\\nWould love to hear your experience! (Github stars :star: are always appreciated!)\\\\n\\\\n:star:\\\\n\\\\nRepo: GitHub - Fission-AI/OpenSpec: Spec-driven development (SDD) for AI coding assistants. · GitHub\\\\n\\\\nDemo below ! Much love :heart:\\\\n\\\\n:heart:\\\\n\\\\nForgot to add here’s what the cli dashboard looks like!\\\\n\\\\nopenspec_dashboard [...] Review & align - Iterate until specs are solid\\\\n\\\\nImplement tasks - AI writes code from clear requirements\\\\n\\\\nArchive & update - Your specs become living docs\\\\n\\\\n## Why Not Just Use [Insert Other Tool]?\\\\n\\\\nvs Kiro: OpenSpec keeps all related changes in one folder instead of scattering updates across multiple spec files. When you’re building a feature that touches 3 different specs, you want everything in one place, not hunting through multiple task files. [...] # OpenSpec - Lightweight & portable spec driven framework for AI coding assistants!\\\\n\\\\nHey Cursor friends! Just released something that might save your sanity\\\\n\\\\nEver been here?\\\\n\\\\nThat’s why I built OpenSpec - an open-source CLI that plays beautifully with Cursor’s custom slash commands.\\\\n\\\\n## What OpenSpec Gives You\\\\n\\\\n`/openspec-proposal`\\\\n`/openspec-apply`\\\\n`/openspec-archive`\\\\n\\\\n## The Workflow That Actually Works\\\\n\\\\nDraft a change proposal - Capture what you want to build\\\", \\\"score\\\": 0.8573986, \\\"raw_content\\\": null, \\\"id\\\": \\\"f3051f-00\\\"}, {\\\"url\\\": \\\"https://openspec.dev\\\", \\\"title\\\": \\\"OpenSpec | A lightweight and configurable spec framework\\\", \\\"content\\\": \\\"Fission-AI / OpenSpec 68.0k GitHub stars star repository ↗\\\\n\\\\n# The spec framework for building the right thing and building it right\\\\n\\\\n## Synopsis\\\\n\\\\nOpenSpec is a lightweight and configurable framework for creating and managing software specifications. [...] Creating a new specevery 2 seconds\\\\n\\\\n## In the wild\\\\n\\\\nOpenSpec is already part of how developers build with AI.1 A new spec is created every two seconds.2\\\\n\\\\n1 68.0k GitHub stars 2 OpenSpec usage\\\\n\\\\n## Installation\\\\n\\\\n/ / / /\\\\n\\\\n## Compatibility [...] With OpenSpec, you capture what you want to build in a spec and keep your team and coding agents aligned as the work evolves. We help you refine the requirements, validate that they describe the right thing, and verify that the implementation matches.\\\\n\\\\nIn essence, OpenSpec helps you build the right thing and build it right.\\\\n\\\\n## In use\\\\n\\\\n68.0k  GitHub stars. A new spec every two seconds.\\\\n\\\\n## In use\\\\n\\\\n68.0k  stars on GitHub.\\\\n\\\\nA n\", \"result_id\": \"85dca798-0e4f-4064-a9c8-d47597f91483\", \"preview_end\": 3000, \"total_chars\": 6615, \"next_offset\": 3000, \"truncated\": true, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://forum.cursor.com/t/openspec-lightweight-portable-spec-driven-framework-for-ai-coding-assistants/134052\", \"title\": \"OpenSpec - Lightweight & portable spec driven framework for AI coding assistants! - Built for Cursor - Cursor - Community Forum\", \"retrieved_at\": \"2026-10-30T15:23:10.340293+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"91e233a2-86c7-49df-83d5-fbc17c34da23\", \"text_obtained\": true}, {\"url\": \"https://openspec.dev\", \"title\": \"OpenSpec | A lightweight and configurable spec framework\", \"retrieved_at\": \"2026-10-30T15:23:10.342606+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"6372965b-2c20-4289-b043-84504869c645\", \"text_obtained\": true}, {\"url\": \"https://www.cbinsights.com/company/openspec\", \"title\": \"OpenSpec - Products, Competitors, Financials, Employees, Headquarters Locations\", \"retrieved_at\": \"2026-10-30T15:23:10.344154+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"4f7c31c2-958a-4668-8a42-de5f6e484078\", \"text_obtained\": true}, {\"url\": \"https://ohsem.me/2026/09/easyspecs-ai-launches-a-spec-review-platform-so-engineering-teams-can-trust-ai-generated-code-nobody-has-time-to-read\", \"title\": \"Easyspecs.ai Launches A Spec Review Platform So Engineering Teams Can Trust AI-generated Code Nobody Has Time To Read\", \"retrieved_at\": \"2026-10-30T15:23:10.345263+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"ec68fe03-504c-4eb3-ae2d-b63354d8391a\", \"text_obtained\": true}, {\"url\": \"https://www.linkedin.com/posts/madebystudioone_on-7-august-2026-meta-announced-muse-code-activity-7491872195154022400-bpA_\", \"title\": \"Meta Unveils Muse Code, AI Coding Agent for Developers | Studio One posted on the topic | LinkedIn\", \"retrieved_at\": \"2026-10-30T15:23:10.346272+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"a3367056-6602-4e96-a1dc-71f9ba8f2cbc\", \"text_obtained\": true}]}",
+      "source_urls": [
+        "https://forum.cursor.com/t/openspec-lightweight-portable-spec-driven-framework-for-ai-coding-assistants/134052",
+        "https://openspec.dev",
+        "https://www.cbinsights.com/company/openspec",
+        "https://ohsem.me/2026/09/easyspecs-ai-launches-a-spec-review-platform-so-engineering-teams-can-trust-ai-generated-code-nobody-has-time-to-read",
+        "https://www.linkedin.com/posts/madebystudioone_on-7-august-2026-meta-announced-muse-code-activity-7491872195154022400-bpA_"
+      ],
+      "local_result_truncated": true
+    },
+    {
+      "sequence": 3,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:23:10.366663Z",
+      "finished_at": "2026-10-30T15:23:26.497641Z",
+      "details": {
+        "round": 2,
+        "finish_reason": "stop",
+        "output_bytes": 1426
+      }
+    }
+  ],
+  "per_model_usage": [
+    {
+      "usage": {
+        "input_tokens": 6873,
+        "output_tokens": 188,
+        "total_tokens": 7061,
+        "input_token_details": {
+          "cache_read": 6873
+        },
+        "output_token_details": {
+          "reasoning": 82
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+          "args": {
+            "query": "OpenSpec spec-driven development AI coding tool what is it",
+            "max_results": 8
+          },
+          "id": "tool_BNtg81yacxNUVttkNBQEnmJy",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 8589,
+        "output_tokens": 504,
+        "total_tokens": 9093,
+        "input_token_details": {
+          "cache_read": 6912
+        },
+        "output_token_details": {
+          "reasoning": 150
+        }
+      },
+      "tool_calls": []
+    }
+  ],
+  "mode": "fresh",
+  "same_user_session_binding_refreshed": true,
+  "guard_changes": {
+    "max_model_calls": [8, 24],
+    "recursion_limit": [64, 256],
+    "run_timeout": [180, 600]
+  },
+  "baseline": {
+    "model_calls": 8,
+    "tool_calls": 8,
+    "skill_reads": 0,
+    "started_at": "2026-10-30T14:29:42.249934Z",
+    "finished_at": "2026-10-30T14:31:42.317931Z",
+    "usage": {
+      "input_tokens": 85987,
+      "output_tokens": 1617,
+      "total_tokens": 87604,
+      "cached_input_tokens": 77824,
+      "reasoning_tokens": 693
+    }
+  },
+  "snapshot_identity": {
+    "model_id": "kimi-for-coding",
+    "provider": "kimi-code",
+    "system_prompt_sha256": "22db8fa054684060c254027ce99df961222ad87ec82a7b78cafc95c6dacc93aa",
+    "tool_names": [
+      "tavily_search",
+      "tavily_extract",
+      "tavily_crawl",
+      "tavily_map",
+      "tavily_research",
+      "resolve-library-id",
+      "query-docs"
+    ],
+    "input": "OpenSpec 是 skill 还是 mcp ？"
+  },
+  "isolation": "Private database copy, no source database writes, original vault read only",
+  "limitations": [
+    "Resume is an experimental reactivation in the copy, not a supported retry of a terminal run.",
+    "Fresh retains the original accepted snapshot, rather than recapturing current configuration.",
+    "Only the raised model, graph and total-time guards differ from the original snapshot."
+  ],
+  "new_execution_seconds": 27.077020083088428,
+  "active_total_seconds": 27.077020083088428
+}

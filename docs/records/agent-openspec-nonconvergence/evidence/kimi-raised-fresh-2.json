@@ -1,0 +1,388 @@
+{
+  "status": "succeeded",
+  "error_code": null,
+  "model_calls": 5,
+  "tool_calls": 6,
+  "skill_reads": 0,
+  "usage": {
+    "input_tokens": 54448,
+    "output_tokens": 1572,
+    "total_tokens": 56020,
+    "cached_input_tokens": 45017,
+    "reasoning_tokens": 449
+  },
+  "final_answer": "**严格说，OpenSpec 本体既不是 skill 也不是 MCP——它是一个 CLI 工具 + 规范驱动开发（SDD）方法论；但在 AI 编码助手的集成方式上，它现在主要走 skill 路线，MCP 目前只是社区提案。**\n\n根据 OpenSpec 官方仓库（Fission-AI/OpenSpec）和文档核实：\n\n| 形态 | 现状 | 依据 |\n|---|---|---|\n| CLI 工具 | 核心形态 | `openspec` 命令行，负责 init、管理 `openspec/` 目录下的 specs/changes |\n| Agent Skills | **官方已支持** | 官方文档有专门的 Skills 页，`openspec init` 会在 `.agents/skills/` 下安装一组 skill（openspec-explore、openspec-propose、openspec-apply-change、openspec-sync-specs 等核心 skill，另有 verify、ff-change 等可选 skill） |\n| MCP Server | **仅提案，未官方实现** | GitHub Issue #319 有人提议做 OpenSpec MCP server，维护者态度谨慎（担心 context bloat），目前没有官方 MCP server |\n\n两点补充：\n\n1. 你遇到\"OpenSpec\"这个词时，大概率指的是 Fission-AI 的 spec-driven development 工具；它在早期主要通过往 `CLAUDE.md`/`AGENTS.md` 写约定 + slash commands 集成，后来转向了正式的 skills 形式（见 Issue #366，官方在实验性 workflow 中加入了 skills 支持）。\n2. 不要把 OpenSpec 和 Agent Skills 开放标准本身混淆——OpenSpec 是\"提供 skills 的项目\"，不是一个 skill。\n\n如果你是想在自己的环境里接入它：装 CLI 后跑 `openspec init`，skills 会自动落到 `.agents/skills/`；如果你需要 MCP 集成（比如给不读 skills 的助手用），目前只能自行封装或关注 Issue #319 的进展。",
+  "actions": [
+    {
+      "sequence": 1,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:24:35.873141Z",
+      "finished_at": "2026-10-30T15:24:40.900798Z",
+      "details": {
+        "round": 1,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 2,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:24:40.913018Z",
+      "finished_at": "2026-10-30T15:24:45.113078Z",
+      "details": {
+        "tool": "tavily_search",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+        "query": "OpenSpec CLI MCP server fission-ai openspec"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"query\\\": \\\"OpenSpec CLI MCP server fission-ai openspec\\\", \\\"follow_up_questions\\\": null, \\\"answer\\\": null, \\\"images\\\": [], \\\"results\\\": [{\\\"url\\\": \\\"https://github.com/Fission-AI/OpenSpec/issues/319\\\", \\\"title\\\": \\\"Implement OpenSpec as an MCP Server for Universal AI Assistant Integration · Issue #319 · Fission-AI/OpenSpec · GitHub\\\", \\\"content\\\": \\\"I propose implementing OpenSpec as a Model Context Protocol (MCP) server. This would enable any MCP-compatible AI assistant (Claude, GitHub Copilot, Amazon Q, etc.) to directly interact with OpenSpec's change proposals, specifications, and project context—making spec-driven development workflows available across the entire AI assistant ecosystem beyond just command-line tools.We propose implementing OpenSpec as a Model Context Protocol (MCP) server. This would enable any MCP-compatible AI [...] ## Technical Proposal\\\\n\\\\n   ### MCP Server: OpenSpec Context Protocol\\\\n\\\\n   We propose an MCP server that exposes OpenSpec project structure and workflows as MCP resources and tools:\\\\n\\\\n   #### Resources\\\\n\\\\n   Expose OpenSpec project state as queryable resources: [...] ## Motivation\\\\n\\\\n   OpenSpec currently supports spec-driven development through integrations with specific AI tools (Claude Code, Cursor, Cline, Codex, etc.) via slash commands and custom workflows. However, the Model Context Protocol (MCP) provides a platform-agnostic standard that could dramatically expand OpenSpec's accessibility:\\\", \\\"score\\\": 0.8449346, \\\"raw_content\\\": null, \\\"id\\\": \\\"e9c484-00\\\"}, {\\\"url\\\": \\\"https://registry.npmjs.org/%40contextstream%2Fmcp-server\\\", \\\"title\\\": \\\"ContextStream MCP Server\\\", \\\"content\\\": \\\"\\\\\\\\n\\\\\\\\n## Your agent knows code. Give it the decisions behind yours.\\\\\\\\n\\\\\\\\nConnect your code, docs, and conversations so your agents can find the right\\\\\\\\nfiles, recall saved decisions, and build on past work across sessions and tools.\\\\\\\\n\\\\\\\\n\\\\\\\\n \\\\\\\\n \\\\\\\\n \\\\\\\\\\\\\\\\n \\\\\\\\n\\\\\\\\n\\\\\\\\nThe numbers, their sources, and what they do not claim are under Benchmarks.\\\\\\\\n\\\\\\\\n\\\\\\\\n\\\\\\\\n## Start free with MCP\\\\\\\\n\\\\\\\\n\\\\\\\\\\\\\\\\10,000 monthly credits. No credit card required.\\\\\\\\\\\\\\\\\\\\\\\\n\\\\\\\\nWorks with Claude Code, Cursor, Codex, GitHub Copilot, Gemini CLI, Qwen Code,\\\\\\\\nKimi [...] .0.15\\\\\\\",\\\\\\\"keywords\\\\\\\":[\\\\\\\"mcp\\\\\\\",\\\\\\\"model-context-protocol\\\\\\\",\\\\\\\"contextstream\\\\\\\",\\\\\\\"semantic-search\\\\\\\",\\\\\\\"memory\\\\\\\",\\\\\\\"developer-tools\\\\\\\",\\\\\\\"cursor\\\\\\\",\\\\\\\"claude-code\\\\\\\",\\\\\\\"codex\\\\\\\",\\\\\\\"shared-context\\\\\\\",\\\\\\\"project-context\\\\\\\",\\\\\\\"mcp-server\\\\\\\",\\\\\\\"ai-coding\\\\\\\",\\\\\\\"kimi\\\\\\\",\\\\\\\"kimi-code\\\\\\\",\\\\\\\"glm\\\\\\\",\\\\\\\"zai\\\\\\\",\\\\\\\"zcode\\\\\\\",\\\\\\\"qwen-code\\\\\\\",\\\\\\\"gemini-cli\\\\\\\",\\\\\\\"muse-code\\\\\\\",\\\\\\\"zed\\\\\\\",\\\\\\\"windsurf\\\\\\\",\\\\\\\"copilot\\\\\\\",\\\\\\\"copilot-cli\\\\\\\",\\\\\\\"opencode\\\\\\\",\\\\\\\"crush\\\\\\\",\\\\\\\"amp\\\\\\\",\\\\\\\"factory-droid\\\\\\\",\\\\\\\"cline\\\\\\\",\\\\\\\"kilo-code\\\\\\\",\\\\\\\"antigravity\\\\\\\",\\\\\\\"claude-desktop\\\\\\\"],\\\\\\\"license\\\\\\\":\\\\\\\"MIT\\\\\\\",\\\\\\\"\\\\\\\\_id\\\\\\\":\\\\\\\"@contextstream/mcp-server@1.0 [...] .0.37\\\\\\\",\\\\\\\"keywords\\\\\\\":[\\\\\\\"mcp\\\\\\\",\\\\\\\"model-context-protocol\\\\\\\",\\\\\\\"contextstream\\\\\\\",\\\\\\\"semantic-search\\\\\\\",\\\\\\\"memory\\\\\\\",\\\\\\\"developer-tools\\\\\\\",\\\\\\\"cursor\\\\\\\",\\\\\\\"claude-code\\\\\\\",\\\\\\\"codex\\\\\\\",\\\\\\\"shared-context\\\\\\\",\\\\\\\"project-context\\\\\\\",\\\\\\\"mcp-server\\\\\\\",\\\\\\\"ai-coding\\\\\\\",\\\\\\\"kimi\\\\\\\",\\\\\\\"kimi-code\\\\\\\",\\\\\\\"glm\\\\\\\",\\\\\\\"zai\\\\\\\",\\\\\\\"zcode\\\\\\\",\\\\\\\"qwen-code\\\\\\\",\\\\\\\"gem\", \"result_id\": \"de6d85a5-5121-4e3d-92b1-248d0d7f41e7\", \"preview_end\": 3000, \"total_chars\": 7844, \"next_offset\": 3000, \"truncated\": true, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://github.com/Fission-AI/OpenSpec/issues/319\", \"title\": \"Implement OpenSpec as an MCP Server for Universal AI Assistant Integration · Issue #319 · Fission-AI/OpenSpec · GitHub\", \"retrieved_at\": \"2026-10-30T15:24:45.107719+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"c04fd8d9-e8e6-414c-8651-280869a289cd\", \"text_obtained\": true}, {\"url\": \"https://registry.npmjs.org/%40contextstream%2Fmcp-server\", \"title\": \"ContextStream MCP Server\", \"retrieved_at\": \"2026-10-30T15:24:45.108649+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"ee49210c-a85f-4172-9caa-7f8331a74d56\", \"text_obtained\": true}, {\"url\": \"https://www.cbinsights.com/company/openspec\", \"title\": \"OpenSpec - Products, Competitors, Financials, Employees, Headquarters Locations\", \"retrieved_at\": \"2026-10-30T15:24:45.109465+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"b37b20d8-7977-4c0c-b803-43495621033c\", \"text_obtained\": true}, {\"url\": \"https://tracxn.com/d/companies/openspec/__vdQn3HXiwU_nAkPP9oEghYqF-qXJ099owb8F8qLD-Qk\", \"title\": \"OpenSpec - 2026 Company Profile, Team & Competitors - Tracxn\", \"retrieved_at\": \"2026-10-30T15:24:45.110192+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"86e43dde-add3-4ff5-86b9-dbdd788c6e26\", \"text_obtained\": true}, {\"url\": \"https://pitchbook.com/profiles/company/512804-26\", \"title\": \"OpenSpec 2026 Company Profile: Valuation, Funding & Investors | PitchBook\", \"retrieved_at\": \"2026-10-30T15:24:45.111266+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"4cbc632a-9219-4abe-9251-13f96d3b42dc\", \"text_obtained\": true}]}",
+      "source_urls": [
+        "https://github.com/Fission-AI/OpenSpec/issues/319",
+        "https://registry.npmjs.org/%40contextstream%2Fmcp-server",
+        "https://www.cbinsights.com/company/openspec",
+        "https://tracxn.com/d/companies/openspec/__vdQn3HXiwU_nAkPP9oEghYqF-qXJ099owb8F8qLD-Qk",
+        "https://pitchbook.com/profiles/company/512804-26"
+      ],
+      "local_result_truncated": true
+    },
+    {
+      "sequence": 3,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:24:45.122381Z",
+      "finished_at": "2026-10-30T15:24:48.559851Z",
+      "details": {
+        "round": 2,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 4,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:24:48.568025Z",
+      "finished_at": "2026-10-30T15:24:53.471563Z",
+      "details": {
+        "tool": "tavily_search",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+        "query": "site:github.com/Fission-AI/OpenSpec OpenSpec AI agent skill MCP \"MCP\""
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"query\\\": \\\"OpenSpec AI agent skill MCP MCP\\\", \\\"follow_up_questions\\\": null, \\\"answer\\\": null, \\\"images\\\": [], \\\"results\\\": [{\\\"url\\\": \\\"https://github.com/Fission-AI/OpenSpec/issues/319\\\", \\\"title\\\": \\\"Implement OpenSpec as an MCP Server for Universal AI Assistant Integration · Issue #319 · Fission-AI/OpenSpec · GitHub\\\", \\\"content\\\": \\\"I propose implementing OpenSpec as a Model Context Protocol (MCP) server. This would enable any MCP-compatible AI assistant (Claude, GitHub Copilot, Amazon Q, etc.) to directly interact with OpenSpec's change proposals, specifications, and project context—making spec-driven development workflows available across the entire AI assistant ecosystem beyond just command-line tools.We propose implementing OpenSpec as a Model Context Protocol (MCP) server. This would enable any MCP-compatible AI [...] ## Motivation\\\\n\\\\n   OpenSpec currently supports spec-driven development through integrations with specific AI tools (Claude Code, Cursor, Cline, Codex, etc.) via slash commands and custom workflows. However, the Model Context Protocol (MCP) provides a platform-agnostic standard that could dramatically expand OpenSpec's accessibility: [...] > There are definitely some benefits of having MCP -> Mainly around interoperability.\\\\n   >\\\\n   > My view here is in line with `gh cli` vs `Github MCP`. The Github MCP does everything the gh cli can do but comes at the cost of extra uneeded context being loaded in every session. I've been relucatant to add in MCP because this would add context bloat for developers even when they aren't using OpenSpec.\\\\n   >\\\", \\\"score\\\": 0.7533401, \\\"raw_content\\\": null, \\\"id\\\": \\\"53b0a1-00\\\"}, {\\\"url\\\": \\\"https://github.com/Fission-AI/OpenSpec/discussions/359\\\", \\\"title\\\": \\\"Using OpenSpec as a Claude Code skill inside Personal AI Infrastructure · Fission-AI/OpenSpec · Discussion #359 · GitHub\\\", \\\"content\\\": \\\"honest we've been applying the \\\\\\\"Skills\\\\\\\" approach way before it was Introduced by Anthropic. Including progressive disclosure ;)  If you take a look when openspec is intiialized we edit the root AGENTS.md or CLAUDE.md and add a small note to tell agents to reference `/openspec/AGENTS.md` where we tell the agent how to use openspec! This is very close to what would be in a skill itself.  But not that the approach is solidified we can convert that convention doc into proper skills. | [...] | Hey @mellanon! Sorry I just saw this.  Have you experimented with embedding OpenSpec into agent or skill workflows (Claude Code or otherwise)?  Yes, there will be be skills added to OpenSpec soon, especially now that it's a formal standard. There's some work happening in the background to refactor a lot of OpenSpec so haven't had a chance to do this yet, but soon!  Does thinking of OpenSpec as an LLM capability pattern (not just tooling) resonate?  Haha of course! To be honest we've been [...] or skill workflows (Claude Code or otherwise)?  Does thinking of OpenSpec as an LLM capability pattern (not just tooling) resonate?   Any feedback, critiques,\", \"result_id\": \"c09268ea-8402-481e-a9bf-1338da3f6f31\", \"preview_end\": 3000, \"total_chars\": 8364, \"next_offset\": 3000, \"truncated\": true, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://github.com/Fission-AI/OpenSpec/issues/319\", \"title\": \"Implement OpenSpec as an MCP Server for Universal AI Assistant Integration · Issue #319 · Fission-AI/OpenSpec · GitHub\", \"retrieved_at\": \"2026-10-30T15:24:53.463251+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"a9c9499c-39be-4f9f-8291-312a5aa12083\", \"text_obtained\": true}, {\"url\": \"https://github.com/Fission-AI/OpenSpec/discussions/359\", \"title\": \"Using OpenSpec as a Claude Code skill inside Personal AI Infrastructure · Fission-AI/OpenSpec · Discussion #359 · GitHub\", \"retrieved_at\": \"2026-10-30T15:24:53.465045+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"743b22d0-a257-434b-a145-e634f667ee8d\", \"text_obtained\": true}, {\"url\": \"https://github.com/Fission-AI/OpenSpec/issues/611\", \"title\": \"Are skills even necessary? why bloat context with 10 openspec skills? · Issue #611 · Fission-AI/OpenSpec · GitHub\", \"retrieved_at\": \"2026-10-30T15:24:53.466831+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"d13529c8-88d4-4d8d-9127-fba8154a7804\", \"text_obtained\": true}, {\"url\": \"https://github.com/Fission-AI/OpenSpec/issues/366\", \"title\": \"Claude Skills support · Issue #366 · Fission-AI/OpenSpec · GitHub\", \"retrieved_at\": \"2026-10-30T15:24:53.468245+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"94feee49-86a9-4c23-a9c3-4306b883371a\", \"text_obtained\": true}, {\"url\": \"https://github.com/Fission-AI/openspec\", \"title\": \"GitHub - Fission-AI/OpenSpec: Spec-driven development (SDD) for AI coding assistants. · GitHub\", \"retrieved_at\": \"2026-10-30T15:24:53.469380+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"d721db3b-ea4e-4cf4-8b8f-396fb5d5f8c5\", \"text_obtained\": true}]}",
+      "source_urls": [
+        "https://github.com/Fission-AI/OpenSpec/issues/319",
+        "https://github.com/Fission-AI/OpenSpec/discussions/359",
+        "https://github.com/Fission-AI/OpenSpec/issues/611",
+        "https://github.com/Fission-AI/OpenSpec/issues/366",
+        "https://github.com/Fission-AI/openspec"
+      ],
+      "local_result_truncated": true
+    },
+    {
+      "sequence": 5,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:24:53.487614Z",
+      "finished_at": "2026-10-30T15:24:57.768751Z",
+      "details": {
+        "round": 3,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 6,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:24:57.782916Z",
+      "finished_at": "2026-10-30T15:25:04.084649Z",
+      "details": {
+        "tool": "tavily_search",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+        "query": "OpenSpec official documentation skills integrations MCP server"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"query\\\": \\\"OpenSpec official documentation skills integrations MCP server\\\", \\\"follow_up_questions\\\": null, \\\"answer\\\": null, \\\"images\\\": [], \\\"results\\\": [{\\\"url\\\": \\\"https://github.com/Fission-AI/OpenSpec/issues/319\\\", \\\"title\\\": \\\"Implement OpenSpec as an MCP Server for Universal AI Assistant Integration · Issue #319 · Fission-AI/OpenSpec · GitHub\\\", \\\"content\\\": \\\"1. Universal Assistant Support: Enable OpenSpec integration for any MCP-compatible AI tool, including Claude via Claude.ai, new emerging AI assistants, and enterprise identity providers integrating MCP servers.\\\\n   2. Ecosystem-Agnostic Access: Rather than implementing OpenSpec integrations tool-by-tool, an MCP server becomes the single source of truth that works everywhere MCP is supported.\\\\n   3. Enhanced Cross-Tool Workflows: Teams using mixed AI tooling (Claude Code in IDE, Claude.ai in browser, Amazon Q in terminal) could share and collaborate on the same OpenSpec project context seamlessly. [...] Hello, everyone.  \\\\n I propose implementing OpenSpec as a Model Context Protocol (MCP) server. This would enable any MCP-compatible AI assistant (Claude, GitHub Copilot, Amazon Q, etc.) to directly interact with OpenSpec's change proposals, specifications, and project context—making spec-driven development workflows available across the entire AI assistant ecosystem beyond just command-line tools.We propose implementing OpenSpec as a Model Context Protocol (MCP) server. This would enable any MCP-compatible AI assistant (Claude, GitHub Copilot, Amazon Q, etc.) to directly interact with OpenSpec's change proposals, specifications, and project context—making spec-driven development workflows available across the entire AI assistant ecosystem beyond just command-line tools. [...] ### MCP Server: OpenSpec Context Protocol\\\\n\\\\n   We propose an MCP server that exposes OpenSpec project structure and workflows as MCP resources and tools:\\\\n\\\\n   #### Resources\\\\n\\\\n   Expose OpenSpec project state as queryable resources:\\\\n\\\\n    `openspec://project` - Project metadata from `openspec/project.md`\\\\n    `openspec://specs/{domain}` - Current specifications by domain\\\\n    `openspec://changes/{change-id}` - Active change proposals and their details\\\\n    `openspec://changes/{change-id}/tasks` - Implementation task lists\\\\n    `openspec://archive/{change-id}` - Archived changes for historical reference\\\\n    `openspec://agents` - AI assistant configuration from `AGENTS.md`\\\\n\\\\n   #### Tools\\\\n\\\\n   Provide spec-driven workflow operations:\\\", \\\"score\\\": 0.72629017, \\\"raw_content\\\": null, \\\"id\\\": \\\"a7e2da-00\\\"}, {\\\"url\\\": \\\"https://mcpservers.org/agent-skills/rivet-dev/rivet/openspec-explore\\\", \\\"title\\\": \\\"openspec-explore | Claude Skills & Agent Skills Library\\\", \\\"content\\\": \\\"The OAuth integration is more complex than expected. MCP Servers A directory of Model Context Protocol servers, clients, and guides for building with AI agents.\\\", \\\"score\\\": 0.6721816, \\\"raw_content\\\": null, \\\"id\\\": \\\"f069af-01\\\"}, {\\\"url\\\": \\\"https://developer.ibm.com/articles/agent-skill\", \"result_id\": \"95118f89-5a0f-41a1-a084-c80ae4abfa7f\", \"preview_end\": 3000, \"total_chars\": 10350, \"next_offset\": 3000, \"truncated\": true, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://github.com/Fission-AI/OpenSpec/issues/319\", \"title\": \"Implement OpenSpec as an MCP Server for Universal AI Assistant Integration · Issue #319 · Fission-AI/OpenSpec · GitHub\", \"retrieved_at\": \"2026-10-30T15:25:04.074221+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"2ff64dfa-a117-4a68-a20d-477662d11a1d\", \"text_obtained\": true}, {\"url\": \"https://mcpservers.org/agent-skills/rivet-dev/rivet/openspec-explore\", \"title\": \"openspec-explore | Claude Skills & Agent Skills Library\", \"retrieved_at\": \"2026-10-30T15:25:04.077887+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"0274f50d-8b33-4f6a-a10b-a6095c684c93\", \"text_obtained\": true}, {\"url\": \"https://developer.ibm.com/articles/agent-skills-mcp-servers\", \"title\": \"Build intelligent agents with skills and MCP servers\", \"retrieved_at\": \"2026-10-30T15:25:04.080323+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"ee622793-7eab-4c1e-afac-3094927edccf\", \"text_obtained\": true}, {\"url\": \"https://lagrowthmachine.com/stripe-mcp\", \"title\": \"Stripe MCP: What It Does & How to Connect It\", \"retrieved_at\": \"2026-10-30T15:25:04.081431+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"ffce7fa7-9f31-4072-95a2-e75e4eeb511c\", \"text_obtained\": true}, {\"url\": \"https://help.boomi.com/docs/Atomsphere/Platform/Using_the_MCP_registry\", \"title\": \"Using the MCP Server Catalog | Boomi Documentation\", \"retrieved_at\": \"2026-10-30T15:25:04.082465+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"e65535b7-8d80-4606-a7ac-88fdfb5ce7eb\", \"text_obtained\": true}]}",
+      "source_urls": [
+        "https://github.com/Fission-AI/OpenSpec/issues/319",
+        "https://mcpservers.org/agent-skills/rivet-dev/rivet/openspec-explore",
+        "https://developer.ibm.com/articles/agent-skills-mcp-servers",
+        "https://lagrowthmachine.com/stripe-mcp",
+        "https://help.boomi.com/docs/Atomsphere/Platform/Using_the_MCP_registry"
+      ],
+      "local_result_truncated": true
+    },
+    {
+      "sequence": 7,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:24:57.792295Z",
+      "finished_at": "2026-10-30T15:25:06.959306Z",
+      "details": {
+        "tool": "tavily_extract",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+        "query": "skills MCP integrations"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"results\\\": [{\\\"url\\\": \\\"https://github.com/Fission-AI/OpenSpec\\\", \\\"title\\\": \\\"GitHub - Fission-AI/OpenSpec: Spec-driven development (SDD) for AI coding assistants. · GitHub\\\", \\\"raw_content\\\": \\\"| Name | Name | Last commit message | Last commit date |\\\\n ---  --- |\\\\n| .agents/skills | .agents/skills |  |  |\\\\n| .changeset | .changeset |  |  |\\\\n| .devcontainer | .devcontainer |  |  |\\\\n| .github | .github |  |  |\\\\n| assets | assets |  |  |\\\\n| bin | bin |  |  |\\\\n| docs-lab | docs-lab |  |  |\\\\n| docs | docs |  |  |\\\\n| openspec | openspec |  |  |\\\\n| schemas/spec-driven | schemas/spec-driven |  |  |\\\\n| scripts | scripts |  |  |\\\\n| skills | skills |  |  |\\\\n| src | src |  |  |\\\\n| test | test |  |  |\\\\n| website | website |  |  |\\\\n| .actrc | .actrc |  |  |\\\\n| .coderabbit.yaml | .coderabbit.yaml |  |  |\\\\n| .gitattributes | .gitattributes |  |  |\\\\n| .gitignore | .gitignore |  |  |\\\\n| AGENTS.md | AGENTS.md |  |  |\\\\n| CHANGELOG.md | CHANGELOG.md |  |  |\\\\n| CONTRIBUTING.md | CONTRIBUTING.md |  |  | [...] | CONTRIBUTING.md | CONTRIBUTING.md |  |  |\\\\n| LICENSE | LICENSE |  |  |\\\\n| MAINTAINERS.md | MAINTAINERS.md |  |  |\\\\n| README.md | README.md |  |  |\\\\n| README\\\\\\\\_OLD.md | README\\\\\\\\_OLD.md |  |  |\\\\n| SECURITY.md | SECURITY.md |  |  |\\\\n| build.js | build.js |  |  |\\\\n| eslint.config.js | eslint.config.js |  |  |\\\\n| flake.lock | flake.lock |  |  |\\\\n| flake.nix | flake.nix |  |  |\\\\n| install.md | install.md |  |  |\\\\n| openspec-parallel-merge-plan.md | openspec-parallel-merge-plan.md |  |  |\\\\n| package.json | package.json |  |  |\\\\n| pnpm-lock.yaml | pnpm-lock.yaml |  |  |\\\\n| pnpm-workspace.yaml | pnpm-workspace.yaml |  |  |\\\\n| tsconfig.json | tsconfig.json |  |  |\\\\n| vitest.config.ts | vitest.config.ts |  |  |\\\\n| vitest.setup.ts | vitest.setup.ts |  |  |\\\\n|  | [...] ## Docs\\\\n\\\\nFull documentation lives at openspec.dev/docs.\\\\n\\\\n→ Quickstart: your first change, start to finish  \\\\n → Set up your project: what `openspec init` installs  \\\\n → CLI: terminal reference  \\\\n → Supported Tools: tool integrations & install paths  \\\\n → Customize: profiles, project config, and schemas  \\\\n → Stores: plan in a separate repo, shared across your team (beta)  \\\\n → Community Showcase: projects and resources built with and for OpenSpec\\\\n\\\\n## Community schemas\\\\n\\\\nThird-party schema bundles distributed via standalone repositories — these provide opinionated workflows that integrate OpenSpec with other tools, similar to how github/spec-kit's community extension catalog handles tool integrations.\\\\n\\\\n→ Browse the catalog in the customization docs.\\\\n\\\\n## Why OpenSpec?\\\", \\\"images\\\": []}], \\\"failed_results\\\": [], \\\"response_time\\\": 0.09, \\\"request_id\\\": \\\"7e4057e8-f50d-4bc7-97f9-4dc99acb7bfd\\\", \\\"auth_mode\\\": \\\"keyed\\\"}\", \"result_id\": \"2cba306c-2878-4429-8b47-b10d43b20397\", \"preview_end\": 2690, \"total_chars\": 2690, \"next_offset\": null, \"truncated\": false, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://github.com/Fission-AI/OpenSpec\", \"title\": \"GitHub - Fission-AI/OpenSpec: Spec-driven development (SDD) for AI coding assistants. · GitHub\", \"retrieved_at\": \"2026-10-30T15:25:06.956166+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"extracted\", \"file_id\": \"ef01cd39-18c6-4664-a0e1-c866c3821a88\", \"text_obtained\": true}]}",
+      "source_urls": ["https://github.com/Fission-AI/OpenSpec"],
+      "local_result_truncated": false
+    },
+    {
+      "sequence": 8,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:25:06.976553Z",
+      "finished_at": "2026-10-30T15:25:14.386286Z",
+      "details": {
+        "round": 4,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 9,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:25:14.398766Z",
+      "finished_at": "2026-10-30T15:25:20.336871Z",
+      "details": {
+        "tool": "tavily_search",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+        "query": "site:openspec.dev OpenSpec skills MCP"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"query\\\": \\\"OpenSpec skills MCP\\\", \\\"follow_up_questions\\\": null, \\\"answer\\\": null, \\\"images\\\": [], \\\"results\\\": [{\\\"url\\\": \\\"https://openspec.dev/docs/skills\\\", \\\"title\\\": \\\"Skills | OpenSpec\\\", \\\"content\\\": \\\"| Contract | Description |\\\\n --- |\\\\n| Arguments | A change proposal name, optional, plus the revision you want. With no revision stated it runs a coherence review: artifacts checked against each other for contradictions, gaps, and duplication. |\\\\n| Creates | Edits artifact files that already exist. One exception: for an artifact written as a glob, such as `specs//.md`, that already has at least one file, it can add a missing companion file once you confirm the path. An artifact with no files yet is `openspec-continue-change`'s job. Without that skill (the core profile leaves it out), it points to `openspec status` and `openspec instructions` instead. Never code. | [...] | openspec-ff-change | Create a change proposal with every artifact implementation needs, in one pass | Optional |\\\\n| openspec-verify-change | Check the implementation matches the plan | Optional |\\\\n| openspec-bulk-archive-change | Archive several change proposals at once | Optional |\\\\n| openspec-onboard | Learn the workflow by doing one real change proposal end to end | Optional | [...] | Skill | Job | Type |\\\\n --- \\\\n| openspec-explore | Think through an idea before it becomes a change proposal | Core |\\\\n| openspec-propose | Create a change proposal with all its planning artifacts in one step | Core |\\\\n| openspec-apply-change | Implement a change proposal's tasks | Core |\\\\n| openspec-update-change | Revise a change proposal's plan | Core |\\\\n| openspec-sync-specs | Merge a change proposal's spec updates into `specs/` | Core |\\\\n| openspec-archive-change | Move a finished change proposal to the archive | Core |\\\\n| openspec-new-change | Start a change proposal as an empty scaffold | Optional |\\\\n| openspec-continue-change | Create the next planning artifact, one at a time | Optional |\\\", \\\"score\\\": 0.75027883, \\\"raw_content\\\": null, \\\"id\\\": \\\"9eed50-00\\\"}, {\\\"url\\\": \\\"https://openspec.dev/docs/setup\\\", \\\"title\\\": \\\"Set up your project | OpenSpec\\\", \\\"content\\\": \\\".agents/skills/.agents/skills/├── openspec-explore/ think through an idea first├── openspec-explore/ think through an idea first├── openspec-propose/ propose a change├── openspec-propose/ propose a change├── openspec-apply-change/ implement a change's tasks├── openspec-apply-change/ implement a change's tasks├── openspec-update-change/ revise a change's plan├── openspec-update-change/ revise a change's plan├── openspec-sync-specs/ sync a change's spec updates into specs/├── openspec-sync-specs/ sync a change's spec updates into specs/├── openspec-archive-change/ move a finished change to the archive├── openspec-archive-change/ move a finished change to the archive├── openspec-verify-change/ check the implementation matches the plan (not included by default)├── openspec-verify-change/ [...] This is the default set plus two optional workflows. Profiles lists al\", \"result_id\": \"8f536dbc-13b0-40da-aef1-10da8f29a5b1\", \"preview_end\": 3000, \"total_chars\": 10951, \"next_offset\": 3000, \"truncated\": true, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://openspec.dev/docs/skills\", \"title\": \"Skills | OpenSpec\", \"retrieved_at\": \"2026-10-30T15:25:20.325582+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"0e58df57-5197-4976-af46-ec69a29265fa\", \"text_obtained\": true}, {\"url\": \"https://openspec.dev/docs/setup\", \"title\": \"Set up your project | OpenSpec\", \"retrieved_at\": \"2026-10-30T15:25:20.329483+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"ec6cc1b1-29c1-49fb-a0a3-bbdbec5b2909\", \"text_obtained\": true}, {\"url\": \"https://openspec.dev/docs\", \"title\": \"Installation | OpenSpec\", \"retrieved_at\": \"2026-10-30T15:25:20.331516+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"10e02b0e-7b8a-4d5b-aaa4-1b5f6d9f467a\", \"text_obtained\": true}, {\"url\": \"https://openspec.dev/docs/faq\", \"title\": \"FAQ — OpenSpec\", \"retrieved_at\": \"2026-10-30T15:25:20.333195+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"99db6acc-de6a-4bb7-89fa-c42ab5bb101c\", \"text_obtained\": true}, {\"url\": \"https://openspec.dev/docs/reference/supported-tools\", \"title\": \"Supported Tools — OpenSpec\", \"retrieved_at\": \"2026-10-30T15:25:20.334481+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"2bca2844-76de-4a81-a68a-ae5513171978\", \"text_obtained\": true}]}",
+      "source_urls": [
+        "https://openspec.dev/docs/skills",
+        "https://openspec.dev/docs/setup",
+        "https://openspec.dev/docs",
+        "https://openspec.dev/docs/faq",
+        "https://openspec.dev/docs/reference/supported-tools"
+      ],
+      "local_result_truncated": true
+    },
+    {
+      "sequence": 10,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:25:14.408809Z",
+      "finished_at": "2026-10-30T15:25:23.801995Z",
+      "details": {
+        "tool": "tavily_extract",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+        "query": "status skills MCP official implementation"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"results\\\": [{\\\"url\\\": \\\"https://github.com/Fission-AI/OpenSpec/issues/319\\\", \\\"title\\\": \\\"Implement OpenSpec as an MCP Server for Universal AI Assistant Integration · Issue #319 · Fission-AI/OpenSpec · GitHub\\\", \\\"raw_content\\\": \\\"4. Better Developer Experience: Developers get OpenSpec capabilities in environments where custom slash commands aren't available—like Claude.ai web interface, GitHub Copilot Chat in VS Code, or any emerging MCP-compatible platform.\\\\n   5. Reduced Maintenance Burden: One MCP server implementation replaces the need for tool-specific integrations, making OpenSpec more sustainable and easier to maintain as new AI tools emerge.\\\\n   6. Enterprise Integration: Organizations can integrate OpenSpec into their MCP-compatible infrastructure (private MCP servers, enterprise AI platforms) without waiting for each tool to implement custom support. [...] Hello, everyone.  \\\\n I propose implementing OpenSpec as a Model Context Protocol (MCP) server. This would enable any MCP-compatible AI assistant (Claude, GitHub Copilot, Amazon Q, etc.) to directly interact with OpenSpec's change proposals, specifications, and project context—making spec-driven development workflows available across the entire AI assistant ecosystem beyond just command-line tools.We propose implementing OpenSpec as a Model Context Protocol (MCP) server. This would enable any MCP-compatible AI assistant (Claude, GitHub Copilot, Amazon Q, etc.) to directly interact with OpenSpec's change proposals, specifications, and project context—making spec-driven development workflows available across the entire AI assistant ecosystem beyond just command-line tools. [...] >\\\\n   > Let me know if there's any strong arguments for MCP over just providing the agent a cli they can use.\\\", \\\"images\\\": []}, {\\\"url\\\": \\\"https://github.com/Fission-AI/OpenSpec/issues/366\\\", \\\"title\\\": \\\"Claude Skills support · Issue #366 · Fission-AI/OpenSpec · GitHub\\\", \\\"raw_content\\\": \\\"Reacted by Tabish Bidiwale\\\\n7. ### TabishBcommentedon Jan 7, 2026\\\\n\\\\n   @TabishB\\\\n\\\\n   TabishB\\\\n\\\\n   on Jan 7, 2026\\\\n\\\\n   Contributor\\\\n\\\\n   More actions\\\\n\\\\n   FYI we support skills in the new experimental workflow: \\\\n\\\\n   This is only claude code for now, but we'll add other ones soon after we know this new version works well.\\\\n\\\\n   Reacted by Rodrigo Passos, SimFG, sunpeinju, An Hongpeng and kada\\\\n8. ### GeekyMonkeycommentedon Jan 12, 2026\\\\n\\\\n   @GeekyMonkey\\\\n\\\\n   GeekyMonkey\\\\n\\\\n   on Jan 12, 2026\\\\n\\\\n   More actions\\\\n\\\\n   It would be great if the setup would prompt for where to install the skills, providing defaults for the agents that currently support skills like copilot (which allows for a few different skils paths).\\\\n9. ### askpatrickwcommentedon Feb 18, 2026\\\\n\\\\n   @askpatrickw\\\\n\\\\n   askpatrickw [...] @askpatrickw\\\\n\\\\n   askpatrickw\\\\n\\\\n   on Feb 18, 2026\\\\n\\\\n   More actions\\\\n\\\\n   @TabishB thst experimental-worklow is no longer in the docs. Was something implemented tht addresses this?\\\\n10. ### webrgpcommentedon Feb 20, 2026\\\\n\\\\n    @webrgp\\\\n\\\\n\", \"result_id\": \"4cb9d18b-5d94-4f4c-bd6d-7844f3ca7368\", \"preview_end\": 3000, \"total_chars\": 4555, \"next_offset\": 3000, \"truncated\": true, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://github.com/Fission-AI/OpenSpec/issues/319\", \"title\": \"Implement OpenSpec as an MCP Server for Universal AI Assistant Integration · Issue #319 · Fission-AI/OpenSpec · GitHub\", \"retrieved_at\": \"2026-10-30T15:25:23.796834+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"extracted\", \"file_id\": \"e2e4df12-ccb8-4a39-a724-6d73e58e4326\", \"text_obtained\": true}, {\"url\": \"https://github.com/Fission-AI/OpenSpec/issues/366\", \"title\": \"Claude Skills support · Issue #366 · Fission-AI/OpenSpec · GitHub\", \"retrieved_at\": \"2026-10-30T15:25:23.798915+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"extracted\", \"file_id\": \"85f7678a-e3bb-4325-835c-5883eda4fee8\", \"text_obtained\": true}]}",
+      "source_urls": [
+        "https://github.com/Fission-AI/OpenSpec/issues/319",
+        "https://github.com/Fission-AI/OpenSpec/issues/366"
+      ],
+      "local_result_truncated": true
+    },
+    {
+      "sequence": 11,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:25:23.816497Z",
+      "finished_at": "2026-10-30T15:25:34.113557Z",
+      "details": {
+        "round": 5,
+        "finish_reason": "stop",
+        "output_bytes": 1660
+      }
+    }
+  ],
+  "per_model_usage": [
+    {
+      "usage": {
+        "input_tokens": 6873,
+        "output_tokens": 273,
+        "total_tokens": 7146,
+        "input_token_details": {
+          "cache_read": 6873
+        },
+        "output_token_details": {
+          "reasoning": 168
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+          "args": {
+            "query": "OpenSpec CLI MCP server fission-ai openspec",
+            "max_results": 6
+          },
+          "id": "tool_o4VXIYy6uUxe96bnATc6rPSi",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 8598,
+        "output_tokens": 160,
+        "total_tokens": 8758,
+        "input_token_details": {
+          "cache_read": 6912
+        },
+        "output_token_details": {
+          "reasoning": 45
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+          "args": {
+            "query": "site:github.com/Fission-AI/OpenSpec OpenSpec AI agent skill MCP \"MCP\"",
+            "max_results": 10
+          },
+          "id": "tool_Yt5STPumZKiF8n64oFtZG861",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 10194,
+        "output_tokens": 270,
+        "total_tokens": 10464,
+        "input_token_details": {
+          "cache_read": 8448
+        },
+        "output_token_details": {
+          "reasoning": 34
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+          "args": {
+            "query": "OpenSpec official documentation skills integrations MCP server",
+            "max_results": 10,
+            "search_depth": "advanced"
+          },
+          "id": "tool_Uw8T67LBnWZHUCasnjiA9Nhb",
+          "type": "tool_call"
+        },
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+          "args": {
+            "urls": ["https://github.com/Fission-AI/OpenSpec"],
+            "query": "skills MCP integrations",
+            "extract_depth": "advanced",
+            "format": "markdown"
+          },
+          "id": "tool_ieQ3blq7vRdOE7FqdvatShKe",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 12995,
+        "output_tokens": 369,
+        "total_tokens": 13364,
+        "input_token_details": {
+          "cache_read": 9984
+        },
+        "output_token_details": {
+          "reasoning": 112
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+          "args": {
+            "query": "site:openspec.dev OpenSpec skills MCP",
+            "max_results": 10,
+            "search_depth": "advanced"
+          },
+          "id": "tool_dBUV6hh2UoFAJOHHENBQo78Y",
+          "type": "tool_call"
+        },
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+          "args": {
+            "urls": [
+              "https://github.com/Fission-AI/OpenSpec/issues/319",
+              "https://github.com/Fission-AI/OpenSpec/issues/366"
+            ],
+            "query": "status skills MCP official implementation",
+            "extract_depth": "advanced",
+            "format": "markdown"
+          },
+          "id": "tool_WT1DmMQ9UyQhgBq9d859LuoC",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 15788,
+        "output_tokens": 500,
+        "total_tokens": 16288,
+        "input_token_details": {
+          "cache_read": 12800
+        },
+        "output_token_details": {
+          "reasoning": 90
+        }
+      },
+      "tool_calls": []
+    }
+  ],
+  "mode": "fresh",
+  "same_user_session_binding_refreshed": true,
+  "guard_changes": {
+    "max_model_calls": [8, 24],
+    "recursion_limit": [64, 256],
+    "run_timeout": [180, 600]
+  },
+  "baseline": {
+    "model_calls": 8,
+    "tool_calls": 8,
+    "skill_reads": 0,
+    "started_at": "2026-10-30T14:29:42.249934Z",
+    "finished_at": "2026-10-30T14:31:42.317931Z",
+    "usage": {
+      "input_tokens": 85987,
+      "output_tokens": 1617,
+      "total_tokens": 87604,
+      "cached_input_tokens": 77824,
+      "reasoning_tokens": 693
+    }
+  },
+  "snapshot_identity": {
+    "model_id": "kimi-for-coding",
+    "provider": "kimi-code",
+    "system_prompt_sha256": "22db8fa054684060c254027ce99df961222ad87ec82a7b78cafc95c6dacc93aa",
+    "tool_names": [
+      "tavily_search",
+      "tavily_extract",
+      "tavily_crawl",
+      "tavily_map",
+      "tavily_research",
+      "resolve-library-id",
+      "query-docs"
+    ],
+    "input": "OpenSpec 是 skill 还是 mcp ？"
+  },
+  "isolation": "Private database copy, no source database writes, original vault read only",
+  "limitations": [
+    "Resume is an experimental reactivation in the copy, not a supported retry of a terminal run.",
+    "Fresh retains the original accepted snapshot, rather than recapturing current configuration.",
+    "Only the raised model, graph and total-time guards differ from the original snapshot."
+  ],
+  "new_execution_seconds": 58.3238695000764,
+  "active_total_seconds": 58.3238695000764
+}

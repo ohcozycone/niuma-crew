@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1710" role="img" aria-labelledby="title desc">
+<title id="title">后端重设计｜交流、工作与执行各有归属</title><desc id="desc">阶段 A 已实现；任务、知识与通用工具后续建设。箭头表示调用或使用，省略查询与返回。</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0L9 3.5L0 7Z" fill="#a2b1c8"/></marker>
+<style>text{font-family:'PingFang SC','Noto Sans SC',sans-serif;fill:#e4ebf5;font-size:20px}.title{font-size:37px;font-weight:650}.sub{font-size:19px;fill:#a2b1c8}.label{font-size:23px;font-weight:600}.name{font-size:21px;font-weight:600}.small{font-size:17px;fill:#b3c1d5}.note{font-size:19px;fill:#d0dbea}.code{font-size:16px;fill:#a2b1c8;font-family:'SF Mono','PingFang SC',monospace}.edge{fill:none;stroke:#a2b1c8;stroke-width:2;marker-end:url(#arrow)}</style></defs>
+<rect width="1600" height="1710" fill="#0d1728"/>
+<rect x="48" y="42" width="48" height="5" rx="2" fill="#78c8b0"/>
+
+<path d="M48 1574H1552" stroke="#30435e"/>
+<path d="M200 950V1110" class="edge"/>
+<path d="M500 950V1110" class="edge"/>
+<path d="M800 950V1110" class="edge"/>
+<path d="M1100 950V1110" class="edge"/>
+<path d="M1400 950V1110" class="edge"/>
+<path d="M405 500V370" class="edge"/>
+<path d="M1195 500V370" class="edge"/>
+<path d="M500 640V770" class="edge"/>
+<path d="M1120 770V640" class="edge"/>
+<text x="48" y="101" class="title" text-anchor="start">后端重设计｜交流、工作与执行各有归属</text>
+<text x="48" y="144" class="sub" text-anchor="start">阶段 A 已实现；任务、知识与通用工具后续建设。箭头表示调用或使用，省略查询与返回。</text>
+<text x="1552" y="56" class="code" text-anchor="end">DRAFT · 2026-10-26</text>
+<g data-component="card"><rect x="80" y="220" width="650" height="150" rx="10" fill="#18283e" stroke="#69c7dc"/>
+<text x="98" y="254" class="name" text-anchor="start" style="fill:#69c7dc">对话 · conversations</text>
+<text x="98" y="285" class="small" text-anchor="start">对话归属、产品消息与上下文选择</text>
+<text x="98" y="311" class="small" text-anchor="start">发布助手消息；不拥有执行器或任务验收</text>
+<text x="98" y="337" class="small" text-anchor="start">首个改造入口：现有聊天</text>
+</g>
+<g data-component="card"><rect x="870" y="220" width="650" height="150" rx="10" fill="#18283e" stroke="#69c7dc" stroke-dasharray="7 5"/>
+<text x="888" y="254" class="name" text-anchor="start" style="fill:#69c7dc">任务 · tasks</text>
+<text x="888" y="285" class="small" text-anchor="start">工作目标、固定输入、成果与验收</text>
+<text x="888" y="311" class="small" text-anchor="start">可以没有对话；一次任务可以有多次尝试</text>
+<text x="888" y="337" class="small" text-anchor="start">后续按真实工作需求建设</text>
+</g>
+<g data-component="card"><rect x="80" y="500" width="1440" height="140" rx="10" fill="#18283e" stroke="#c0a6e7"/>
+<text x="98" y="534" class="name" text-anchor="start" style="fill:#c0a6e7">应用用例 · use_cases</text>
+<text x="98" y="565" class="small" text-anchor="start">组织跨模块短事务：接受输入 + 创建 Run；发布结果 + 更新业务主体 + Run 终态</text>
+<text x="98" y="591" class="small" text-anchor="start">业务规则由各模块提供；结果发布适配器由 bootstrap 组合，共用事务、不自行提交</text>
+</g>
+<g data-component="card"><rect x="80" y="770" width="1440" height="180" rx="10" fill="#18283e" stroke="#e7bd77"/>
+<text x="98" y="804" class="name" text-anchor="start" style="fill:#e7bd77">执行系统 · execution（合并 runs / runtime 的所有权）</text>
+<text x="98" y="835" class="small" text-anchor="start">Run / RunSpec / RunAction / RunResult：身份、依据、实际动作、稳定结果</text>
+<text x="98" y="861" class="small" text-anchor="start">准入、预算、调度、取消、恢复与终态；模型和工具调用在业务事务外</text>
+<text x="98" y="887" class="small" text-anchor="start">内部隔离 SDK 与 checkpoint；不持有对话、任务验收或 CI 专属字段</text>
+</g>
+<g data-component="card"><rect x="80" y="1110" width="240" height="140" rx="10" fill="#18283e" stroke="#78c8b0"/>
+<text x="98" y="1144" class="name" text-anchor="start" style="fill:#78c8b0">员工 · agents</text>
+<text x="98" y="1175" class="small" text-anchor="start">岗位与装配引用</text>
+<text x="98" y="1201" class="small" text-anchor="start">提供本次配置视图</text>
+</g>
+<text x="220" y="1040" class="small" text-anchor="start">配置</text>
+<g data-component="card"><rect x="380" y="1110" width="240" height="140" rx="10" fill="#18283e" stroke="#78c8b0"/>
+<text x="398" y="1144" class="name" text-anchor="start" style="fill:#78c8b0">方法 · skills</text>
+<text x="398" y="1175" class="small" text-anchor="start">标准内容与资源</text>
+<text x="398" y="1201" class="small" text-anchor="start">方法不等于许可</text>
+</g>
+<text x="520" y="1040" class="small" text-anchor="start">方法</text>
+<g data-component="card"><rect x="680" y="1110" width="240" height="140" rx="10" fill="#18283e" stroke="#78c8b0"/>
+<text x="698" y="1144" class="name" text-anchor="start" style="fill:#78c8b0">工具 · tools</text>
+<text x="698" y="1175" class="small" text-anchor="start">连接、目录与许可</text>
+<text x="698" y="1201" class="small" text-anchor="start">受控实际调用</text>
+</g>
+<text x="820" y="1040" class="small" text-anchor="start">工具</text>
+<g data-component="card"><rect x="980" y="1110" width="240" height="140" rx="10" fill="#18283e" stroke="#78c8b0"/>
+<text x="998" y="1144" class="name" text-anchor="start" style="fill:#78c8b0">知识 · knowledge</text>
+<text x="998" y="1175" class="small" text-anchor="start">资料版本与发布</text>
+<text x="998" y="1201" class="small" text-anchor="start">检索和来源定位</text>
+</g>
+<text x="1120" y="1040" class="small" text-anchor="start">检索</text>
+<g data-component="card"><rect x="1280" y="1110" width="240" height="140" rx="10" fill="#18283e" stroke="#78c8b0"/>
+<text x="1298" y="1144" class="name" text-anchor="start" style="fill:#78c8b0">模型连接与调用</text>
+<text x="1298" y="1175" class="small" text-anchor="start">model_connections / llm</text>
+<text x="1298" y="1201" class="small" text-anchor="start">秘密管理 / 协议适配</text>
+</g>
+<text x="1420" y="1040" class="small" text-anchor="start">模型</text>
+<g data-component="card"><rect x="80" y="1380" width="1440" height="105" rx="10" fill="#18283e" stroke="#a2b1c8"/>
+<text x="98" y="1414" class="name" text-anchor="start" style="fill:#a2b1c8">共同支撑 · auth / infrastructure</text>
+<text x="98" y="1445" class="small" text-anchor="start">身份、当前操作范围、业务数据库与事务机制；不是所有模块依次经过的一条流水线</text>
+</g>
+<text x="425" y="440" class="small" text-anchor="start">校验 / 发布消息</text>
+<text x="1215" y="440" class="small" text-anchor="start">校验 / 发布成果</text>
+<text x="520" y="710" class="small" text-anchor="start">准入 / 取消 / 重试</text>
+<text x="1140" y="710" class="small" text-anchor="start">调用注入的结果发布接口</text>
+<text x="48" y="1596" class="small" text-anchor="start">稳定内容：Message / Deliverable 引用 RunResult；SDK checkpoint 只承担内部执行与恢复，不是产品历史库。</text>
+<text x="48" y="1625" class="small" text-anchor="start">后续组合：Plan 表达计划，规划模式约束本次工作；Goal 在一次 Run 收尾后决定是否续跑。</text>
+<text x="48" y="1654" class="small" text-anchor="start">实线：运行时调用或使用，非源码导入；虚线框：后续任务模块。目标图不表示上述能力均已实现。</text>
+<text x="1552" y="1685" class="code" text-anchor="end">NIUMACREW / BACKEND / 2026-10-26</text>
+</svg>

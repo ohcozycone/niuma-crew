@@ -1,0 +1,108 @@
+{
+  "schema_version": "ecc.agent-architecture-audit.report.v1",
+  "executive_verdict": {
+    "overall_health": "high_risk",
+    "primary_failure_mode": "Evidence sufficient but continued tool selection exhausted all model calls; no budget-aware finalization",
+    "most_urgent_fix": "Reserve answer generation within the existing hard model-call limit"
+  },
+  "scope": {
+    "target_name": "NiumaCrew conversation 54acf178-efc3-4b5b-ba41-d0b687801d2b",
+    "model_stack": [
+      "kimi-for-coding",
+      "LangChain create_agent",
+      "Deep Agents skill/filesystem middleware",
+      "SQLite checkpoint"
+    ],
+    "layers_to_audit": [
+      "system_prompt",
+      "session_history",
+      "tool_selection",
+      "tool_interpretation",
+      "platform_rendering",
+      "hidden_repair_loops",
+      "persistence"
+    ]
+  },
+  "findings": [
+    {
+      "severity": "high",
+      "title": "No finalization opportunity within hard model budget",
+      "mechanism": "All 8 model outputs request tools; the SDK refuses a subsequent model call and no answer exists",
+      "source_layer": "Tool selection / runtime control",
+      "root_cause": "Hard budget exists without exposing remaining budget or reserving an answer phase",
+      "evidence_refs": [
+        "backend/app/agent_runtime/middleware.py:175",
+        "backend/app/execution/store.py:190",
+        "backend/app/agent_runtime/langchain.py:227",
+        "run-trace.json:actions"
+      ],
+      "confidence": 0.99,
+      "recommended_fix": "Reserve at least one answer-only call within the total budget, preserving cancellation and permission checks"
+    },
+    {
+      "severity": "high",
+      "title": "Known upstream search failure is recorded as success",
+      "mechanism": "The second search returned a structured 429 error but ToolMessage and RunAction both report success",
+      "source_layer": "Tool interpretation",
+      "root_cause": "Protocol success is used as business success without mapping the known provider error envelope",
+      "evidence_refs": [
+        "backend/app/tools/invocation.py:100",
+        "backend/app/agent_runtime/tool_calls.py:256",
+        "run-trace.json:actions[3]"
+      ],
+      "confidence": 1.0,
+      "recommended_fix": "Preserve protocol errors and narrowly normalize known provider error envelopes"
+    },
+    {
+      "severity": "medium",
+      "title": "Query-selected passages and local preview completeness are different scopes",
+      "mechanism": "All extract calls specify query; returned fragments include omission markers and repeated reads provide incomplete context",
+      "source_layer": "Tool interpretation / answer shaping",
+      "root_cause": "The result representation lacks explicit retrieval scope and encourages re-querying rather than answering the bounded question",
+      "evidence_refs": [
+        "backend/app/agent_runtime/tool_calls.py:162",
+        "backend/app/agent_runtime/tool_results.py:53",
+        "run-trace.json:actions"
+      ],
+      "confidence": 0.95,
+      "recommended_fix": "Expose per-source content and distinguish passages, full source content, and local preview; prefer relevant authoritative documents"
+    }
+  ],
+  "ordered_fix_plan": [
+    {
+      "order": 1,
+      "goal": "Reserve answer-only phase under the original hard limit",
+      "why_now": "Directly addresses the empty final answer",
+      "expected_effect": "Improved delivery rate without unbounded calls"
+    },
+    {
+      "order": 2,
+      "goal": "Normalize provider business errors",
+      "why_now": "The observed 429 was falsely successful",
+      "expected_effect": "Accurate model and UI feedback"
+    },
+    {
+      "order": 3,
+      "goal": "Improve evidence scope and bounded research strategy",
+      "why_now": "Official integration evidence already existed before the last call",
+      "expected_effect": "Less redundant retrieval and clearer uncertainty"
+    },
+    {
+      "order": 4,
+      "goal": "Run a frozen-trace factorial evaluation before choosing a model change",
+      "why_now": "One incident cannot separate model ability from tool and harness effects",
+      "expected_effect": "Evidence-based selection of prompts, tools, budgets and models"
+    }
+  ],
+  "validation": {
+    "offline_probe": "budget-probe-results.json",
+    "existing_targeted_tests": "3 passed",
+    "live_model_rerun": false,
+    "business_code_modified": false,
+    "limits": [
+      "No cross-model A/B benchmark",
+      "No raw reasoning text available",
+      "62-second model action has no provider-internal latency decomposition"
+    ]
+  }
+}

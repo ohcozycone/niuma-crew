@@ -1,0 +1,54 @@
+{
+  "schema_version": "niuma.codex.comparison.v1",
+  "question": "OpenSpec 是 skill 还是 mcp ？",
+  "kimi": {
+    "model_requests": 8,
+    "tool_batches": 8,
+    "usage": {
+      "input_tokens": 85987,
+      "output_tokens": 1617,
+      "total_tokens": 87604,
+      "cached_input_tokens": 77824,
+      "reasoning_tokens": 693
+    },
+    "uncached_input_tokens": 8163,
+    "elapsed_seconds": 120.067997,
+    "delivered": false
+  },
+  "codex_natural": {
+    "model_requests": 6,
+    "tool_batches": 5,
+    "nested_tools": 6,
+    "usage": {
+      "input_tokens": 283456,
+      "cached_input_tokens": 247680,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1201,
+      "reasoning_output_tokens": 572,
+      "total_tokens": 284657
+    },
+    "uncached_input_tokens": 35776,
+    "elapsed_seconds": 87.388,
+    "delivered": true
+  },
+  "codex_replay": {
+    "model_requests": 2,
+    "tool_batches": 1,
+    "nested_tools": 1,
+    "usage": {
+      "input_tokens": 73418,
+      "cached_input_tokens": 57856,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 619,
+      "reasoning_output_tokens": 431,
+      "total_tokens": 74037
+    },
+    "uncached_input_tokens": 15562,
+    "elapsed_seconds": 27.934,
+    "delivered": true
+  },
+  "ratios": {
+    "natural_codex_total_to_kimi_total": 3.2493607597826584,
+    "natural_codex_uncached_input_to_kimi": 4.38270243782923
+  }
+}

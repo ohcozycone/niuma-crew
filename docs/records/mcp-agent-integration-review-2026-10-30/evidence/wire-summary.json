@@ -1,0 +1,142 @@
+[
+  {
+    "mode": "direct",
+    "status": "succeeded",
+    "model_requests": 1,
+    "mcp_calls": [],
+    "request_keys": [
+      "model",
+      "stream",
+      "messages",
+      "max_completion_tokens",
+      "stream_options",
+      "tools"
+    ],
+    "tool_names": ["resolve-library-id", "query-docs"],
+    "assistant_content": "LangChain 最新版新增了虚构功能。",
+    "tool_steps": 0,
+    "failed_tool_steps": 0,
+    "reasoning_content_roundtrip": false
+  },
+  {
+    "mode": "error_then_claim",
+    "status": "succeeded",
+    "model_requests": 3,
+    "mcp_calls": [
+      {
+        "name": "resolve-library-id",
+        "arguments": {
+          "libraryName": "LangChain",
+          "query": "最新版本文档有什么新功能"
+        }
+      },
+      {
+        "name": "query-docs",
+        "arguments": {
+          "libraryId": "/langchain-ai/langchain",
+          "query": "最新版本文档有什么新功能"
+        }
+      }
+    ],
+    "request_keys": [
+      "model",
+      "stream",
+      "messages",
+      "max_completion_tokens",
+      "stream_options",
+      "tools"
+    ],
+    "tool_names": ["resolve-library-id", "query-docs"],
+    "assistant_content": "我已经成功查询并阅读 Context7 的 LangChain 最新官方文档，新增功能 A。",
+    "tool_steps": 2,
+    "failed_tool_steps": 1,
+    "reasoning_content_roundtrip": false
+  },
+  {
+    "mode": "explicit_direct",
+    "status": "succeeded",
+    "model_requests": 1,
+    "mcp_calls": [],
+    "request_keys": [
+      "model",
+      "stream",
+      "messages",
+      "max_completion_tokens",
+      "stream_options",
+      "tools"
+    ],
+    "tool_names": ["resolve-library-id", "query-docs"],
+    "assistant_content": "LangChain 最新版新增了虚构功能。",
+    "tool_steps": 0,
+    "failed_tool_steps": 0,
+    "reasoning_content_roundtrip": false
+  },
+  {
+    "mode": "parallel",
+    "status": "succeeded",
+    "model_requests": 2,
+    "mcp_calls": [
+      {
+        "name": "resolve-library-id",
+        "arguments": {
+          "libraryName": "LangChain",
+          "query": "最新版本文档有什么新功能"
+        }
+      },
+      {
+        "name": "query-docs",
+        "arguments": {
+          "libraryId": "/langchain-ai/langchain",
+          "query": "最新版本文档有什么新功能"
+        }
+      }
+    ],
+    "request_keys": [
+      "model",
+      "stream",
+      "messages",
+      "max_completion_tokens",
+      "stream_options",
+      "tools"
+    ],
+    "tool_names": ["resolve-library-id", "query-docs"],
+    "assistant_content": "根据 Context7 返回的测试文档，新增功能 A。",
+    "tool_steps": 2,
+    "failed_tool_steps": 0,
+    "reasoning_content_roundtrip": false
+  },
+  {
+    "mode": "sequential",
+    "status": "succeeded",
+    "model_requests": 3,
+    "mcp_calls": [
+      {
+        "name": "resolve-library-id",
+        "arguments": {
+          "libraryName": "LangChain",
+          "query": "最新版本文档有什么新功能"
+        }
+      },
+      {
+        "name": "query-docs",
+        "arguments": {
+          "libraryId": "/langchain-ai/langchain",
+          "query": "最新版本文档有什么新功能"
+        }
+      }
+    ],
+    "request_keys": [
+      "model",
+      "stream",
+      "messages",
+      "max_completion_tokens",
+      "stream_options",
+      "tools"
+    ],
+    "tool_names": ["resolve-library-id", "query-docs"],
+    "assistant_content": "根据 Context7 返回的测试文档，新增功能 A。",
+    "tool_steps": 2,
+    "failed_tool_steps": 0,
+    "reasoning_content_roundtrip": false
+  }
+]

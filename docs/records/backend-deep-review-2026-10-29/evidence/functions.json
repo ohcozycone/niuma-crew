@@ -1,0 +1,5888 @@
+[
+  {
+    "file": "backend/app/agent_runtime/checkpoints.py",
+    "name": "checkpoint_config",
+    "start": 21,
+    "end": 28,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/checkpoints.py",
+    "name": "aput",
+    "start": 34,
+    "end": 40,
+    "async": true,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/agent_runtime/checkpoints.py",
+    "name": "__init__",
+    "start": 44,
+    "end": 45,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/checkpoints.py",
+    "name": "reader",
+    "start": 48,
+    "end": 52,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/checkpoints.py",
+    "name": "writer",
+    "start": 55,
+    "end": 63,
+    "async": true,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/checkpoints.py",
+    "name": "for_run",
+    "start": 65,
+    "end": 79,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "input_message_id",
+    "start": 31,
+    "end": 32,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "output_message_id",
+    "start": 35,
+    "end": 36,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "guard",
+    "start": 56,
+    "end": 56,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "start_model",
+    "start": 57,
+    "end": 57,
+    "async": true,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "start",
+    "start": 58,
+    "end": 66,
+    "async": true,
+    "return_annotation": true,
+    "args": 6
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "finish",
+    "start": 67,
+    "end": 75,
+    "async": true,
+    "return_annotation": true,
+    "args": 7
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "report_content",
+    "start": 76,
+    "end": 76,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "checkpoint_saved",
+    "start": 77,
+    "end": 77,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "begin_tool",
+    "start": 78,
+    "end": 78,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "guard_tool",
+    "start": 79,
+    "end": 79,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "complete_tool",
+    "start": 80,
+    "end": 80,
+    "async": true,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/contracts.py",
+    "name": "__init__",
+    "start": 84,
+    "end": 86,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/langchain.py",
+    "name": "_tool_instructions",
+    "start": 30,
+    "end": 56,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/langchain.py",
+    "name": "_server_instructions",
+    "start": 59,
+    "end": 74,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/langchain.py",
+    "name": "_consume_agent_stream",
+    "start": 77,
+    "end": 106,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/langchain.py",
+    "name": "execute_agent",
+    "start": 109,
+    "end": 232,
+    "async": true,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/agent_runtime/langchain.py",
+    "name": "sandbox_factory",
+    "start": 127,
+    "end": 132,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/langchain.py",
+    "name": "input_content",
+    "start": 138,
+    "end": 144,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/middleware.py",
+    "name": "build_middleware",
+    "start": 147,
+    "end": 191,
+    "async": false,
+    "return_annotation": true,
+    "args": 6
+  },
+  {
+    "file": "backend/app/agent_runtime/middleware.py",
+    "name": "__init__",
+    "start": 37,
+    "end": 44,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/agent_runtime/middleware.py",
+    "name": "awrap_model_call",
+    "start": 46,
+    "end": 141,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/middleware.py",
+    "name": "aafter_agent",
+    "start": 143,
+    "end": 144,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/resources.py",
+    "name": "acquire",
+    "start": 11,
+    "end": 11,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/resources.py",
+    "name": "release",
+    "start": 12,
+    "end": 12,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/sandbox_backend.py",
+    "name": "materialize_skills",
+    "start": 17,
+    "end": 37,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/sandbox_backend.py",
+    "name": "execute",
+    "start": 39,
+    "end": 67,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/sandbox_backend.py",
+    "name": "check_path",
+    "start": 69,
+    "end": 78,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/sandbox_backend.py",
+    "name": "collect_outputs",
+    "start": 80,
+    "end": 109,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/sandbox_backend.py",
+    "name": "output",
+    "start": 43,
+    "end": 51,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/skill_loading.py",
+    "name": "prepare_skills",
+    "start": 49,
+    "end": 78,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/skill_loading.py",
+    "name": "build_skill_discovery_middleware",
+    "start": 81,
+    "end": 103,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/skill_loading.py",
+    "name": "files",
+    "start": 38,
+    "end": 46,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/skill_loading.py",
+    "name": "__init__",
+    "start": 109,
+    "end": 123,
+    "async": false,
+    "return_annotation": false,
+    "args": 6
+  },
+  {
+    "file": "backend/app/agent_runtime/skill_loading.py",
+    "name": "_activate",
+    "start": 125,
+    "end": 146,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/skill_loading.py",
+    "name": "awrap_model_call",
+    "start": 148,
+    "end": 165,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/skill_loading.py",
+    "name": "awrap_tool_call",
+    "start": 167,
+    "end": 235,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/streaming.py",
+    "name": "truncate",
+    "start": 8,
+    "end": 9,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/streaming.py",
+    "name": "__init__",
+    "start": 13,
+    "end": 19,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/agent_runtime/streaming.py",
+    "name": "bind",
+    "start": 21,
+    "end": 22,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/streaming.py",
+    "name": "feed",
+    "start": 24,
+    "end": 34,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/streaming.py",
+    "name": "record",
+    "start": 36,
+    "end": 62,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/agent_runtime/streaming.py",
+    "name": "pending",
+    "start": 64,
+    "end": 65,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/streaming.py",
+    "name": "acknowledge",
+    "start": 67,
+    "end": 70,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_calls.py",
+    "name": "external_tools",
+    "start": 28,
+    "end": 59,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_calls.py",
+    "name": "tool_message",
+    "start": 62,
+    "end": 74,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_calls.py",
+    "name": "__init__",
+    "start": 78,
+    "end": 93,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_calls.py",
+    "name": "_preserve_external",
+    "start": 95,
+    "end": 186,
+    "async": true,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_calls.py",
+    "name": "awrap_tool_call",
+    "start": 188,
+    "end": 193,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_calls.py",
+    "name": "_invoke",
+    "start": 195,
+    "end": 292,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_calls.py",
+    "name": "make_call",
+    "start": 34,
+    "end": 46,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_calls.py",
+    "name": "call",
+    "start": 35,
+    "end": 44,
+    "async": true,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_results.py",
+    "name": "structured_payload",
+    "start": 18,
+    "end": 33,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_results.py",
+    "name": "extracted_targets",
+    "start": 36,
+    "end": 50,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_results.py",
+    "name": "result_text",
+    "start": 53,
+    "end": 56,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_results.py",
+    "name": "normalize_url",
+    "start": 117,
+    "end": 121,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_results.py",
+    "name": "requested_web_reads",
+    "start": 124,
+    "end": 142,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_results.py",
+    "name": "verify_web_reads",
+    "start": 145,
+    "end": 181,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_results.py",
+    "name": "__init__",
+    "start": 60,
+    "end": 62,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_results.py",
+    "name": "load",
+    "start": 64,
+    "end": 80,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_results.py",
+    "name": "reader_tool",
+    "start": 82,
+    "end": 114,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/tool_results.py",
+    "name": "read",
+    "start": 83,
+    "end": 104,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "__init__",
+    "start": 18,
+    "end": 19,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "_read_files",
+    "start": 21,
+    "end": 22,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "_send_files_update",
+    "start": 24,
+    "end": 25,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "_read_files",
+    "start": 29,
+    "end": 34,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "_send_files_update",
+    "start": 36,
+    "end": 49,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "__init__",
+    "start": 59,
+    "end": 75,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "_projection",
+    "start": 77,
+    "end": 106,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "_work",
+    "start": 108,
+    "end": 119,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "_read_skill_resource",
+    "start": 121,
+    "end": 137,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "_materialize_skills",
+    "start": 139,
+    "end": 157,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "_route",
+    "start": 159,
+    "end": 177,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "ls",
+    "start": 179,
+    "end": 187,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "read",
+    "start": 189,
+    "end": 204,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "download_files",
+    "start": 206,
+    "end": 222,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "upload_files",
+    "start": 224,
+    "end": 228,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "write",
+    "start": 230,
+    "end": 231,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "edit",
+    "start": 233,
+    "end": 236,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "delete",
+    "start": 238,
+    "end": 239,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "glob",
+    "start": 241,
+    "end": 254,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "grep",
+    "start": 256,
+    "end": 265,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "id",
+    "start": 268,
+    "end": 269,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "execute",
+    "start": 271,
+    "end": 277,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agent_runtime/workspace.py",
+    "name": "collect_outputs",
+    "start": 279,
+    "end": 292,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/access.py",
+    "name": "edit_agent",
+    "start": 6,
+    "end": 10,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/models.py",
+    "name": "validate_required_text",
+    "start": 69,
+    "end": 70,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/models.py",
+    "name": "validate_optional_text",
+    "start": 73,
+    "end": 74,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/personal_tools.py",
+    "name": "__init__",
+    "start": 16,
+    "end": 17,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/personal_tools.py",
+    "name": "get",
+    "start": 19,
+    "end": 45,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/personal_tools.py",
+    "name": "bind",
+    "start": 47,
+    "end": 91,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/agents/schemas.py",
+    "name": "ci_scope",
+    "start": 26,
+    "end": 27,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/schemas.py",
+    "name": "project",
+    "start": 121,
+    "end": 127,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "require_agent",
+    "start": 37,
+    "end": 41,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "validate_model_binding",
+    "start": 44,
+    "end": 51,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "agent_conflict",
+    "start": 54,
+    "end": 59,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "validate_agent_name",
+    "start": 62,
+    "end": 67,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "assignments",
+    "start": 70,
+    "end": 75,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "agent_response",
+    "start": 78,
+    "end": 121,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "replace_assignments",
+    "start": 124,
+    "end": 150,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "capture_skills",
+    "start": 370,
+    "end": 420,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "authorize_execution",
+    "start": 423,
+    "end": 445,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "configured_agent",
+    "start": 448,
+    "end": 456,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "__init__",
+    "start": 154,
+    "end": 155,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "create",
+    "start": 157,
+    "end": 181,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "get",
+    "start": 183,
+    "end": 186,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "list",
+    "start": 188,
+    "end": 309,
+    "async": false,
+    "return_annotation": true,
+    "args": 10
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "update",
+    "start": 311,
+    "end": 358,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/agents/service.py",
+    "name": "delete",
+    "start": 360,
+    "end": 367,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "grant_read",
+    "start": 38,
+    "end": 47,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "grants_for",
+    "start": 50,
+    "end": 57,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "grant_count",
+    "start": 60,
+    "end": 61,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "apply_grants",
+    "start": 114,
+    "end": 184,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "capture_tools",
+    "start": 187,
+    "end": 246,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "authorize_tool",
+    "start": 249,
+    "end": 282,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "assert_binding",
+    "start": 285,
+    "end": 311,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "resolve_account",
+    "start": 314,
+    "end": 347,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "valid_connection",
+    "start": 29,
+    "end": 30,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "__init__",
+    "start": 65,
+    "end": 66,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "assert_connections_unused",
+    "start": 69,
+    "end": 85,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "get",
+    "start": 87,
+    "end": 95,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/agents/tool_grants.py",
+    "name": "replace",
+    "start": 97,
+    "end": 111,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/dependencies.py",
+    "name": "get_database",
+    "start": 13,
+    "end": 14,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/dependencies.py",
+    "name": "get_auth",
+    "start": 20,
+    "end": 21,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/dependencies.py",
+    "name": "get_actor",
+    "start": 27,
+    "end": 28,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/dependencies.py",
+    "name": "require_capability",
+    "start": 34,
+    "end": 39,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/dependencies.py",
+    "name": "check",
+    "start": 35,
+    "end": 37,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/errors.py",
+    "name": "service_error_response",
+    "start": 64,
+    "end": 71,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/errors.py",
+    "name": "register_error_handlers",
+    "start": 74,
+    "end": 100,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/errors.py",
+    "name": "service_error",
+    "start": 75,
+    "end": 76,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/errors.py",
+    "name": "validation_error",
+    "start": 82,
+    "end": 92,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/errors.py",
+    "name": "database_error",
+    "start": 95,
+    "end": 100,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/frontend_delivery.py",
+    "name": "encoding",
+    "start": 21,
+    "end": 41,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/frontend_delivery.py",
+    "name": "mount_frontend",
+    "start": 93,
+    "end": 95,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/frontend_delivery.py",
+    "name": "get_response",
+    "start": 45,
+    "end": 90,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/frontend_delivery.py",
+    "name": "variants",
+    "start": 58,
+    "end": 67,
+    "async": false,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/api/rate_limit.py",
+    "name": "__init__",
+    "start": 11,
+    "end": 14,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/rate_limit.py",
+    "name": "consume",
+    "start": 16,
+    "end": 34,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/agents.py",
+    "name": "create_agent",
+    "start": 33,
+    "end": 40,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/agents.py",
+    "name": "list_agents",
+    "start": 48,
+    "end": 68,
+    "async": false,
+    "return_annotation": true,
+    "args": 9
+  },
+  {
+    "file": "backend/app/api/routes/agents.py",
+    "name": "get_agent",
+    "start": 76,
+    "end": 77,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/agents.py",
+    "name": "update_agent",
+    "start": 85,
+    "end": 94,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/agents.py",
+    "name": "delete_agent",
+    "start": 102,
+    "end": 106,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/agents.py",
+    "name": "replace_grants",
+    "start": 110,
+    "end": 113,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/agents.py",
+    "name": "personal_bindings",
+    "start": 117,
+    "end": 118,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/agents.py",
+    "name": "bind_personal",
+    "start": 124,
+    "end": 129,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/agents.py",
+    "name": "agent_usage",
+    "start": 133,
+    "end": 149,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/agents.py",
+    "name": "grants",
+    "start": 153,
+    "end": 154,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/auth.py",
+    "name": "identity",
+    "start": 65,
+    "end": 73,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/auth.py",
+    "name": "write_cookie",
+    "start": 76,
+    "end": 85,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/auth.py",
+    "name": "providers",
+    "start": 89,
+    "end": 92,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/auth.py",
+    "name": "github_start",
+    "start": 96,
+    "end": 120,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/auth.py",
+    "name": "github_callback",
+    "start": 124,
+    "end": 164,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/auth.py",
+    "name": "login",
+    "start": 168,
+    "end": 176,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/auth.py",
+    "name": "logout",
+    "start": 180,
+    "end": 186,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/auth.py",
+    "name": "guest",
+    "start": 190,
+    "end": 196,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/auth.py",
+    "name": "me",
+    "start": 200,
+    "end": 201,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/ci_diagnosis.py",
+    "name": "capability",
+    "start": 14,
+    "end": 16,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/ci_diagnosis.py",
+    "name": "install",
+    "start": 20,
+    "end": 22,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/configuration_summary.py",
+    "name": "summary",
+    "start": 36,
+    "end": 48,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "queries",
+    "start": 33,
+    "end": 34,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "commands",
+    "start": 40,
+    "end": 41,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "create",
+    "start": 48,
+    "end": 49,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "listing",
+    "start": 53,
+    "end": 60,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "get",
+    "start": 64,
+    "end": 65,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "messages",
+    "start": 69,
+    "end": 85,
+    "async": false,
+    "return_annotation": false,
+    "args": 7
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "questions",
+    "start": 89,
+    "end": 107,
+    "async": false,
+    "return_annotation": false,
+    "args": 8
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "question_preview",
+    "start": 113,
+    "end": 114,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "send",
+    "start": 118,
+    "end": 139,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "find_request",
+    "start": 145,
+    "end": 146,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "snapshot",
+    "start": 150,
+    "end": 156,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "response",
+    "start": 160,
+    "end": 161,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "stop",
+    "start": 167,
+    "end": 170,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "retry",
+    "start": 176,
+    "end": 193,
+    "async": false,
+    "return_annotation": false,
+    "args": 6
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "events",
+    "start": 197,
+    "end": 200,
+    "async": true,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "diagnosis",
+    "start": 204,
+    "end": 205,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/conversations/router.py",
+    "name": "feedback",
+    "start": 209,
+    "end": 217,
+    "async": false,
+    "return_annotation": false,
+    "args": 6
+  },
+  {
+    "file": "backend/app/api/routes/conversations/service.py",
+    "name": "__init__",
+    "start": 39,
+    "end": 53,
+    "async": false,
+    "return_annotation": true,
+    "args": 6
+  },
+  {
+    "file": "backend/app/api/routes/conversations/service.py",
+    "name": "create",
+    "start": 55,
+    "end": 62,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/conversations/service.py",
+    "name": "submit",
+    "start": 64,
+    "end": 219,
+    "async": false,
+    "return_annotation": true,
+    "args": 10
+  },
+  {
+    "file": "backend/app/api/routes/conversations/service.py",
+    "name": "retry",
+    "start": 221,
+    "end": 230,
+    "async": false,
+    "return_annotation": true,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/conversations/service.py",
+    "name": "cancel",
+    "start": 232,
+    "end": 247,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/conversations/service.py",
+    "name": "feedback",
+    "start": 249,
+    "end": 263,
+    "async": false,
+    "return_annotation": true,
+    "args": 6
+  },
+  {
+    "file": "backend/app/api/routes/conversations/streaming.py",
+    "name": "subscribe",
+    "start": 13,
+    "end": 80,
+    "async": true,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/conversations/streaming.py",
+    "name": "release",
+    "start": 22,
+    "end": 28,
+    "async": false,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/api/routes/conversations/streaming.py",
+    "name": "snapshots",
+    "start": 30,
+    "end": 66,
+    "async": true,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/api/routes/conversations/streaming.py",
+    "name": "__call__",
+    "start": 69,
+    "end": 74,
+    "async": true,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/files.py",
+    "name": "upload",
+    "start": 18,
+    "end": 35,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/files.py",
+    "name": "listing",
+    "start": 39,
+    "end": 40,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/files.py",
+    "name": "download",
+    "start": 44,
+    "end": 56,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/health.py",
+    "name": "health",
+    "start": 19,
+    "end": 21,
+    "async": true,
+    "return_annotation": true,
+    "args": 0
+  },
+  {
+    "file": "backend/app/api/routes/health.py",
+    "name": "ready",
+    "start": 25,
+    "end": 27,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/model_connections.py",
+    "name": "get_service",
+    "start": 23,
+    "end": 24,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/model_connections.py",
+    "name": "presets",
+    "start": 35,
+    "end": 36,
+    "async": false,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/api/routes/model_connections.py",
+    "name": "list_connections",
+    "start": 44,
+    "end": 49,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/model_connections.py",
+    "name": "create_connection",
+    "start": 58,
+    "end": 59,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/model_connections.py",
+    "name": "get_connection",
+    "start": 67,
+    "end": 68,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/model_connections.py",
+    "name": "update_connection",
+    "start": 76,
+    "end": 77,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/model_connections.py",
+    "name": "delete_connection",
+    "start": 85,
+    "end": 87,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/model_connections.py",
+    "name": "test_connection",
+    "start": 95,
+    "end": 103,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/organization_rules.py",
+    "name": "get_rules",
+    "start": 20,
+    "end": 21,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/organization_rules.py",
+    "name": "update_rules",
+    "start": 29,
+    "end": 32,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/public.py",
+    "name": "list_agents",
+    "start": 23,
+    "end": 48,
+    "async": false,
+    "return_annotation": false,
+    "args": 8
+  },
+  {
+    "file": "backend/app/api/routes/public.py",
+    "name": "get_agent",
+    "start": 56,
+    "end": 57,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/public.py",
+    "name": "list_skills",
+    "start": 65,
+    "end": 80,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/public.py",
+    "name": "get_skill",
+    "start": 88,
+    "end": 89,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "skill_service",
+    "start": 27,
+    "end": 28,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "skill_library",
+    "start": 35,
+    "end": 36,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "sync_skills",
+    "start": 47,
+    "end": 48,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "preview_package",
+    "start": 56,
+    "end": 57,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "import_package",
+    "start": 66,
+    "end": 67,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "create_skill",
+    "start": 76,
+    "end": 77,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "list_skills",
+    "start": 83,
+    "end": 90,
+    "async": false,
+    "return_annotation": true,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "get_skill",
+    "start": 98,
+    "end": 99,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "get_skill_file",
+    "start": 108,
+    "end": 109,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "export_skill",
+    "start": 113,
+    "end": 119,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "update_skill",
+    "start": 127,
+    "end": 128,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/skills.py",
+    "name": "delete_skill",
+    "start": 136,
+    "end": 138,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "listing",
+    "start": 29,
+    "end": 30,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "create",
+    "start": 39,
+    "end": 40,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "update",
+    "start": 46,
+    "end": 47,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "delete_connection",
+    "start": 51,
+    "end": 65,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "discover",
+    "start": 73,
+    "end": 75,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "sandbox_status",
+    "start": 79,
+    "end": 81,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "approve",
+    "start": 89,
+    "end": 90,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "services",
+    "start": 94,
+    "end": 95,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "create_service",
+    "start": 99,
+    "end": 102,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "update_service",
+    "start": 106,
+    "end": 109,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "delete_service",
+    "start": 113,
+    "end": 122,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "preview_config",
+    "start": 126,
+    "end": 129,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "tool_capabilities",
+    "start": 133,
+    "end": 139,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "annotations",
+    "start": 147,
+    "end": 148,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "discard",
+    "start": 156,
+    "end": 157,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/routes/tools.py",
+    "name": "capabilities",
+    "start": 161,
+    "end": 228,
+    "async": false,
+    "return_annotation": false,
+    "args": 6
+  },
+  {
+    "file": "backend/app/api/security.py",
+    "name": "__init__",
+    "start": 10,
+    "end": 11,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/security.py",
+    "name": "__call__",
+    "start": 13,
+    "end": 82,
+    "async": true,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/api/security.py",
+    "name": "no_store",
+    "start": 18,
+    "end": 23,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/api/security.py",
+    "name": "reject",
+    "start": 25,
+    "end": 28,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/api/security.py",
+    "name": "replay",
+    "start": 73,
+    "end": 78,
+    "async": true,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/auth/cli.py",
+    "name": "read_password",
+    "start": 13,
+    "end": 17,
+    "async": false,
+    "return_annotation": true,
+    "args": 0
+  },
+  {
+    "file": "backend/app/auth/cli.py",
+    "name": "main",
+    "start": 20,
+    "end": 51,
+    "async": false,
+    "return_annotation": true,
+    "args": 0
+  },
+  {
+    "file": "backend/app/auth/config.py",
+    "name": "normalize_origin",
+    "start": 7,
+    "end": 23,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/auth/config.py",
+    "name": "load_auth_config",
+    "start": 54,
+    "end": 68,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/auth/config.py",
+    "name": "load_github_oauth_config",
+    "start": 102,
+    "end": 109,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/auth/config.py",
+    "name": "__post_init__",
+    "start": 37,
+    "end": 51,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/auth/config.py",
+    "name": "enabled",
+    "start": 80,
+    "end": 81,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/auth/config.py",
+    "name": "validate",
+    "start": 83,
+    "end": 99,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/auth/github.py",
+    "name": "safe_return_path",
+    "start": 29,
+    "end": 42,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/auth/github.py",
+    "name": "__init__",
+    "start": 46,
+    "end": 54,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/auth/github.py",
+    "name": "start",
+    "start": 56,
+    "end": 82,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/auth/github.py",
+    "name": "context",
+    "start": 84,
+    "end": 106,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/auth/github.py",
+    "name": "_json",
+    "start": 109,
+    "end": 121,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/auth/github.py",
+    "name": "identity",
+    "start": 123,
+    "end": 168,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/auth/permissions.py",
+    "name": "permissions_for",
+    "start": 50,
+    "end": 51,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/auth/permissions.py",
+    "name": "require_permission",
+    "start": 54,
+    "end": 56,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/auth/permissions.py",
+    "name": "require_resource_access",
+    "start": 59,
+    "end": 61,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "token_digest",
+    "start": 23,
+    "end": 24,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "normalize_username",
+    "start": 27,
+    "end": 31,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "hash_password",
+    "start": 34,
+    "end": 37,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "authentication_required",
+    "start": 40,
+    "end": 41,
+    "async": false,
+    "return_annotation": true,
+    "args": 0
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "__init__",
+    "start": 45,
+    "end": 48,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "initialize_admin",
+    "start": 50,
+    "end": 61,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "maintain_user",
+    "start": 63,
+    "end": 86,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "login",
+    "start": 88,
+    "end": 128,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "github_login",
+    "start": 130,
+    "end": 177,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "guest",
+    "start": 179,
+    "end": 197,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "_actor",
+    "start": 200,
+    "end": 208,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "resolve",
+    "start": 210,
+    "end": 234,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "validate_session",
+    "start": 236,
+    "end": 240,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "_validated_actor",
+    "start": 242,
+    "end": 252,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "resolve_session",
+    "start": 254,
+    "end": 256,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "logout",
+    "start": 258,
+    "end": 265,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/auth/service.py",
+    "name": "cleanup",
+    "start": 267,
+    "end": 283,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/bootstrap.py",
+    "name": "create_app",
+    "start": 41,
+    "end": 152,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/bootstrap.py",
+    "name": "lifespan",
+    "start": 51,
+    "end": 137,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/ci_diagnosis/contracts.py",
+    "name": "repository",
+    "start": 17,
+    "end": 42,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/ci_diagnosis/contracts.py",
+    "name": "target",
+    "start": 52,
+    "end": 64,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/ci_diagnosis/contracts.py",
+    "name": "location",
+    "start": 66,
+    "end": 68,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/ci_diagnosis/contracts.py",
+    "name": "bounded_unknowns",
+    "start": 97,
+    "end": 100,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/ci_diagnosis/contracts.py",
+    "name": "normalize",
+    "start": 109,
+    "end": 110,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/ci_diagnosis/executor.py",
+    "name": "__init__",
+    "start": 21,
+    "end": 22,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/ci_diagnosis/executor.py",
+    "name": "execute",
+    "start": 24,
+    "end": 347,
+    "async": true,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/ci_diagnosis/executor.py",
+    "name": "guard",
+    "start": 31,
+    "end": 32,
+    "async": true,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/ci_diagnosis/executor.py",
+    "name": "check_size",
+    "start": 34,
+    "end": 36,
+    "async": false,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/ci_diagnosis/executor.py",
+    "name": "save",
+    "start": 38,
+    "end": 40,
+    "async": true,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/ci_diagnosis/executor.py",
+    "name": "call",
+    "start": 59,
+    "end": 78,
+    "async": true,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/ci_diagnosis/mcp.py",
+    "name": "find",
+    "start": 114,
+    "end": 128,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/ci_diagnosis/mcp.py",
+    "name": "__init__",
+    "start": 15,
+    "end": 22,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/ci_diagnosis/mcp.py",
+    "name": "connect",
+    "start": 26,
+    "end": 30,
+    "async": true,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/ci_diagnosis/mcp.py",
+    "name": "rpc",
+    "start": 32,
+    "end": 74,
+    "async": true,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/ci_diagnosis/mcp.py",
+    "name": "initialize",
+    "start": 76,
+    "end": 96,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/ci_diagnosis/mcp.py",
+    "name": "call",
+    "start": 98,
+    "end": 111,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/ci_diagnosis/report.py",
+    "name": "redact",
+    "start": 16,
+    "end": 27,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/ci_diagnosis/report.py",
+    "name": "validate_report",
+    "start": 30,
+    "end": 49,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/ci_diagnosis/report.py",
+    "name": "render",
+    "start": 52,
+    "end": 92,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/ci_diagnosis/service.py",
+    "name": "diagnosis_view",
+    "start": 176,
+    "end": 185,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/ci_diagnosis/service.py",
+    "name": "publish_diagnosis",
+    "start": 188,
+    "end": 206,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/ci_diagnosis/service.py",
+    "name": "__init__",
+    "start": 25,
+    "end": 28,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/ci_diagnosis/service.py",
+    "name": "install",
+    "start": 30,
+    "end": 50,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/ci_diagnosis/service.py",
+    "name": "token",
+    "start": 52,
+    "end": 65,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/ci_diagnosis/service.py",
+    "name": "configured",
+    "start": 67,
+    "end": 71,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/ci_diagnosis/service.py",
+    "name": "capture",
+    "start": 73,
+    "end": 102,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/ci_diagnosis/service.py",
+    "name": "authorize_local",
+    "start": 104,
+    "end": 122,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/ci_diagnosis/service.py",
+    "name": "feedback",
+    "start": 124,
+    "end": 136,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/ci_diagnosis/service.py",
+    "name": "save_progress",
+    "start": 138,
+    "end": 173,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/config.py",
+    "name": "_read_values",
+    "start": 51,
+    "end": 53,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/config.py",
+    "name": "_value",
+    "start": 56,
+    "end": 60,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/config.py",
+    "name": "_resolve_path",
+    "start": 63,
+    "end": 65,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/config.py",
+    "name": "_load_database_url",
+    "start": 68,
+    "end": 84,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/config.py",
+    "name": "load_config",
+    "start": 87,
+    "end": 157,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/config.py",
+    "name": "__post_init__",
+    "start": 47,
+    "end": 48,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/conversations/authorization.py",
+    "name": "__init__",
+    "start": 14,
+    "end": 15,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/conversations/authorization.py",
+    "name": "check",
+    "start": 17,
+    "end": 57,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/conversations/files.py",
+    "name": "retained_file_ids",
+    "start": 14,
+    "end": 27,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/files.py",
+    "name": "__init__",
+    "start": 31,
+    "end": 32,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/conversations/files.py",
+    "name": "list",
+    "start": 34,
+    "end": 45,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/conversations/files.py",
+    "name": "download",
+    "start": 47,
+    "end": 71,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/models.py",
+    "name": "immutable_body",
+    "start": 54,
+    "end": 57,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/conversations/models.py",
+    "name": "immutable_content",
+    "start": 60,
+    "end": 63,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/conversations/preparation.py",
+    "name": "compose_system_prompt",
+    "start": 15,
+    "end": 31,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/conversations/preparation.py",
+    "name": "__init__",
+    "start": 35,
+    "end": 57,
+    "async": false,
+    "return_annotation": false,
+    "args": 11
+  },
+  {
+    "file": "backend/app/conversations/preparation.py",
+    "name": "prepare",
+    "start": 59,
+    "end": 153,
+    "async": false,
+    "return_annotation": true,
+    "args": 7
+  },
+  {
+    "file": "backend/app/conversations/preparation.py",
+    "name": "execution",
+    "start": 155,
+    "end": 241,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/conversations/preparation.py",
+    "name": "execute",
+    "start": 208,
+    "end": 239,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/conversations/preparation.py",
+    "name": "save",
+    "start": 220,
+    "end": 221,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/conversations/publication.py",
+    "name": "__init__",
+    "start": 24,
+    "end": 31,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/publication.py",
+    "name": "finish",
+    "start": 33,
+    "end": 78,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/publication.py",
+    "name": "__call__",
+    "start": 80,
+    "end": 93,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "require_conversation",
+    "start": 41,
+    "end": 46,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "require_binding",
+    "start": 49,
+    "end": 53,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "message_files",
+    "start": 56,
+    "end": 64,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "read_user",
+    "start": 67,
+    "end": 78,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "read_response",
+    "start": 81,
+    "end": 147,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "read_response_snapshot",
+    "start": 150,
+    "end": 157,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "read_submission",
+    "start": 160,
+    "end": 166,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "require_response",
+    "start": 169,
+    "end": 179,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "select_context",
+    "start": 182,
+    "end": 211,
+    "async": false,
+    "return_annotation": true,
+    "args": 5
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "read_conversation",
+    "start": 214,
+    "end": 236,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "preview_text",
+    "start": 239,
+    "end": 243,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "read_run_content",
+    "start": 542,
+    "end": 543,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "__init__",
+    "start": 247,
+    "end": 248,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "list",
+    "start": 250,
+    "end": 273,
+    "async": false,
+    "return_annotation": true,
+    "args": 5
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "get",
+    "start": 275,
+    "end": 278,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "questions",
+    "start": 280,
+    "end": 344,
+    "async": false,
+    "return_annotation": true,
+    "args": 8
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "question_preview",
+    "start": 346,
+    "end": 379,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "messages",
+    "start": 381,
+    "end": 480,
+    "async": false,
+    "return_annotation": true,
+    "args": 8
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "response",
+    "start": 482,
+    "end": 487,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "snapshot",
+    "start": 489,
+    "end": 512,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "find_request",
+    "start": 514,
+    "end": 529,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/queries.py",
+    "name": "diagnosis",
+    "start": 531,
+    "end": 539,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/schemas.py",
+    "name": "unique_skills",
+    "start": 23,
+    "end": 26,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/schemas.py",
+    "name": "no_null_work",
+    "start": 34,
+    "end": 37,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/schemas.py",
+    "name": "normalize",
+    "start": 41,
+    "end": 45,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/writes.py",
+    "name": "create_conversation",
+    "start": 13,
+    "end": 21,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/writes.py",
+    "name": "require_idle",
+    "start": 24,
+    "end": 30,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/conversations/writes.py",
+    "name": "prepare_input",
+    "start": 33,
+    "end": 53,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/writes.py",
+    "name": "bind_run",
+    "start": 56,
+    "end": 87,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/conversations/writes.py",
+    "name": "publish_conversation",
+    "start": 90,
+    "end": 105,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/errors.py",
+    "name": "__init__",
+    "start": 7,
+    "end": 11,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/execution/admission.py",
+    "name": "request_digest",
+    "start": 19,
+    "end": 22,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/admission.py",
+    "name": "__init__",
+    "start": 26,
+    "end": 27,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/admission.py",
+    "name": "replay",
+    "start": 29,
+    "end": 41,
+    "async": false,
+    "return_annotation": true,
+    "args": 6
+  },
+  {
+    "file": "backend/app/execution/admission.py",
+    "name": "check_capacity",
+    "start": 43,
+    "end": 60,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/admission.py",
+    "name": "accept",
+    "start": 62,
+    "end": 103,
+    "async": false,
+    "return_annotation": true,
+    "args": 12
+  },
+  {
+    "file": "backend/app/execution/config.py",
+    "name": "load_runtime_config",
+    "start": 57,
+    "end": 70,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/config.py",
+    "name": "__post_init__",
+    "start": 40,
+    "end": 54,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/contracts.py",
+    "name": "accepting",
+    "start": 51,
+    "end": 52,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "truncate",
+    "start": 11,
+    "end": 12,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "__init__",
+    "start": 16,
+    "end": 18,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "record",
+    "start": 20,
+    "end": 22,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "pending",
+    "start": 24,
+    "end": 25,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "acknowledge",
+    "start": 27,
+    "end": 30,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "__init__",
+    "start": 34,
+    "end": 50,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "start_model",
+    "start": 52,
+    "end": 55,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "guard",
+    "start": 57,
+    "end": 63,
+    "async": true,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "start",
+    "start": 65,
+    "end": 79,
+    "async": true,
+    "return_annotation": false,
+    "args": 6
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "finish",
+    "start": 81,
+    "end": 99,
+    "async": true,
+    "return_annotation": false,
+    "args": 7
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "restore",
+    "start": 101,
+    "end": 104,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "report_content",
+    "start": 106,
+    "end": 107,
+    "async": true,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "checkpoint_saved",
+    "start": 109,
+    "end": 110,
+    "async": true,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "begin_tool",
+    "start": 112,
+    "end": 118,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "guard_tool",
+    "start": 120,
+    "end": 122,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "complete_tool",
+    "start": 124,
+    "end": 142,
+    "async": true,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/control.py",
+    "name": "flush",
+    "start": 144,
+    "end": 148,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/coordinator.py",
+    "name": "__init__",
+    "start": 28,
+    "end": 39,
+    "async": false,
+    "return_annotation": false,
+    "args": 7
+  },
+  {
+    "file": "backend/app/execution/coordinator.py",
+    "name": "_watch",
+    "start": 41,
+    "end": 58,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/coordinator.py",
+    "name": "run",
+    "start": 60,
+    "end": 167,
+    "async": true,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/coordinator.py",
+    "name": "authorize",
+    "start": 86,
+    "end": 88,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/errors.py",
+    "name": "terminal_status",
+    "start": 68,
+    "end": 73,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/queries.py",
+    "name": "require_run",
+    "start": 11,
+    "end": 17,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/scheduler.py",
+    "name": "__init__",
+    "start": 18,
+    "end": 28,
+    "async": false,
+    "return_annotation": false,
+    "args": 6
+  },
+  {
+    "file": "backend/app/execution/scheduler.py",
+    "name": "start",
+    "start": 30,
+    "end": 51,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/scheduler.py",
+    "name": "_loop_finished",
+    "start": 53,
+    "end": 58,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/scheduler.py",
+    "name": "_execution_finished",
+    "start": 60,
+    "end": 64,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/scheduler.py",
+    "name": "stop",
+    "start": 66,
+    "end": 78,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/scheduler.py",
+    "name": "_loop",
+    "start": 80,
+    "end": 123,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "__init__",
+    "start": 17,
+    "end": 18,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "recover",
+    "start": 20,
+    "end": 37,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "load",
+    "start": 39,
+    "end": 42,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "queued_metadata",
+    "start": 44,
+    "end": 51,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "claim",
+    "start": 53,
+    "end": 61,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "checkpoint_saved",
+    "start": 63,
+    "end": 68,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "restore_control",
+    "start": 70,
+    "end": 92,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "state",
+    "start": 94,
+    "end": 97,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "active_ids",
+    "start": 99,
+    "end": 101,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "finish",
+    "start": 104,
+    "end": 121,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "_close_actions",
+    "start": 124,
+    "end": 148,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "_set_content",
+    "start": 151,
+    "end": 155,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "_write_progress",
+    "start": 158,
+    "end": 169,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "update_progress",
+    "start": 171,
+    "end": 176,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "start_action",
+    "start": 178,
+    "end": 188,
+    "async": false,
+    "return_annotation": false,
+    "args": 8
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "_reserve",
+    "start": 191,
+    "end": 201,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "start_model",
+    "start": 203,
+    "end": 210,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "_start_action",
+    "start": 212,
+    "end": 248,
+    "async": false,
+    "return_annotation": false,
+    "args": 7
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "_parent_action",
+    "start": 251,
+    "end": 260,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "finish_action",
+    "start": 262,
+    "end": 304,
+    "async": false,
+    "return_annotation": false,
+    "args": 9
+  },
+  {
+    "file": "backend/app/execution/store.py",
+    "name": "begin_tool",
+    "start": 306,
+    "end": 355,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/files/config.py",
+    "name": "__post_init__",
+    "start": 17,
+    "end": 25,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "safe_name",
+    "start": 21,
+    "end": 25,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "file_ref",
+    "start": 28,
+    "end": 36,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "__init__",
+    "start": 40,
+    "end": 45,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "save",
+    "start": 47,
+    "end": 109,
+    "async": false,
+    "return_annotation": false,
+    "args": 7
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "read",
+    "start": 111,
+    "end": 123,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "capture",
+    "start": 125,
+    "end": 142,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "sources",
+    "start": 144,
+    "end": 153,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "sweep",
+    "start": 155,
+    "end": 192,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "start",
+    "start": 194,
+    "end": 208,
+    "async": true,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "stop",
+    "start": 210,
+    "end": 214,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/files/service.py",
+    "name": "maintain",
+    "start": 197,
+    "end": 206,
+    "async": true,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/infrastructure/database/errors.py",
+    "name": "_sqlite_code",
+    "start": 8,
+    "end": 11,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/infrastructure/database/errors.py",
+    "name": "is_unique_violation",
+    "start": 14,
+    "end": 19,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/infrastructure/database/errors.py",
+    "name": "is_database_busy",
+    "start": 22,
+    "end": 24,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "new_uuid",
+    "start": 12,
+    "end": 13,
+    "async": false,
+    "return_annotation": true,
+    "args": 0
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "normalize_uuid",
+    "start": 16,
+    "end": 19,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "utc_now",
+    "start": 22,
+    "end": 23,
+    "async": false,
+    "return_annotation": true,
+    "args": 0
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "required_text",
+    "start": 91,
+    "end": 94,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "optional_text",
+    "start": 97,
+    "end": 102,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "process_bind_param",
+    "start": 32,
+    "end": 33,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "process_bind_param",
+    "start": 42,
+    "end": 47,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "process_result_value",
+    "start": 49,
+    "end": 50,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "process_bind_param",
+    "start": 59,
+    "end": 62,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "process_result_value",
+    "start": 64,
+    "end": 65,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/infrastructure/database/fields.py",
+    "name": "validate_id",
+    "start": 83,
+    "end": 88,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/infrastructure/database/session.py",
+    "name": "__post_init__",
+    "start": 20,
+    "end": 22,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/infrastructure/database/session.py",
+    "name": "__init__",
+    "start": 26,
+    "end": 38,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/infrastructure/database/session.py",
+    "name": "_configure_connection",
+    "start": 41,
+    "end": 53,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/infrastructure/database/session.py",
+    "name": "transaction",
+    "start": 56,
+    "end": 63,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/infrastructure/database/session.py",
+    "name": "close",
+    "start": 65,
+    "end": 66,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/infrastructure/database/transactions.py",
+    "name": "reserve_writer",
+    "start": 8,
+    "end": 18,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/llm/errors.py",
+    "name": "classify_error",
+    "start": 7,
+    "end": 26,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/llm/factory.py",
+    "name": "create_chat_model",
+    "start": 13,
+    "end": 33,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/llm/factory.py",
+    "name": "model_session",
+    "start": 37,
+    "end": 46,
+    "async": true,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/llm/usage.py",
+    "name": "parse_token_usage",
+    "start": 16,
+    "end": 25,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/llm/usage.py",
+    "name": "aggregate_usage",
+    "start": 28,
+    "end": 41,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/model_connections/credentials.py",
+    "name": "unavailable",
+    "start": 12,
+    "end": 15,
+    "async": false,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/model_connections/credentials.py",
+    "name": "__init__",
+    "start": 19,
+    "end": 20,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/model_connections/credentials.py",
+    "name": "_cipher",
+    "start": 22,
+    "end": 42,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/model_connections/credentials.py",
+    "name": "encrypt",
+    "start": 44,
+    "end": 45,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/model_connections/credentials.py",
+    "name": "decrypt",
+    "start": 47,
+    "end": 51,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/model_connections/schemas.py",
+    "name": "clean_key",
+    "start": 38,
+    "end": 45,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "require_connection",
+    "start": 29,
+    "end": 33,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "connection_response",
+    "start": 36,
+    "end": 59,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "__init__",
+    "start": 63,
+    "end": 64,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "_encrypt",
+    "start": 66,
+    "end": 71,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "create",
+    "start": 73,
+    "end": 92,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "list",
+    "start": 94,
+    "end": 108,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "get",
+    "start": 110,
+    "end": 112,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "update",
+    "start": 114,
+    "end": 145,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "delete",
+    "start": 147,
+    "end": 164,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "assert_current",
+    "start": 166,
+    "end": 175,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "_current",
+    "start": 178,
+    "end": 193,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "resolve",
+    "start": 195,
+    "end": 210,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/model_connections/service.py",
+    "name": "test",
+    "start": 212,
+    "end": 265,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/organization_rules/schemas.py",
+    "name": "normalize_empty",
+    "start": 17,
+    "end": 18,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/organization_rules/service.py",
+    "name": "current_rules",
+    "start": 13,
+    "end": 17,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/organization_rules/service.py",
+    "name": "__init__",
+    "start": 21,
+    "end": 22,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/organization_rules/service.py",
+    "name": "get",
+    "start": 24,
+    "end": 26,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/organization_rules/service.py",
+    "name": "update",
+    "start": 28,
+    "end": 47,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/cli.py",
+    "name": "main",
+    "start": 11,
+    "end": 26,
+    "async": false,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/sandboxes/config.py",
+    "name": "__post_init__",
+    "start": 22,
+    "end": 32,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/config.py",
+    "name": "cpu_units",
+    "start": 35,
+    "end": 36,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/config.py",
+    "name": "memory_bytes",
+    "start": 39,
+    "end": 43,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/config.py",
+    "name": "configured",
+    "start": 46,
+    "end": 47,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "load_verification",
+    "start": 139,
+    "end": 175,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "__init__",
+    "start": 19,
+    "end": 20,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "__iter__",
+    "start": 22,
+    "end": 28,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "close",
+    "start": 30,
+    "end": 31,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "__init__",
+    "start": 35,
+    "end": 36,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "handle_request",
+    "start": 38,
+    "end": 41,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "close",
+    "start": 43,
+    "end": 44,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "__init__",
+    "start": 48,
+    "end": 49,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "connection",
+    "start": 51,
+    "end": 73,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "create",
+    "start": 75,
+    "end": 84,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "find",
+    "start": 86,
+    "end": 98,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "kill",
+    "start": 100,
+    "end": 105,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/provider.py",
+    "name": "initialize",
+    "start": 107,
+    "end": 135,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "__init__",
+    "start": 21,
+    "end": 25,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "acquire",
+    "start": 27,
+    "end": 33,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "release",
+    "start": 35,
+    "end": 41,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "__init__",
+    "start": 45,
+    "end": 49,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "readiness",
+    "start": 51,
+    "end": 59,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "for_run",
+    "start": 61,
+    "end": 63,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "capture_profile",
+    "start": 65,
+    "end": 74,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "resources",
+    "start": 76,
+    "end": 93,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "confirm_absent",
+    "start": 95,
+    "end": 119,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "metadata",
+    "start": 121,
+    "end": 126,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "acquire",
+    "start": 128,
+    "end": 173,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "release",
+    "start": 175,
+    "end": 182,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "_destroy",
+    "start": 184,
+    "end": 210,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "sweep",
+    "start": 212,
+    "end": 220,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "start",
+    "start": 222,
+    "end": 231,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "stop",
+    "start": 233,
+    "end": 241,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/sandboxes/service.py",
+    "name": "maintain",
+    "start": 223,
+    "end": 229,
+    "async": true,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/sandboxes/verify.py",
+    "name": "docker",
+    "start": 19,
+    "end": 20,
+    "async": false,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/sandboxes/verify.py",
+    "name": "verify",
+    "start": 23,
+    "end": 122,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/sandboxes/verify.py",
+    "name": "main",
+    "start": 125,
+    "end": 141,
+    "async": false,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/schemas.py",
+    "name": "omitted_field",
+    "start": 17,
+    "end": 20,
+    "async": false,
+    "return_annotation": true,
+    "args": 0
+  },
+  {
+    "file": "backend/app/skills/library.py",
+    "name": "fingerprint",
+    "start": 31,
+    "end": 37,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/library.py",
+    "name": "__init__",
+    "start": 41,
+    "end": 42,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/library.py",
+    "name": "locked",
+    "start": 45,
+    "end": 52,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/library.py",
+    "name": "path",
+    "start": 54,
+    "end": 66,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/library.py",
+    "name": "read",
+    "start": 68,
+    "end": 101,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/library.py",
+    "name": "names",
+    "start": 103,
+    "end": 114,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/library.py",
+    "name": "replace",
+    "start": 117,
+    "end": 157,
+    "async": false,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/skills/models.py",
+    "name": "validate_name",
+    "start": 49,
+    "end": 50,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "_unique_mapping",
+    "start": 39,
+    "end": 48,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "_bounded_metadata",
+    "start": 54,
+    "end": 68,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "package_error",
+    "start": 71,
+    "end": 72,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "checked_package_path",
+    "start": 75,
+    "end": 88,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "parse_skill_md",
+    "start": 91,
+    "end": 134,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "legacy_skill_md",
+    "start": 137,
+    "end": 151,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "decode_file",
+    "start": 154,
+    "end": 165,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "validate_files",
+    "start": 168,
+    "end": 188,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "archive_files",
+    "start": 191,
+    "end": 245,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "file_manifest",
+    "start": 248,
+    "end": 261,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "__init__",
+    "start": 265,
+    "end": 266,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "put",
+    "start": 268,
+    "end": 293,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/packages.py",
+    "name": "read",
+    "start": 295,
+    "end": 306,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/parameters.py",
+    "name": "json_size",
+    "start": 10,
+    "end": 14,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/parameters.py",
+    "name": "validate_schema",
+    "start": 17,
+    "end": 42,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/parameters.py",
+    "name": "validate_parameters",
+    "start": 45,
+    "end": 62,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/parameters.py",
+    "name": "visit",
+    "start": 25,
+    "end": 35,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/schemas.py",
+    "name": "schema_valid",
+    "start": 52,
+    "end": 53,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "require_skill",
+    "start": 39,
+    "end": 43,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "__init__",
+    "start": 47,
+    "end": 57,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "read_blob",
+    "start": 59,
+    "end": 60,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "_response",
+    "start": 62,
+    "end": 81,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "_package",
+    "start": 83,
+    "end": 94,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "_files_input",
+    "start": 96,
+    "end": 103,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "create",
+    "start": 105,
+    "end": 140,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "_published_files",
+    "start": 142,
+    "end": 148,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "sync_library",
+    "start": 150,
+    "end": 252,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "get",
+    "start": 254,
+    "end": 260,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "read_file",
+    "start": 262,
+    "end": 282,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "preview_import",
+    "start": 284,
+    "end": 294,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "import_package",
+    "start": 296,
+    "end": 308,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "export_package",
+    "start": 310,
+    "end": 322,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "list",
+    "start": 324,
+    "end": 387,
+    "async": false,
+    "return_annotation": true,
+    "args": 6
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "update",
+    "start": 389,
+    "end": 464,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "_update_record",
+    "start": 466,
+    "end": 508,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/skills/service.py",
+    "name": "delete",
+    "start": 510,
+    "end": 529,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/access.py",
+    "name": "own_connection",
+    "start": 7,
+    "end": 11,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/access.py",
+    "name": "service_manager",
+    "start": 14,
+    "end": 18,
+    "async": false,
+    "return_annotation": true,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "descriptor",
+    "start": 33,
+    "end": 43,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "auth_status",
+    "start": 165,
+    "end": 175,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "__init__",
+    "start": 17,
+    "end": 18,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "handle_async_request",
+    "start": 20,
+    "end": 27,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "aclose",
+    "start": 29,
+    "end": 30,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "__init__",
+    "start": 47,
+    "end": 51,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "capture_instructions",
+    "start": 53,
+    "end": 57,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "session",
+    "start": 60,
+    "end": 111,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "_tools",
+    "start": 113,
+    "end": 129,
+    "async": true,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "discover",
+    "start": 131,
+    "end": 134,
+    "async": true,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "invoke",
+    "start": 136,
+    "end": 162,
+    "async": true,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "record_auth",
+    "start": 64,
+    "end": 67,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/adapters/mcp.py",
+    "name": "factory",
+    "start": 69,
+    "end": 88,
+    "async": false,
+    "return_annotation": false,
+    "args": 0
+  },
+  {
+    "file": "backend/app/tools/adapters/stdio.py",
+    "name": "__init__",
+    "start": 23,
+    "end": 31,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/tools/adapters/stdio.py",
+    "name": "_own_session",
+    "start": 33,
+    "end": 75,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/adapters/stdio.py",
+    "name": "open",
+    "start": 77,
+    "end": 89,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/adapters/stdio.py",
+    "name": "session",
+    "start": 92,
+    "end": 95,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/adapters/stdio.py",
+    "name": "aclose",
+    "start": 97,
+    "end": 115,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/catalogs.py",
+    "name": "annotate",
+    "start": 10,
+    "end": 24,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/tools/catalogs.py",
+    "name": "discard",
+    "start": 27,
+    "end": 40,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/tools/config.py",
+    "name": "__post_init__",
+    "start": 18,
+    "end": 20,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/contracts.py",
+    "name": "digest",
+    "start": 9,
+    "end": 12,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/contracts.py",
+    "name": "native_catalog",
+    "start": 52,
+    "end": 63,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/contracts.py",
+    "name": "exposed_name",
+    "start": 66,
+    "end": 73,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/contracts.py",
+    "name": "fingerprint",
+    "start": 24,
+    "end": 25,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/contracts.py",
+    "name": "call",
+    "start": 44,
+    "end": 44,
+    "async": true,
+    "return_annotation": true,
+    "args": 4
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "service_identity",
+    "start": 17,
+    "end": 32,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "matching_service",
+    "start": 35,
+    "end": 44,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "check_unique_service",
+    "start": 47,
+    "end": 58,
+    "async": false,
+    "return_annotation": false,
+    "args": 7
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "runtime_environment_key",
+    "start": 61,
+    "end": 95,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "service_read",
+    "start": 98,
+    "end": 115,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "validate_stdio",
+    "start": 477,
+    "end": 510,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "__init__",
+    "start": 119,
+    "end": 120,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "list",
+    "start": 122,
+    "end": 129,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "create",
+    "start": 131,
+    "end": 162,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "update",
+    "start": 164,
+    "end": 205,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "delete",
+    "start": 207,
+    "end": 226,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "import_config",
+    "start": 228,
+    "end": 339,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "_registry_preview",
+    "start": 341,
+    "end": 474,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/definitions.py",
+    "name": "fields",
+    "start": 360,
+    "end": 385,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/network.py",
+    "name": "validate_endpoint",
+    "start": 14,
+    "end": 35,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/network.py",
+    "name": "__init__",
+    "start": 39,
+    "end": 40,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/network.py",
+    "name": "__aiter__",
+    "start": 42,
+    "end": 48,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/network.py",
+    "name": "aclose",
+    "start": 50,
+    "end": 51,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/network.py",
+    "name": "__init__",
+    "start": 55,
+    "end": 59,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/network.py",
+    "name": "handle_async_request",
+    "start": 61,
+    "end": 108,
+    "async": true,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/network.py",
+    "name": "aclose",
+    "start": 110,
+    "end": 111,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/policy.py",
+    "name": "checked_path",
+    "start": 13,
+    "end": 22,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/policy.py",
+    "name": "under",
+    "start": 25,
+    "end": 26,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/policy.py",
+    "name": "validate_scope",
+    "start": 29,
+    "end": 63,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/policy.py",
+    "name": "authorize_arguments",
+    "start": 66,
+    "end": 120,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/policy.py",
+    "name": "effective_arguments",
+    "start": 123,
+    "end": 137,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/schemas.py",
+    "name": "valid_service",
+    "start": 25,
+    "end": 26,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/schemas.py",
+    "name": "valid_connection",
+    "start": 114,
+    "end": 115,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "valid_header",
+    "start": 24,
+    "end": 44,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "connection_read",
+    "start": 47,
+    "end": 55,
+    "async": false,
+    "return_annotation": true,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "require_connection",
+    "start": 58,
+    "end": 62,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "compatible_stdio_definition",
+    "start": 65,
+    "end": 70,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "assert_connection",
+    "start": 73,
+    "end": 90,
+    "async": false,
+    "return_annotation": true,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "__init__",
+    "start": 94,
+    "end": 98,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "validate_config",
+    "start": 100,
+    "end": 134,
+    "async": false,
+    "return_annotation": false,
+    "args": 5
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "create",
+    "start": 136,
+    "end": 219,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "encrypt",
+    "start": 221,
+    "end": 237,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "encrypt_environment",
+    "start": 239,
+    "end": 257,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "list",
+    "start": 259,
+    "end": 273,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "get",
+    "start": 275,
+    "end": 279,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "update",
+    "start": 281,
+    "end": 357,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "delete",
+    "start": 359,
+    "end": 377,
+    "async": false,
+    "return_annotation": false,
+    "args": 6
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "client",
+    "start": 379,
+    "end": 402,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "discovery_connection",
+    "start": 404,
+    "end": 406,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "discover",
+    "start": 408,
+    "end": 434,
+    "async": true,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "save_candidate",
+    "start": 436,
+    "end": 469,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "approve",
+    "start": 471,
+    "end": 522,
+    "async": false,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "bound_connection",
+    "start": 524,
+    "end": 526,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "call",
+    "start": 528,
+    "end": 589,
+    "async": true,
+    "return_annotation": true,
+    "args": 5
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "secrets",
+    "start": 591,
+    "end": 593,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "for_run",
+    "start": 595,
+    "end": 596,
+    "async": false,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "close",
+    "start": 598,
+    "end": 599,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "__init__",
+    "start": 603,
+    "end": 607,
+    "async": false,
+    "return_annotation": false,
+    "args": 3
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "client",
+    "start": 609,
+    "end": 617,
+    "async": true,
+    "return_annotation": false,
+    "args": 2
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "call",
+    "start": 619,
+    "end": 620,
+    "async": true,
+    "return_annotation": false,
+    "args": 4
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "aclose",
+    "start": 622,
+    "end": 630,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "__aenter__",
+    "start": 632,
+    "end": 633,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "__aexit__",
+    "start": 635,
+    "end": 636,
+    "async": true,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/service.py",
+    "name": "check_refs",
+    "start": 491,
+    "end": 504,
+    "async": false,
+    "return_annotation": false,
+    "args": 1
+  },
+  {
+    "file": "backend/app/tools/stdio_runner.py",
+    "name": "main",
+    "start": 15,
+    "end": 25,
+    "async": false,
+    "return_annotation": false,
+    "args": 0
+  }
+]

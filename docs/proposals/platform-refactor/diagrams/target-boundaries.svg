@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1680 1450" role="img" aria-labelledby="title desc"><title id="title">先分职责，再看记录</title><desc id="desc">模块是做事的边界；Conversation、Message、Run 等记录写在所属模块内部。所有模块仍在同一应用。</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8Z" fill="#94a3b8"/></marker><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern><style>text{font-family:"JetBrains Mono","Noto Sans SC","PingFang SC",sans-serif}</style></defs>
+<rect width="1680" height="1450" fill="#0f172a"/>
+<rect width="1680" height="1450" fill="url(#grid)"/>
+<path d="M840 290L840 345" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M840 445L840 500" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M290 645L290 730" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M840 645L840 730" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M1390 645L1390 730" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M790 905L790 1000" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M990 1000L990 905" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<path d="M1150 820L1080 820" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<path d="M1080 1080L1150 1080" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<path d="M840 1165L840 1260" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<path d="M50 1080H25V575H50" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<path d="M1630 850H1650V1310H1080" fill="none" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+<rect x="50" y="190" width="1580" height="100" rx="12" fill="#0f172a"/>
+<rect x="50" y="190" width="1580" height="100" rx="12" fill="#22d3ee" fill-opacity="0.085" stroke="#22d3ee" stroke-width="1.7"/>
+<rect x="50" y="345" width="1580" height="100" rx="12" fill="#0f172a"/>
+<rect x="50" y="345" width="1580" height="100" rx="12" fill="#22d3ee" fill-opacity="0.085" stroke="#22d3ee" stroke-width="1.7"/>
+<rect x="50" y="500" width="1580" height="145" rx="12" fill="#0f172a"/>
+<rect x="50" y="500" width="1580" height="145" rx="12" fill="#34d399" fill-opacity="0.085" stroke="#34d399" stroke-width="1.7"/>
+<rect x="50" y="730" width="480" height="175" rx="12" fill="#0f172a"/>
+<rect x="50" y="730" width="480" height="175" rx="12" fill="#a78bfa" fill-opacity="0.085" stroke="#a78bfa" stroke-width="1.7"/>
+<rect x="600" y="730" width="480" height="175" rx="12" fill="#0f172a"/>
+<rect x="600" y="730" width="480" height="175" rx="12" fill="#34d399" fill-opacity="0.085" stroke="#34d399" stroke-width="1.7"/>
+<rect x="1150" y="730" width="480" height="175" rx="12" fill="#0f172a"/>
+<rect x="1150" y="730" width="480" height="175" rx="12" fill="#fbbf24" fill-opacity="0.085" stroke="#fbbf24" stroke-width="1.7"/>
+<rect x="50" y="1000" width="480" height="165" rx="12" fill="#0f172a"/>
+<rect x="50" y="1000" width="480" height="165" rx="12" fill="#94a3b8" fill-opacity="0.085" stroke="#94a3b8" stroke-width="1.7"/>
+<rect x="600" y="1000" width="480" height="165" rx="12" fill="#0f172a"/>
+<rect x="600" y="1000" width="480" height="165" rx="12" fill="#34d399" fill-opacity="0.085" stroke="#34d399" stroke-width="1.7"/>
+<rect x="1150" y="1000" width="480" height="165" rx="12" fill="#0f172a"/>
+<rect x="1150" y="1000" width="480" height="165" rx="12" fill="#a78bfa" fill-opacity="0.085" stroke="#a78bfa" stroke-width="1.7"/>
+<rect x="600" y="1260" width="480" height="100" rx="12" fill="#0f172a"/>
+<rect x="600" y="1260" width="480" height="100" rx="12" fill="#94a3b8" fill-opacity="0.085" stroke="#94a3b8" stroke-width="1.7"/>
+<text x="48" y="70" font-size="34" fill="#e7edf7" font-weight="700" text-anchor="start">先分职责，再看记录</text>
+<text x="48" y="112" font-size="20" fill="#94a3b8" font-weight="400" text-anchor="start">模块是做事的边界；Conversation、Message、Run 等记录写在所属模块内部。所有模块仍在同一应用。</text>
+<text x="1632" y="150" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="end">当前实施 · 职责边界 · 2026-10-27</text>
+<text x="70" y="226" font-size="24" fill="#22d3ee" font-weight="600" text-anchor="start">对话页面 · useConversation / useMessage</text>
+<text x="70" y="263" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">发送输入、显示回复、停止这次处理、浏览历史；一个对话作用域统一读取和观察。</text>
+<text x="70" y="381" font-size="24" fill="#22d3ee" font-weight="600" text-anchor="start">HTTP 对话分组 · router / service / streaming</text>
+<text x="70" y="418" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">按用户操作提供能力；response_id 就是助手消息 ID，不新增回复实体。</text>
+<text x="70" y="536" font-size="24" fill="#34d399" font-weight="600" text-anchor="start">请求编排与共享对话流程 · 不设全局协调目录</text>
+<text x="70" y="573" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">API 请求服务组织接受、停止、重试和反馈；简单配置直接调用所属服务。</text>
+<text x="70" y="604" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">conversations 内 preparation / authorization / publication 供请求与后台共同使用。</text>
+<text x="70" y="766" font-size="24" fill="#a78bfa" font-weight="600" text-anchor="start">对话模块 · conversations</text>
+<text x="70" y="803" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">Conversation：对话与顺序</text>
+<text x="70" y="834" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">Message：用户内容与助手回复</text>
+<text x="70" y="865" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">ConversationRun：关联与活动占用</text>
+<text x="620" y="766" font-size="24" fill="#34d399" font-weight="600" text-anchor="start">执行模块 · execution</text>
+<text x="620" y="803" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">Run：一次处理尝试</text>
+<text x="620" y="834" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">RunAction：实际动作与过程</text>
+<text x="620" y="865" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">排队、时限、预算、停止与恢复</text>
+<text x="1170" y="766" font-size="24" fill="#fbbf24" font-weight="600" text-anchor="start">专业诊断 · ci_diagnosis</text>
+<text x="1170" y="803" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">CiDiagnosis：来源、报告、反馈</text>
+<text x="1170" y="834" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">专业执行器核对证据与覆盖</text>
+<text x="1170" y="865" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">共用执行控制，保留专业规则</text>
+<text x="70" y="1036" font-size="24" fill="#94a3b8" font-weight="600" text-anchor="start">身份与员工配置</text>
+<text x="70" y="1073" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">auth / agents / skills</text>
+<text x="70" y="1104" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">模型连接 / 公司规则</text>
+<text x="70" y="1135" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">本模块服务提供规则与配置</text>
+<text x="620" y="1036" font-size="24" fill="#34d399" font-weight="600" text-anchor="start">普通 Agent · agent_runtime</text>
+<text x="620" y="1073" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">实际模型与工具循环</text>
+<text x="620" y="1104" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">SDK 片段、完成判断和恢复格式</text>
+<text x="620" y="1135" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">只得到受限控制，不得到 Store</text>
+<text x="1170" y="1036" font-size="24" fill="#a78bfa" font-weight="600" text-anchor="start">SDK 专用存档</text>
+<text x="1170" y="1073" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">由装配入口单独注入适配器</text>
+<text x="1170" y="1104" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">用于继续运行或补交候选答复</text>
+<text x="1170" y="1135" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">已保存历史不依赖它</text>
+<text x="620" y="1296" font-size="24" fill="#94a3b8" font-weight="600" text-anchor="start">模型服务 / 方法资源 / MCP</text>
+<text x="620" y="1333" font-size="20" fill="#e7edf7" font-weight="400" text-anchor="start">外部等待发生在业务事务之外。</text>
+<text x="790.0" y="942.5" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">执行</text>
+<text x="990.0" y="942.5" font-size="17" fill="#e7edf7" font-weight="400" text-anchor="middle">受限控制</text>
+<text x="1115" y="802" font-size="16" fill="#e7edf7" font-weight="400" text-anchor="middle">控制</text>
+<text x="1115" y="1062" font-size="16" fill="#e7edf7" font-weight="400" text-anchor="middle">存档</text>
+<text x="48" y="1410" font-size="18" fill="#94a3b8" font-weight="400" text-anchor="start">实线：调用与业务协作　虚线：受限控制、配置或存档　|　图中没有 Thread、Turn 或通用 Item 层</text>
+</svg>

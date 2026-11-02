@@ -1,0 +1,20 @@
+{
+  "not-found": {
+    "title": "这个页面没有找到",
+    "description": "地址可能有误，或内容已无法访问。可以返回列表，继续手头的工作。"
+  },
+  "access": { "title": "当前账号无法访问", "description": "请确认登录状态和当前账号的访问权限。" },
+  "connection": {
+    "title": "暂时无法连接服务",
+    "description": "连接暂时未能建立，请稍后重新连接。"
+  },
+  "service": {
+    "title": "服务暂时无法完成处理",
+    "description": "请稍后再试；如果持续出现，可向维护人员提供问题编号。"
+  },
+  "waiting": { "title": "请稍后再试", "description": "当前操作暂时无法继续，请稍后重新检查。" },
+  "configuration": {
+    "title": "当前配置需要检查",
+    "description": "请核对所需配置或当前状态，再继续操作。"
+  }
+}

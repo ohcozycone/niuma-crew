@@ -1,0 +1,1928 @@
+[
+  {
+    "path": "backend/.env.example",
+    "bytes": 4358,
+    "sha256": "e8789df4e708b7de8a9505836139252b4df8c9b65801728f66acdb6bd97a2e9f",
+    "lines": 77
+  },
+  {
+    "path": "backend/.python-version",
+    "bytes": 5,
+    "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+    "lines": 1
+  },
+  {
+    "path": "backend/AGENTS.md",
+    "bytes": 673,
+    "sha256": "5fba2dbd312b4cdc23596f81406bbcb35e676e40ca1f13b5e3c8a6ba8f886cab",
+    "lines": 5
+  },
+  {
+    "path": "backend/README.md",
+    "bytes": 5292,
+    "sha256": "cbf23fff20f5f77aa282e1820a03885290ed23bd2418390152e868f9075137e0",
+    "lines": 43
+  },
+  {
+    "path": "backend/alembic.ini",
+    "bytes": 555,
+    "sha256": "2429c5b6bcd8e0e881d614c12e8eccd7b2ae79b8276579455a4cefb50402b718",
+    "lines": 37
+  },
+  {
+    "path": "backend/app/__init__.py",
+    "bytes": 58,
+    "sha256": "b428d8c779f5d1c2e6bf06ac222644d39a7d93fb34afb09cf3b9f2d9f1f875ae",
+    "lines": 3,
+    "functions": 0,
+    "classes": 0,
+    "group": "@root"
+  },
+  {
+    "path": "backend/app/agent_runtime/README.md",
+    "bytes": 1060,
+    "sha256": "41ecd1c8f63687545bedc52d873cb646785536e844eaa37a794e9a3f0a1fd236",
+    "lines": 12
+  },
+  {
+    "path": "backend/app/agent_runtime/__init__.py",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "functions": 0,
+    "classes": 0,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/checkpoints.py",
+    "bytes": 3013,
+    "sha256": "f0e23768416acacddeb768979c6c4aedae19aa89c90f86f73d2419844d3dd3fb",
+    "lines": 79,
+    "functions": 6,
+    "classes": 3,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/contracts.py",
+    "bytes": 2493,
+    "sha256": "3aa90ae4fa0f9cb5166d509ddc28e2a957405b9ed5426ed8a2c58a4cffe2bcca",
+    "lines": 86,
+    "functions": 12,
+    "classes": 6,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/langchain.py",
+    "bytes": 11061,
+    "sha256": "cc3d21d58fb46cc84cc81466189a50636fb762753a6e7be229d64715aed9416d",
+    "lines": 232,
+    "functions": 6,
+    "classes": 0,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/middleware.py",
+    "bytes": 7738,
+    "sha256": "3c20bcc38bfbba4b17d456c3d213c32276d75e764045468dac16356753917acd",
+    "lines": 191,
+    "functions": 4,
+    "classes": 1,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/resources.py",
+    "bytes": 691,
+    "sha256": "6a8c7faa55b6cec591ccde6b65625e4016afa269abca46a046b819022f225ea7",
+    "lines": 23,
+    "functions": 2,
+    "classes": 2,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/sandbox_backend.py",
+    "bytes": 4754,
+    "sha256": "81c51d1f8f3e9ea28cece7f4fe5284517d9c8233687174ee1b915afa8309c95c",
+    "lines": 109,
+    "functions": 5,
+    "classes": 1,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/skill_loading.py",
+    "bytes": 9621,
+    "sha256": "242c2186435a1f26fffef2e40efe5442b395570b0a475ab0d2b2a358d6fb0095",
+    "lines": 235,
+    "functions": 7,
+    "classes": 3,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/streaming.py",
+    "bytes": 2932,
+    "sha256": "c3ee9171608dbe9d14808121e839494ca173eeaf20628d37bdda45268bd27f0f",
+    "lines": 70,
+    "functions": 7,
+    "classes": 1,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/tool_calls.py",
+    "bytes": 12253,
+    "sha256": "67c96d3c3b18c330f465a707e655ea0b6139b77609f72f213ead9e352e58a3f9",
+    "lines": 292,
+    "functions": 8,
+    "classes": 1,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/tool_results.py",
+    "bytes": 7215,
+    "sha256": "09924c7fef8617f6106d59d2487cb358fbdb13d39ab6f271bab58e2826282927",
+    "lines": 181,
+    "functions": 10,
+    "classes": 1,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agent_runtime/workspace.py",
+    "bytes": 12807,
+    "sha256": "d71b051674a3a214e0a7fcdb83c40714551374a6c28c498e3ce699e65adc04a7",
+    "lines": 292,
+    "functions": 23,
+    "classes": 3,
+    "group": "agent_runtime"
+  },
+  {
+    "path": "backend/app/agents/README.md",
+    "bytes": 6293,
+    "sha256": "c2826a6cc1b5f94e07d3fc4d93f6cc9b8b0c76e6ffe8f8773bbd1832af352bff",
+    "lines": 50
+  },
+  {
+    "path": "backend/app/agents/__init__.py",
+    "bytes": 54,
+    "sha256": "cefbad080c27da534724d81ddb8cb5a32f28e759fa64cca40d95dda73c575ac5",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "agents"
+  },
+  {
+    "path": "backend/app/agents/access.py",
+    "bytes": 420,
+    "sha256": "d0558b243f8941bf75d4593dce535f9968aeea3b18cf4ef0a7c9b04d3d3ca017",
+    "lines": 10,
+    "functions": 1,
+    "classes": 0,
+    "group": "agents"
+  },
+  {
+    "path": "backend/app/agents/models.py",
+    "bytes": 5908,
+    "sha256": "02113c2e0d830eccfec03084f6b9b70f6287c67759ce160ff095e8304ee6df2b",
+    "lines": 142,
+    "functions": 2,
+    "classes": 4,
+    "group": "agents"
+  },
+  {
+    "path": "backend/app/agents/personal_tools.py",
+    "bytes": 4254,
+    "sha256": "927b6b640d6b6264d26c8be9a7d62c1aadc20e34546649042118502cb8a23949",
+    "lines": 91,
+    "functions": 3,
+    "classes": 1,
+    "group": "agents"
+  },
+  {
+    "path": "backend/app/agents/schemas.py",
+    "bytes": 4523,
+    "sha256": "aecf2531d2a669f07dccea523cd457f9e862178c8074516fe8489c0c8271ba16",
+    "lines": 156,
+    "functions": 2,
+    "classes": 10,
+    "group": "agents"
+  },
+  {
+    "path": "backend/app/agents/service.py",
+    "bytes": 19176,
+    "sha256": "0060f6bd0bbed2f15fda09dbe3ef18cf27d0588b59bc6ffa574bb297fa3cc456",
+    "lines": 456,
+    "functions": 16,
+    "classes": 1,
+    "group": "agents"
+  },
+  {
+    "path": "backend/app/agents/tool_grants.py",
+    "bytes": 14205,
+    "sha256": "55fbb9ddae778990fd54285c7adb5bac66aec366fb90f4726014c89e151843cb",
+    "lines": 347,
+    "functions": 13,
+    "classes": 3,
+    "group": "agents"
+  },
+  {
+    "path": "backend/app/api/README.md",
+    "bytes": 7320,
+    "sha256": "24d8bec0feedbf1bbf7a9f376035ef708294a5b18faaa4c3cf1984083f386764",
+    "lines": 65
+  },
+  {
+    "path": "backend/app/api/__init__.py",
+    "bytes": 41,
+    "sha256": "9a2db3c5156ae28b5b5a7bbb4cc3aeecb6db058363872d725fef17fd2d6a93e6",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/dependencies.py",
+    "bytes": 988,
+    "sha256": "0a7bf4b560d85e411cecebb12af16a4bca0e44d2c4534b968ad6c4e06c8e3d8c",
+    "lines": 39,
+    "functions": 5,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/errors.py",
+    "bytes": 3553,
+    "sha256": "0b3609079e0aa2cf4d114eabcc234358b2c4ee7712e1f45a6597f997ab22878f",
+    "lines": 100,
+    "functions": 5,
+    "classes": 4,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/frontend_delivery.py",
+    "bytes": 4084,
+    "sha256": "f9517c76553dfbc8bde0c3be3f7e4f7966ac46deb15636c26d9f71892075506f",
+    "lines": 95,
+    "functions": 4,
+    "classes": 1,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/rate_limit.py",
+    "bytes": 1367,
+    "sha256": "34569685f321ede268aa0d3bf33c1a86689ba0160db7adeb27ab9dba486c4b12",
+    "lines": 34,
+    "functions": 2,
+    "classes": 1,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/router.py",
+    "bytes": 885,
+    "sha256": "a21cdf17e9021e060c1a98b44ce3f8b67ea5a11cb85e6dfb1b4831df8fac4ecc",
+    "lines": 32,
+    "functions": 0,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/__init__.py",
+    "bytes": 50,
+    "sha256": "62352928beaebadeee3c74821638ce50487be8525c389cb4cb1150ff199b7804",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/agents.py",
+    "bytes": 5814,
+    "sha256": "49fa3334d675bb30a08d95f12f051d9e04689ac7fcfa1820d5becc8484fc8d69",
+    "lines": 154,
+    "functions": 10,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/auth.py",
+    "bytes": 7024,
+    "sha256": "9a4a7a05377abf83d85d9ccdf2f6e8bbb9972bef0480027a5759dc7f8f7a2fbe",
+    "lines": 201,
+    "functions": 9,
+    "classes": 9,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/ci_diagnosis.py",
+    "bytes": 827,
+    "sha256": "4f2a50df1154df36fad1ff1180c6f350b8d0f4f68aea531cbca801e4a7d47931",
+    "lines": 22,
+    "functions": 2,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/configuration_summary.py",
+    "bytes": 1505,
+    "sha256": "7f7ffe6a4888b7629b28be65cb55968bb04ee1fbb8718a7735b6b56d0a01d3df",
+    "lines": 48,
+    "functions": 1,
+    "classes": 1,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/conversations/__init__.py",
+    "bytes": 91,
+    "sha256": "c3d804692eb6457b15961cf64593b5af13c2e9c925a07c2256035d837de712ad",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/conversations/router.py",
+    "bytes": 6930,
+    "sha256": "b855132bd4ab8bbfb8d170eed7ca59838925abb478dc282e00a7b2951b65a4a1",
+    "lines": 217,
+    "functions": 17,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/conversations/service.py",
+    "bytes": 12087,
+    "sha256": "32d142e8f2b0ca569f65bf08db12231140c44c2f1c14cbdf90e14c28c0815c68",
+    "lines": 263,
+    "functions": 6,
+    "classes": 1,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/conversations/streaming.py",
+    "bytes": 3323,
+    "sha256": "542d282f1e767cbeb4560721e0dc1689fc8c2cf242d73e793a3efd1f233b8e4f",
+    "lines": 80,
+    "functions": 4,
+    "classes": 1,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/files.py",
+    "bytes": 2018,
+    "sha256": "ebe7df228d1cf368cf6e6cc78fc6a38ed6c53fb9d54d6de84775038f412b52e8",
+    "lines": 56,
+    "functions": 3,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/health.py",
+    "bytes": 744,
+    "sha256": "6766e12eb36d06b77994a93f47970c3e7e1859693378c1880394f156d449596b",
+    "lines": 27,
+    "functions": 2,
+    "classes": 1,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/model_connections.py",
+    "bytes": 2988,
+    "sha256": "c75ceb240dfe5a936158ea2d8a01abf201355f1a051efd78c639d12c3703b01a",
+    "lines": 103,
+    "functions": 8,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/organization_rules.py",
+    "bytes": 1090,
+    "sha256": "7f0ddf39b4a134b9d70c2176558288d93aac6ae0e7255da9c44053fe4caa7004",
+    "lines": 32,
+    "functions": 2,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/public.py",
+    "bytes": 2596,
+    "sha256": "772e1e3113847236a9bbb38a96db1628a28110b181fc42a5d81f1772ca96a4d1",
+    "lines": 89,
+    "functions": 4,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/skills.py",
+    "bytes": 4006,
+    "sha256": "056b672544be71cfaf4b29ce80717bd37d962e010516aa114e5f2cc1ac689b26",
+    "lines": 138,
+    "functions": 12,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/routes/tools.py",
+    "bytes": 7955,
+    "sha256": "04afdb8bc336d07b2830cb7f30c347d1690e78a1b3876ba0e04e58496c91a451",
+    "lines": 228,
+    "functions": 16,
+    "classes": 0,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/api/security.py",
+    "bytes": 3467,
+    "sha256": "a1b05faf0065ca1e84800e41a3a36627063440113130b57686596c97388f7247",
+    "lines": 82,
+    "functions": 5,
+    "classes": 1,
+    "group": "api"
+  },
+  {
+    "path": "backend/app/auth/README.md",
+    "bytes": 6956,
+    "sha256": "f2631ae73d35bdd48b6298038766a05684f2e7b7c44b39c628f418a1a2e13953",
+    "lines": 56
+  },
+  {
+    "path": "backend/app/auth/__init__.py",
+    "bytes": 87,
+    "sha256": "d83352b37ac63590c7b4a77241febe24e593d6901c6856ac976b97b4c6ef9b57",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "auth"
+  },
+  {
+    "path": "backend/app/auth/actor.py",
+    "bytes": 311,
+    "sha256": "baad6ea61a8e8fe3268e55673288d1ce76f104b2a6038fff0a20d946bad3bbf5",
+    "lines": 14,
+    "functions": 0,
+    "classes": 1,
+    "group": "auth"
+  },
+  {
+    "path": "backend/app/auth/cli.py",
+    "bytes": 1890,
+    "sha256": "51806e54837d1ec926f24a7906437cd12e1ef6a730eb49068ac8199466190eb5",
+    "lines": 55,
+    "functions": 2,
+    "classes": 0,
+    "group": "auth"
+  },
+  {
+    "path": "backend/app/auth/config.py",
+    "bytes": 5180,
+    "sha256": "bf6756b855c850cdba90f9af2e2291ff67412d3ef5a388217526c0b3cf0076d0",
+    "lines": 109,
+    "functions": 6,
+    "classes": 2,
+    "group": "auth"
+  },
+  {
+    "path": "backend/app/auth/github.py",
+    "bytes": 6861,
+    "sha256": "b56f1c9e8be1f8064200698a9cd252eb549f75e4866951b47677349620f9f30f",
+    "lines": 168,
+    "functions": 6,
+    "classes": 1,
+    "group": "auth"
+  },
+  {
+    "path": "backend/app/auth/models.py",
+    "bytes": 2978,
+    "sha256": "a05de5cca9ef4a463004c47e7e168bd1b9973733476a4e7d7df89b4af9cd9391",
+    "lines": 77,
+    "functions": 0,
+    "classes": 3,
+    "group": "auth"
+  },
+  {
+    "path": "backend/app/auth/permissions.py",
+    "bytes": 1773,
+    "sha256": "07cf22866670576f98a6e6783a32ee0c354dcf8d01e1063faff602cab7ecf4be",
+    "lines": 61,
+    "functions": 3,
+    "classes": 0,
+    "group": "auth"
+  },
+  {
+    "path": "backend/app/auth/service.py",
+    "bytes": 11949,
+    "sha256": "de557deb0b935e4286cb4c58f2b8e4a33d430ff33def54197e67b37181036acf",
+    "lines": 283,
+    "functions": 17,
+    "classes": 1,
+    "group": "auth"
+  },
+  {
+    "path": "backend/app/bootstrap.py",
+    "bytes": 6430,
+    "sha256": "4702e1a6f5cc9557584b04525d61743e9f08c21c98d42388a8f29a9786e4ae50",
+    "lines": 152,
+    "functions": 2,
+    "classes": 0,
+    "group": "@root"
+  },
+  {
+    "path": "backend/app/ci_diagnosis/README.md",
+    "bytes": 3149,
+    "sha256": "0c269ac694a31a189ab8657754ea6e083a84b3358f466e1d771e9d89536508c0",
+    "lines": 28
+  },
+  {
+    "path": "backend/app/ci_diagnosis/__init__.py",
+    "bytes": 72,
+    "sha256": "a230220bdf6a40507bb4f36a63a9c9b11fa0e7da7bf5d9c61d0cf800bb89dbed",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "ci_diagnosis"
+  },
+  {
+    "path": "backend/app/ci_diagnosis/contracts.py",
+    "bytes": 4043,
+    "sha256": "8b6a6c3cd347aa728ebdd054f840c7039d189f60d2f296687f9bf65fa4472964",
+    "lines": 114,
+    "functions": 5,
+    "classes": 6,
+    "group": "ci_diagnosis"
+  },
+  {
+    "path": "backend/app/ci_diagnosis/executor.py",
+    "bytes": 16758,
+    "sha256": "4633a6cd63d1cfba68b39ebd184a579f39ca8e066c616f93fff347e1a2ba7b39",
+    "lines": 347,
+    "functions": 6,
+    "classes": 1,
+    "group": "ci_diagnosis"
+  },
+  {
+    "path": "backend/app/ci_diagnosis/mcp.py",
+    "bytes": 5295,
+    "sha256": "c0a92908ea0affce9ad2964597cec6d9baa162a73c959ff1c53c71ec3e98b8bf",
+    "lines": 128,
+    "functions": 6,
+    "classes": 1,
+    "group": "ci_diagnosis"
+  },
+  {
+    "path": "backend/app/ci_diagnosis/models.py",
+    "bytes": 1357,
+    "sha256": "5ece5671c809fa2f876da17fed198a494326239d71874efbf229d4667c30a1e6",
+    "lines": 31,
+    "functions": 0,
+    "classes": 1,
+    "group": "ci_diagnosis"
+  },
+  {
+    "path": "backend/app/ci_diagnosis/report.py",
+    "bytes": 4290,
+    "sha256": "4d74bb11cee11e28abcddfce97429c535043e7b5b1f7e1ebd86d9b6d78f7eaf4",
+    "lines": 92,
+    "functions": 3,
+    "classes": 0,
+    "group": "ci_diagnosis"
+  },
+  {
+    "path": "backend/app/ci_diagnosis/service.py",
+    "bytes": 8688,
+    "sha256": "5330f3748d0457a69506f31e5210ee8d5fe436947dcb345863144af715fe987d",
+    "lines": 206,
+    "functions": 10,
+    "classes": 1,
+    "group": "ci_diagnosis"
+  },
+  {
+    "path": "backend/app/config.py",
+    "bytes": 7118,
+    "sha256": "2173e1983a9e7018547de6f02d20053e328e59d4e38e5197f618d9db91cde7a2",
+    "lines": 157,
+    "functions": 6,
+    "classes": 1,
+    "group": "@root"
+  },
+  {
+    "path": "backend/app/conversations/README.md",
+    "bytes": 1555,
+    "sha256": "a0daaf3dba84235ab15215fa950f7096f17709bd0133f6ef7c929493e838142e",
+    "lines": 17
+  },
+  {
+    "path": "backend/app/conversations/__init__.py",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "functions": 0,
+    "classes": 0,
+    "group": "conversations"
+  },
+  {
+    "path": "backend/app/conversations/authorization.py",
+    "bytes": 2359,
+    "sha256": "e699c0f9c38571ebd7abd76cebcbff919fd23d2b39d25de59bb342220221e091",
+    "lines": 57,
+    "functions": 2,
+    "classes": 1,
+    "group": "conversations"
+  },
+  {
+    "path": "backend/app/conversations/files.py",
+    "bytes": 3100,
+    "sha256": "af46c9838530198ab3d74f0ded4047c8a5b98efdc2d1e754de3cbe1022070427",
+    "lines": 71,
+    "functions": 4,
+    "classes": 1,
+    "group": "conversations"
+  },
+  {
+    "path": "backend/app/conversations/models.py",
+    "bytes": 3923,
+    "sha256": "07db65d1b184256d8c341b0d634944ba6d3a27a77cf2d2e401dde0a21db75770",
+    "lines": 96,
+    "functions": 2,
+    "classes": 4,
+    "group": "conversations"
+  },
+  {
+    "path": "backend/app/conversations/preparation.py",
+    "bytes": 10448,
+    "sha256": "6552ff6442158b6bffb026299fb9f13c7b9508aa304eaf9fe13cc866d07d6970",
+    "lines": 241,
+    "functions": 6,
+    "classes": 1,
+    "group": "conversations"
+  },
+  {
+    "path": "backend/app/conversations/publication.py",
+    "bytes": 3938,
+    "sha256": "ae8f6dd4b68796175a666164997a86376c102f8c3c78ac9d5f1ad6aaf0030a52",
+    "lines": 93,
+    "functions": 3,
+    "classes": 1,
+    "group": "conversations"
+  },
+  {
+    "path": "backend/app/conversations/queries.py",
+    "bytes": 22075,
+    "sha256": "4529d5d25bb0a09de4a83c9576d2f32240fa1135370b318cc5f3ff2f328569c0",
+    "lines": 543,
+    "functions": 22,
+    "classes": 1,
+    "group": "conversations"
+  },
+  {
+    "path": "backend/app/conversations/schemas.py",
+    "bytes": 4364,
+    "sha256": "e9081c891ad84d176e03761b5f81599d6e0943ad54d33681c62f41a9b1e1a58a",
+    "lines": 190,
+    "functions": 3,
+    "classes": 18,
+    "group": "conversations"
+  },
+  {
+    "path": "backend/app/conversations/writes.py",
+    "bytes": 3493,
+    "sha256": "4db87cddfdddab92b88a762f39df882551e9b8446809aeaf81878018c4b496f7",
+    "lines": 105,
+    "functions": 5,
+    "classes": 0,
+    "group": "conversations"
+  },
+  {
+    "path": "backend/app/errors.py",
+    "bytes": 1259,
+    "sha256": "15ee77a8d1dbb0ee2e8440f468cdc6e1e5e77fdf86e654571a94b1ec51540427",
+    "lines": 39,
+    "functions": 1,
+    "classes": 8,
+    "group": "@root"
+  },
+  {
+    "path": "backend/app/execution/README.md",
+    "bytes": 2344,
+    "sha256": "d6cc9623c44674ab909215db38e0020e0afa7d0971e18410a2f5881afe2689e1",
+    "lines": 26
+  },
+  {
+    "path": "backend/app/execution/__init__.py",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "functions": 0,
+    "classes": 0,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/execution/admission.py",
+    "bytes": 3783,
+    "sha256": "8a3afb13115aa95c135e4c018f971cfd42ce60e2215bd32e7a8be4228719640f",
+    "lines": 103,
+    "functions": 5,
+    "classes": 1,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/execution/config.py",
+    "bytes": 3638,
+    "sha256": "a12ef6bb8ece362bbae9478fbc140a9fb7cbbeff4aeafe52f22c2097773ede4b",
+    "lines": 70,
+    "functions": 2,
+    "classes": 1,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/execution/contracts.py",
+    "bytes": 1790,
+    "sha256": "02df2986f64529a61d1614f09fabfe72c7f618a1dadcd04dcc1ddf2c9b1d9ba9",
+    "lines": 63,
+    "functions": 1,
+    "classes": 4,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/execution/control.py",
+    "bytes": 5098,
+    "sha256": "27dff2ae2427fe335f593d5ae182b3cede64de1684ed07a0d7b38b19e47bdf11",
+    "lines": 148,
+    "functions": 17,
+    "classes": 2,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/execution/coordinator.py",
+    "bytes": 7021,
+    "sha256": "c15c3510b09743f3d95e54655155d7893138b05fdd675b201d504b4d670d1077",
+    "lines": 167,
+    "functions": 4,
+    "classes": 1,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/execution/errors.py",
+    "bytes": 4906,
+    "sha256": "6ba34214d4ea165ae974d848db78bd98a40116362527cabc95928fd1d11a989e",
+    "lines": 73,
+    "functions": 1,
+    "classes": 1,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/execution/models.py",
+    "bytes": 6727,
+    "sha256": "9fb9c9e4368daadb53f260569a4f15796898589f1ee2f2fc8d6bc52dee67df29",
+    "lines": 138,
+    "functions": 0,
+    "classes": 2,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/execution/queries.py",
+    "bytes": 555,
+    "sha256": "7816a7a4d0e4d03fed2cd1b6bf51f963fc007ad71754b2db7b4e5c5dedabfdef",
+    "lines": 17,
+    "functions": 1,
+    "classes": 0,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/execution/scheduler.py",
+    "bytes": 4841,
+    "sha256": "e6922232493d5b15417a0bdbeb481642b2f5fed07d52a25652cc3bec8baa1f82",
+    "lines": 123,
+    "functions": 6,
+    "classes": 1,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/execution/store.py",
+    "bytes": 14358,
+    "sha256": "ac943029c4d71e467941bec66bdae32a1f94ae6af1e554c22190468aadeaac65",
+    "lines": 355,
+    "functions": 21,
+    "classes": 1,
+    "group": "execution"
+  },
+  {
+    "path": "backend/app/files/README.md",
+    "bytes": 930,
+    "sha256": "94f4e2f42fe4c9feed0241a234c70ffa4c924225daa24869ddb82e5911b70f15",
+    "lines": 9
+  },
+  {
+    "path": "backend/app/files/__init__.py",
+    "bytes": 77,
+    "sha256": "60567015f16a221013b88bbb92ace787b474dacefe3bbb5e517710a63b973016",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "files"
+  },
+  {
+    "path": "backend/app/files/config.py",
+    "bytes": 808,
+    "sha256": "747308b03bc9d97669c44da73389accf3e79540c56a4cc21091a3d722b2a37cb",
+    "lines": 25,
+    "functions": 1,
+    "classes": 1,
+    "group": "files"
+  },
+  {
+    "path": "backend/app/files/models.py",
+    "bytes": 1089,
+    "sha256": "491de359aa82cce4022fbad337d7e53436354f35f8d1fc916790ab4b75407dc5",
+    "lines": 23,
+    "functions": 0,
+    "classes": 1,
+    "group": "files"
+  },
+  {
+    "path": "backend/app/files/service.py",
+    "bytes": 8614,
+    "sha256": "39d835b981f3ba71a978e103669b685879da941b44cb6fe09ae9985ed140ccc8",
+    "lines": 214,
+    "functions": 11,
+    "classes": 1,
+    "group": "files"
+  },
+  {
+    "path": "backend/app/infrastructure/__init__.py",
+    "bytes": 52,
+    "sha256": "ef3fe134e411bb83f91ce5b5102037f5e29377fd44b3072dddcf3ae0c11641bb",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "infrastructure"
+  },
+  {
+    "path": "backend/app/infrastructure/database/README.md",
+    "bytes": 6160,
+    "sha256": "f42eee3505532807eb58a69038eb817484c4389730d8001ff88b8430ce49bdbc",
+    "lines": 59
+  },
+  {
+    "path": "backend/app/infrastructure/database/__init__.py",
+    "bytes": 78,
+    "sha256": "103ea0c595f9b5498050a086f7f8b20cc6a35f4ebb3422c6bf41e1d237707160",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "infrastructure"
+  },
+  {
+    "path": "backend/app/infrastructure/database/base.py",
+    "bytes": 533,
+    "sha256": "87b6110f1302a3d994f12494ed2a01bfc778d36ef3c1e356eefbb3ecb6d3981d",
+    "lines": 16,
+    "functions": 0,
+    "classes": 1,
+    "group": "infrastructure"
+  },
+  {
+    "path": "backend/app/infrastructure/database/errors.py",
+    "bytes": 949,
+    "sha256": "ab4a7afddf10797c08953cf85314520e514d3916ae234dc7f9b502d23749fedd",
+    "lines": 24,
+    "functions": 3,
+    "classes": 0,
+    "group": "infrastructure"
+  },
+  {
+    "path": "backend/app/infrastructure/database/fields.py",
+    "bytes": 3255,
+    "sha256": "fcd21da723b528e85b83ba26a14eac39ebad8e059525059e2dfdfb29f7cbbad1",
+    "lines": 102,
+    "functions": 11,
+    "classes": 4,
+    "group": "infrastructure"
+  },
+  {
+    "path": "backend/app/infrastructure/database/models.py",
+    "bytes": 1185,
+    "sha256": "6f0512ec6f13f443eaca106f8138f69acd351432c64c4c4d2742c90e8f10c17d",
+    "lines": 39,
+    "functions": 0,
+    "classes": 0,
+    "group": "infrastructure"
+  },
+  {
+    "path": "backend/app/infrastructure/database/session.py",
+    "bytes": 2522,
+    "sha256": "1ad968321e606626f1c9dfb64cd25bd2ba3c8e07f6a5a2ab5cdc221af61c262b",
+    "lines": 66,
+    "functions": 5,
+    "classes": 2,
+    "group": "infrastructure"
+  },
+  {
+    "path": "backend/app/infrastructure/database/transactions.py",
+    "bytes": 814,
+    "sha256": "1c6287c6792c1600937d05627808e1efdbca55189ae941eb653143b89deb4760",
+    "lines": 18,
+    "functions": 1,
+    "classes": 0,
+    "group": "infrastructure"
+  },
+  {
+    "path": "backend/app/llm/README.md",
+    "bytes": 3006,
+    "sha256": "88b46f47ae9b770845d3d3dd930845c30457efca547e3abe2e8bafb4f5c61d49",
+    "lines": 30
+  },
+  {
+    "path": "backend/app/llm/__init__.py",
+    "bytes": 74,
+    "sha256": "be14cf418ab8b5afa3973b9bc36254070e0e80b77ff7b63149c7b427e112bd26",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "llm"
+  },
+  {
+    "path": "backend/app/llm/config.py",
+    "bytes": 796,
+    "sha256": "9bd7c450fc5955b05b0e1e62b44c63e116aa10066b641afcd109728658af1245",
+    "lines": 14,
+    "functions": 0,
+    "classes": 1,
+    "group": "llm"
+  },
+  {
+    "path": "backend/app/llm/errors.py",
+    "bytes": 991,
+    "sha256": "faab635d0b92727f1ca0a1ff49b7410dd78404f07e02cd69db8609cbdbe9a2c7",
+    "lines": 26,
+    "functions": 1,
+    "classes": 0,
+    "group": "llm"
+  },
+  {
+    "path": "backend/app/llm/factory.py",
+    "bytes": 1509,
+    "sha256": "b4ce83a8bd55a6791294e825e80b02d26b9d9eababf7470da81e54c1aa2faace",
+    "lines": 46,
+    "functions": 2,
+    "classes": 0,
+    "group": "llm"
+  },
+  {
+    "path": "backend/app/llm/usage.py",
+    "bytes": 1339,
+    "sha256": "308575f9876a5faa1a83f9360ab38748b4169cac7332c444fff8f62e59c04c78",
+    "lines": 41,
+    "functions": 2,
+    "classes": 1,
+    "group": "llm"
+  },
+  {
+    "path": "backend/app/main.py",
+    "bytes": 115,
+    "sha256": "b3bf954d6b9f6bd5b38786bfff7aa6535670ea62455fcb63e3b1a533cb9fa531",
+    "lines": 5,
+    "functions": 0,
+    "classes": 0,
+    "group": "@root"
+  },
+  {
+    "path": "backend/app/model_connections/README.md",
+    "bytes": 5063,
+    "sha256": "ac77d1b65434746901571082f2e038e6b9139d5771f2d1ea104a1393a1fcb002",
+    "lines": 48
+  },
+  {
+    "path": "backend/app/model_connections/__init__.py",
+    "bytes": 85,
+    "sha256": "769f3f77bf8c71f7ea348fd3d454655d329d982b7a6644ac90610e20b26dc4e3",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "model_connections"
+  },
+  {
+    "path": "backend/app/model_connections/credentials.py",
+    "bytes": 1957,
+    "sha256": "e60ad75f1e141cfd617c5eb865e4eab682bbaf435673609c2a581b532414070b",
+    "lines": 51,
+    "functions": 5,
+    "classes": 1,
+    "group": "model_connections"
+  },
+  {
+    "path": "backend/app/model_connections/models.py",
+    "bytes": 1584,
+    "sha256": "b368c084ba61cb01bbf3b3d2ca332433f54f56e7435d683743975fc1a886388d",
+    "lines": 38,
+    "functions": 0,
+    "classes": 1,
+    "group": "model_connections"
+  },
+  {
+    "path": "backend/app/model_connections/presets.py",
+    "bytes": 667,
+    "sha256": "cd77ef763549fab578d3fc0d80676e3ebdbf5b8e8534948109ce68b271ea1b2f",
+    "lines": 27,
+    "functions": 0,
+    "classes": 1,
+    "group": "model_connections"
+  },
+  {
+    "path": "backend/app/model_connections/schemas.py",
+    "bytes": 2263,
+    "sha256": "e964c12fee0b97277299dd7ad6d9fa4d8477392226558a9b92a8b2a9fbf081b2",
+    "lines": 94,
+    "functions": 1,
+    "classes": 7,
+    "group": "model_connections"
+  },
+  {
+    "path": "backend/app/model_connections/service.py",
+    "bytes": 11763,
+    "sha256": "e3e72e2a7681be85f9a3e903acb84ba75963dab01966884abcbd7cc56e835dd7",
+    "lines": 265,
+    "functions": 13,
+    "classes": 1,
+    "group": "model_connections"
+  },
+  {
+    "path": "backend/app/organization_rules/README.md",
+    "bytes": 1368,
+    "sha256": "fd64b88903dc251956d82eb90986a8da123702348aac01045b70441ec15e06a0",
+    "lines": 11
+  },
+  {
+    "path": "backend/app/organization_rules/__init__.py",
+    "bytes": 64,
+    "sha256": "b6166745edaad9913902cbee7ae335bcbd0a51f025d37fb57c7f22b2f64f297e",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "organization_rules"
+  },
+  {
+    "path": "backend/app/organization_rules/models.py",
+    "bytes": 993,
+    "sha256": "c10c7e8739010ed61acb3d4aeba95e6db816423f189ebf1da9ae6616b41af28f",
+    "lines": 25,
+    "functions": 0,
+    "classes": 1,
+    "group": "organization_rules"
+  },
+  {
+    "path": "backend/app/organization_rules/schemas.py",
+    "bytes": 734,
+    "sha256": "0e76b23435b645ca5e7f67bd09ff93ddb4423ceff19470f92a512be227a5a26b",
+    "lines": 26,
+    "functions": 1,
+    "classes": 2,
+    "group": "organization_rules"
+  },
+  {
+    "path": "backend/app/organization_rules/service.py",
+    "bytes": 2019,
+    "sha256": "df983ff7f5723a75654d497a9a4bc326ac1047eb69756231f6cd327077f01e7b",
+    "lines": 47,
+    "functions": 4,
+    "classes": 1,
+    "group": "organization_rules"
+  },
+  {
+    "path": "backend/app/sandboxes/README.md",
+    "bytes": 1155,
+    "sha256": "6e10adaeac266b05390a9038e1f38c96cbf23600973cb42b67c1f80865a8115a",
+    "lines": 9
+  },
+  {
+    "path": "backend/app/sandboxes/__init__.py",
+    "bytes": 81,
+    "sha256": "68fe3b49e1d12fd02e90434e0913bb730fd7335857c0078474faca89155eb5d8",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "sandboxes"
+  },
+  {
+    "path": "backend/app/sandboxes/cli.py",
+    "bytes": 1002,
+    "sha256": "23621c8e17438a26d4fe70a1d842b97a56b23d37425b0dd48ba0a5ce58110c8c",
+    "lines": 30,
+    "functions": 1,
+    "classes": 0,
+    "group": "sandboxes"
+  },
+  {
+    "path": "backend/app/sandboxes/config.py",
+    "bytes": 1728,
+    "sha256": "31464ab32a202fa9b9453a9afa3189344a3f6797cb735c904ad6a5647e239e68",
+    "lines": 47,
+    "functions": 4,
+    "classes": 1,
+    "group": "sandboxes"
+  },
+  {
+    "path": "backend/app/sandboxes/models.py",
+    "bytes": 1119,
+    "sha256": "ece561e2c179d4568e72cfbca5149b1ab13b0f4852a95f50e1edf8c4e2768bd5",
+    "lines": 26,
+    "functions": 0,
+    "classes": 1,
+    "group": "sandboxes"
+  },
+  {
+    "path": "backend/app/sandboxes/provider.py",
+    "bytes": 6571,
+    "sha256": "25f7f612ab4b00c94a6d3d3ec1143869ff0b10700f974eecd857701bf35efe94",
+    "lines": 175,
+    "functions": 13,
+    "classes": 3,
+    "group": "sandboxes"
+  },
+  {
+    "path": "backend/app/sandboxes/service.py",
+    "bytes": 9958,
+    "sha256": "f30aab4bdf3f260844262855b4f35df497ba4b7daf8dfca969333bf95f7a0575",
+    "lines": 241,
+    "functions": 17,
+    "classes": 2,
+    "group": "sandboxes"
+  },
+  {
+    "path": "backend/app/sandboxes/verify.py",
+    "bytes": 5682,
+    "sha256": "5c86bc3032b591673722292b49a694b864baf26e9261b809d5897faaef18cb6e",
+    "lines": 145,
+    "functions": 3,
+    "classes": 0,
+    "group": "sandboxes"
+  },
+  {
+    "path": "backend/app/schemas.py",
+    "bytes": 874,
+    "sha256": "ef14946ddd537fddc51ca69ff2e4d0c6ea5f08100b05b4ad06d3fb02d7b96438",
+    "lines": 27,
+    "functions": 1,
+    "classes": 2,
+    "group": "@root"
+  },
+  {
+    "path": "backend/app/skills/README.md",
+    "bytes": 6648,
+    "sha256": "5718df079986c33b0baeed30d1ea58acadc90f9e07cf50d3c5fa0fe8f93f23ae",
+    "lines": 43
+  },
+  {
+    "path": "backend/app/skills/__init__.py",
+    "bytes": 65,
+    "sha256": "8c94b927162511c8676a72a5cfac146822f503c86b4b6dd36e6cd7cf4300c287",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "skills"
+  },
+  {
+    "path": "backend/app/skills/config.py",
+    "bytes": 259,
+    "sha256": "2d2466e6f9987e08fecfee5e50353ceb2bcd9136c648bda0db810876e890e244",
+    "lines": 10,
+    "functions": 0,
+    "classes": 1,
+    "group": "skills"
+  },
+  {
+    "path": "backend/app/skills/library.py",
+    "bytes": 6082,
+    "sha256": "ed81427135a1bb46f3a88ccaeca58eddf8766615b53910c8c622f450b205b787",
+    "lines": 157,
+    "functions": 7,
+    "classes": 1,
+    "group": "skills"
+  },
+  {
+    "path": "backend/app/skills/models.py",
+    "bytes": 2169,
+    "sha256": "8b2227e693f59d87555d213a54f46049ebc400096a98b2492ea150f08ac10cf3",
+    "lines": 50,
+    "functions": 1,
+    "classes": 1,
+    "group": "skills"
+  },
+  {
+    "path": "backend/app/skills/packages.py",
+    "bytes": 12587,
+    "sha256": "c10e61db75369d9da89adf04d2f4a60bae64da3c354bd8007aaf1d74896de5a8",
+    "lines": 306,
+    "functions": 13,
+    "classes": 2,
+    "group": "skills"
+  },
+  {
+    "path": "backend/app/skills/parameters.py",
+    "bytes": 2373,
+    "sha256": "a74b4ee854a6fe273ffd607eb79ec46eb60023c15e2f3a965368b78c2b15052d",
+    "lines": 62,
+    "functions": 4,
+    "classes": 0,
+    "group": "skills"
+  },
+  {
+    "path": "backend/app/skills/schemas.py",
+    "bytes": 3469,
+    "sha256": "b2f2d71749009ba9e997e4fa5d95b794b5ba8480b041f8e98bf210f67459873d",
+    "lines": 133,
+    "functions": 1,
+    "classes": 13,
+    "group": "skills"
+  },
+  {
+    "path": "backend/app/skills/service.py",
+    "bytes": 23290,
+    "sha256": "45b07700175d37a935d54893b7c2b0741334f06aa74119c2b08fff58ed6dcad3",
+    "lines": 529,
+    "functions": 18,
+    "classes": 1,
+    "group": "skills"
+  },
+  {
+    "path": "backend/app/tools/README.md",
+    "bytes": 1813,
+    "sha256": "d7721b662ec56b0655dbe01f67675185fe27fea154c866ff0caed2b87755abc0",
+    "lines": 14
+  },
+  {
+    "path": "backend/app/tools/__init__.py",
+    "bytes": 79,
+    "sha256": "a1d74a7c94fc248e4dc8e21a512286f97be77e2e0914b388b8c32fdca76570fa",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/access.py",
+    "bytes": 693,
+    "sha256": "99555175641bbc907758de63f3f5238abd0523e05e9430d028e46000b37038ae",
+    "lines": 18,
+    "functions": 2,
+    "classes": 0,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/adapters/__init__.py",
+    "bytes": 54,
+    "sha256": "002ae9b4cff07d49cf4e667a08dd6657fa66e2c59e1d2d0dee8785608e90700a",
+    "lines": 1,
+    "functions": 0,
+    "classes": 0,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/adapters/mcp.py",
+    "bytes": 7223,
+    "sha256": "3961d00641a36b1c77a17b8752b7aacee43532ff8d00a523223fd92e885d350b",
+    "lines": 175,
+    "functions": 13,
+    "classes": 2,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/adapters/stdio.py",
+    "bytes": 4286,
+    "sha256": "b52673e2fc4064e2cf2803b919536a1f2f359ce0a5e84cd9a4d6b9ff849e707b",
+    "lines": 115,
+    "functions": 5,
+    "classes": 1,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/catalogs.py",
+    "bytes": 1916,
+    "sha256": "02aaa685b421a731aa18952f5fef5b73ff2787ef53c85917c6a6eace4373b039",
+    "lines": 40,
+    "functions": 2,
+    "classes": 0,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/config.py",
+    "bytes": 687,
+    "sha256": "93319732c76b62710f2b0857c40312cc6272e7ea9aa1357cf0b8bc8fee9d955b",
+    "lines": 20,
+    "functions": 1,
+    "classes": 1,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/contracts.py",
+    "bytes": 2033,
+    "sha256": "3c8183ebee287df88f789f4f3eee0b86907c49c6336015cfb3f4b06458c473f0",
+    "lines": 73,
+    "functions": 5,
+    "classes": 4,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/definitions.py",
+    "bytes": 21193,
+    "sha256": "dc284defe1e81a4327c640997a36af9feb2589f3786340194bcf91d91a4fc8fa",
+    "lines": 510,
+    "functions": 14,
+    "classes": 1,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/models.py",
+    "bytes": 3574,
+    "sha256": "ac978cb7c91e9491fb42432bff088278c790f7cbcac3ae6a28c9c40fc7d4c611",
+    "lines": 64,
+    "functions": 0,
+    "classes": 2,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/network.py",
+    "bytes": 4410,
+    "sha256": "5aa7230b4cad3d56f6e060c8acf6e6b8c74161b8cf31fc88ee35d9323ad5a4b8",
+    "lines": 111,
+    "functions": 7,
+    "classes": 2,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/policy.py",
+    "bytes": 6230,
+    "sha256": "18022fa3f43304dce825c268d1b19c696f70cb3be37652df4783845ad4cd43b0",
+    "lines": 137,
+    "functions": 5,
+    "classes": 0,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/schemas.py",
+    "bytes": 3855,
+    "sha256": "ba579a58430876de78bb8eecbf50325039b0c4bc8f1103f49af2058c307c8ec1",
+    "lines": 117,
+    "functions": 2,
+    "classes": 11,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/service.py",
+    "bytes": 29684,
+    "sha256": "f8bb8012c6c54e9c029802483f6887abbe21ffd9a3cb262866a0d768f1e2bf95",
+    "lines": 636,
+    "functions": 31,
+    "classes": 2,
+    "group": "tools"
+  },
+  {
+    "path": "backend/app/tools/stdio_runner.py",
+    "bytes": 828,
+    "sha256": "568dbca09a1335165660c3291d4850831ab08978aa01f723306bfab27b0d5894",
+    "lines": 29,
+    "functions": 1,
+    "classes": 0,
+    "group": "tools"
+  },
+  {
+    "path": "backend/datasets/travel-expense/README.md",
+    "bytes": 3314,
+    "sha256": "c969788003d3f871ff585d18cd16a2f232249cdd17e5123c1eacbd436a092578",
+    "lines": 37
+  },
+  {
+    "path": "backend/datasets/travel-expense/documents/01-scope-and-transport.md",
+    "bytes": 1384,
+    "sha256": "91a6dfde81828717a8c83545471a2188e5ebc67adf7cec270ca31a4e3c9b97b1",
+    "lines": 28
+  },
+  {
+    "path": "backend/datasets/travel-expense/documents/02-accommodation-policy.md",
+    "bytes": 1493,
+    "sha256": "fb6a4cf152faa48e2f2130928e5d729bf1f75241623c0bc3701cf0d578773a9e",
+    "lines": 27
+  },
+  {
+    "path": "backend/datasets/travel-expense/documents/03-accommodation-update.md",
+    "bytes": 1039,
+    "sha256": "f2809dc2142e96100803f2748050c944c0945ac2c1ddac46034bc9d5ab1c1305",
+    "lines": 22
+  },
+  {
+    "path": "backend/datasets/travel-expense/documents/04-expense-process.md",
+    "bytes": 1277,
+    "sha256": "962c7d1125831ca04a452a02e4abcb5cf1bc54da8378db1c7f31fa4cdabdfc23",
+    "lines": 26
+  },
+  {
+    "path": "backend/datasets/travel-expense/documents/05-knowledge-boundaries.md",
+    "bytes": 869,
+    "sha256": "6ab6c3d1b113109646ee7a392045bf803dfe29d303a3b33ff91acd1b63f5ea74",
+    "lines": 20
+  },
+  {
+    "path": "backend/datasets/travel-expense/evaluation/REVIEW.md",
+    "bytes": 25455,
+    "sha256": "21a0d9eca41d861279b11a194384eaa9258fca3fdf4944711b32cff16e13e503",
+    "lines": 447
+  },
+  {
+    "path": "backend/datasets/travel-expense/evaluation/questions.jsonl",
+    "bytes": 2030,
+    "sha256": "b2d584f3e1eed382049e1973f761ed92756b7ecf152936b5c545a02f28ceda49",
+    "lines": 12
+  },
+  {
+    "path": "backend/datasets/travel-expense/evaluation/reference_answers.jsonl",
+    "bytes": 22599,
+    "sha256": "17834ae814e425922950984417986045ca9b3bacafb3335bb5b869e46d159d23",
+    "lines": 12
+  },
+  {
+    "path": "backend/datasets/travel-expense/evaluation/review-results.jsonl",
+    "bytes": 2400,
+    "sha256": "c1e5bfeba216512a5de263385b72f9a8bf8a34e341b168d17fde78130c1874ef",
+    "lines": 12
+  },
+  {
+    "path": "backend/datasets/travel-expense/evaluation/rules.json",
+    "bytes": 9486,
+    "sha256": "88dff9e4adca96ddf8b9db143b48f1a8b54bc0f0656a14badaa53c5a95197c45",
+    "lines": 184
+  },
+  {
+    "path": "backend/datasets/travel-expense/manifest.json",
+    "bytes": 1375,
+    "sha256": "3c1036512bbcef8b45d4fb3041af47b8e881da9366ee83f889c7f8ba2c50f2d5",
+    "lines": 42
+  },
+  {
+    "path": "backend/experiments/sqlite_checkpoint_chat.py",
+    "bytes": 8334,
+    "sha256": "b3acc20a43a71be0cbe7086f2a67fe6bec863c286b31df8907093693a5a2f593",
+    "lines": 210,
+    "functions": 16,
+    "classes": 2
+  },
+  {
+    "path": "backend/migrations/env.py",
+    "bytes": 2260,
+    "sha256": "30e0fa479e78d1587739457f98f53307b593e08b58c40d4329223ec6cef5cc33",
+    "lines": 65,
+    "functions": 2,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/script.py.mako",
+    "bytes": 596,
+    "sha256": "d1f1b62944b3703547760446b08fcfb081b4a7b1b557246ecec0ca192cd76a23",
+    "lines": 24
+  },
+  {
+    "path": "backend/migrations/versions/0001_initial_schema.py",
+    "bytes": 26879,
+    "sha256": "a002c9fe1e3299ab4007eccf3030a9a91b0a6e9fd7054902f9936c5f84ccb872",
+    "lines": 573,
+    "functions": 2,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/versions/0002_remove_run_base_checkpoint.py",
+    "bytes": 833,
+    "sha256": "17fed6bbb51b2c56691ad62030db0e15d5c538be5bf3ac2666288768dc3fadab",
+    "lines": 29,
+    "functions": 2,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/versions/0003_unique_agent_name.py",
+    "bytes": 752,
+    "sha256": "ac34cb10d65fe5498d04954898a6ea869dd61eac3d771d09c2cf58e26a73d963",
+    "lines": 25,
+    "functions": 2,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/versions/0004_execution_and_messages.py",
+    "bytes": 25504,
+    "sha256": "887e5828757bafe85f303d06b7d804e2ab8a6435c8280bd801f63d3d38b11550",
+    "lines": 323,
+    "functions": 5,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/versions/0005_message_delivery.py",
+    "bytes": 19120,
+    "sha256": "b420682661b8076e62dd8534b3cc2a8dae96dcb3d2addd168e4a7e653554e6f7",
+    "lines": 320,
+    "functions": 6,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/versions/0006_agent_foundations.py",
+    "bytes": 10016,
+    "sha256": "3921ead3a2800b6c384f46ec92f553e3a9c68f7202ce86dd0db11604839d4923",
+    "lines": 237,
+    "functions": 2,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/versions/0007_mcp_accounts.py",
+    "bytes": 6913,
+    "sha256": "5d6aff315a5f6f90503cf48b3ad7c29375679e0ab8c1f16b1cd367e98b68537b",
+    "lines": 166,
+    "functions": 3,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/versions/0008_stdio_mcp.py",
+    "bytes": 5063,
+    "sha256": "b2014ab94badc0a3d8785bc71a679ab00185b1718e4f8ca40b1f8616856828a3",
+    "lines": 115,
+    "functions": 4,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/versions/0009_skill_packages.py",
+    "bytes": 3087,
+    "sha256": "89dc3ca385b32c80ea01a37b018b917b47f4d5e882965e98a1c15a41bf7e5cd9",
+    "lines": 79,
+    "functions": 3,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/versions/0010_skill_library.py",
+    "bytes": 516,
+    "sha256": "3c16aa52fe23de8d64afcdc61985755802a3f7531c60d3ffa2aabe1f1b55b9b3",
+    "lines": 18,
+    "functions": 2,
+    "classes": 0
+  },
+  {
+    "path": "backend/migrations/versions/0011_mcp_input_fields.py",
+    "bytes": 418,
+    "sha256": "b485c97c057407d626a99f80ad24bd173e232981aa779e2ed0c72fc6ec68c6ac",
+    "lines": 18,
+    "functions": 2,
+    "classes": 0
+  },
+  {
+    "path": "backend/pyproject.toml",
+    "bytes": 1540,
+    "sha256": "c5f19a5373f1b0576c4894f58c6baa4ccf5fd696a1551951c706f98869786279",
+    "lines": 59
+  },
+  {
+    "path": "backend/tests/checkpoint_helpers.py",
+    "bytes": 721,
+    "sha256": "9a4f8f9e22eaa72c44f60433703802d3628474ff38d700468576f3b0cf32d1b0",
+    "lines": 21,
+    "functions": 2,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/checkpoint_worker.py",
+    "bytes": 4419,
+    "sha256": "0733462b4483d98bd9d2fe90f2ee6e1a7f2e77aae7fda82037ad6894e771c865",
+    "lines": 113,
+    "functions": 7,
+    "classes": 1
+  },
+  {
+    "path": "backend/tests/configuration_helpers.py",
+    "bytes": 800,
+    "sha256": "9ab4949246a96fab00ef943b35d386cd649aa517e3aa4aa6979d40cacbfb33c1",
+    "lines": 22,
+    "functions": 2,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/conftest.py",
+    "bytes": 2047,
+    "sha256": "fbf744986760706b65171b056dd4827c4b87d35624c95c37aef014a2fa8f8cce",
+    "lines": 65,
+    "functions": 4,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/legacy_execution_helpers.py",
+    "bytes": 4869,
+    "sha256": "e74bcd562a4a3455bd344d2e37c8e3ebd4b911a2cb5a062deaf67d5683346ff9",
+    "lines": 126,
+    "functions": 2,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/runtime_helpers.py",
+    "bytes": 1119,
+    "sha256": "2b890e4b0d926cff17a90484d817fd354afdcf4ba67e7048eb1f5ee0dbf3b1e5",
+    "lines": 36,
+    "functions": 7,
+    "classes": 1
+  },
+  {
+    "path": "backend/tests/scenario_client.py",
+    "bytes": 7652,
+    "sha256": "c96aa46fd8799ab7c9aa0196427e9509ac2d34e7e2c6549ab1463fc48f757013",
+    "lines": 190,
+    "functions": 6,
+    "classes": 3
+  },
+  {
+    "path": "backend/tests/test_agent_foundations.py",
+    "bytes": 29178,
+    "sha256": "db89dd19758a5f07437a4a7cee7370c0ae7f9155d05d409ce92c1e6b83d49041",
+    "lines": 801,
+    "functions": 48,
+    "classes": 4
+  },
+  {
+    "path": "backend/tests/test_agent_identity.py",
+    "bytes": 3673,
+    "sha256": "35d81a0d037865d55741e448f753a344b34b2054a47387d2cf389875e1ba2347",
+    "lines": 72,
+    "functions": 4,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_agent_skill_storage.py",
+    "bytes": 13496,
+    "sha256": "a2dfb2ec498e271c5afd79782b1a567768da43eb4507f22e254efe0a43e926d8",
+    "lines": 312,
+    "functions": 15,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_api_errors.py",
+    "bytes": 5627,
+    "sha256": "af47dd2f117879cab1ba8a8e2ce803b8ec53f9e7ce343582ce05e09e109fb8f0",
+    "lines": 145,
+    "functions": 11,
+    "classes": 1
+  },
+  {
+    "path": "backend/tests/test_authentication.py",
+    "bytes": 16092,
+    "sha256": "efe6e2cda73a487ffc7e473643bd1c030240b41da4067b3ed3b841f6642e4b20",
+    "lines": 399,
+    "functions": 16,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_bootstrap.py",
+    "bytes": 4826,
+    "sha256": "945be8d4ad226b6362797293e5a0f6b4342b8058c4dd6524fa197d40faf137c5",
+    "lines": 114,
+    "functions": 3,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_capability_runtime.py",
+    "bytes": 27082,
+    "sha256": "1af1d8ef965d71b4c0020c444e99a235b340342d2ab5fb73008854b9bb8dfe9f",
+    "lines": 652,
+    "functions": 32,
+    "classes": 2
+  },
+  {
+    "path": "backend/tests/test_checkpoint_runtime.py",
+    "bytes": 13475,
+    "sha256": "9a86a268f597b7a4d93acb5eaaa5da2b02d46d93a6154ae304f063311b85b055",
+    "lines": 319,
+    "functions": 10,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_ci_diagnosis.py",
+    "bytes": 23593,
+    "sha256": "bc3801419ccfb4e5823c98ac0eaa2abbc32f37d8b0ed8a5f64ffbae59b339058",
+    "lines": 582,
+    "functions": 34,
+    "classes": 4
+  },
+  {
+    "path": "backend/tests/test_config.py",
+    "bytes": 7880,
+    "sha256": "b53dfb30f373cdf86928f9382d971fffa43abd0076300acba5a156ec4a1fbbe9",
+    "lines": 185,
+    "functions": 14,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_configuration_api.py",
+    "bytes": 19175,
+    "sha256": "2d79fe20da723fc51ea8e56199a2bfa3a8f0d10d385b2000ae1f0e86a56fac63",
+    "lines": 465,
+    "functions": 25,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_conversation_message_state.py",
+    "bytes": 7483,
+    "sha256": "4811bb4697ea6783dfd9ec7f4d0ab1974e6f4e8011217d3df8ad9aa380d4d889",
+    "lines": 171,
+    "functions": 7,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_conversation_submission.py",
+    "bytes": 6190,
+    "sha256": "c2bf25ea859fd6b9f52da0b240e3f17251c08bdadbf64bf9bf887d9795f36f7f",
+    "lines": 130,
+    "functions": 7,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_conversations.py",
+    "bytes": 44106,
+    "sha256": "3eff0e948a95c1a819197f09cb9b5f14daa885a7eb52e7fb81abf274ef6c5d8f",
+    "lines": 1049,
+    "functions": 54,
+    "classes": 2
+  },
+  {
+    "path": "backend/tests/test_database.py",
+    "bytes": 6773,
+    "sha256": "d8b1da46055f8298d008dd2cfaf2636700fcc467b86ced4c84e52d54957438ef",
+    "lines": 143,
+    "functions": 10,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_database_error_boundaries.py",
+    "bytes": 5524,
+    "sha256": "7b345f6f1fa8eadcccb2a5c1200689396d3558bc7c2453b5e86d793cd2e5e378",
+    "lines": 147,
+    "functions": 6,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_database_errors.py",
+    "bytes": 4787,
+    "sha256": "506a71295f0882d6e61fcdc7aed4962b75c85937382bd255452eda0c128b3c26",
+    "lines": 104,
+    "functions": 7,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_execution_boundaries.py",
+    "bytes": 10233,
+    "sha256": "7fde7c25e352ec24406de013f0703597536d3da7f5ec78272f2c2be891a1803b",
+    "lines": 227,
+    "functions": 11,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_frontend.py",
+    "bytes": 5321,
+    "sha256": "61fe17f2dda318ceff8bb3674840970773573d0094785984cb59cd5a11085aa1",
+    "lines": 153,
+    "functions": 9,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_github_signin.py",
+    "bytes": 18556,
+    "sha256": "b6cb29018d5d6aeea669e6112cc1c9d211ac5fb921d8b5f94aa891c9f08000ba",
+    "lines": 448,
+    "functions": 27,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_llm.py",
+    "bytes": 2992,
+    "sha256": "702f4f5e423ed7aecde3ccc53e1b7d9b66b268cc45695372e9230a132cd2ec66",
+    "lines": 72,
+    "functions": 3,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_mcp_accounts.py",
+    "bytes": 16859,
+    "sha256": "b62b2a6d4fd2c656609504661ab4fd6b9b6e9c22302a5751db7511d8bf6894c6",
+    "lines": 449,
+    "functions": 21,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_mcp_management.py",
+    "bytes": 8914,
+    "sha256": "c179148bcd657cb591d1f11d497562e3af6f07ca80687a1ae32c4b0d4c9fb265",
+    "lines": 228,
+    "functions": 12,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_mcp_registry_import.py",
+    "bytes": 3771,
+    "sha256": "0eb330b0d8051fff2af427794cae308e3fc0753974435512ea21cf8fde4f66a4",
+    "lines": 106,
+    "functions": 6,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_message_delivery_migration.py",
+    "bytes": 5954,
+    "sha256": "661ae44964c0e6029f6dfa2440aa54549ba8b02bf06e48362d012f3d6535a2c0",
+    "lines": 143,
+    "functions": 4,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_migrations.py",
+    "bytes": 13545,
+    "sha256": "d76a65a61aa8b8ddd2a546846fff625e03e3fb56d1844ea61db4857ad0aad0bf",
+    "lines": 310,
+    "functions": 12,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_model_connections.py",
+    "bytes": 13365,
+    "sha256": "99280e481da33828198ed51794770caea68c06f9f23979a811868efddcc52362",
+    "lines": 346,
+    "functions": 15,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_organization_rules.py",
+    "bytes": 4243,
+    "sha256": "4c2b3c2d9a5d3a107f9a66b1d1405bd54e869440167b14690514bcb4ae5b792b",
+    "lines": 113,
+    "functions": 5,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_response_contract.py",
+    "bytes": 7992,
+    "sha256": "482875dde86f066e9ff334abf52451525a032740a055f48c247b4dc2615da470",
+    "lines": 193,
+    "functions": 10,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_runtime_boundaries.py",
+    "bytes": 5023,
+    "sha256": "6260865518957bfc4d19e5c3f11bf982a9cf756b3d447f47116598503aa7fc38",
+    "lines": 136,
+    "functions": 4,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_runtime_streaming.py",
+    "bytes": 12124,
+    "sha256": "a4bd7baff5288ed4dd97412f9e3eb75a11af89246ff36698c35ddf45062076f5",
+    "lines": 287,
+    "functions": 12,
+    "classes": 2
+  },
+  {
+    "path": "backend/tests/test_skill_library.py",
+    "bytes": 8233,
+    "sha256": "a7e767aa43d3d6961d544611c35249defc71ce36b3af5a2cb2500b730787fee9",
+    "lines": 190,
+    "functions": 11,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_skill_packages.py",
+    "bytes": 14949,
+    "sha256": "f27a4fa386208f78348e5b72c076522e918b5bd25b38bf1975e4f42ab6bfd65b",
+    "lines": 370,
+    "functions": 17,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_sqlite_checkpoints.py",
+    "bytes": 7950,
+    "sha256": "38a15cff475d1ab19ddbf6a528bccba2657eff50e2e3522e5ad4dee873311301",
+    "lines": 189,
+    "functions": 7,
+    "classes": 0
+  },
+  {
+    "path": "backend/tests/test_stdio_mcp.py",
+    "bytes": 13886,
+    "sha256": "a6d5eede32d57b377229981ea84881a7444fbc35c60d03b82fcab0ef77ce1473",
+    "lines": 391,
+    "functions": 17,
+    "classes": 1
+  },
+  {
+    "path": "backend/tests/test_tool_readers.py",
+    "bytes": 6476,
+    "sha256": "a35d4fd8a01db4f74b62cec63e61e938823e970aac84d32d171b4f8b8ea2254a",
+    "lines": 179,
+    "functions": 5,
+    "classes": 1
+  },
+  {
+    "path": "backend/tests/test_tool_results.py",
+    "bytes": 8340,
+    "sha256": "99b417405d20f3ab416403886a51acc9b991d47e1610e416c965cfbe89f57cb3",
+    "lines": 215,
+    "functions": 9,
+    "classes": 1
+  },
+  {
+    "path": "backend/uv.lock",
+    "bytes": 585202,
+    "sha256": "ee59d0828c0a4de16e1816b37b9b2955dc13fb16dbb3e0245c1af35a11f2bc04",
+    "lines": 3149
+  }
+]

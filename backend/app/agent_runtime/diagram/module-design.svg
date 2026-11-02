@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 920" role="img" aria-labelledby="title desc">
+<title id="title">模型与工具执行循环：模块结构与协作</title>
+<desc id="desc">图展示 SDK 循环与宿主控制的结构关系。返回候选前另核对保存状态和输出文件；下排控制接口是同进程受信边界，不是进程隔离。</desc>
+<defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern><marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0L9 3.5L0 7" fill="#94a3b8"/></marker></defs>
+<style>text{font-family:"PingFang SC","Noto Sans SC",sans-serif;fill:#e2e8f0}.muted{fill:#94a3b8}.label{fill:#cbd5e1}.title{font-weight:600}.edge{fill:none;stroke:#94a3b8;stroke-width:1.7;marker-end:url(#arrow)}</style>
+<rect width="1280" height="920" fill="#0f172a"/><rect width="1280" height="920" fill="url(#grid)"/>
+<path class="edge" d="M360 265H480"/>
+<path class="edge" d="M800 265H920"/>
+<path class="edge" d="M200 560V385H640V350"/>
+<path class="edge" d="M1080 350V419H640V560"/>
+<path class="edge" d="M800 633H920"/>
+<path class="edge" d="M920 657H800"/>
+<rect x="40" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="40" y="180" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="200" y="215" text-anchor="middle" font-size="21" class="title">准备好的工作</text>
+<text x="200" y="249" text-anchor="middle" font-size="15" class="muted">AgentRequest / RuntimeResources</text>
+<text x="200" y="278" text-anchor="middle" font-size="15" class="">固定输入、消息、模型参数与资源</text>
+<rect x="480" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="480" y="180" width="320" height="170" rx="10" fill="#60a5fa" fill-opacity="0.08" stroke="#60a5fa" stroke-width="1.6"/>
+<text x="640" y="215" text-anchor="middle" font-size="21" class="title">执行装配入口</text>
+<text x="640" y="249" text-anchor="middle" font-size="15" class="muted">langchain.py</text>
+<text x="640" y="278" text-anchor="middle" font-size="15" class="">构造模型、方法、工作区和中间件</text>
+<rect x="920" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="920" y="180" width="320" height="170" rx="10" fill="#60a5fa" fill-opacity="0.08" stroke="#60a5fa" stroke-width="1.6"/>
+<text x="1080" y="215" text-anchor="middle" font-size="21" class="title">SDK 模型工具循环</text>
+<text x="1080" y="249" text-anchor="middle" font-size="15" class="muted">create_agent / astream</text>
+<text x="1080" y="278" text-anchor="middle" font-size="15" class="">模型请求 → 工具结果 → 下一轮</text>
+<rect x="40" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="40" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="200" y="595" text-anchor="middle" font-size="21" class="title">方法与文件视图</text>
+<text x="200" y="629" text-anchor="middle" font-size="15" class="muted">skill_loading / workspace</text>
+<text x="200" y="658" text-anchor="middle" font-size="15" class="">按清单提供方法、输入和输出</text>
+<rect x="480" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="480" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="640" y="595" text-anchor="middle" font-size="21" class="title">调用检查与内容解释</text>
+<text x="640" y="629" text-anchor="middle" font-size="15" class="muted">middleware / tool_calls / </text>
+<text x="640" y="652" text-anchor="middle" font-size="15" class="muted">streaming</text>
+<text x="640" y="681" text-anchor="middle" font-size="15" class="">先申请动作，再执行及保存进展</text>
+<rect x="920" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="920" y="560" width="320" height="170" rx="10" fill="#fb923c" fill-opacity="0.08" stroke="#fb923c" stroke-width="1.6"/>
+<text x="1080" y="595" text-anchor="middle" font-size="21" class="title">执行宿主控制接口</text>
+<text x="1080" y="629" text-anchor="middle" font-size="15" class="muted">RuntimeControl</text>
+<text x="1080" y="658" text-anchor="middle" font-size="15" class="">当前许可、预算和实际动作记录</text>
+<rect x="385.0" y="233" width="70" height="24" rx="3" fill="#0f172a"/>
+<text x="420.0" y="250" text-anchor="middle" font-size="14" class="label">明确输入</text>
+<rect x="818.0" y="233" width="84" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="250" text-anchor="middle" font-size="14" class="label">组装并驱动</text>
+<rect x="371.0" y="356" width="98" height="24" rx="3" fill="#0f172a"/>
+<text x="420.0" y="373" text-anchor="middle" font-size="14" class="label">方法和工作区</text>
+<rect x="811.0" y="390" width="98" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="407" text-anchor="middle" font-size="14" class="label">每轮经过适配</text>
+<rect x="813.24" y="601" width="93.52" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="618" text-anchor="middle" font-size="14" class="label">动作 / 内容</text>
+<rect x="818.0" y="670" width="84" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="687" text-anchor="middle" font-size="14" class="label">允许后执行</text>
+<text x="40" y="52" text-anchor="start" font-size="26" class="title">模型与工具执行循环：内部结构与协作</text>
+<text x="40" y="88" font-size="16" class="muted">节点对应实际实现；箭头标明调用或数据交付，具体事务和授权边界见正文。</text>
+<text x="40" y="875" font-size="15" class="muted">当前实现的模块协作图；目录结构和图中职责不表示已经独立部署为多个服务。</text>
+</svg>

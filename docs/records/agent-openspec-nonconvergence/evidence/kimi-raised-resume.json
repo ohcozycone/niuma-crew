@@ -1,0 +1,540 @@
+{
+  "status": "succeeded",
+  "error_code": null,
+  "model_calls": 9,
+  "tool_calls": 8,
+  "skill_reads": 0,
+  "usage": {
+    "input_tokens": 101078,
+    "output_tokens": 1985,
+    "total_tokens": 103063,
+    "cached_input_tokens": 84480,
+    "reasoning_tokens": 694
+  },
+  "final_answer": "**结论：OpenSpec 本质上是一个 CLI 工具 + 规范框架，不是单纯的 skill，也不是标准的 MCP server。** 它对不同 AI 助手采用不同的集成方式，具体形态取决于你用的工具：\n\n| 形态 | 说明 | 典型场景 |\n|------|------|----------|\n| **CLI 工具** | 核心本体，`npm install -g @fission-ai/openspec`，用 `openspec init/propose/apply` 等命令管理规范 | 所有工作流的基础 |\n| **Skill（技能）** | `openspec init` 会向你的 AI 工具安装 skill 文件（如 `.claude/skills/`、`.cursor/skills/`），通过 `/openspec-apply-change` 等命令触发 | Claude Code、Cursor、Kimi Code 等 |\n| **Slash commands** | 部分工具用命令而非 skill，如 `/opsx:propose`、`/opsx:apply` | GitHub Copilot、Amazon Q 等 |\n| **MCP server** | 社区有第三方 MCP 封装（如 `opencode-openspec`），提供 `openspec_list`、`openspec_view` 等工具调用，**非官方核心** | OpenCode 等支持 MCP 的工具 |\n\n简单判断：\n- 如果你用 **Claude Code / Cursor**：它表现为 **skill**（安装在 `.claude/skills/` 或 `.cursor/skills/`）。\n- 如果你用 **OpenCode**：可能通过 **MCP** 接入。\n- 无论如何：**CLI 是根基**，skill/MCP 只是调用 CLI 能力的入口。\n\n建议直接跑 `openspec init`，它会根据检测到的工具自动生成对应的 skill 或 command 文件。",
+  "actions": [
+    {
+      "sequence": 1,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:29:42.289805Z",
+      "finished_at": "2026-10-30T14:29:51.747636Z",
+      "details": {
+        "round": 1,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 2,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:29:51.758427Z",
+      "finished_at": "2026-10-30T14:29:55.103350Z",
+      "details": {
+        "tool": "tavily_search",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+        "query": "OpenSpec spec-driven development tool official GitHub"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"query\\\": \\\"OpenSpec spec-driven development tool official GitHub\\\", \\\"follow_up_questions\\\": null, \\\"answer\\\": null, \\\"images\\\": [], \\\"results\\\": [{\\\"url\\\": \\\"https://jgcarmona.com/en/moving-toward-spec-driven-development\\\", \\\"title\\\": \\\"Moving Toward Spec-Driven Development with OpenSpec or Spec Kit\\\", \\\"score\\\": 0.97788346, \\\"content\\\": \\\"Spec Kit, for its part, is a very pragmatic attempt from GitHub (and many others) to convert that intuition into an integrated flow. GitHub open-sourced it in September 2025 and describes it as a toolkit for turning specifications from disposable scaffolding into executable, shareable artifacts. Its official documentation makes the central idea very clear: intent-driven development, project principles, multi-phase refinement, and less “one-shot” generation from loose prompts. Sounds great,\\\", \\\"raw_content\\\": null, \\\"id\\\": \\\"0e6df1-00\\\"}, {\\\"url\\\": \\\"https://github.com/AngDrew/opencode-openspec\\\", \\\"title\\\": \\\"GitHub - AngDrew/opencode-openspec: OpenSpec spec-driven development plugin for OpenCode · GitHub\\\", \\\"score\\\": 0.9751545, \\\"content\\\": \\\"| Tool | Description | Args |\\\\n --- \\\\n| `openspec_list` | List changes and specs | `showArchived?: boolean`, `filter?: string` |\\\\n| `openspec_view` | View change details | `changeId: string` |\\\\n| `openspec_init` | Initialize workspace | `force?: boolean` |\\\\n| `openspec_new` | Create new change | `changeId: string`, `type?: string` |\\\\n| `openspec_ff` | Fast-forward scaffold | `changeId: string` |\\\\n| `openspec_apply` | Apply tasks | `changeId: string`, `count?: number` |\\\", \\\"raw_content\\\": null, \\\"id\\\": \\\"f5c474-01\\\"}, {\\\"url\\\": \\\"https://github.com/carlosapgomes/OpenSpec/tree/main\\\", \\\"title\\\": \\\"GitHub - carlosapgomes/OpenSpec: Spec-driven development (SDD) for AI coding assistants. · GitHub\\\", \\\"score\\\": 0.9745319, \\\"content\\\": \\\"| Name | Name | Last commit message | Last commit date |\\\\n ---  --- |\\\\n| .changeset | .changeset |  |  |\\\\n| .devcontainer | .devcontainer |  |  |\\\\n| .github | .github |  |  |\\\\n| assets | assets |  |  |\\\\n| bin | bin |  |  |\\\\n| docs | docs |  |  |\\\\n| openspec | openspec |  |  |\\\\n| schemas/spec-driven | schemas/spec-driven |  |  |\\\\n| scripts | scripts |  |  |\\\\n| src | src |  |  |\\\\n| test | test |  |  |\\\\n| .actrc | .actrc |  |  |\\\\n| .coderabbit.yaml | .coderabbit.yaml |  |  |\\\\n| .gitignore | .gitignore |  |  | [...] NotificationsYou must be signed in to change notification settings\\\\n Fork0 (0)\\\\n Star0 (0)You must be signed in to star a repository\\\\n\\\\n## About\\\\n\\\\nSpec-driven development (SDD) for AI coding assistants.\\\\n\\\\nopenspec.dev/\\\\n\\\\n### Resources\\\\n\\\\nReadme\\\\n\\\\nLicense\\\\n\\\\nActivity\\\\n\\\\n### Stars\\\\n\\\\n0 stars\\\\n\\\\n### Watchers\\\\n\\\\n0 watching\\\\n\\\\n### Forks\\\\n\\\\n0 forks\\\\n\\\\nReport repository\\\\n\\\\nBranchesTags\\\\n\\\\nOpen more actions menu\\\\n\\\\n## Latest commit\\\\n\\\\n## History\\\\n\\\\n539 Commits\\\\n\\\\n539 Commits\\\\n\\\\n## Folders and files [...] ## Repository files navigation\\\\n\\\\nOpenSpec logo\\\\n\\\\nCI npm version License: MIT Discord\\\\n\\\\n The most loved spec framework.\\\\n\\\\nStars Downloads Contributors\\\\n\\\\n Our philosophy:\\\\n\\\\n```\\\\n→ fluid not rig\", \"result_id\": \"5acc4f3b-c140-44db-bac4-bb47cb542c8f\", \"preview_end\": 3000, \"total_chars\": 6448, \"next_offset\": 3000, \"truncated\": true, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://jgcarmona.com/en/moving-toward-spec-driven-development\", \"title\": \"Moving Toward Spec-Driven Development with OpenSpec or Spec Kit\", \"retrieved_at\": \"2026-10-30T14:29:55.093915+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"4cae6973-867a-485b-8a7c-3e9122aac073\", \"text_obtained\": true}, {\"url\": \"https://github.com/AngDrew/opencode-openspec\", \"title\": \"GitHub - AngDrew/opencode-openspec: OpenSpec spec-driven development plugin for OpenCode · GitHub\", \"retrieved_at\": \"2026-10-30T14:29:55.096124+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"545457d1-a035-445b-aefd-ecc4a90a6e52\", \"text_obtained\": true}, {\"url\": \"https://github.com/carlosapgomes/OpenSpec/tree/main\", \"title\": \"GitHub - carlosapgomes/OpenSpec: Spec-driven development (SDD) for AI coding assistants. · GitHub\", \"retrieved_at\": \"2026-10-30T14:29:55.098032+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"57cdafc7-bea1-4bef-8895-3387729c51b8\", \"text_obtained\": true}, {\"url\": \"https://github.com/ubermensch-site/OpenSpec-About-Spec-driven-development-for-AI-coding\", \"title\": \"GitHub - ubermensch-site/OpenSpec-About-Spec-driven-development-for-AI-coding: Spec-driven development for AI coding assistants. · GitHub\", \"retrieved_at\": \"2026-10-30T14:29:55.099463+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"daa48e52-e8a4-4133-b5b0-92e7a9c1f254\", \"text_obtained\": true}, {\"url\": \"https://github.com/intent-driven-dev/OpenSpec\", \"title\": \"GitHub - intent-driven-dev/OpenSpec: Spec-driven development (SDD) for AI coding assistants. · GitHub\", \"retrieved_at\": \"2026-10-30T14:29:55.101186+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"snippet\", \"file_id\": \"4c8695c2-e344-42ed-b7ea-22eabf7f452d\", \"text_obtained\": true}]}",
+      "source_urls": [
+        "https://jgcarmona.com/en/moving-toward-spec-driven-development",
+        "https://github.com/AngDrew/opencode-openspec",
+        "https://github.com/carlosapgomes/OpenSpec/tree/main",
+        "https://github.com/ubermensch-site/OpenSpec-About-Spec-driven-development-for-AI-coding",
+        "https://github.com/intent-driven-dev/OpenSpec"
+      ],
+      "local_result_truncated": true
+    },
+    {
+      "sequence": 3,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:29:55.115850Z",
+      "finished_at": "2026-10-30T14:29:57.836312Z",
+      "details": {
+        "round": 2,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 4,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:29:57.846679Z",
+      "finished_at": "2026-10-30T14:30:03.120539Z",
+      "details": {
+        "tool": "tavily_search",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+        "query": "site:openspec.dev OpenSpec install skill MCP"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"error\\\": \\\"Search failed\\\", \\\"status\\\": 429, \\\"detail\\\": {\\\"error\\\": \\\"Your request has been blocked due to excessive requests. Please reduce the rate of requests. Verify you are using production API keys.\\\"}, \\\"documentation\\\": \\\"https://docs.tavily.com/documentation/api-reference/endpoint/search\\\"}\", \"result_id\": \"43e5d5b3-fac1-4145-92f3-1e8660e5c8a0\", \"preview_end\": 288, \"total_chars\": 288, \"next_offset\": null, \"truncated\": false, \"source_files_readable\": false, \"sources\": []}",
+      "source_urls": [],
+      "local_result_truncated": false
+    },
+    {
+      "sequence": 5,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:30:03.129015Z",
+      "finished_at": "2026-10-30T14:31:05.450198Z",
+      "details": {
+        "round": 3,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 6,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:05.462127Z",
+      "finished_at": "2026-10-30T14:31:09.077949Z",
+      "details": {
+        "tool": "tavily_extract",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+        "query": "what is OpenSpec, install, CLI, MCP, skill, agent integration"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"results\\\": [{\\\"url\\\": \\\"https://openspec.dev/\\\", \\\"title\\\": \\\"OpenSpec | A lightweight and configurable spec framework\\\", \\\"raw_content\\\": \\\"Fission-AI / OpenSpec 68.0k GitHub stars star repository ↗\\\\n\\\\n# The spec framework for building the right thing and building it right\\\\n\\\\n## Synopsis\\\\n\\\\nOpenSpec is a lightweight and configurable framework for creating and managing software specifications.\\\\n\\\\nWith OpenSpec, you capture what you want to build in a spec and keep your team and coding agents aligned as the work evolves. We help you refine the requirements, validate that they describe the right thing, and verify that the implementation matches.\\\\n\\\\nIn essence, OpenSpec helps you build the right thing and build it right.\\\\n\\\\n## In use\\\\n\\\\n68.0k  GitHub stars. A new spec every two seconds.\\\\n\\\\n## In use\\\\n\\\\n68.0k  stars on GitHub.\\\\n\\\\nA new spec is created with OpenSpec every two seconds.\\\\n\\\\n## Adoption [...] ## Installation\\\\n\\\\n/ / / /\\\\n\\\\n## Compatibility\\\\n\\\\nClaude CodeCodexCursorGitHub CopilotGemini CLIOpenCode  Amazon Q Developer  Antigravity  Auggie  IBM Bob Shell  Cline  Command Code  CodeArts  CodeBuddy  Devin Desktop  ForgeCode  Continue  CoStrict  Crush  Factory Droid  Hermes Agent  iFlow  Junie  Kilo Code  Kimi Code  Kiro  Lingma  MiniMax Code  Mistral Vibe  Oh My Pi  Pi  SourceCraft Code Assistant for VS Code  Qoder  Qwen Code  Rovo Dev CLI  Zoo Code  Trae  Zed Agent  ZCode  full directory ↗ + 33 more\\\\n\\\\n## Workflow\\\\n\\\\n/opsx:explore map the problem and understand the codebase\\\\n\\\\n/opsx:propose draft proposal.md, specs/, design.md, tasks.md\\\\n\\\\n/opsx:apply implement tasks from the specification\\\\n\\\\n/opsx:verify check the implementation matches the spec\\\\n\\\\n/opsx:archive archive completed changes\\\\n\\\\n## Links [...] ## Adoption\\\\n\\\\nOpenSpec helps create a new spec every two seconds, has earned 68.0k GitHub stars, and is used by more than 265,000 developers a month.\\\\n\\\\n## Open source, in practice\\\\n\\\\nBuilt in the open. Used in the wild.\\\\n\\\\n 68.0k  stars on GitHub\\\\n One new spec every two seconds\\\\n\\\\n## Proof\\\\n\\\\n1. 0168.0k  GitHub stars\\\\n2. 02A new spec every two seconds\\\\n\\\\n## Public record\\\\n\\\\nGitHub stars\\\\n:   68.0k\\\\n\\\\nNew spec interval\\\\n:   two seconds\\\\n\\\\nLicense\\\\n:   MIT\\\\n\\\\n## OpenSpec is\\\\n\\\\nStarred by the community68.0k\\\\n\\\\nCreating a new specevery 2 seconds\\\\n\\\\n## In the wild\\\\n\\\\nOpenSpec is already part of how developers build with AI.1 A new spec is created every two seconds.2\\\\n\\\\n1 68.0k GitHub stars 2 OpenSpec usage\\\\n\\\\n## Installation\\\\n\\\\n/ / / /\\\\n\\\\n## Compatibility\\\", \\\"images\\\": []}], \\\"failed_results\\\": [], \\\"response_time\\\": 0.08, \\\"request_id\\\": \\\"1fa36fa7-3c58-45d2-9189-a0600b8b735f\\\", \\\"auth_mode\\\": \\\"keyed\\\"}\", \"result_id\": \"9dd343da-1f98-4ea0-ac6d-a239b048d4c0\", \"preview_end\": 2630, \"total_chars\": 2630, \"next_offset\": null, \"truncated\": false, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://openspec.dev/\", \"title\": \"OpenSpec | A lightweight and configurable spec framework\", \"retrieved_at\": \"2026-10-30T14:31:09.074037+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"extracted\", \"file_id\": \"c4b16673-7d7a-40e9-8b9e-9fa59529a904\", \"text_obtained\": true}]}",
+      "source_urls": ["https://openspec.dev/"],
+      "local_result_truncated": false
+    },
+    {
+      "sequence": 7,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:09.094885Z",
+      "finished_at": "2026-10-30T14:31:16.860594Z",
+      "details": {
+        "round": 4,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 8,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:16.872900Z",
+      "finished_at": "2026-10-30T14:31:18.893185Z",
+      "details": {
+        "tool": "tavily_extract",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+        "query": "installation CLI npm MCP server skill slash commands agent setup"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"results\\\": [{\\\"url\\\": \\\"https://github.com/Fission-AI/OpenSpec\\\", \\\"title\\\": \\\"GitHub - Fission-AI/OpenSpec: Spec-driven development (SDD) for AI coding assistants. · GitHub\\\", \\\"raw_content\\\": \\\"vs. Kiro (AWS) — Powerful but you're locked into their IDE and limited to Claude models. OpenSpec works with the tools you already use.\\\\n\\\\nvs. nothing — AI coding without specs means vague prompts and unpredictable results. OpenSpec brings predictability without the ceremony.\\\\n\\\\n## Updating OpenSpec\\\\n\\\\nUpgrade the CLI\\\\n\\\\nWith the standalone install, run `openspec install`. If you installed with npm:\\\\n\\\\n```\\\\nnpm install -g @fission-ai/openspec@latest\\\\n```\\\\n\\\\nIf you installed OpenSpec with Homebrew:\\\\n\\\\n```\\\\nbrew upgrade openspec\\\\n```\\\\n\\\\nRefresh agent instructions\\\\n\\\\nRun this inside each project to regenerate AI guidance and ensure the latest slash commands are active:\\\\n\\\\n```\\\\nopenspec update\\\\n```\\\\n\\\\n## Usage Notes [...] ## Why OpenSpec?\\\\n\\\\nAI coding assistants are powerful but unpredictable when requirements live only in chat history. OpenSpec adds a lightweight spec layer so you agree on what to build before any code is written.\\\\n\\\\n Agree before you build — human and AI align on specs before code gets written\\\\n Stay organized — each change gets its own folder with proposal, specs, design, and tasks\\\\n Work fluidly — update any artifact anytime, no rigid phase gates\\\\n Use your tools — works with 30+ AI assistants via slash commands\\\\n\\\\n### How we compare\\\\n\\\\nvs. Spec Kit (GitHub) — Thorough but heavyweight. Rigid phase gates, lots of Markdown, Python setup. OpenSpec is lighter and lets you iterate freely. [...] | CONTRIBUTING.md | CONTRIBUTING.md |  |  |\\\\n| LICENSE | LICENSE |  |  |\\\\n| MAINTAINERS.md | MAINTAINERS.md |  |  |\\\\n| README.md | README.md |  |  |\\\\n| README\\\\\\\\_OLD.md | README\\\\\\\\_OLD.md |  |  |\\\\n| SECURITY.md | SECURITY.md |  |  |\\\\n| build.js | build.js |  |  |\\\\n| eslint.config.js | eslint.config.js |  |  |\\\\n| flake.lock | flake.lock |  |  |\\\\n| flake.nix | flake.nix |  |  |\\\\n| install.md | install.md |  |  |\\\\n| openspec-parallel-merge-plan.md | openspec-parallel-merge-plan.md |  |  |\\\\n| package.json | package.json |  |  |\\\\n| pnpm-lock.yaml | pnpm-lock.yaml |  |  |\\\\n| pnpm-workspace.yaml | pnpm-workspace.yaml |  |  |\\\\n| tsconfig.json | tsconfig.json |  |  |\\\\n| vitest.config.ts | vitest.config.ts |  |  |\\\\n| vitest.setup.ts | vitest.setup.ts |  |  |\\\\n|  |\\\", \\\"images\\\": []}], \\\"failed_results\\\": [], \\\"response_time\\\": 0.08, \\\"request_id\\\": \\\"ed87d156-2ef6-427f-aa5e-d32a306b4d52\\\", \\\"auth_mode\\\": \\\"keyed\\\"}\", \"result_id\": \"f89a83d1-b1d3-43ba-95dc-86c4eba1a038\", \"preview_end\": 2517, \"total_chars\": 2517, \"next_offset\": null, \"truncated\": false, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://github.com/Fission-AI/OpenSpec\", \"title\": \"GitHub - Fission-AI/OpenSpec: Spec-driven development (SDD) for AI coding assistants. · GitHub\", \"retrieved_at\": \"2026-10-30T14:31:18.891689+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"extracted\", \"file_id\": \"cc16e626-f560-462b-b14e-30c3a5a85580\", \"text_obtained\": true}]}",
+      "source_urls": ["https://github.com/Fission-AI/OpenSpec"],
+      "local_result_truncated": false
+    },
+    {
+      "sequence": 9,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:18.902597Z",
+      "finished_at": "2026-10-30T14:31:24.605362Z",
+      "details": {
+        "round": 5,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 10,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:24.619695Z",
+      "finished_at": "2026-10-30T14:31:29.019884Z",
+      "details": {
+        "tool": "tavily_extract",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+        "query": "skill MCP installation agent slash commands"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"results\\\": [{\\\"url\\\": \\\"https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/README.md\\\", \\\"title\\\": null, \\\"raw_content\\\": \\\"brew upgrade openspec\\\\n```\\\\n\\\\\\\\\\\\\\\\Refresh agent instructions\\\\\\\\\\\\\\\\\\\\nRun this inside each project to regenerate AI guidance and ensure the latest slash commands are active:\\\\n```bash\\\\nopenspec update\\\\n```\\\\n## Usage Notes\\\\n\\\\\\\\\\\\\\\\Model selection\\\\\\\\\\\\\\\\: OpenSpec works best with high-reasoning models. We recommend Codex 5.5 and Opus 4.7 for both planning and implementation.\\\\n\\\\\\\\\\\\\\\\Context hygiene\\\\\\\\\\\\\\\\: OpenSpec benefits from a clean context window. Clear your context before starting implementation and maintain good context hygiene throughout your session.\\\\n## Contributing\\\\nOpen a discussion (for core design changes) or an issue before you open a PR, and link the issue or discussion from the PR. New features, significant refactors, and architectural changes need an OpenSpec change proposal first. [...] - \\\\\\\\\\\\\\\\Use your tools\\\\\\\\\\\\\\\\ — works with 30+ AI assistants via slash commands\\\\n### How we compare\\\\n\\\\\\\\\\\\\\\\vs. Spec Kit\\\\\\\\\\\\\\\\ (GitHub) — Thorough but heavyweight. Rigid phase gates, lots of Markdown, Python setup. OpenSpec is lighter and lets you iterate freely.\\\\n\\\\\\\\\\\\\\\\vs. Kiro\\\\\\\\\\\\\\\\ (AWS) — Powerful but you're locked into their IDE and limited to Claude models. OpenSpec works with the tools you already use.\\\\n\\\\\\\\\\\\\\\\vs. nothing\\\\\\\\\\\\\\\\ — AI coding without specs means vague prompts and unpredictable results. OpenSpec brings predictability without the ceremony.\\\\n## Updating OpenSpec\\\\n\\\\\\\\\\\\\\\\Upgrade the package\\\\\\\\\\\\\\\\\\\\n```bash\\\\nnpm install -g @fission-ai/openspec@latest\\\\n```\\\\nIf you installed OpenSpec with Homebrew:\\\\n```bash\\\\nbrew upgrade openspec\\\\n```\\\\n\\\\\\\\\\\\\\\\Refresh agent instructions\\\\\\\\\\\\\\\\ [...] > [!NOTE]\\\\n> Not sure if your tool is supported? View the full list – we support 30+ tools and growing.\\\\n>\\\\n> Also works with Homebrew, pnpm, yarn, bun, and Nix. See installation options.\\\\n## Docs\\\\nFull documentation lives at \\\\\\\\\\\\\\\\openspec.dev/docs\\\\\\\\\\\\\\\\.\\\\n→ \\\\\\\\\\\\\\\\Quickstart\\\\\\\\\\\\\\\\: your first change, start to finish  \\\\n→ \\\\\\\\\\\\\\\\Set up your project\\\\\\\\\\\\\\\\: what `openspec init` installs  \\\\n→ \\\\\\\\\\\\\\\\CLI\\\\\\\\\\\\\\\\: terminal reference  \\\\n→ \\\\\\\\\\\\\\\\Supported Tools\\\\\\\\\\\\\\\\: tool integrations & install paths  \\\\n→ \\\\\\\\\\\\\\\\Customize\\\\\\\\\\\\\\\\: profiles, project config, and schemas  \\\\n→ \\\\\\\\\\\\\\\\Stores\\\\\\\\\\\\\\\\: plan in a separate repo, shared across your team (beta)  \\\\n→ \\\\\\\\\\\\\\\\Community Showcase\\\\\\\\\\\\\\\\: projects and resources built with and for OpenSpec\\\\n## Community schemas\\\", \\\"images\\\": []}, {\\\"url\\\": \\\"https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/install.md\\\", \\\"title\\\": null, \\\"raw_content\\\": \\\"Finish by telling the user how to invoke OpenSpec in their tool, taking the exact spelling from the files init created rather than from its summary line: the punctuation differs per tool (`/opsx:propose` in some, `/opsx-propose` in others, `@opsx-propose` in Amazon Q), and tools that get skills instead of commands are invoked by skill name (`/openspec-propose`, or `$openspec-propose` in Codex, or `/skill:openspec-propose` in Kimi Code).\\\\nEXECUTE NOW:\", \"result_id\": \"5433e584-46d2-415b-9d60-976d3d8dd847\", \"preview_end\": 3000, \"total_chars\": 4559, \"next_offset\": 3000, \"truncated\": true, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/README.md\", \"title\": \"None\", \"retrieved_at\": \"2026-10-30T14:31:29.017008+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"extracted\", \"file_id\": \"2951e6c3-019f-4009-809a-2964f351be7b\", \"text_obtained\": true}, {\"url\": \"https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/install.md\", \"title\": \"None\", \"retrieved_at\": \"2026-10-30T14:31:29.018450+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"extracted\", \"file_id\": \"2dd53d9e-e5b8-4f94-ad6e-a5982ad34d33\", \"text_obtained\": true}]}",
+      "source_urls": [
+        "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/README.md",
+        "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/install.md"
+      ],
+      "local_result_truncated": true
+    },
+    {
+      "sequence": 11,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:29.035411Z",
+      "finished_at": "2026-10-30T14:31:31.487231Z",
+      "details": {
+        "round": 6,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 12,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:31.501438Z",
+      "finished_at": "2026-10-30T14:31:31.504124Z",
+      "details": {
+        "tool": "tavily_extract",
+        "model_tool": "read_tool_result",
+        "query": ""
+      },
+      "model_visible_content": "{\"result_id\": \"5433e584-46d2-415b-9d60-976d3d8dd847\", \"offset\": 3000, \"end\": 4559, \"total_chars\": 4559, \"next_offset\": null, \"text\": \" Complete the TODO list above to achieve: the OpenSpec CLI installed, this project initialized, and the user told exactly how to invoke OpenSpec in their AI coding tool.\\\\nMore context for agents: [...] ## 5. Report\\\\nDon't assume what should exist; relay what init actually printed: how many skills and/or commands it created and where, the config file line, any \\\\\\\"Setup required\\\\\\\" note, and what to restart or reload. Some tools are skills-only and correctly create zero command files, so missing commands is not a failure on its own. If init said nothing was generated, relay the fix it suggested instead of retrying. [...] ```\\\\nDon't pick based on this project's lockfile: a global install has nothing to do with how this repo's own dependencies are installed. If none of those four is available, stop and say so; don't improvise an install. (On Nix, point the user at the Nix section of  instead.)\\\\nShow the exact command and get confirmation before running it; this installs software outside the project, and the user may want a different package manager to own it.\\\\nStop and ask again if the install needs sudo or admin rights, fails with a permissions error, or reports that its global bin directory is missing or unconfigured. Never edit shell startup files (.bashrc, .zshrc, .profile, fish, PowerShell profile), and never run a setup command that edits them; show the change and let the user make it.\\\\n## 3. PATH\\\", \\\"images\\\": []}], \\\"failed_results\\\": [], \\\"response_time\\\": 0.16, \\\"request_id\\\": \\\"0da1a525-04d0-4927-86b6-cae4116ed66a\\\", \\\"auth_mode\\\": \\\"keyed\\\"}\"}",
+      "source_urls": [],
+      "local_result_truncated": null
+    },
+    {
+      "sequence": 13,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:31.515578Z",
+      "finished_at": "2026-10-30T14:31:33.822875Z",
+      "details": {
+        "round": 7,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 14,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:33.833885Z",
+      "finished_at": "2026-10-30T14:31:37.142527Z",
+      "details": {
+        "tool": "tavily_extract",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+        "query": "MCP server skill slash command tool integration"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"results\\\": [{\\\"url\\\": \\\"https://openspec.dev/docs/supported-tools/\\\", \\\"title\\\": \\\"Supported tools | OpenSpec\\\", \\\"raw_content\\\": \\\"| ZCode | `zcode` | `.zcode/skills/` | `/openspec-apply-change` | `.zcode/commands/opsx/` | `/opsx:apply` |\\\\n| Zoo Code | `roocode` | `.roo/skills/` | `/openspec-apply-change` | `.roo/commands/` | `/opsx-apply` |\\\\n| Other / Universal | `agents` | `.agents/skills/` | `/openspec-apply-change` | none | none | [...] | Junie | `junie` | `.junie/skills/` | `/openspec-apply-change` | `.junie/commands/` | `/opsx-apply` |\\\\n| Kilo Code | `kilocode` | `.kilocode/skills/` | `/openspec-apply-change` | `.kilo/command/` | `/opsx-apply` |\\\\n| Kimi Code | `kimi` | `.kimi-code/skills/` | `/skill:openspec-apply-change` | none | none |\\\\n| Kiro | `kiro` | `.kiro/skills/` | `/openspec-apply-change` | `.kiro/prompts/` | `/opsx-apply` |\\\\n| Lingma | `lingma` | `.lingma/skills/` | `/openspec-apply-change` | `.lingma/commands/opsx/` | `/opsx:apply` |\\\\n| MiniMax Code | `minimax-code` | `~/.minimax/skills/` (global) | `/openspec-apply-change` | none | none |\\\\n| Mistral Vibe | `vibe` | `.vibe/skills/` | `/openspec-apply-change` | none | none | [...] | CoStrict | `costrict` | `.cospec/skills/` | `/openspec-apply-change` | `.cospec/openspec/commands/` | `/opsx-apply` |\\\\n| Crush | `crush` | `.crush/skills/` | `/openspec-apply-change` | `.crush/commands/opsx/` | `/opsx:apply` |\\\\n| Cursor | `cursor` | `.cursor/skills/` | `/openspec-apply-change` | `.cursor/commands/` | `/opsx-apply` |\\\\n| DeepSeek Harness | `dsh` | `.dsh/skills/` | `/openspec-apply-change` | none | none |\\\\n| Devin Desktop (formerly Windsurf) | `devin` | `.devin/skills/` | `/openspec-apply-change` | `.devin/workflows/` | `/opsx-apply` |\\\\n| EasyCode | `easycode` | `.easycode/skills/` | `/openspec-apply-change` | `.easycode/commands/opsx/` | `/opsx:apply` |\\\\n| Factory Droid | `factory` | `.factory/skills/` | `/openspec-apply-change` | `.factory/commands/` | `/opsx-apply` |\\\", \\\"images\\\": []}], \\\"failed_results\\\": [], \\\"response_time\\\": 0.1, \\\"request_id\\\": \\\"b870e5b7-55af-4ed5-b849-04af962fe9f9\\\", \\\"auth_mode\\\": \\\"keyed\\\"}\", \"result_id\": \"ca23e0c2-6b8e-41f5-8998-32e1f6b59c8f\", \"preview_end\": 2091, \"total_chars\": 2091, \"next_offset\": null, \"truncated\": false, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://openspec.dev/docs/supported-tools/\", \"title\": \"Supported tools | OpenSpec\", \"retrieved_at\": \"2026-10-30T14:31:37.138590+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"extracted\", \"file_id\": \"3b1b463b-2af1-4232-a59d-c799c7161ea5\", \"text_obtained\": true}]}",
+      "source_urls": ["https://openspec.dev/docs/supported-tools/"],
+      "local_result_truncated": false
+    },
+    {
+      "sequence": 15,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:37.160683Z",
+      "finished_at": "2026-10-30T14:31:39.578187Z",
+      "details": {
+        "round": 8,
+        "finish_reason": "tool_calls",
+        "output_bytes": 0
+      }
+    },
+    {
+      "sequence": 16,
+      "kind": "tool_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T14:31:39.590440Z",
+      "finished_at": "2026-10-30T14:31:42.301191Z",
+      "details": {
+        "tool": "tavily_extract",
+        "model_tool": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+        "query": "MCP server Model Context Protocol tools openspec_list openspec_view"
+      },
+      "model_visible_content": "{\"preview\": \"{\\\"results\\\": [{\\\"url\\\": \\\"https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/README.md\\\", \\\"title\\\": null, \\\"raw_content\\\": \\\"OpenSpec Dashboard\\\\n\\\\nOpenSpec dashboard preview [...] > [!NOTE]\\\\n> Not sure if your tool is supported? View the full list – we support 30+ tools and growing.\\\\n>\\\\n> Also works with Homebrew, pnpm, yarn, bun, and Nix. See installation options.\\\\n## Docs\\\\nFull documentation lives at \\\\\\\\\\\\\\\\openspec.dev/docs\\\\\\\\\\\\\\\\.\\\\n→ \\\\\\\\\\\\\\\\Quickstart\\\\\\\\\\\\\\\\: your first change, start to finish  \\\\n→ \\\\\\\\\\\\\\\\Set up your project\\\\\\\\\\\\\\\\: what `openspec init` installs  \\\\n→ \\\\\\\\\\\\\\\\CLI\\\\\\\\\\\\\\\\: terminal reference  \\\\n→ \\\\\\\\\\\\\\\\Supported Tools\\\\\\\\\\\\\\\\: tool integrations & install paths  \\\\n→ \\\\\\\\\\\\\\\\Customize\\\\\\\\\\\\\\\\: profiles, project config, and schemas  \\\\n→ \\\\\\\\\\\\\\\\Stores\\\\\\\\\\\\\\\\: plan in a separate repo, shared across your team (beta)  \\\\n→ \\\\\\\\\\\\\\\\Community Showcase\\\\\\\\\\\\\\\\: projects and resources built with and for OpenSpec\\\\n## Community schemas [...] Now talk to your AI:\\\\n- \\\\\\\\\\\\\\\\Not sure what to build yet?\\\\\\\\\\\\\\\\ Start with `/opsx:explore`, a no-stakes thinking partner that reads your code, weighs options, and shapes a plan before any code gets written. (Quickstart)\\\\n- \\\\\\\\\\\\\\\\Already know what you want?\\\\\\\\\\\\\\\\ Go straight to `/opsx:propose `.\\\\nBoth are in the default profile. If you want the expanded workflow (`/opsx:new`, `/opsx:continue`, `/opsx:ff`, `/opsx:verify`, `/opsx:bulk-archive`, `/opsx:onboard`), select it with `openspec config profile` and apply with `openspec update`.\\\\n`/opsx:propose` is the canonical name; your tool may spell it `/opsx-propose` (Cursor, GitHub Copilot), `@opsx-propose` (Amazon Q) or `$openspec-propose` (Codex). `openspec init` prints the right form for the tools you picked — see Supported Tools.\\\\n> [!NOTE]\\\", \\\"images\\\": []}], \\\"failed_results\\\": [], \\\"response_time\\\": 0.08, \\\"request_id\\\": \\\"8e6270d7-f496-47a7-8fb2-8286d5ae763c\\\", \\\"auth_mode\\\": \\\"keyed\\\"}\", \"result_id\": \"6856cd56-c8a5-4c38-8477-b793dbc2f434\", \"preview_end\": 1836, \"total_chars\": 1836, \"next_offset\": null, \"truncated\": false, \"source_files_readable\": false, \"sources\": [{\"url\": \"https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/README.md\", \"title\": \"None\", \"retrieved_at\": \"2026-10-30T14:31:42.298552+00:00\", \"status\": \"succeeded\", \"full_text\": false, \"content_kind\": \"extracted\", \"file_id\": \"3b6a969d-73b4-48fa-8cc9-c8084c5114bb\", \"text_obtained\": true}]}",
+      "source_urls": [
+        "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/README.md"
+      ],
+      "local_result_truncated": false
+    },
+    {
+      "sequence": 17,
+      "kind": "model_call",
+      "status": "succeeded",
+      "error_code": null,
+      "started_at": "2026-10-30T15:20:43.714256Z",
+      "finished_at": "2026-10-30T15:20:51.732643Z",
+      "details": {
+        "round": 9,
+        "finish_reason": "stop",
+        "output_bytes": 1385
+      }
+    }
+  ],
+  "per_model_usage": [
+    {
+      "usage": {
+        "input_tokens": 6873,
+        "output_tokens": 465,
+        "total_tokens": 7338,
+        "input_token_details": {
+          "cache_read": 6656
+        },
+        "output_token_details": {
+          "reasoning": 345
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+          "args": {
+            "query": "OpenSpec spec-driven development tool official GitHub",
+            "max_results": 5,
+            "search_depth": "fast"
+          },
+          "id": "tool_n7p1yjA4dW4jGHSY9Yvo48FB",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 8702,
+        "output_tokens": 148,
+        "total_tokens": 8850,
+        "input_token_details": {
+          "cache_read": 6656
+        },
+        "output_token_details": {
+          "reasoning": 27
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_3f832b40dbb12829",
+          "args": {
+            "query": "site:openspec.dev OpenSpec install skill MCP",
+            "max_results": 10,
+            "search_depth": "advanced"
+          },
+          "id": "tool_UnubWKx6KThBpiE94zMDBa0l",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 9021,
+        "output_tokens": 410,
+        "total_tokens": 9431,
+        "input_token_details": {
+          "cache_read": 8704
+        },
+        "output_token_details": {
+          "reasoning": 295
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+          "args": {
+            "urls": ["https://openspec.dev/"],
+            "query": "what is OpenSpec, install, CLI, MCP, skill, agent integration"
+          },
+          "id": "tool_kzE3GKwHQu9W68iGHqpGxNz2",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 10202,
+        "output_tokens": 115,
+        "total_tokens": 10317,
+        "input_token_details": {
+          "cache_read": 8960
+        },
+        "output_token_details": {
+          "reasoning": 1
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+          "args": {
+            "urls": ["https://github.com/Fission-AI/OpenSpec"],
+            "query": "installation CLI npm MCP server skill slash commands agent setup"
+          },
+          "id": "tool_WPXOQDnIKwwXH2uLTzJeeoeW",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 11322,
+        "output_tokens": 131,
+        "total_tokens": 11453,
+        "input_token_details": {
+          "cache_read": 9984
+        },
+        "output_token_details": {
+          "reasoning": 1
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+          "args": {
+            "urls": [
+              "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/README.md",
+              "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/install.md"
+            ],
+            "query": "skill MCP installation agent slash commands"
+          },
+          "id": "tool_96cW0qbam4ducYA48BIuviKd",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 12556,
+        "output_tokens": 113,
+        "total_tokens": 12669,
+        "input_token_details": {
+          "cache_read": 11264
+        },
+        "output_token_details": {
+          "reasoning": 22
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "read_tool_result",
+          "args": {
+            "result_id": "5433e584-46d2-415b-9d60-976d3d8dd847",
+            "offset": 3000
+          },
+          "id": "tool_WPZ6wGU6bPzv0kDiESQ9TKZo",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 13113,
+        "output_tokens": 113,
+        "total_tokens": 13226,
+        "input_token_details": {
+          "cache_read": 12544
+        },
+        "output_token_details": {
+          "reasoning": 1
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+          "args": {
+            "urls": ["https://openspec.dev/docs/supported-tools/"],
+            "query": "MCP server skill slash command tool integration"
+          },
+          "id": "tool_MMxcpYy6HRFCySx1ih6NlGFu",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 14198,
+        "output_tokens": 122,
+        "total_tokens": 14320,
+        "input_token_details": {
+          "cache_read": 13056
+        },
+        "output_token_details": {
+          "reasoning": 1
+        }
+      },
+      "tool_calls": [
+        {
+          "name": "mcp_8ca36c74663d461f92c610a916df0d62_f12aded0ef2f1650",
+          "args": {
+            "urls": [
+              "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/README.md"
+            ],
+            "query": "MCP server Model Context Protocol tools openspec_list openspec_view"
+          },
+          "id": "tool_o9FUScV5Uq32Ko01HvgYh6Nc",
+          "type": "tool_call"
+        }
+      ]
+    },
+    {
+      "usage": {
+        "input_tokens": 15091,
+        "output_tokens": 368,
+        "total_tokens": 15459,
+        "input_token_details": {
+          "cache_read": 6656
+        },
+        "output_token_details": {
+          "reasoning": 1
+        }
+      },
+      "tool_calls": []
+    }
+  ],
+  "mode": "resume",
+  "guard_changes": {
+    "max_model_calls": [8, 24],
+    "recursion_limit": [64, 256],
+    "run_timeout": [180, 600]
+  },
+  "baseline": {
+    "model_calls": 8,
+    "tool_calls": 8,
+    "skill_reads": 0,
+    "started_at": "2026-10-30T14:29:42.249934Z",
+    "finished_at": "2026-10-30T14:31:42.317931Z",
+    "usage": {
+      "input_tokens": 85987,
+      "output_tokens": 1617,
+      "total_tokens": 87604,
+      "cached_input_tokens": 77824,
+      "reasoning_tokens": 693
+    }
+  },
+  "snapshot_identity": {
+    "model_id": "kimi-for-coding",
+    "provider": "kimi-code",
+    "system_prompt_sha256": "22db8fa054684060c254027ce99df961222ad87ec82a7b78cafc95c6dacc93aa",
+    "tool_names": [
+      "tavily_search",
+      "tavily_extract",
+      "tavily_crawl",
+      "tavily_map",
+      "tavily_research",
+      "resolve-library-id",
+      "query-docs"
+    ],
+    "input": "OpenSpec 是 skill 还是 mcp ？"
+  },
+  "isolation": "Private database copy, no source database writes, original vault read only",
+  "limitations": [
+    "Resume is an experimental reactivation in the copy, not a supported retry of a terminal run.",
+    "Fresh retains the original accepted snapshot, rather than recapturing current configuration.",
+    "Only the raised model, graph and total-time guards differ from the original snapshot."
+  ],
+  "new_execution_seconds": 8.107840084005147,
+  "new_model_calls": 1,
+  "new_tool_calls": 0,
+  "incremental_usage": {
+    "input_tokens": 15091,
+    "output_tokens": 368,
+    "total_tokens": 15459,
+    "cached_input_tokens": 6656,
+    "reasoning_tokens": 1
+  },
+  "active_total_seconds": 128.17583708400514
+}

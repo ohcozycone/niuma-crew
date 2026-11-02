@@ -1,0 +1,795 @@
+{
+  "scope": "backend/app/api,tools,files,sandboxes,infrastructure 全部 Python 源码",
+  "reviewed_source_files": 57,
+  "reviewed_source_lines": 5285,
+  "files": [
+    {
+      "path": "backend/app/api/__init__.py",
+      "module": "api",
+      "lines": 1,
+      "sha256": "9a2db3c5156ae28b5b5a7bbb4cc3aeecb6db058363872d725fef17fd2d6a93e6",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "包说明；不导出额外聚合或启动副作用。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/api/dependencies.py",
+      "module": "api",
+      "lines": 39,
+      "sha256": "0a7bf4b560d85e411cecebb12af16a4bca0e44d2c4534b968ad6c4e06c8e3d8c",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "从app.state解析服务和Actor，包装capability依赖；不共享Session。",
+      "application_imports": [
+        "app.auth.actor",
+        "app.auth.permissions",
+        "app.auth.service",
+        "app.infrastructure.database.session"
+      ]
+    },
+    {
+      "path": "backend/app/api/errors.py",
+      "module": "api",
+      "lines": 100,
+      "sha256": "0b3609079e0aa2cf4d114eabcc234358b2c4ee7712e1f45a6597f997ab22878f",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "HTTP错误映射、422输入脱敏与SQLite busy转换。",
+      "application_imports": ["app.errors", "app.infrastructure.database.errors"]
+    },
+    {
+      "path": "backend/app/api/frontend_delivery.py",
+      "module": "api",
+      "lines": 95,
+      "sha256": "f9517c76553dfbc8bde0c3be3f7e4f7966ac46deb15636c26d9f71892075506f",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "SPA路由白名单、静态文件边界、预压缩协商与缓存。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/api/rate_limit.py",
+      "module": "api",
+      "lines": 34,
+      "sha256": "34569685f321ede268aa0d3bf33c1a86689ba0160db7adeb27ab9dba486c4b12",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "线程锁保护的有界进程内计数器。",
+      "application_imports": ["app.errors"]
+    },
+    {
+      "path": "backend/app/api/router.py",
+      "module": "api",
+      "lines": 32,
+      "sha256": "a21cdf17e9021e060c1a98b44ce3f8b67ea5a11cb85e6dfb1b4831df8fac4ecc",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "显式接线全部HTTP router。",
+      "application_imports": ["app.api.routes", "app.api.routes.conversations.router"]
+    },
+    {
+      "path": "backend/app/api/routes/__init__.py",
+      "module": "api",
+      "lines": 1,
+      "sha256": "62352928beaebadeee3c74821638ce50487be8525c389cb4cb1150ff199b7804",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "包说明；不导出额外聚合或启动副作用。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/api/routes/agents.py",
+      "module": "api",
+      "lines": 154,
+      "sha256": "49fa3334d675bb30a08d95f12f051d9e04689ac7fcfa1820d5becc8484fc8d69",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "员工CRUD和工具装配/个人绑定HTTP接线；存在路由层作者检查。",
+      "application_imports": [
+        "app.agents.access",
+        "app.agents.personal_tools",
+        "app.agents.schemas",
+        "app.agents.service",
+        "app.agents.tool_grants",
+        "app.api.dependencies",
+        "app.api.errors",
+        "app.auth.permissions",
+        "app.schemas",
+        "app.tools.schemas"
+      ]
+    },
+    {
+      "path": "backend/app/api/routes/auth.py",
+      "module": "api",
+      "lines": 201,
+      "sha256": "9a4a7a05377abf83d85d9ccdf2f6e8bbb9972bef0480027a5759dc7f8f7a2fbe",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "登录、游客、GitHub OAuth和Cookie协议边界。",
+      "application_imports": [
+        "app.api.dependencies",
+        "app.auth.actor",
+        "app.auth.config",
+        "app.auth.github",
+        "app.auth.permissions",
+        "app.errors",
+        "app.schemas"
+      ]
+    },
+    {
+      "path": "backend/app/api/routes/ci_diagnosis.py",
+      "module": "api",
+      "lines": 22,
+      "sha256": "4f2a50df1154df36fad1ff1180c6f350b8d0f4f68aea531cbca801e4a7d47931",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "CI能力状态与技能安装适配。",
+      "application_imports": [
+        "app.api.dependencies",
+        "app.auth.permissions",
+        "app.ci_diagnosis.contracts",
+        "app.skills.schemas"
+      ]
+    },
+    {
+      "path": "backend/app/api/routes/configuration_summary.py",
+      "module": "api",
+      "lines": 48,
+      "sha256": "7f7ffe6a4888b7629b28be65cb55968bb04ee1fbb8718a7735b6b56d0a01d3df",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "配置数量SQL聚合。",
+      "application_imports": ["app.agents.models", "app.api.dependencies", "app.skills.models"]
+    },
+    {
+      "path": "backend/app/api/routes/conversations/__init__.py",
+      "module": "api",
+      "lines": 1,
+      "sha256": "c3d804692eb6457b15961cf64593b5af13c2e9c925a07c2256035d837de712ad",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "包说明；不导出额外聚合或启动副作用。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/api/routes/conversations/router.py",
+      "module": "api",
+      "lines": 217,
+      "sha256": "b855132bd4ab8bbfb8d170eed7ca59838925abb478dc282e00a7b2951b65a4a1",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "对话命令/查询/SSE协议接线。",
+      "application_imports": [
+        "app.api.dependencies",
+        "app.api.routes.conversations.service",
+        "app.api.routes.conversations.streaming",
+        "app.ci_diagnosis.contracts",
+        "app.conversations.queries",
+        "app.conversations.schemas",
+        "app.schemas"
+      ]
+    },
+    {
+      "path": "backend/app/api/routes/conversations/service.py",
+      "module": "api",
+      "lines": 263,
+      "sha256": "32d142e8f2b0ca569f65bf08db12231140c44c2f1c14cbdf90e14c28c0815c68",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "创建/提交/重试/取消/反馈同库事务；宿主异步运行不在这里执行。",
+      "application_imports": [
+        "app.agents.service",
+        "app.auth.actor",
+        "app.auth.permissions",
+        "app.ci_diagnosis.contracts",
+        "app.ci_diagnosis.service",
+        "app.conversations.models",
+        "app.conversations.preparation",
+        "app.conversations.publication",
+        "app.conversations.queries",
+        "app.conversations.schemas",
+        "app.conversations.writes",
+        "app.errors",
+        "app.execution.admission",
+        "app.execution.config",
+        "app.execution.contracts",
+        "app.execution.models",
+        "app.execution.queries",
+        "app.infrastructure.database.fields",
+        "app.infrastructure.database.session",
+        "app.infrastructure.database.transactions"
+      ]
+    },
+    {
+      "path": "backend/app/api/routes/conversations/streaming.py",
+      "module": "api",
+      "lines": 80,
+      "sha256": "542d282f1e767cbeb4560721e0dc1689fc8c2cf242d73e793a3efd1f233b8e4f",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "有界观察、周期验权、终态快照与订阅计数释放。",
+      "application_imports": ["app.auth.permissions", "app.errors", "app.execution.models"]
+    },
+    {
+      "path": "backend/app/api/routes/files.py",
+      "module": "api",
+      "lines": 56,
+      "sha256": "ebe7df228d1cf368cf6e6cc78fc6a38ed6c53fb9d54d6de84775038f412b52e8",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "有界上传、对话授权下载与attachment头。",
+      "application_imports": ["app.api.dependencies", "app.auth.permissions", "app.errors"]
+    },
+    {
+      "path": "backend/app/api/routes/health.py",
+      "module": "api",
+      "lines": 27,
+      "sha256": "6766e12eb36d06b77994a93f47970c3e7e1859693378c1880394f156d449596b",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "liveness与runtime readiness。",
+      "application_imports": ["app"]
+    },
+    {
+      "path": "backend/app/api/routes/model_connections.py",
+      "module": "api",
+      "lines": 103,
+      "sha256": "c75ceb240dfe5a936158ea2d8a01abf201355f1a051efd78c639d12c3703b01a",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "模型配置CRUD/测试能力及限流。",
+      "application_imports": [
+        "app.api.dependencies",
+        "app.model_connections.presets",
+        "app.model_connections.schemas",
+        "app.model_connections.service",
+        "app.schemas"
+      ]
+    },
+    {
+      "path": "backend/app/api/routes/organization_rules.py",
+      "module": "api",
+      "lines": 32,
+      "sha256": "7f0ddf39b4a134b9d70c2176558288d93aac6ae0e7255da9c44053fe4caa7004",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "全员规则读取/条件保存HTTP。",
+      "application_imports": [
+        "app.api.dependencies",
+        "app.api.errors",
+        "app.organization_rules.schemas",
+        "app.organization_rules.service"
+      ]
+    },
+    {
+      "path": "backend/app/api/routes/public.py",
+      "module": "api",
+      "lines": 89,
+      "sha256": "772e1e3113847236a9bbb38a96db1628a28110b181fc42a5d81f1772ca96a4d1",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "会话保护的公开白名单投影。",
+      "application_imports": [
+        "app.agents.schemas",
+        "app.agents.service",
+        "app.api.dependencies",
+        "app.schemas",
+        "app.skills.schemas",
+        "app.skills.service"
+      ]
+    },
+    {
+      "path": "backend/app/api/routes/skills.py",
+      "module": "api",
+      "lines": 138,
+      "sha256": "056b672544be71cfaf4b29ce80717bd37d962e010516aa114e5f2cc1ac689b26",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "技能CRUD/包导入/同步/导出/文件读取适配。",
+      "application_imports": [
+        "app.api.dependencies",
+        "app.api.errors",
+        "app.schemas",
+        "app.skills.schemas",
+        "app.skills.service"
+      ]
+    },
+    {
+      "path": "backend/app/api/routes/tools.py",
+      "module": "api",
+      "lines": 228,
+      "sha256": "04afdb8bc336d07b2830cb7f30c347d1690e78a1b3876ba0e04e58496c91a451",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "MCP定义/账号目录/许可管理、沙箱状态与联合能力SQL。",
+      "application_imports": [
+        "app.api.dependencies",
+        "app.errors",
+        "app.skills.models",
+        "app.skills.packages",
+        "app.tools",
+        "app.tools.definitions",
+        "app.tools.models",
+        "app.tools.schemas"
+      ]
+    },
+    {
+      "path": "backend/app/api/security.py",
+      "module": "api",
+      "lines": 82,
+      "sha256": "a1b05faf0065ca1e84800e41a3a36627063440113130b57686596c97388f7247",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "API写请求Origin/媒体类型/体积与缓存头。",
+      "application_imports": ["app.auth.config"]
+    },
+    {
+      "path": "backend/app/tools/__init__.py",
+      "module": "tools",
+      "lines": 1,
+      "sha256": "a1d74a7c94fc248e4dc8e21a512286f97be77e2e0914b388b8c32fdca76570fa",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "包说明；不导出额外聚合或启动副作用。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/tools/access.py",
+      "module": "tools",
+      "lines": 18,
+      "sha256": "99555175641bbc907758de63f3f5238abd0523e05e9430d028e46000b37038ae",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "账号所有者/定义所有者资源隐藏。",
+      "application_imports": ["app.errors", "app.tools.models"]
+    },
+    {
+      "path": "backend/app/tools/adapters/__init__.py",
+      "module": "tools",
+      "lines": 1,
+      "sha256": "002ae9b4cff07d49cf4e667a08dd6657fa66e2c59e1d2d0dee8785608e90700a",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "包说明；不导出额外聚合或启动副作用。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/tools/adapters/mcp.py",
+      "module": "tools",
+      "lines": 175,
+      "sha256": "3961d00641a36b1c77a17b8752b7aacee43532ff8d00a523223fd92e885d350b",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "官方MCP协议、目录/说明摘要、preflight guard与认证错误转换。",
+      "application_imports": ["app.errors", "app.tools.contracts", "app.tools.network"]
+    },
+    {
+      "path": "backend/app/tools/adapters/stdio.py",
+      "module": "tools",
+      "lines": 115,
+      "sha256": "b52673e2fc4064e2cf2803b919536a1f2f359ce0a5e84cd9a4d6b9ff849e707b",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "Run范围可信子进程会话、实例限额及取消回收。",
+      "application_imports": ["app.errors", "app.tools.adapters.mcp"]
+    },
+    {
+      "path": "backend/app/tools/catalogs.py",
+      "module": "tools",
+      "lines": 40,
+      "sha256": "02aaa685b421a731aa18952f5fef5b73ff2787ef53c85917c6a6eace4373b039",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "别名修订和显式丢弃候选。",
+      "application_imports": [
+        "app.errors",
+        "app.infrastructure.database.transactions",
+        "app.tools.access",
+        "app.tools.models",
+        "app.tools.service"
+      ]
+    },
+    {
+      "path": "backend/app/tools/config.py",
+      "module": "tools",
+      "lines": 20,
+      "sha256": "93319732c76b62710f2b0857c40312cc6272e7ea9aa1357cf0b8bc8fee9d955b",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "HTTP网络/接收/目录及时限，stdio开关/容量。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/tools/contracts.py",
+      "module": "tools",
+      "lines": 73,
+      "sha256": "3c8183ebee287df88f789f4f3eee0b86907c49c6336015cfb3f4b06458c473f0",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "普通DTO/协议、hash、原生目录及外部名称消歧。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/tools/definitions.py",
+      "module": "tools",
+      "lines": 510,
+      "sha256": "dc284defe1e81a4327c640997a36af9feb2589f3786340194bcf91d91a4fc8fa",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "服务唯一性、stdio登记、惯用配置/Registry惰性导入。",
+      "application_imports": [
+        "app.errors",
+        "app.infrastructure.database.transactions",
+        "app.tools.access",
+        "app.tools.models",
+        "app.tools.network",
+        "app.tools.schemas",
+        "app.tools.service"
+      ]
+    },
+    {
+      "path": "backend/app/tools/models.py",
+      "module": "tools",
+      "lines": 64,
+      "sha256": "ac978cb7c91e9491fb42432bff088278c790f7cbcac3ae6a28c9c40fc7d4c611",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "MCP定义与账号连接分表；秘密密文和目录各自修订。",
+      "application_imports": [
+        "app.infrastructure.database.base",
+        "app.infrastructure.database.fields"
+      ]
+    },
+    {
+      "path": "backend/app/tools/network.py",
+      "module": "tools",
+      "lines": 111,
+      "sha256": "5aa7230b4cad3d56f6e060c8acf6e6b8c74161b8cf31fc88ee35d9323ad5a4b8",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "每请求DNS检查/固定IP/Host-SNI与响应限量。",
+      "application_imports": ["app.errors", "app.tools.config"]
+    },
+    {
+      "path": "backend/app/tools/policy.py",
+      "module": "tools",
+      "lines": 137,
+      "sha256": "18022fa3f43304dce825c268d1b19c696f70cb3be37652df4783845ad4cd43b0",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "原生路径/远程参数schema/已支持范围约束。",
+      "application_imports": ["app.errors", "app.tools.contracts"]
+    },
+    {
+      "path": "backend/app/tools/schemas.py",
+      "module": "tools",
+      "lines": 117,
+      "sha256": "ba579a58430876de78bb8eecbf50325039b0c4bc8f1103f49af2058c307c8ec1",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "MCP/连接/候选/展示/绑定输入输出。",
+      "application_imports": ["app.schemas"]
+    },
+    {
+      "path": "backend/app/tools/service.py",
+      "module": "tools",
+      "lines": 636,
+      "sha256": "f8bb8012c6c54e9c029802483f6887abbe21ffd9a3cb262866a0d768f1e2bf95",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "连接CRUD、秘密、候选确认、运行调用与stdio caller所有权。",
+      "application_imports": [
+        "app.errors",
+        "app.infrastructure.database.errors",
+        "app.infrastructure.database.fields",
+        "app.infrastructure.database.transactions",
+        "app.tools.access",
+        "app.tools.adapters.mcp",
+        "app.tools.adapters.stdio",
+        "app.tools.contracts",
+        "app.tools.definitions",
+        "app.tools.models",
+        "app.tools.network",
+        "app.tools.policy",
+        "app.tools.schemas"
+      ]
+    },
+    {
+      "path": "backend/app/tools/stdio_runner.py",
+      "module": "tools",
+      "lines": 29,
+      "sha256": "568dbca09a1335165660c3291d4850831ab08978aa01f723306bfab27b0d5894",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "SDK进程组薄启动器，回收正常退出后的后代。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/files/__init__.py",
+      "module": "files",
+      "lines": 1,
+      "sha256": "60567015f16a221013b88bbb92ace787b474dacefe3bbb5e517710a63b973016",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "包说明；不导出额外聚合或启动副作用。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/files/config.py",
+      "module": "files",
+      "lines": 25,
+      "sha256": "747308b03bc9d97669c44da73389accf3e79540c56a4cc21091a3d722b2a37cb",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "文件大小/配额/保留参数。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/files/models.py",
+      "module": "files",
+      "lines": 23,
+      "sha256": "491de359aa82cce4022fbad337d7e53436354f35f8d1fc916790ab4b75407dc5",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "不可变文件字节的DB身份/哈希/用途。",
+      "application_imports": [
+        "app.infrastructure.database.base",
+        "app.infrastructure.database.fields"
+      ]
+    },
+    {
+      "path": "backend/app/files/service.py",
+      "module": "files",
+      "lines": 214,
+      "sha256": "39d835b981f3ba71a978e103669b685879da941b44cb6fe09ae9985ed140ccc8",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "不可变保存/完整性读取/快照捕获/回收。",
+      "application_imports": [
+        "app.errors",
+        "app.files.models",
+        "app.infrastructure.database.fields",
+        "app.infrastructure.database.transactions"
+      ]
+    },
+    {
+      "path": "backend/app/sandboxes/__init__.py",
+      "module": "sandboxes",
+      "lines": 1,
+      "sha256": "68fe3b49e1d12fd02e90434e0913bb730fd7335857c0078474faca89155eb5d8",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "包说明；不导出额外聚合或启动副作用。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/sandboxes/cli.py",
+      "module": "sandboxes",
+      "lines": 30,
+      "sha256": "23621c8e17438a26d4fe70a1d842b97a56b23d37425b0dd48ba0a5ce58110c8c",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "资源债务查询/显式人工确认不存在。",
+      "application_imports": [
+        "app.config",
+        "app.infrastructure.database.session",
+        "app.sandboxes.service"
+      ]
+    },
+    {
+      "path": "backend/app/sandboxes/config.py",
+      "module": "sandboxes",
+      "lines": 47,
+      "sha256": "31464ab32a202fa9b9453a9afa3189344a3f6797cb735c904ad6a5647e239e68",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "沙箱端点/资源/时限/容量配置。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/sandboxes/models.py",
+      "module": "sandboxes",
+      "lines": 26,
+      "sha256": "ece561e2c179d4568e72cfbca5149b1ab13b0f4852a95f50e1edf8c4e2768bd5",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "每Run唯一申请与清理债务表。",
+      "application_imports": [
+        "app.infrastructure.database.base",
+        "app.infrastructure.database.fields"
+      ]
+    },
+    {
+      "path": "backend/app/sandboxes/provider.py",
+      "module": "sandboxes",
+      "lines": 175,
+      "sha256": "25f7f612ab4b00c94a6d3d3ec1143869ff0b10700f974eecd857701bf35efe94",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "OpenSandbox SDK、传输限量、只读输入初始化和验收匹配。",
+      "application_imports": ["app.errors"]
+    },
+    {
+      "path": "backend/app/sandboxes/service.py",
+      "module": "sandboxes",
+      "lines": 241,
+      "sha256": "f30aab4bdf3f260844262855b4f35df497ba4b7daf8dfca969333bf95f7a0575",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "Run范围句柄、准入、创建、销毁与维护。",
+      "application_imports": [
+        "app.errors",
+        "app.infrastructure.database.fields",
+        "app.infrastructure.database.transactions",
+        "app.sandboxes.models",
+        "app.sandboxes.provider",
+        "app.tools.contracts"
+      ]
+    },
+    {
+      "path": "backend/app/sandboxes/verify.py",
+      "module": "sandboxes",
+      "lines": 145,
+      "sha256": "5c86bc3032b591673722292b49a694b864baf26e9261b809d5897faaef18cb6e",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "Linux主机Docker与工作负载真实验收CLI。",
+      "application_imports": ["app.config", "app.sandboxes.provider"]
+    },
+    {
+      "path": "backend/app/infrastructure/__init__.py",
+      "module": "infrastructure",
+      "lines": 1,
+      "sha256": "ef3fe134e411bb83f91ce5b5102037f5e29377fd44b3072dddcf3ae0c11641bb",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "包说明；不导出额外聚合或启动副作用。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/infrastructure/database/__init__.py",
+      "module": "infrastructure",
+      "lines": 1,
+      "sha256": "103ea0c595f9b5498050a086f7f8b20cc6a35f4ebb3422c6bf41e1d237707160",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "包说明；不导出额外聚合或启动副作用。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/infrastructure/database/base.py",
+      "module": "infrastructure",
+      "lines": 16,
+      "sha256": "87b6110f1302a3d994f12494ed2a01bfc778d36ef3c1e356eefbb3ecb6d3981d",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "Base及稳定约束命名。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/infrastructure/database/errors.py",
+      "module": "infrastructure",
+      "lines": 24,
+      "sha256": "ab4a7afddf10797c08953cf85314520e514d3916ae234dc7f9b502d23749fedd",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "严格识别SQLite错误，不赋予业务含义。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/infrastructure/database/fields.py",
+      "module": "infrastructure",
+      "lines": 102,
+      "sha256": "fcd21da723b528e85b83ba26a14eac39ebad8e059525059e2dfdfb29f7cbbad1",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "UUID/UTC/JSON公共编码和校验。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/infrastructure/database/models.py",
+      "module": "infrastructure",
+      "lines": 39,
+      "sha256": "6f0512ec6f13f443eaca106f8138f69acd351432c64c4c4d2742c90e8f10c17d",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "只供元数据发现的业务模型注册。",
+      "application_imports": [
+        "app.agents.models",
+        "app.auth.models",
+        "app.ci_diagnosis.models",
+        "app.conversations.models",
+        "app.execution.models",
+        "app.files.models",
+        "app.infrastructure.database.base",
+        "app.model_connections.models",
+        "app.organization_rules.models",
+        "app.sandboxes.models",
+        "app.skills.models",
+        "app.tools.models"
+      ]
+    },
+    {
+      "path": "backend/app/infrastructure/database/session.py",
+      "module": "infrastructure",
+      "lines": 66,
+      "sha256": "1ad968321e606626f1c9dfb64cd25bd2ba3c8e07f6a5a2ab5cdc221af61c262b",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "SQLite WAL/外键/同步级别/短事务与连接池生命周期。",
+      "application_imports": []
+    },
+    {
+      "path": "backend/app/infrastructure/database/transactions.py",
+      "module": "infrastructure",
+      "lines": 18,
+      "sha256": "1c6287c6792c1600937d05627808e1efdbca55189ae941eb653143b89deb4760",
+      "read": "complete",
+      "reviewed": true,
+      "purpose": "业务读取前预占SQLite writer。",
+      "application_imports": []
+    }
+  ],
+  "tests_read": [
+    {
+      "path": "backend/tests/test_agent_foundations.py",
+      "read": "complete"
+    },
+    {
+      "path": "backend/tests/test_stdio_mcp.py",
+      "read": "complete"
+    },
+    {
+      "path": "backend/tests/test_mcp_accounts.py",
+      "read": "complete"
+    },
+    {
+      "path": "backend/tests/test_mcp_management.py",
+      "read": "complete"
+    },
+    {
+      "path": "backend/tests/test_mcp_registry_import.py",
+      "read": "complete"
+    },
+    {
+      "path": "backend/tests/test_database.py",
+      "read": "complete"
+    },
+    {
+      "path": "backend/tests/test_database_errors.py",
+      "read": "complete"
+    },
+    {
+      "path": "backend/tests/test_database_error_boundaries.py",
+      "read": "complete"
+    },
+    {
+      "path": "backend/tests/test_api_errors.py",
+      "read": "complete"
+    },
+    {
+      "path": "backend/tests/test_frontend.py",
+      "read": "complete"
+    },
+    {
+      "path": "backend/tests/test_authentication.py",
+      "read": "complete"
+    }
+  ],
+  "cross_module_reads": [
+    "backend/app/conversations/files.py",
+    "backend/app/auth/permissions.py",
+    "backend/app/auth/models.py",
+    "backend/app/execution/store.py active_ids",
+    "frontend/src/router.tsx business route table"
+  ],
+  "independent_reproduction": {
+    "source": "boundary-reproduction.py",
+    "result": "3 passed",
+    "output": "boundary-reproduction.txt",
+    "storage": "pytest tmp_path with actual Alembic head migration",
+    "external_network": false,
+    "business_code_modified": false
+  }
+}

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 920" role="img" aria-labelledby="title desc">
+<title id="title">工作台共享数据与状态作用域：模块结构与协作</title>
+<desc id="desc">箭头表示当前身份内的数据拥有和读写关系。主题及编辑保护另按各自生命周期组织，对话观察不塞进目录缓存。</desc>
+<defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern><marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0L9 3.5L0 7" fill="#94a3b8"/></marker></defs>
+<style>text{font-family:"PingFang SC","Noto Sans SC",sans-serif;fill:#e2e8f0}.muted{fill:#94a3b8}.label{fill:#cbd5e1}.title{font-weight:600}.edge{fill:none;stroke:#94a3b8;stroke-width:1.7;marker-end:url(#arrow)}</style>
+<rect width="1280" height="920" fill="#0f172a"/><rect width="1280" height="920" fill="url(#grid)"/>
+<path class="edge" d="M360 265H480"/>
+<path class="edge" d="M800 265H920"/>
+<path class="edge" d="M1080 350V385H200V560"/>
+<path class="edge" d="M360 645H480"/>
+<path class="edge" d="M640 560V419H1080V350"/>
+<path class="edge" d="M1080 350V560"/>
+<rect x="40" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="40" y="180" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="200" y="215" text-anchor="middle" font-size="21" class="title">当前身份与外壳</text>
+<text x="200" y="249" text-anchor="middle" font-size="15" class="muted">Identity / Layout</text>
+<text x="200" y="278" text-anchor="middle" font-size="15" class="">隔离会话、权限和挂载周期</text>
+<rect x="480" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="480" y="180" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="640" y="215" text-anchor="middle" font-size="21" class="title">固定工作台实例</text>
+<text x="640" y="249" text-anchor="middle" font-size="15" class="muted">WorkspaceDataProvider</text>
+<text x="640" y="278" text-anchor="middle" font-size="15" class="">Context 传实例，不传全部记录</text>
+<rect x="920" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="920" y="180" width="320" height="170" rx="10" fill="#a78bfa" fill-opacity="0.08" stroke="#a78bfa" stroke-width="1.6"/>
+<text x="1080" y="215" text-anchor="middle" font-size="21" class="title">业务数据对象</text>
+<text x="1080" y="249" text-anchor="middle" font-size="15" class="muted">AgentStore / SkillStore / </text>
+<text x="1080" y="272" text-anchor="middle" font-size="15" class="muted">KnowledgeStore</text>
+<text x="1080" y="301" text-anchor="middle" font-size="15" class="">拥有具体读取、写入和刷新</text>
+<rect x="40" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="40" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="200" y="595" text-anchor="middle" font-size="21" class="title">资源与记录订阅</text>
+<text x="200" y="629" text-anchor="middle" font-size="15" class="muted">Resource / Atom</text>
+<text x="200" y="658" text-anchor="middle" font-size="15" class="">去重、取消、版本与有限缓存</text>
+<rect x="480" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="480" y="560" width="320" height="170" rx="10" fill="#22d3ee" fill-opacity="0.08" stroke="#22d3ee" stroke-width="1.6"/>
+<text x="640" y="595" text-anchor="middle" font-size="21" class="title">页面和共享组件</text>
+<text x="640" y="629" text-anchor="middle" font-size="15" class="muted">useResource / useAgentState</text>
+<text x="640" y="658" text-anchor="middle" font-size="15" class="">仅订阅所需查询或记录</text>
+<rect x="920" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="920" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="1080" y="595" text-anchor="middle" font-size="21" class="title">后端确认结果</text>
+<text x="1080" y="629" text-anchor="middle" font-size="15" class="muted">lib/api</text>
+<text x="1080" y="658" text-anchor="middle" font-size="15" class="">长期事实保存在服务端</text>
+<rect x="378.0" y="233" width="84" height="24" rx="3" fill="#0f172a"/>
+<text x="420.0" y="250" text-anchor="middle" font-size="14" class="label">建立作用域</text>
+<rect x="811.0" y="233" width="98" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="250" text-anchor="middle" font-size="14" class="label">组合数据对象</text>
+<rect x="605.0" y="356" width="70" height="24" rx="3" fill="#0f172a"/>
+<text x="640.0" y="373" text-anchor="middle" font-size="14" class="label">维护资源</text>
+<rect x="385.0" y="613" width="70" height="24" rx="3" fill="#0f172a"/>
+<text x="420.0" y="630" text-anchor="middle" font-size="14" class="label">定向通知</text>
+<rect x="818.0" y="390" width="84" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="407" text-anchor="middle" font-size="14" class="label">明确写操作</text>
+<rect x="1095" y="428.0" width="84" height="24" rx="3" fill="#0f172a"/>
+<text x="1102" y="445.0" text-anchor="start" font-size="14" class="label">请求与确认</text>
+<text x="40" y="52" text-anchor="start" font-size="26" class="title">工作台共享数据与状态作用域：内部结构与协作</text>
+<text x="40" y="88" font-size="16" class="muted">节点对应实际实现；箭头标明调用或数据交付，具体事务和授权边界见正文。</text>
+<text x="40" y="875" font-size="15" class="muted">当前实现的模块协作图；目录结构和图中职责不表示已经独立部署为多个服务。</text>
+</svg>

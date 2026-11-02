@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 890" role="img" aria-labelledby="title desc">
+  <title id="title">我的员工、员工广场与个人授权的目标关系</title>
+  <desc id="desc">作者明确发布不可变配置到广场。另一位用户复制后得到新的私人员工和 Skill 内容副本，使用自己的模型与 MCP 连接运行。账号、Token、对话和文件不随发布或复制传递。后端检查本轮用户、员工、对话、运行及连接的使用资格。</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width=".5"/></pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#94a3b8"/></marker>
+    <marker id="green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#34d399"/></marker>
+    <style>
+      text{font-family:'JetBrains Mono','Noto Sans SC','PingFang SC',sans-serif;fill:#f1f5f9}.title{font-size:22px;font-weight:700}.name{font-size:16px;font-weight:600}.detail{font-size:12px;fill:#94a3b8}.label{font-size:12px;fill:#cbd5e1}.region{font-size:14px;font-weight:600}.line{fill:none;stroke:#94a3b8;stroke-width:1.8;marker-end:url(#arrow)}.call{fill:none;stroke:#34d399;stroke-width:2;marker-end:url(#green)}
+    </style>
+  </defs>
+  <rect width="1280" height="890" fill="#0f172a"/>
+  <rect width="1280" height="890" fill="url(#grid)"/>
+  <rect x="20" y="110" width="380" height="580" rx="12" fill="none" stroke="#22d3ee" stroke-dasharray="8 4"/>
+  <rect x="450" y="110" width="380" height="580" rx="12" fill="none" stroke="#a78bfa" stroke-dasharray="8 4"/>
+  <rect x="880" y="110" width="380" height="580" rx="12" fill="none" stroke="#34d399" stroke-dasharray="8 4"/>
+  <text x="40" y="137" class="region" fill="#22d3ee">作者：我的员工</text>
+  <text x="470" y="137" class="region" fill="#a78bfa">员工广场：已发布配置</text>
+  <text x="900" y="137" class="region" fill="#34d399">小王：我的员工</text>
+  <path class="line" d="M380 215H470"/>
+  <path class="line" d="M810 215H900"/>
+  <path class="line" d="M640 260V350"/>
+  <path class="call" d="M210 260V350"/>
+  <path class="call" d="M210 440V540"/>
+  <path class="call" d="M1070 260V350"/>
+  <path class="call" d="M1070 440V540"/>
+  <text x="425" y="199" class="label" text-anchor="middle">明确发布</text>
+  <text x="855" y="199" class="label" text-anchor="middle">复制</text>
+  <text x="650" y="309" class="label">白名单快照</text>
+  <text x="220" y="309" class="label">本人装配</text>
+  <text x="1080" y="309" class="label">添加后自行配置</text>
+  <text x="220" y="495" class="label">自己的身份与额度</text>
+  <text x="1080" y="495" class="label">缺授权则提示连接</text>
+  <g>
+    <rect x="40" y="170" width="340" height="90" rx="8" fill="#0f172a"/>
+    <rect x="40" y="170" width="340" height="90" rx="8" fill="#083344" fill-opacity=".5" stroke="#22d3ee"/>
+    <text x="210" y="199" class="name" text-anchor="middle">作者的私人员工 A</text>
+    <text x="210" y="222" class="detail" text-anchor="middle">工作指令 · Skill · 能力需求</text>
+    <text x="210" y="243" class="detail" text-anchor="middle">本人编辑；保存不自动更新广场</text>
+    <rect x="470" y="170" width="340" height="90" rx="8" fill="#0f172a"/>
+    <rect x="470" y="170" width="340" height="90" rx="8" fill="#4c1d95" fill-opacity=".4" stroke="#a78bfa"/>
+    <text x="640" y="199" class="name" text-anchor="middle">发布项 + 不可变版本 vN</text>
+    <text x="640" y="222" class="detail" text-anchor="middle">预览 → 确认 → 发布 / 更新版本</text>
+    <text x="640" y="243" class="detail" text-anchor="middle">公开内容可被查看并复制</text>
+    <rect x="900" y="170" width="340" height="90" rx="8" fill="#0f172a"/>
+    <rect x="900" y="170" width="340" height="90" rx="8" fill="#064e3b" fill-opacity=".5" stroke="#34d399"/>
+    <text x="1070" y="199" class="name" text-anchor="middle">小王的独立员工 B</text>
+    <text x="1070" y="222" class="detail" text-anchor="middle">新 ID / owner · 私有 Skill 内容副本</text>
+    <text x="1070" y="243" class="detail" text-anchor="middle">记录来源版本；账号与许可初始为空</text>
+    <rect x="40" y="350" width="340" height="90" rx="8" fill="#0f172a"/>
+    <rect x="40" y="350" width="340" height="90" rx="8" fill="#881337" fill-opacity=".35" stroke="#fb7185"/>
+    <text x="210" y="379" class="name" text-anchor="middle">作者的个人模型 / MCP 连接</text>
+    <text x="210" y="402" class="detail" text-anchor="middle">Key / OAuth Token · 本人目录与工具许可</text>
+    <text x="210" y="423" class="detail" text-anchor="middle">可供本人多个员工复用</text>
+    <rect x="470" y="350" width="340" height="90" rx="8" fill="#0f172a"/>
+    <rect x="470" y="350" width="340" height="90" rx="8" fill="#4c1d95" fill-opacity=".4" stroke="#a78bfa"/>
+    <text x="640" y="379" class="name" text-anchor="middle">可分享的内容</text>
+    <text x="640" y="402" class="detail" text-anchor="middle">介绍 / 指令 / 获准分享的 Skill 正文</text>
+    <text x="640" y="423" class="detail" text-anchor="middle">公开服务提示 / 工具需求 / 版本说明</text>
+    <rect x="900" y="350" width="340" height="90" rx="8" fill="#0f172a"/>
+    <rect x="900" y="350" width="340" height="90" rx="8" fill="#881337" fill-opacity=".35" stroke="#fb7185"/>
+    <text x="1070" y="379" class="name" text-anchor="middle">小王的个人模型 / MCP 连接</text>
+    <text x="1070" y="402" class="detail" text-anchor="middle">本人登录 → 确认目录 → 勾选操作</text>
+    <text x="1070" y="423" class="detail" text-anchor="middle">不回退使用作者或管理员账号</text>
+    <rect x="40" y="540" width="340" height="90" rx="8" fill="#0f172a"/>
+    <rect x="40" y="540" width="340" height="90" rx="8" fill="#064e3b" fill-opacity=".5" stroke="#34d399"/>
+    <text x="210" y="569" class="name" text-anchor="middle">作者自己的 Conversation / Run</text>
+    <text x="210" y="592" class="detail" text-anchor="middle">读写自己的文件，使用获准账号</text>
+    <text x="210" y="613" class="detail" text-anchor="middle">不公开历史、执行成果或 checkpoint</text>
+    <rect x="470" y="500" width="340" height="130" rx="8" fill="#0f172a"/>
+    <rect x="470" y="500" width="340" height="130" rx="8" fill="#881337" fill-opacity=".25" stroke="#fb7185"/>
+    <text x="640" y="531" class="name" text-anchor="middle">发布和复制均不传递</text>
+    <text x="640" y="556" class="detail" text-anchor="middle">账号连接 ID / Token / 模型 Key</text>
+    <text x="640" y="579" class="detail" text-anchor="middle">原工具许可 / 私人参数 / 内网端点</text>
+    <text x="640" y="602" class="detail" text-anchor="middle">对话 / 文件 / 沙箱环境 / 部署凭证</text>
+    <rect x="900" y="540" width="340" height="90" rx="8" fill="#0f172a"/>
+    <rect x="900" y="540" width="340" height="90" rx="8" fill="#064e3b" fill-opacity=".5" stroke="#34d399"/>
+    <text x="1070" y="569" class="name" text-anchor="middle">小王自己的 Conversation / Run</text>
+    <text x="1070" y="592" class="detail" text-anchor="middle">满足必需能力后才可接单</text>
+    <text x="1070" y="613" class="detail" text-anchor="middle">作者更新或下架不覆盖已创建副本</text>
+  </g>
+  <rect x="40" y="740" width="1200" height="90" rx="10" fill="#0f172a"/>
+  <rect x="40" y="740" width="1200" height="90" rx="10" fill="#78350f" fill-opacity=".25" stroke="#fbbf24"/>
+  <text x="640" y="769" class="name" text-anchor="middle">同一后端统一检查使用主体</text>
+  <text x="640" y="794" class="label" text-anchor="middle">当前用户 = 私人员工 owner = 对话 owner = Run owner；个人连接 owner 也须相同</text>
+  <text x="640" y="815" class="detail" text-anchor="middle">平台共享服务账号须明确配置受众；登录、保存、工具调用、最终发布和历史读取均不能跳过检查</text>
+  <text x="40" y="40" class="title">共享可复用配置，个人账号各自授权</text>
+  <text x="40" y="67" class="detail">“我的员工 + 员工广场”目标流程 · 2026-10-28 · 待实施设计，不代表当前业务已支持用户隔离</text>
+  <text x="40" y="863" class="detail">沿用 Python 模块化单体、SQLite 与现有 Agent 循环；不引入每用户独立服务或每员工常驻进程。</text>
+</svg>

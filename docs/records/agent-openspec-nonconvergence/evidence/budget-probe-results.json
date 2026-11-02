@@ -1,0 +1,21 @@
+[
+  {
+    "status": "failed",
+    "code": "agent_budget_exceeded",
+    "partial_text": null,
+    "model_limit": 8,
+    "scripted_model_invocations": 8,
+    "durable_model_starts": 8,
+    "tool_actions": 8,
+    "final_answer_in_script_was_consumed": false
+  },
+  {
+    "status": "succeeded",
+    "text": "已经有足够信息，第九轮可直接交付。",
+    "model_limit": 9,
+    "scripted_model_invocations": 9,
+    "durable_model_starts": 9,
+    "tool_actions": 8,
+    "final_answer_in_script_was_consumed": true
+  }
+]

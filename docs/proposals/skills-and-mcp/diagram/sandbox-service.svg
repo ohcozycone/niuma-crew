@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1045" role="img" aria-labelledby="title desc">
+  <title id="title">独立沙箱服务与容量调度：拟议架构</title>
+  <desc id="desc">Agent 平台通过独立沙箱服务申请任务环境。服务拥有持久队列、容量调度和资源状态，使用官方 SDK 调用 OpenSandbox。最多三个环境为示例；Mac 和 Linux 共享接口，采用不同部署运行时。</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+    </pattern>
+    <marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0L9 3.5 0 7Z" fill="#94a3b8"/></marker>
+    <marker id="return" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0L9 3.5 0 7" fill="none" stroke="#22d3ee" stroke-width="1.5"/></marker>
+    <style>
+      text { font-family: 'SF Mono', 'JetBrains Mono', 'PingFang SC', 'Noto Sans SC', sans-serif; fill:#e2e8f0; }
+      .name { font-size:15px; font-weight:600; text-anchor:middle; }
+      .sub { font-size:11px; fill:#94a3b8; text-anchor:middle; }
+      .label { font-size:11px; fill:#94a3b8; }
+      .region { fill:none; stroke-width:1; stroke-dasharray:8 4; }
+      .wire { fill:none; stroke:#94a3b8; stroke-width:1.5; marker-end:url(#arrow); }
+      .mask { fill:#0f172a; }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+  <rect class="region" x="30" y="98" width="940" height="145" rx="12" stroke="#22d3ee"/>
+  <rect class="region" x="30" y="280" width="940" height="320" rx="12" stroke="#34d399"/>
+  <rect class="region" x="30" y="660" width="940" height="160" rx="12" stroke="#fbbf24"/>
+  <rect class="region" x="30" y="865" width="940" height="120" rx="12" stroke="#94a3b8"/>
+  <path class="wire" d="M210 215V260H150V330"/>
+  <path d="M852 330V260H790V215" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#return)"/>
+  <path class="wire" d="M240 367H285"/>
+  <path class="wire" d="M495 367H540"/>
+  <path class="wire" d="M720 367H765"/>
+  <path class="wire" d="M390 405V485" stroke-dasharray="5 4"/>
+  <path class="wire" d="M630 405V485" stroke-dasharray="5 4"/>
+  <path class="wire" d="M852 405V430H955V635H15V745H60"/>
+  <path d="M280 745H315V700H860" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+  <path class="wire" d="M440 700V710"/>
+  <path class="wire" d="M650 700V710"/>
+  <path class="wire" d="M860 700V710"/>
+  <rect class="mask" x="60" y="145" width="300" height="70" rx="7"/>
+  <rect x="60" y="145" width="300" height="70" rx="7" fill="#083344" fill-opacity="0.65" stroke="#22d3ee" stroke-width="1.5"/>
+  <rect class="mask" x="640" y="145" width="300" height="70" rx="7"/>
+  <rect x="640" y="145" width="300" height="70" rx="7" fill="#083344" fill-opacity="0.65" stroke="#22d3ee" stroke-width="1.5"/>
+  <rect class="mask" x="60" y="330" width="180" height="75" rx="7"/>
+  <rect x="60" y="330" width="180" height="75" rx="7" fill="#064e3b" fill-opacity="0.6" stroke="#34d399" stroke-width="1.5"/>
+  <rect class="mask" x="285" y="330" width="210" height="75" rx="7"/>
+  <rect x="285" y="330" width="210" height="75" rx="7" fill="#78350f" fill-opacity="0.5" stroke="#fb923c" stroke-width="1.5"/>
+  <rect class="mask" x="540" y="330" width="180" height="75" rx="7"/>
+  <rect x="540" y="330" width="180" height="75" rx="7" fill="#064e3b" fill-opacity="0.6" stroke="#34d399" stroke-width="1.5"/>
+  <rect class="mask" x="765" y="330" width="175" height="75" rx="7"/>
+  <rect x="765" y="330" width="175" height="75" rx="7" fill="#064e3b" fill-opacity="0.6" stroke="#34d399" stroke-width="1.5"/>
+  <rect class="mask" x="285" y="485" width="210" height="70" rx="7"/>
+  <rect x="285" y="485" width="210" height="70" rx="7" fill="#4c1d95" fill-opacity="0.5" stroke="#a78bfa" stroke-width="1.5"/>
+  <rect class="mask" x="540" y="485" width="400" height="70" rx="7"/>
+  <rect x="540" y="485" width="400" height="70" rx="7" fill="#78350f" fill-opacity="0.4" stroke="#fbbf24" stroke-width="1.5"/>
+  <rect class="mask" x="60" y="710" width="220" height="70" rx="7"/>
+  <rect x="60" y="710" width="220" height="70" rx="7" fill="#78350f" fill-opacity="0.4" stroke="#fbbf24" stroke-width="1.5"/>
+  <rect class="mask" x="365" y="710" width="150" height="70" rx="7"/>
+  <rect x="365" y="710" width="150" height="70" rx="7" fill="#1e3a8a" fill-opacity="0.5" stroke="#60a5fa" stroke-width="1.5"/>
+  <rect class="mask" x="575" y="710" width="150" height="70" rx="7"/>
+  <rect x="575" y="710" width="150" height="70" rx="7" fill="#1e3a8a" fill-opacity="0.5" stroke="#60a5fa" stroke-width="1.5"/>
+  <rect class="mask" x="785" y="710" width="150" height="70" rx="7"/>
+  <rect x="785" y="710" width="150" height="70" rx="7" fill="#1e3a8a" fill-opacity="0.5" stroke="#60a5fa" stroke-width="1.5"/>
+  <rect class="mask" x="60" y="905" width="400" height="55" rx="7"/>
+  <rect x="60" y="905" width="400" height="55" rx="7" fill="#1e293b" fill-opacity="0.65" stroke="#94a3b8"/>
+  <rect class="mask" x="540" y="905" width="400" height="55" rx="7"/>
+  <rect x="540" y="905" width="400" height="55" rx="7" fill="#1e293b" fill-opacity="0.65" stroke="#94a3b8"/>
+  <text x="50" y="122" font-size="11" fill="#22d3ee">Agent 平台 · 业务所有者</text>
+  <text class="name" x="210" y="174">Agent 与执行工具</text>
+  <text class="sub" x="210" y="195">员工授权 · 首次需要时申请会话</text>
+  <text class="name" x="790" y="174">任务与持久产物</text>
+  <text class="sub" x="790" y="195">每条命令返回结果，整轮结束后释放</text>
+  <text class="label" x="65" y="269">统一会话 API</text>
+  <text class="label" x="652" y="267">结果 / 状态 / 文件</text>
+  <text x="50" y="305" font-size="11" fill="#34d399">Sandbox Service · 独立进程 / 唯一容量调度所有者</text>
+  <text class="name" x="150" y="361">会话准入</text>
+  <text class="sub" x="150" y="383">归属 · 幂等 · 截止时间</text>
+  <text class="name" x="390" y="361">持久等待队列</text>
+  <text class="sub" x="390" y="383">有界 · 公平 · 可取消</text>
+  <text class="name" x="630" y="361">容量调度</text>
+  <text class="sub" x="630" y="383">先占位，再创建</text>
+  <text class="name" x="852" y="361">官方 SDK 适配</text>
+  <text class="sub" x="852" y="383">命令 · 文件 · 销毁</text>
+  <text class="label" x="402" y="452">原子状态</text>
+  <text class="label" x="642" y="452">占位 / 回收</text>
+  <text class="name" x="390" y="513">独立状态库</text>
+  <text class="sub" x="390" y="536">会话 · 资源 · 操作与清理债务</text>
+  <text class="name" x="740" y="513">总容量示例 3 · 预热可选</text>
+  <text class="sub" x="740" y="536">预留、创建、预热、占用、清理、未知都计入上限</text>
+  <text class="label" x="680" y="623">官方生命周期与执行 API</text>
+  <text x="50" y="684" font-size="11" fill="#fbbf24">执行基础设施 · 同一主机可以运行多个独立环境</text>
+  <text class="name" x="170" y="740">OpenSandbox 服务</text>
+  <text class="sub" x="170" y="761">Docker 生命周期管理</text>
+  <text class="name" x="440" y="740">任务 A 独占</text>
+  <text class="sub" x="440" y="761">本轮多次脚本复用</text>
+  <text class="name" x="650" y="740">任务 B 独占</text>
+  <text class="sub" x="650" y="761">本轮多次脚本复用</text>
+  <text class="name" x="860" y="740">任务 C 独占</text>
+  <text class="sub" x="860" y="761">本轮多次脚本复用</text>
+  <text x="50" y="889" font-size="11" fill="#94a3b8">部署时选择运行环境 · 上层接口与调度保持一致</text>
+  <text class="name" x="260" y="929">Mac · Docker Desktop 默认运行时</text>
+  <text class="sub" x="260" y="948">本地功能联调与开发配置检查</text>
+  <text class="name" x="740" y="929">Linux · Docker Engine + gVisor</text>
+  <text class="sub" x="740" y="948">线上运行与生产隔离验收</text>
+  <text x="50" y="1015" font-size="11" fill="#94a3b8">拟议方案：干净环境分配一次；使用后销毁；资源确认释放后，下一任务获得名额。</text>
+  <text x="30" y="38" font-size="22" font-weight="700">独立沙箱服务与容量调度</text>
+  <text x="30" y="66" font-size="12" fill="#94a3b8">Mac 开发与 Linux 部署共用接入 · 三个环境为示例 · 尚未实施</text>
+</svg>

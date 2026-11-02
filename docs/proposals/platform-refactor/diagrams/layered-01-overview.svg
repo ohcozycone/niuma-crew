@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1790" role="img" aria-labelledby="title desc">
+<title id="title">全局架构｜先分职责层，再看模块归属</title>
+<desc id="desc">主区自上而下区分界面、接口、业务协作和执行；侧栏单列横切、工程与未来能力。 实线表示已有职责，虚线表示后续未实现能力；当前范围已实施。</desc>
+<defs><marker id="arrow-cyan" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L9 4L0 8Z" fill="#48c7ed"/></marker><marker id="arrow-green" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L9 4L0 8Z" fill="#63d5b2"/></marker><marker id="arrow-purple" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L9 4L0 8Z" fill="#b99bfa"/></marker><marker id="arrow-amber" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L9 4L0 8Z" fill="#f3c567"/></marker><marker id="arrow-rose" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L9 4L0 8Z" fill="#f29cae"/></marker><marker id="arrow-slate" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L9 4L0 8Z" fill="#a2b4cd"/></marker><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#20314a" stroke-width="0.5"/></pattern><style>text{font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif}</style></defs>
+<rect width="1800" height="1790" fill="#0c1423"/>
+<rect width="1800" height="1790" fill="url(#grid)" opacity="0.35"/>
+<rect x="40" y="170" width="1260" height="200" rx="18" fill="#101e30" stroke="#48c7ed" stroke-width="1.7"/>
+<path d="M58 171H1282" stroke="#48c7ed" stroke-width="4" stroke-linecap="round"/>
+<rect x="40" y="410" width="1260" height="190" rx="18" fill="#101e30" stroke="#48c7ed" stroke-width="1.7"/>
+<path d="M58 411H1282" stroke="#48c7ed" stroke-width="4" stroke-linecap="round"/>
+<rect x="40" y="640" width="1260" height="210" rx="18" fill="#101e30" stroke="#b99bfa" stroke-width="1.7"/>
+<path d="M58 641H1282" stroke="#b99bfa" stroke-width="4" stroke-linecap="round"/>
+<rect x="40" y="890" width="1260" height="290" rx="18" fill="#101e30" stroke="#63d5b2" stroke-width="1.7"/>
+<path d="M58 891H1282" stroke="#63d5b2" stroke-width="4" stroke-linecap="round"/>
+<rect x="40" y="1220" width="1260" height="210" rx="18" fill="#101e30" stroke="#63d5b2" stroke-width="1.7"/>
+<path d="M58 1221H1282" stroke="#63d5b2" stroke-width="4" stroke-linecap="round"/>
+<rect x="40" y="1470" width="1260" height="190" rx="18" fill="#101e30" stroke="#a2b4cd" stroke-width="1.7"/>
+<path d="M58 1471H1282" stroke="#a2b4cd" stroke-width="4" stroke-linecap="round"/>
+<rect x="1340" y="170" width="420" height="390" rx="18" fill="#101e30" stroke="#f29cae" stroke-width="1.7"/>
+<path d="M1358 171H1742" stroke="#f29cae" stroke-width="4" stroke-linecap="round"/>
+<rect x="1340" y="600" width="420" height="540" rx="18" fill="#101e30" stroke="#f3c567" stroke-width="1.7"/>
+<path d="M1358 601H1742" stroke="#f3c567" stroke-width="4" stroke-linecap="round"/>
+<rect x="1340" y="1180" width="420" height="480" rx="18" fill="#101e30" stroke="#a2b4cd" stroke-width="1.7" stroke-dasharray="10 6"/>
+<path d="M1358 1181H1742" stroke="#a2b4cd" stroke-width="4" stroke-linecap="round"/>
+<path d="M40 1681H1760" stroke="#34445a" stroke-width="1"/>
+<path d="M670 370V410" fill="none" stroke="#a2b4cd" stroke-width="2" marker-end="url(#arrow-slate)"/>
+<path d="M670 600V640" fill="none" stroke="#a2b4cd" stroke-width="2" marker-end="url(#arrow-slate)"/>
+<path d="M670 850V890" fill="none" stroke="#a2b4cd" stroke-width="2" marker-end="url(#arrow-slate)"/>
+<rect x="64" y="252" width="279" height="94" rx="10" fill="#14263b" stroke="#48c7ed" stroke-opacity="0.65"/>
+<rect x="375" y="252" width="279" height="94" rx="10" fill="#14263b" stroke="#48c7ed" stroke-opacity="0.65"/>
+<rect x="686" y="252" width="279" height="94" rx="10" fill="#14263b" stroke="#48c7ed" stroke-opacity="0.65"/>
+<rect x="997" y="252" width="279" height="94" rx="10" fill="#14263b" stroke="#48c7ed" stroke-opacity="0.65"/>
+<rect x="64" y="492" width="279" height="84" rx="10" fill="#14263b" stroke="#48c7ed" stroke-opacity="0.65"/>
+<rect x="375" y="492" width="279" height="84" rx="10" fill="#14263b" stroke="#48c7ed" stroke-opacity="0.65"/>
+<rect x="686" y="492" width="279" height="84" rx="10" fill="#14263b" stroke="#48c7ed" stroke-opacity="0.65"/>
+<rect x="997" y="492" width="279" height="84" rx="10" fill="#14263b" stroke="#48c7ed" stroke-opacity="0.65"/>
+<rect x="64" y="722" width="384" height="104" rx="10" fill="#14263b" stroke="#b99bfa" stroke-opacity="0.65"/>
+<rect x="478" y="722" width="384" height="104" rx="10" fill="#14263b" stroke="#b99bfa" stroke-opacity="0.65"/>
+<rect x="892" y="722" width="384" height="104" rx="10" fill="#14263b" stroke="#b99bfa" stroke-opacity="0.65"/>
+<rect x="64" y="978" width="279" height="176" rx="10" fill="#14263b" stroke="#63d5b2" stroke-opacity="0.65"/>
+<rect x="375" y="978" width="279" height="176" rx="10" fill="#14263b" stroke="#63d5b2" stroke-opacity="0.65"/>
+<rect x="686" y="978" width="279" height="176" rx="10" fill="#14263b" stroke="#63d5b2" stroke-opacity="0.65"/>
+<rect x="997" y="978" width="279" height="176" rx="10" fill="#14263b" stroke="#63d5b2" stroke-opacity="0.65"/>
+<rect x="64" y="1302" width="384" height="104" rx="10" fill="#14263b" stroke="#63d5b2" stroke-opacity="0.65"/>
+<rect x="478" y="1302" width="384" height="104" rx="10" fill="#14263b" stroke="#63d5b2" stroke-opacity="0.65"/>
+<rect x="892" y="1302" width="384" height="104" rx="10" fill="#14263b" stroke="#63d5b2" stroke-opacity="0.65"/>
+<rect x="64" y="1552" width="384" height="84" rx="10" fill="#14263b" stroke="#a2b4cd" stroke-opacity="0.65"/>
+<rect x="478" y="1552" width="384" height="84" rx="10" fill="#14263b" stroke="#a2b4cd" stroke-opacity="0.65"/>
+<rect x="892" y="1552" width="384" height="84" rx="10" fill="#14263b" stroke="#a2b4cd" stroke-opacity="0.65"/>
+<rect x="1364" y="252" width="372" height="120" rx="10" fill="#14263b" stroke="#f29cae" stroke-opacity="0.65"/>
+<rect x="1364" y="412" width="372" height="120" rx="10" fill="#14263b" stroke="#f29cae" stroke-opacity="0.65"/>
+<rect x="1364" y="682" width="372" height="130" rx="10" fill="#14263b" stroke="#f3c567" stroke-opacity="0.65"/>
+<rect x="1364" y="852" width="372" height="110" rx="10" fill="#14263b" stroke="#f3c567" stroke-opacity="0.65"/>
+<rect x="1364" y="1002" width="372" height="110" rx="10" fill="#14263b" stroke="#f3c567" stroke-opacity="0.65"/>
+<rect x="1364" y="1262" width="372" height="84" rx="10" fill="#14263b" stroke="#a2b4cd" stroke-opacity="0.65" stroke-dasharray="7 5"/>
+<rect x="1364" y="1386" width="372" height="84" rx="10" fill="#14263b" stroke="#a2b4cd" stroke-opacity="0.65" stroke-dasharray="7 5"/>
+<rect x="1364" y="1510" width="372" height="124" rx="10" fill="#14263b" stroke="#a2b4cd" stroke-opacity="0.65" stroke-dasharray="7 5"/>
+<text x="40" y="62" font-size="35" font-weight="700" fill="#eaf1fa" text-anchor="start">全局架构｜先分职责层，再看模块归属</text>
+<text x="40" y="103" font-size="19" font-weight="400" fill="#b6c6da" text-anchor="start">主区自上而下区分界面、接口、业务协作和执行；侧栏单列横切、工程与未来能力。</text>
+<text x="1760" y="140" font-size="16" font-weight="400" fill="#a2b4cd" text-anchor="end">01 / 04  ·  当前实施 / 职责边界  ·  2026-10-27</text>
+<text x="64" y="204" font-size="24" font-weight="650" fill="#48c7ed" text-anchor="start">01  用户界面｜按页面与交互组织</text>
+<text x="64" y="234" font-size="17" font-weight="400" fill="#aebfd4" text-anchor="start">前端页面组合后端能力，不复制后端模块树。</text>
+<text x="82" y="284" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">对话工作区</text>
+<text x="82" y="313" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">输入、回复、历史导航</text>
+<text x="82" y="336" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">CI 诊断结果展示</text>
+<text x="393" y="284" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">员工与资源</text>
+<text x="393" y="313" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">员工、方法、模型连接</text>
+<text x="393" y="336" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">规章制度与资料入口</text>
+<text x="704" y="284" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">身份与设置</text>
+<text x="704" y="313" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">登录、当前身份</text>
+<text x="704" y="336" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">主题与表单交互</text>
+<text x="1015" y="284" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">帮助与展示</text>
+<text x="1015" y="313" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">帮助、设计系统</text>
+<text x="1015" y="336" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">头像与品牌资源</text>
+<text x="64" y="444" font-size="24" font-weight="650" fill="#48c7ed" text-anchor="start">02  对外接口｜表达客户端需要的操作</text>
+<text x="64" y="474" font-size="17" font-weight="400" fill="#aebfd4" text-anchor="start">以对话、配置、身份等场景提供契约；不强制采用 Thread / Turn 路径。</text>
+<text x="82" y="524" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">对话操作</text>
+<text x="82" y="553" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">发送、重试、停止</text>
+<text x="393" y="524" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">历史与观察</text>
+<text x="393" y="553" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">分页、定位、持续更新</text>
+<text x="704" y="524" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">配置管理</text>
+<text x="704" y="553" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">读取、编辑、修订校验</text>
+<text x="1015" y="524" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">身份与公开信息</text>
+<text x="1015" y="553" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">登录、退出、公开摘要</text>
+<text x="64" y="674" font-size="24" font-weight="650" fill="#b99bfa" text-anchor="start">03  请求与共享流程｜职责分区，不新增全局目录</text>
+<text x="64" y="704" font-size="17" font-weight="400" fill="#aebfd4" text-anchor="start">请求服务归 API；准备、授权和发布归 conversations；简单配置调所属服务。</text>
+<text x="82" y="754" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">API 请求服务</text>
+<text x="82" y="783" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">请求键、目标与接受事务</text>
+<text x="82" y="806" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">发送、停止、重试和反馈</text>
+<text x="496" y="754" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">共享准备与授权</text>
+<text x="496" y="783" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">conversations 内明确函数</text>
+<text x="496" y="806" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">API 与后台各时点复用</text>
+<text x="910" y="754" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">共享发布与读取</text>
+<text x="910" y="783" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">完成、恢复和排队停止共用</text>
+<text x="910" y="806" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">内容与终态在一个事务提交</text>
+<text x="64" y="924" font-size="24" font-weight="650" fill="#63d5b2" text-anchor="start">04  后台职责｜业务所有者与执行支撑并列</text>
+<text x="64" y="954" font-size="17" font-weight="400" fill="#aebfd4" text-anchor="start">模块管理自己的数据与规则；下列卡片不是四个依次调用的步骤。</text>
+<text x="82" y="1010" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">对话与消息</text>
+<text x="82" y="1033" font-size="15" font-weight="400" fill="#63d5b2" text-anchor="start">conversations</text>
+<text x="82" y="1058" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">内容、顺序与历史</text>
+<text x="82" y="1085" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">原始提问与处理关联</text>
+<text x="82" y="1112" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">Message 是内部记录</text>
+<text x="393" y="1010" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">员工与资源配置</text>
+<text x="393" y="1033" font-size="15" font-weight="400" fill="#63d5b2" text-anchor="start">agents / skills / rules</text>
+<text x="393" y="1058" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">员工装配、共享方法</text>
+<text x="393" y="1085" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">模型连接与凭证修订</text>
+<text x="393" y="1112" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">配置生成本次执行依据</text>
+<text x="704" y="1010" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">专业诊断</text>
+<text x="704" y="1033" font-size="15" font-weight="400" fill="#63d5b2" text-anchor="start">ci_diagnosis</text>
+<text x="704" y="1058" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">构建目标与证据</text>
+<text x="704" y="1085" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">报告校验、读取、反馈</text>
+<text x="704" y="1112" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">专业规则不进入调度器</text>
+<text x="1015" y="1010" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">执行管理</text>
+<text x="1015" y="1033" font-size="15" font-weight="400" fill="#63d5b2" text-anchor="start">execution</text>
+<text x="1015" y="1058" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">排队、取消与超时</text>
+<text x="1015" y="1085" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">预算、过程与恢复</text>
+<text x="1015" y="1112" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">Run 是内部执行记录</text>
+<text x="64" y="1254" font-size="24" font-weight="650" fill="#63d5b2" text-anchor="start">05  Agent 与外部能力｜执行过程的具体实现</text>
+<text x="64" y="1284" font-size="17" font-weight="400" fill="#aebfd4" text-anchor="start">由执行宿主调用或受控接入；不是所有业务模块都必须经过这一层。</text>
+<text x="82" y="1334" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">Agent 内部运行｜已独立</text>
+<text x="82" y="1363" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">模型与工具循环、SDK 内容转换</text>
+<text x="82" y="1386" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">方法加载与 SDK 恢复解释</text>
+<text x="496" y="1334" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">模型访问 · llm</text>
+<text x="496" y="1363" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">模型工厂、受管网络</text>
+<text x="496" y="1386" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">协议错误与用量归一</text>
+<text x="910" y="1334" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">现有工具与专业取证</text>
+<text x="910" y="1363" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">CI 读取与 MCP 适配</text>
+<text x="910" y="1386" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">通用工具网关属于后续增量</text>
+<text x="64" y="1504" font-size="24" font-weight="650" fill="#a2b4cd" text-anchor="start">06  技术设施｜由需要它的模块使用</text>
+<text x="64" y="1534" font-size="17" font-weight="400" fill="#aebfd4" text-anchor="start">这是共享技术依赖区，不是请求必须经过的最后一个业务步骤。</text>
+<text x="82" y="1584" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">数据库与事务</text>
+<text x="82" y="1613" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">SQLite / SQLAlchemy / 正式迁移</text>
+<text x="496" y="1584" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">运行恢复存储</text>
+<text x="496" y="1613" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">SDK 存档与业务历史分开</text>
+<text x="910" y="1584" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">技术公共能力</text>
+<text x="910" y="1613" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">网络、加密机制、文件与错误识别</text>
+<text x="1364" y="204" font-size="24" font-weight="650" fill="#f29cae" text-anchor="start">横切能力</text>
+<text x="1364" y="234" font-size="17" font-weight="400" fill="#aebfd4" text-anchor="start">多个入口使用；不表示独立业务步骤。</text>
+<text x="1382" y="284" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">身份与权限 · auth</text>
+<text x="1382" y="313" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">用户、登录会话、Actor</text>
+<text x="1382" y="340" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">角色能力与资源访问规则</text>
+<text x="1382" y="444" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">HTTP 与公开边界</text>
+<text x="1382" y="473" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">来源校验、限流、错误转换</text>
+<text x="1382" y="500" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">公开字段与敏感信息隔离</text>
+<text x="1364" y="634" font-size="24" font-weight="650" fill="#f3c567" text-anchor="start">装配、交付与工程</text>
+<text x="1364" y="664" font-size="17" font-weight="400" fill="#aebfd4" text-anchor="start">是另一种视角，不属于业务调用层级。</text>
+<text x="1382" y="714" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">启动装配</text>
+<text x="1382" y="743" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">main / bootstrap / config</text>
+<text x="1382" y="770" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">创建具体依赖并管理启停</text>
+<text x="1382" y="797" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">不拥有业务状态和授权规则</text>
+<text x="1382" y="884" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">当前部署</text>
+<text x="1382" y="913" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">FastAPI 同源静态交付</text>
+<text x="1382" y="940" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">SQLite、单执行宿主、进程锁</text>
+<text x="1382" y="1034" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">开发与验证</text>
+<text x="1382" y="1063" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">Makefile、scripts、构建与测试</text>
+<text x="1382" y="1090" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">docs、日志与维护入口</text>
+<text x="1364" y="1214" font-size="24" font-weight="650" fill="#a2b4cd" text-anchor="start">后续独立能力｜未实现</text>
+<text x="1364" y="1244" font-size="17" font-weight="400" fill="#aebfd4" text-anchor="start">单独规划，不塞入本次核心调用链。</text>
+<text x="1382" y="1294" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">通用工具｜后续</text>
+<text x="1382" y="1323" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">连接、目录、授权与受控调用</text>
+<text x="1382" y="1418" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">真实知识能力｜后续</text>
+<text x="1382" y="1447" font-size="17" font-weight="400" fill="#bacbde" text-anchor="start">导入、发布、检索与引用</text>
+<text x="1382" y="1542" font-size="22" font-weight="600" fill="#f2f6fc" text-anchor="start">按需工作能力｜后续</text>
+<text x="1382" y="1571" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">任务、计划、目标、定时触发</text>
+<text x="1382" y="1598" font-size="18" font-weight="400" fill="#bacbde" text-anchor="start">模式和跨轮控制分别设计</text>
+<text x="40" y="1707" font-size="17" font-weight="400" fill="#b6c6da" text-anchor="start">读图：大框 = 职责分区；小框 = 模块或能力；记录名称只写在所属模块内部。</text>
+<text x="40" y="1737" font-size="17" font-weight="400" fill="#a2b4cd" text-anchor="start">实线 = 当前实现；虚线 = 后续能力。具体协议与验证范围见现行契约和实施记录。</text>
+<text x="1760" y="1768" font-size="13" font-weight="400" fill="#7b91ad" text-anchor="end">NIUMACREW · LAYERED ARCHITECTURE</text>
+</svg>

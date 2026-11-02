@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-29",
+  "skills": [
+    {
+      "name": "python-project-structure",
+      "repository": "wshobson/agents",
+      "source_path": "plugins/python-development/skills/python-project-structure",
+      "ref": "main",
+      "installed_path": "/Users/minjo/.codex/skills/python-project-structure",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "c53696fb8d9014abc280fc0e64220cae0d087766a16380e211a6745e481dae65"
+        }
+      ]
+    },
+    {
+      "name": "python-design-patterns",
+      "repository": "wshobson/agents",
+      "source_path": "plugins/python-development/skills/python-design-patterns",
+      "ref": "main",
+      "installed_path": "/Users/minjo/.codex/skills/python-design-patterns",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "42c99b3bc55a56a65cd3f16aa24ea50672ce0fa4893eb0f34bba0cdb8a0e3319"
+        },
+        {
+          "path": "references/details.md",
+          "sha256": "5d85b7a1745446432060bb31ee1fa686d5a41d86cfaf3687dd2710b47b72e5ea"
+        }
+      ]
+    },
+    {
+      "name": "python-code-style",
+      "repository": "wshobson/agents",
+      "source_path": "plugins/python-development/skills/python-code-style",
+      "ref": "main",
+      "installed_path": "/Users/minjo/.codex/skills/python-code-style",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "82699eefa7996bf06bbf85219f547eae0140a181ee3699444e2cbd665b7caba7"
+        }
+      ]
+    },
+    {
+      "name": "architecture-patterns",
+      "repository": "wshobson/agents",
+      "source_path": "plugins/backend-development/skills/architecture-patterns",
+      "ref": "main",
+      "installed_path": "/Users/minjo/.codex/skills/architecture-patterns",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "350caf22b856b7d2908a10a69a8cc13e743c757ba9838716051b4e29fc1d7595"
+        },
+        {
+          "path": "references/advanced-patterns.md",
+          "sha256": "e1cb31c83b532e579991de277836a1ea5e3d88b2ca30fc8ac16f6047ceca439e"
+        },
+        {
+          "path": "references/details.md",
+          "sha256": "a53411600b253b343247db9d86140f3136ee7bd26a67aa8411962bcc1f5ff981"
+        }
+      ]
+    },
+    {
+      "name": "agent-architecture-audit",
+      "repository": "affaan-m/ECC",
+      "source_path": "skills/agent-architecture-audit",
+      "ref": "main",
+      "installed_path": "/Users/minjo/.codex/skills/agent-architecture-audit",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "64f57e232c3533877403703bc95b3c75df9de23f657899a306f13c703009ff57"
+        }
+      ]
+    },
+    {
+      "name": "audit-context-building",
+      "repository": "trailofbits/skills",
+      "source_path": "plugins/audit-context-building/skills/audit-context-building",
+      "ref": "main",
+      "installed_path": "/Users/minjo/.codex/plugins/cache/trailofbits/audit-context-building/2.0.2/skills/audit-context-building",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "33fa693dc6e166cfa4919e4373cb6578c009d296234c2ae7cb3cd4e79b443765"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "1d66ff830ff41ce751286d588a0ffeb95ed56d1b42e279fa2c8eebff10f4e59e"
+        },
+        {
+          "path": "assets/trail-of-bits-mark.svg",
+          "sha256": "4bf74c789b38dcf6ad762c136b6832363d27ae19fbaa9a18ec18d66ecce6ca05"
+        },
+        {
+          "path": "resources/ANALYSIS_FORMAT.md",
+          "sha256": "029532945776fb0fcbc866f19cd6114fe4152cd3dea1c0f44b266ec13a2cc6e8"
+        },
+        {
+          "path": "resources/DOMAIN_NOTES.md",
+          "sha256": "ca3090f7f8d18f7145b253b283f5d33c36b314cea231aae8466bf23f122e2ed1"
+        },
+        {
+          "path": "resources/FUNCTION_MICRO_ANALYSIS_EXAMPLE.md",
+          "sha256": "3351010d83b61bfb34a0359498f153817fdfa6528cead54536b06e035ff2399c"
+        }
+      ],
+      "standalone_initial_path": "/Users/minjo/.codex/skills/audit-context-building",
+      "installation": "full plugin; duplicate standalone discovery entry moved to temporary recovery copy"
+    }
+  ],
+  "audit_plugin": {
+    "id": "audit-context-building@trailofbits",
+    "version": "2.0.2",
+    "path": "/Users/minjo/.codex/plugins/cache/trailofbits/audit-context-building/2.0.2"
+  },
+  "review_completed_date": "2026-10-30"
+}

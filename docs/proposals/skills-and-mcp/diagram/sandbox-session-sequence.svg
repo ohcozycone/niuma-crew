@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1340" role="img" aria-labelledby="title desc">
+<title id="title">独立沙箱服务：拟议会话时序</title>
+<desc id="desc">从申请排队、预留容量、创建、重复执行命令，到输出持久化确认和删除后释放容量。同一任务复用独占环境，清理未确认时继续占位。</desc>
+<defs>
+<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern>
+<marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0L9 3.5 0 7Z" fill="#94a3b8"/></marker>
+<style>text{font-family:'SF Mono','PingFang SC','Noto Sans SC',sans-serif;fill:#e2e8f0}.msg{font-size:13px;text-anchor:middle}.small{font-size:12px;fill:#94a3b8}.line{fill:none;stroke:#94a3b8;stroke-width:1.5;marker-end:url(#arrow)}</style>
+</defs>
+<rect width="1240" height="1340" fill="#0f172a"/>
+<rect width="1240" height="1340" fill="url(#grid)"/>
+<text x="40" y="44" font-size="24" font-weight="700">单任务从排队到回收</text>
+<text x="40" y="72" class="small">拟议时序 · 获配后独立心跳；多个任务独占环境，通过同一调度器竞争容量</text>
+<rect x="35" y="470" width="920" height="230" rx="10" fill="#064e3b" fill-opacity="0.12" stroke="#34d399" stroke-dasharray="6 4"/>
+<text x="50" y="487" class="small">循环：本轮命令复用；不同任务可以并行</text>
+<line x1="140" y1="162" x2="140" y2="1210" stroke="#475569" stroke-dasharray="5 5"/>
+<line x1="380" y1="162" x2="380" y2="1210" stroke="#475569" stroke-dasharray="5 5"/>
+<line x1="620" y1="162" x2="620" y2="1210" stroke="#475569" stroke-dasharray="5 5"/>
+<line x1="860" y1="162" x2="860" y2="1210" stroke="#475569" stroke-dasharray="5 5"/>
+<line x1="1100" y1="162" x2="1100" y2="1210" stroke="#475569" stroke-dasharray="5 5"/>
+<rect x="375" y="202" width="10" height="1000" rx="3" fill="#064e3b" stroke="#34d399"/>
+<rect x="855" y="352" width="10" height="795" rx="3" fill="#78350f" stroke="#fbbf24"/>
+<path class="line" d="M146 210H373"/>
+<rect x="170.75" y="184" width="178.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="260.0" y="199">01  幂等申请：任务、配置、制品</text>
+<path class="line" d="M386 260H613"/>
+<rect x="426.5" y="234" width="147.0" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="500.0" y="249">02  保存申请，事务内占位</text>
+<path class="line" d="M614 310H387" stroke-dasharray="5 4"/>
+<rect x="421.25" y="284" width="157.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="500.0" y="299">03  有名额才分配；满额等待</text>
+<path class="line" d="M386 360H853"/>
+<rect x="536.0" y="334" width="168.0" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="620.0" y="349">04  创建环境，准备输入和技能</text>
+<path class="line" d="M854 410H387" stroke-dasharray="5 4"/>
+<rect x="557.0" y="384" width="126.0" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="620.0" y="399">05  环境及文件已准备</text>
+<path class="line" d="M374 450H147" stroke-dasharray="5 4"/>
+<rect x="160.25" y="424" width="199.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="260.0" y="439">06  ready：文件就绪，可调用工具</text>
+<path class="line" d="M146 520H373"/>
+<rect x="197.0" y="494" width="126.0" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="260.0" y="509">07  提交一条获准命令</text>
+<path class="line" d="M386 570H853"/>
+<rect x="551.75" y="544" width="136.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="620.0" y="559">08  固定路由到关联沙箱</text>
+<path class="line" d="M854 620H387" stroke-dasharray="5 4"/>
+<rect x="551.75" y="594" width="136.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="620.0" y="609">09  退出状态与有界日志</text>
+<path class="line" d="M374 670H147" stroke-dasharray="5 4"/>
+<rect x="155.0" y="644" width="210.0" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="260.0" y="659">10  工具结果；Agent 继续下一步</text>
+<path class="line" d="M146 740H373"/>
+<rect x="160.25" y="714" width="199.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="260.0" y="729">11  请求 finalization</text>
+<path class="line" d="M386 790H853"/>
+<rect x="530.75" y="764" width="178.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="620.0" y="779">12  禁新写入，停进程，收集输出</text>
+<path class="line" d="M854 840H387" stroke-dasharray="5 4"/>
+<rect x="546.5" y="814" width="147.0" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="620.0" y="829">13  稳定文件，校验并暂存</text>
+<path class="line" d="M374 890H147" stroke-dasharray="5 4"/>
+<rect x="191.75" y="864" width="136.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="260.0" y="879">14  导出清单与文件内容</text>
+<path class="line" d="M146 940H1093"/>
+<rect x="541.25" y="914" width="157.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="620.0" y="929">15  持久保存成果并核对摘要</text>
+<path class="line" d="M1094 990H147" stroke-dasharray="5 4"/>
+<rect x="567.5" y="964" width="105.0" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="620.0" y="979">16  确认保存成功</text>
+<path class="line" d="M146 1040H373"/>
+<rect x="170.75" y="1014" width="178.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="260.0" y="1029">17  ack：确认接收，触发关闭</text>
+<path class="line" d="M386 1090H853"/>
+<rect x="567.5" y="1064" width="105.0" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="620.0" y="1079">18  销毁独占环境</text>
+<path class="line" d="M854 1140H387" stroke-dasharray="5 4"/>
+<rect x="562.25" y="1114" width="115.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="620.0" y="1129">19  确认远端已删除</text>
+<path class="line" d="M386 1190H613"/>
+<rect x="421.25" y="1164" width="157.5" height="20" rx="4" fill="#0f172a"/>
+<text class="msg" x="500.0" y="1179">20  释放容量，唤醒下一申请</text>
+<rect x="50" y="105" width="180" height="57" rx="7" fill="#0f172a"/>
+<rect x="50" y="105" width="180" height="57" rx="7" fill="#22d3ee" fill-opacity="0.12" stroke="#22d3ee" stroke-width="1.5"/>
+<text x="140" y="140" font-size="16" font-weight="600" text-anchor="middle">Agent 平台</text>
+<rect x="290" y="105" width="180" height="57" rx="7" fill="#0f172a"/>
+<rect x="290" y="105" width="180" height="57" rx="7" fill="#34d399" fill-opacity="0.12" stroke="#34d399" stroke-width="1.5"/>
+<text x="380" y="140" font-size="16" font-weight="600" text-anchor="middle">Sandbox Service</text>
+<rect x="530" y="105" width="180" height="57" rx="7" fill="#0f172a"/>
+<rect x="530" y="105" width="180" height="57" rx="7" fill="#a78bfa" fill-opacity="0.12" stroke="#a78bfa" stroke-width="1.5"/>
+<text x="620" y="140" font-size="16" font-weight="600" text-anchor="middle">状态库 / 队列</text>
+<rect x="770" y="105" width="180" height="57" rx="7" fill="#0f172a"/>
+<rect x="770" y="105" width="180" height="57" rx="7" fill="#fbbf24" fill-opacity="0.12" stroke="#fbbf24" stroke-width="1.5"/>
+<text x="860" y="140" font-size="16" font-weight="600" text-anchor="middle">OpenSandbox</text>
+<rect x="1010" y="105" width="180" height="57" rx="7" fill="#0f172a"/>
+<rect x="1010" y="105" width="180" height="57" rx="7" fill="#60a5fa" fill-opacity="0.12" stroke="#60a5fa" stroke-width="1.5"/>
+<text x="1100" y="140" font-size="16" font-weight="600" text-anchor="middle">平台文件库</text>
+<rect x="40" y="1240" width="1160" height="63" rx="8" fill="#881337" fill-opacity="0.22" stroke="#fb7185"/>
+<text x="60" y="1265" font-size="14" fill="#fb7185">成果已保存与容器已回收分开记录</text>
+<text x="60" y="1288" class="small">销毁失败仍占容量并重试；命令结果未知不自动重跑；任务用过的环境不返空闲池。</text>
+</svg>
