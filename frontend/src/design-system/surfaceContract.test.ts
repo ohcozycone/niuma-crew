@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 import { cornerShapeExceptions } from "./spec";
 const root = fileURLToPath(new URL("../", import.meta.url));
 function sources(directory: string): [string, string][] {
@@ -14,6 +15,60 @@ function sources(directory: string): [string, string][] {
   });
 }
 const files = sources(root);
+
+function tabStyleOverrides(source: string): string[] {
+  const file = ts.createSourceFile(
+    "page.tsx",
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const violations: string[] = [];
+  function visit(node: ts.Node) {
+    if (
+      (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+      /^Tabs(?:Header|List|Trigger)$/.test(node.tagName.getText(file))
+    ) {
+      for (const attribute of node.attributes.properties) {
+        if (!ts.isJsxAttribute(attribute) || attribute.name.getText(file) !== "className") continue;
+        const value = attribute.initializer;
+        const literal = value && ts.isJsxExpression(value) ? value.expression : value;
+        // Width and outer margin belong to placement; component paint stays shared.
+        if (!literal || !ts.isStringLiteralLike(literal)) {
+          violations.push(attribute.getText(file));
+          continue;
+        }
+        violations.push(
+          ...literal.text
+            .split(/\s+/)
+            .filter(
+              (token) =>
+                token &&
+                !/^(?:[a-z0-9-]+:)*(?:(?:min-|max-)?w-[^\s]+|-?m[trblxyse]?-[^\s]+)$/.test(token),
+            ),
+        );
+      }
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(file);
+  return violations;
+}
+
+it.each(["w-full", "md:max-w-xl mx-auto", "min-w-0 max-sm:w-full", ""])(
+  "allows external tab placement: %s",
+  (classes) => expect(tabStyleOverrides(`<TabsList className="${classes}" />`)).toEqual([]),
+);
+it.each(["bg-red-500", "px-4", "text-xs", "border-0", "shadow-none", "rounded-none"])(
+  "rejects internal tab paint: %s",
+  (classes) =>
+    expect(tabStyleOverrides(`<TabsTrigger className="${classes}" />`)).toEqual([classes]),
+);
+it("checks expression literals and rejects unreviewable dynamic tab overrides", () => {
+  expect(tabStyleOverrides('<TabsHeader className={"w-full"} />')).toEqual([]);
+  expect(tabStyleOverrides("<TabsList className={classes} />")).toHaveLength(1);
+});
 it("keeps card surface paint in one component instead of duplicating employee or capability borders", () => {
   for (const [path, source] of files) {
     if (!path.startsWith("pages/") && !path.startsWith("components/")) continue;
@@ -40,7 +95,7 @@ it("routes form selects through the shared popup and ordinary radii through sema
 it("keeps page-tab paint in the complete navigation component instead of per-page overrides", () => {
   for (const [path, source] of files) {
     if (!path.startsWith("pages/")) continue;
-    expect(source, path).not.toMatch(/<Tabs(?:Header|List|Trigger)\b[^>]*\bclassName=/);
+    expect(tabStyleOverrides(source), path).toEqual([]);
     expect(source, path).not.toMatch(/<DialogContent\b[^>]*className="overflow-y-auto"/);
   }
 });

@@ -309,8 +309,12 @@ def test_storage_failure_never_publishes_partial_skill(api_client, monkeypatch):
         return original(data)
 
     monkeypatch.setattr(store, "put", failing)
-    with pytest.raises(OSError, match="fixture-disk-error"):
-        api_client.post("/api/skills/import", json={"archive_base64": encoded_archive()})
+    response = api_client.post("/api/skills/import", json={"archive_base64": encoded_archive()})
+    assert calls == 2
+    assert response.status_code == 500
+    assert response.json()["detail"]["code"] == "internal_error"
+    assert response.headers["X-Request-ID"]
+    assert "fixture-disk-error" not in response.text
     assert api_client.get("/api/skills").json()["total"] == 0
 
 

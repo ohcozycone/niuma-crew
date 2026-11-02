@@ -1,5 +1,6 @@
 # 外部集成、保存介质与故障边界
 
+适用范围：本文保留 2026-10-31 的调查快照，未随之后的知识处理、向量及员工装配增量逐项更新，不作为当前能力清单或当前测试通过证明。当前行为从[系统架构](../architecture/overview.md)、[知识契约](../reference/knowledge.md)与[工程文档索引](../README.md)进入。
 调查日期：2026-10-31。已确认的是接线和代码约束，`[TODO]` 是未接触真实服务的运行状态。部署参数仍以[后端指南](../guides/backend-operations.md)、[工具指南](../guides/agent-tools.md)和 [.env.example](../../backend/.env.example)为准。
 
 ## 1. 集成清单

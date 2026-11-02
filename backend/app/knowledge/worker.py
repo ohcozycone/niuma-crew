@@ -36,12 +36,15 @@ class KnowledgeWorker:
 
     async def stop(self) -> None:
         self.stopping = True
-        if self.task:
-            # Cancelling to_thread does not stop its writer; join before closing the DB/lock.
-            await self.task
-        if self.lock:
-            self.lock.close()
-            self.lock = None
+        try:
+            if self.task:
+                # Cancelling to_thread does not stop its writer; join before closing the DB/lock.
+                await self.task
+        finally:
+            self.task = None
+            if self.lock:
+                self.lock.close()
+                self.lock = None
 
     async def loop(self) -> None:
         needs_recovery = False

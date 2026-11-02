@@ -60,7 +60,7 @@ known-first-party = ["app"]
 
 [tool.mypy]
 python_version = "3.12"
-files = ["app/infrastructure/database/errors.py", "app/execution/contracts.py", "app/agent_runtime/contracts.py", "app/skills/contracts.py", "app/skills/definitions.py", "app/agents/execution_config.py", "app/conversations/publication.py", "app/execution/admission.py", "app/execution/queries.py", "app/conversations/queries.py", "app/conversations/writes.py", "app/conversations/service.py", "app/capability_catalog/queries.py", "app/knowledge", "experiments/knowledge_poc.py"]
+files = ["app/infrastructure/database/errors.py", "app/execution/contracts.py", "app/agent_runtime/contracts.py", "app/skills/contracts.py", "app/skills/definitions.py", "app/agents/execution_config.py", "app/conversations/publication.py", "app/conversations/preparation.py", "app/execution/admission.py", "app/execution/queries.py", "app/conversations/queries.py", "app/conversations/writes.py", "app/conversations/service.py", "app/capability_catalog/queries.py", "app/knowledge", "experiments/knowledge_poc.py"]
 follow_imports = "silent"
 check_untyped_defs = true
 disallow_untyped_defs = true

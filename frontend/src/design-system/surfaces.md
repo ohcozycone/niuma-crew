@@ -55,6 +55,8 @@ Button、Input、Textarea、Badge、Tabs、Dialog、DropdownMenu、Tooltip、Swi
 
 新增通用视觉差异先扩展对应组件的语义变体，样板直接消费正式组件。className 用于外部宽度、集合排版或必要业务状态并不构成漂移；反复覆盖内部字号、底色、边界和间距时，应把缺失的完整组合归回组件。业务封面等独立造型可以完整包装基础组件。已批准并落地的 [KnowledgeCard](../pages/knowledge/KnowledgeCard.tsx) 复用员工卡片相同的 Card、CardContent 和 CardFooter；所有自建库使用同一通用知识图标，当前为用户认可的2号文件夹透明图片，已按要求移除拟人眼睛，按48px方形留位等比显示，名称、用途和文档数负责区分资源，不按库名推断分类插画。页面只传 library，由完整组件持有图文与整卡导航。
 
+Tab 的源码守卫按 JSX 属性解析：TabsHeader/List/Trigger 可声明静态宽度及外部 margin（含响应式前缀），内部颜色、字号、边框、阴影、圆角和 padding 继续归共享组件；动态 className 需先改成可核查的放置方式或组件语义接口。该守卫仅覆盖这组明确规则，不替代视觉验收。
+
 ## 圆角覆盖范围与统一接入
 
 改动前的扫描覆盖 182 个自有前端 TS、TSX 与 CSS 源文件，排除测试、生成文件与 SVG 原画目录：66 个文件包含 201 处圆角样式声明，另有 11 处原生单选 select。这是改动前快照，不将生成图形的曲线计作 UI 圆角。

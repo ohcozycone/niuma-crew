@@ -1,7 +1,7 @@
 """Assemble the HTTP application and its dependencies."""
 
 import logging
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 
 from fastapi import FastAPI
 
@@ -58,125 +58,132 @@ def create_app(config: AppConfig | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        database = Database(settings.database)
-        app.state.database = database
-        app.state.auth = AuthService(database, settings.auth)
-        app.state.rate_limiter = RateLimiter()
-        app.state.github_oauth = GitHubOAuth(settings.github_oauth)
-        app.state.model_connections = ModelConnectionService(
-            database,
-            CredentialVault(
-                settings.model_encryption_key_file,
-                settings.model_encryption_key,
-            ),
-        )
-        app.state.agents = AgentService(database)
-        app.state.tool_account_bindings = ToolAccountBindingService(database)
-        app.state.organization_rules = OrganizationRulesService(database)
-        app.state.tool_grants = ToolGrantService(database)
-        check_references = app.state.tool_grants.assert_connections_unused
-        app.state.mcp_definitions = McpDefinitionService(
-            database, settings.tools, check_references=check_references
-        )
-        app.state.tool_connections = ToolConnectionService(
-            database,
-            CredentialVault(
-                settings.model_encryption_key_file.with_name(
-                    settings.model_encryption_key_file.name + ".tools"
+        async with AsyncExitStack() as cleanup:
+            database = Database(settings.database)
+            cleanup.callback(database.close)
+            app.state.database = database
+            app.state.auth = AuthService(database, settings.auth)
+            app.state.rate_limiter = RateLimiter()
+            app.state.github_oauth = GitHubOAuth(settings.github_oauth)
+            app.state.model_connections = ModelConnectionService(
+                database,
+                CredentialVault(
+                    settings.model_encryption_key_file,
+                    settings.model_encryption_key,
                 ),
-                settings.model_encryption_key,
-            ),
-            settings.tools,
-            check_references=check_references,
-        )
-        app.state.tool_invocation = ToolInvocationService(app.state.tool_connections)
-        app.state.tool_catalogs = ToolCatalogService(
-            app.state.tool_connections, app.state.tool_invocation
-        )
-        app.state.skills = SkillService(database, settings.skills)
-        app.state.files = FileService(database, settings.files)
-        app.state.knowledge = KnowledgeService(
-            database, app.state.files, app.state.model_connections
-        )
-        app.state.knowledge_worker = KnowledgeWorker(
-            app.state.knowledge.processing,
-            settings.runner_lock_file.with_name(settings.runner_lock_file.name + ".knowledge"),
-        )
-
-        def retained_files(session, candidates):
-            return retained_file_ids(session, candidates) | retained_knowledge_files(
-                session, candidates
+            )
+            app.state.agents = AgentService(database)
+            app.state.tool_account_bindings = ToolAccountBindingService(database)
+            app.state.organization_rules = OrganizationRulesService(database)
+            app.state.tool_grants = ToolGrantService(database)
+            check_references = app.state.tool_grants.assert_connections_unused
+            app.state.mcp_definitions = McpDefinitionService(
+                database, settings.tools, check_references=check_references
+            )
+            app.state.tool_connections = ToolConnectionService(
+                database,
+                CredentialVault(
+                    settings.model_encryption_key_file.with_name(
+                        settings.model_encryption_key_file.name + ".tools"
+                    ),
+                    settings.model_encryption_key,
+                ),
+                settings.tools,
+                check_references=check_references,
+            )
+            app.state.tool_invocation = ToolInvocationService(app.state.tool_connections)
+            cleanup.push_async_callback(app.state.tool_invocation.close)
+            app.state.tool_catalogs = ToolCatalogService(
+                app.state.tool_connections, app.state.tool_invocation
+            )
+            app.state.skills = SkillService(database, settings.skills)
+            app.state.files = FileService(database, settings.files)
+            app.state.knowledge = KnowledgeService(
+                database, app.state.files, app.state.model_connections
+            )
+            app.state.knowledge_worker = KnowledgeWorker(
+                app.state.knowledge.processing,
+                settings.runner_lock_file.with_name(settings.runner_lock_file.name + ".knowledge"),
             )
 
-        app.state.conversation_files = ConversationFiles(database, app.state.files)
-        app.state.sandboxes = SandboxService(
-            database, settings.sandbox, lambda: app.state.execution_store.active_ids()
-        )
-        status = ExecutionStatus("starting" if settings.runtime.enabled else "ready")
-        app.state.runtime_status = status
-        app.state.runtime_settings = settings.runtime
-        app.state.conversation_queries = ConversationQueries(database)
-        app.state.subscriptions = {}
+            def retained_files(session, candidates):
+                return retained_file_ids(session, candidates) | retained_knowledge_files(
+                    session, candidates
+                )
 
-        authorization = ConversationAuthorization(
-            database, app.state.auth, app.state.model_connections, app.state.knowledge.employee
-        )
-        publisher = PublishRun(
-            database,
-            authorization.check,
-            prepare_content=lambda db, row, text: (
-                app.state.knowledge.employee.finalize_answer(row.id, text, db=db)
-                if row.config_snapshot.get("knowledge")
-                else text
-            ),
-        )
-        checkpoints = CheckpointStore(database.engine.url.database)
-        app.state.checkpoints = checkpoints
-        preparation = ConversationPreparation(
-            settings.runtime,
-            connections=app.state.model_connections,
-            checkpoints=checkpoints,
-            execute_agent=execute_agent,
-            tools=app.state.tool_invocation,
-            files=app.state.files,
-            sandboxes=app.state.sandboxes,
-            skills=app.state.skills,
-            knowledge=app.state.knowledge.employee,
-        )
-        app.state.conversation_commands = ConversationService(
-            database,
-            settings.runtime,
-            RunAdmission(settings.runtime, status),
-            preparation,
-            publisher,
-        )
-        store = RunStore(database)
-        app.state.execution_store = store
-        coordinator = ExecutionCoordinator(
-            store, preparation.execution, authorization.check, publisher, settings.runtime, status
-        )
-        app.state.runner = Runner(
-            store,
-            coordinator,
-            settings.runtime,
-            status,
-            settings.runner_lock_file,
-        )
-        try:
-            if settings.runtime.enabled:
-                await app.state.runner.start()
-                await app.state.knowledge_worker.start()
-                await app.state.sandboxes.start()
-                await app.state.files.start(retained_files)
-            yield
-        finally:
-            if settings.runtime.enabled:
-                await app.state.knowledge_worker.stop()
-                await app.state.runner.stop()
-                await app.state.sandboxes.stop()
-                await app.state.files.stop()
-            await app.state.tool_invocation.close()
-            database.close()
+            app.state.conversation_files = ConversationFiles(database, app.state.files)
+            app.state.sandboxes = SandboxService(
+                database, settings.sandbox, lambda: app.state.execution_store.active_ids()
+            )
+            status = ExecutionStatus("starting" if settings.runtime.enabled else "ready")
+            app.state.runtime_status = status
+            app.state.runtime_settings = settings.runtime
+            app.state.conversation_queries = ConversationQueries(database)
+            app.state.subscriptions = {}
+
+            authorization = ConversationAuthorization(
+                database, app.state.auth, app.state.model_connections, app.state.knowledge.employee
+            )
+            publisher = PublishRun(
+                database,
+                authorization.check,
+                prepare_content=lambda db, row, text: (
+                    app.state.knowledge.employee.finalize_answer(row.id, text, db=db)
+                    if row.config_snapshot.get("knowledge")
+                    else text
+                ),
+            )
+            checkpoints = CheckpointStore(database.engine.url.database)
+            app.state.checkpoints = checkpoints
+            preparation = ConversationPreparation(
+                settings.runtime,
+                connections=app.state.model_connections,
+                checkpoints=checkpoints,
+                execute_agent=execute_agent,
+                tools=app.state.tool_invocation,
+                files=app.state.files,
+                sandboxes=app.state.sandboxes,
+                skills=app.state.skills,
+                knowledge=app.state.knowledge.employee,
+            )
+            app.state.conversation_commands = ConversationService(
+                database,
+                settings.runtime,
+                RunAdmission(settings.runtime, status),
+                preparation,
+                publisher,
+            )
+            store = RunStore(database)
+            app.state.execution_store = store
+            coordinator = ExecutionCoordinator(
+                store,
+                preparation.execution,
+                authorization.check,
+                publisher,
+                settings.runtime,
+                status,
+            )
+            app.state.runner = Runner(
+                store,
+                coordinator,
+                settings.runtime,
+                status,
+                settings.runner_lock_file,
+            )
+            # Producers stop before the resource services they use. Register each
+            # stop before its start so partial startup is covered without sweeping
+            # services whose startup was never attempted.
+            async with AsyncExitStack() as resources, AsyncExitStack() as workers:
+                if settings.runtime.enabled:
+                    workers.push_async_callback(app.state.runner.stop)
+                    await app.state.runner.start()
+                    workers.push_async_callback(app.state.knowledge_worker.stop)
+                    await app.state.knowledge_worker.start()
+                    resources.push_async_callback(app.state.sandboxes.stop)
+                    await app.state.sandboxes.start()
+                    resources.push_async_callback(app.state.files.stop)
+                    await app.state.files.start(retained_files)
+                yield
 
     app = FastAPI(
         version=__version__,

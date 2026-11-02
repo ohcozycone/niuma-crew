@@ -56,7 +56,7 @@ api/
     ├── public.py                  # 向有效会话提供员工和技能的公开字段，不返回完整指令、账号或秘密
     ├── configuration_summary.py   # 返回员工、技能和收藏数量摘要，供目录与侧栏展示
     ├── health.py                  # 分别说明进程是否存活、执行宿主是否还能接受新工作
-    └── knowledge.py               # 提供本人知识库/文档管理、有界文本上传、原件下载和库内 BM25 检索预览
+    └── knowledge.py               # 提供本人知识库/文档管理、后台处理、三种检索、员工个人装配与来源读取
 ```
 
 ## 与其他模块协作
@@ -67,7 +67,7 @@ API 依赖 auth 和所属业务入口，服务由 [bootstrap.py](../bootstrap.py
 
 ## 应用错误分类与 HTTP 转换
 
-业务抛出 [app.errors](../errors.py) 的具体错误，只表达失败含义；[errors.py](errors.py) 映射 HTTP 状态、生成安全响应并保留 Retry-After。已知业务错误返回 `{detail:{code,message}}`；参数校验的 422 返回脱敏条目列表，只保留 type、loc、msg。数据库 busy/locked 转为可重试的 503，未知故障保留服务器错误，不统一吞成业务拒绝。来源、体积和媒体类型拒绝由 security 处理。
+业务抛出 [app.errors](../errors.py) 的具体错误，只表达失败含义；[errors.py](errors.py) 映射 HTTP 状态、生成安全响应并保留 Retry-After。已登记分类的子类按 MRO 继承最近分类，未分类的 ServiceError 不映射为业务拒绝。已知业务错误返回 `{detail:{code,message}}`；参数校验的 422 返回脱敏条目列表，只保留 type、loc、msg。数据库 busy/locked 转为可重试的 503，未知故障保留服务器错误，不统一吞成业务拒绝。来源、体积和媒体类型拒绝由 security 处理。
 
 [failure_boundary.py](failure_boundary.py) 只处理 HTTP，位于浏览器安全中间件外层；成功、已知错误、字段校验和来源等提前拒绝都返回 `X-Request-ID`。请求提供的 ID 必须符合 ASCII `[A-Za-z0-9._-]{1,64}`；缺失、重复、非法或超长值重新生成。ID 仅用于诊断，不参与认证、Run 身份或业务幂等。
 

@@ -57,6 +57,6 @@ conversations/
 
 停止是显式命令：排队时可直接取消，运行中写入取消意图，由宿主收束，取消优先于迟到成功。断开 SSE 只释放观察。重试要求最后一次处理处于允许的失败、取消或中断状态，按当前配置重新接受并保留原输入；不能恢复已退役的历史试验。
 
-运行准备只接受受支持快照，识别旧协议不代表重新开放退役工作。正式运行、文件与恢复语义见[运行契约](../../../docs/reference/runtime.md)、[对话契约](../../../docs/reference/conversations.md)及[文件与交付](../../../docs/reference/agent-tools.md#文件与交付)。实际实现可沿 [service.py](service.py) → [preparation.py](preparation.py) → [publication.py](publication.py) 阅读，关联验证见[对话测试](../../tests/test_conversations.py)和[运行边界测试](../../tests/test_runtime_boundaries.py)。
+运行准备的模型连接、checkpoint 和执行回调为必需构造参数，执行输入由有类型的 RunSpec 构造并纳入 mypy；资源可选入口在使用前确认已装配。运行准备只接受受支持快照，识别旧协议不代表重新开放退役工作。正式运行、文件与恢复语义见[运行契约](../../../docs/reference/runtime.md)、[对话契约](../../../docs/reference/conversations.md)及[文件与交付](../../../docs/reference/agent-tools.md#文件与交付)。实际实现可沿 [service.py](service.py) → [preparation.py](preparation.py) → [publication.py](publication.py) 阅读，关联验证见[对话测试](../../tests/test_conversations.py)和[运行边界测试](../../tests/test_runtime_boundaries.py)。
 
 个人知识装配由knowledge独立维护。preparation接受其目录快照、增加运行使用说明并注入knowledge回调；authorization复核Run拥有者、发起者、个人装配及已取得证据。publication在最终写事务中再次调用注入的prepare_content，以knowledge完成后的正文发布，不能让替代SDK执行器绕过来源校验。该入口只对精确证据链接补回遗漏的根斜杠，不改写模型自然语言。模型仍可能推理错误，发布验证不宣称语义结论正确；规则见[知识契约](../../../docs/reference/knowledge.md#员工个人装配与正式问答)。

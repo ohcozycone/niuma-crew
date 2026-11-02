@@ -188,7 +188,7 @@ def test_tool_actions_link_to_requesting_model_and_do_not_duplicate_public_messa
 
 def test_execution_does_not_import_product_or_http_implementations():
     root = Path(__file__).resolve().parents[1] / "app/execution"
-    forbidden = ("app.conversations", "app.use_cases", "app.ci_diagnosis", "app.api", "fastapi")
+    forbidden = ("app.conversations", "app.api", "fastapi")
     for path in root.rglob("*.py"):
         for node in ast.walk(ast.parse(path.read_text())):
             names = (

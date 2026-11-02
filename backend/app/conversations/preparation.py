@@ -1,15 +1,51 @@
 """Capture conversation inputs and prepare execution from the frozen facts."""
 
-import json
-from typing import cast
+from __future__ import annotations
 
+import json
+from collections.abc import Awaitable
+from typing import TYPE_CHECKING, Protocol
+
+from sqlalchemy.orm import Session
+
+from app.agent_runtime.contracts import AgentOutput, AgentRequest, InputMessage, RuntimeControl
+from app.agent_runtime.resources import RuntimeResources
 from app.agents.execution_config import capture_skills, configured_agent
 from app.agents.tool_grants import capture_tools
 from app.errors import ConflictError, InvalidInputError
-from app.execution.contracts import RUN_SNAPSHOT_VERSION, SUPPORTED_SNAPSHOT_VERSIONS, RunSpec
+from app.execution.config import RuntimeConfig
+from app.execution.contracts import (
+    RUN_SNAPSHOT_VERSION,
+    SUPPORTED_SNAPSHOT_VERSIONS,
+    ExecutionStrategy,
+    RunSpec,
+)
+from app.execution.control import RunControl
+from app.execution.models import Run
 from app.model_connections.models import ModelConnection
 from app.model_connections.presets import PRESETS
 from app.organization_rules.service import current_rules
+
+if TYPE_CHECKING:
+    from app.agent_runtime.checkpoints import CheckpointStore
+    from app.files.service import FileService
+    from app.knowledge.employee import EmployeeKnowledgeService
+    from app.model_connections.service import ModelConnectionService
+    from app.sandboxes.service import SandboxService
+    from app.skills.service import SkillService
+    from app.tools.invocation import ToolInvocationService
+
+
+class AgentExecutor(Protocol):
+    def __call__(
+        self,
+        request: AgentRequest,
+        control: RuntimeControl,
+        /,
+        *,
+        checkpoints: CheckpointStore,
+        resources: RuntimeResources | None = None,
+    ) -> Awaitable[AgentOutput]: ...
 
 
 def compose_system_prompt(rules: str, agent_prompt: str, *, agent_name: str) -> str:
@@ -34,17 +70,17 @@ def compose_system_prompt(rules: str, agent_prompt: str, *, agent_name: str) -> 
 class ConversationPreparation:
     def __init__(
         self,
-        settings,
+        settings: RuntimeConfig,
         *,
-        connections=None,
-        checkpoints=None,
-        execute_agent=None,
-        tools=None,
-        files=None,
-        sandboxes=None,
-        skills=None,
-        knowledge=None,
-    ):
+        connections: ModelConnectionService,
+        checkpoints: CheckpointStore,
+        execute_agent: AgentExecutor,
+        tools: ToolInvocationService | None = None,
+        files: FileService | None = None,
+        sandboxes: SandboxService | None = None,
+        skills: SkillService | None = None,
+        knowledge: EmployeeKnowledgeService | None = None,
+    ) -> None:
         self.settings = settings
         self.tools, self.files, self.sandboxes = tools, files, sandboxes
         self.skills = skills
@@ -57,7 +93,7 @@ class ConversationPreparation:
 
     def prepare(
         self,
-        db,
+        db: Session,
         agent_id: str,
         content: str,
         selected_skill_ids: list[str],
@@ -65,7 +101,7 @@ class ConversationPreparation:
     ) -> tuple[RunSpec, int]:
         agent = configured_agent(db, agent_id)
         connection = db.get(ModelConnection, agent.model_connection_id)
-        if not connection.enabled or connection.capability != "chat":
+        if connection is None or not connection.enabled or connection.capability != "chat":
             raise ConflictError("model_not_configured", "所选大脑未启用或不支持聊天。")
         preset = PRESETS[connection.preset_id]
         if len(content.encode()) > self.settings.max_input_bytes:
@@ -83,7 +119,7 @@ class ConversationPreparation:
         size = len(system_prompt.encode()) + len(content.encode())
         if size > self.settings.context_bytes:
             raise InvalidInputError("context_limit_exceeded", "系统提示词与消息超过输入限制。")
-        snapshot = dict(
+        snapshot = RunSpec(
             schema_version=RUN_SNAPSHOT_VERSION,
             checkpoint_resumable=True,
             allow_partial_output=True,
@@ -128,12 +164,14 @@ class ConversationPreparation:
                 raise ConflictError("sandbox_not_ready", "沙箱尚未配置。")
             workspace.update(self.sandboxes.capture_profile())
         snapshot.update(
-            tools=bindings,
-            tool_user_id=user_id,
-            workspace=workspace,
-            input_files=[],
-            max_tool_calls=self.settings.max_tool_calls,
-            checkpoint_resumable=resumable,
+            {
+                "tools": bindings,
+                "tool_user_id": user_id,
+                "workspace": workspace,
+                "input_files": [],
+                "max_tool_calls": self.settings.max_tool_calls,
+                "checkpoint_resumable": resumable,
+            }
         )
         if knowledge:
             from app.agent_runtime.knowledge import bindings as knowledge_bindings
@@ -141,15 +179,13 @@ class ConversationPreparation:
             snapshot["knowledge"] = knowledge
             snapshot["tools"].extend(knowledge_bindings())
             snapshot["allow_partial_output"] = False
-        return cast(RunSpec, snapshot), size
+        return snapshot, size
 
-    def execution(self, row, messages):
+    def execution(self, row: Run, messages: list[InputMessage]) -> ExecutionStrategy:
         import asyncio
         from dataclasses import replace
 
-        from app.agent_runtime.contracts import AgentRequest, validate_snapshot
-        from app.agent_runtime.resources import RuntimeResources
-        from app.execution.contracts import ExecutionStrategy
+        from app.agent_runtime.contracts import validate_snapshot
         from app.execution.errors import ExecutionFailure
 
         if (
@@ -173,18 +209,19 @@ class ConversationPreparation:
         resources = None
         sandbox = None
         tool_caller = self.tools.for_run(row.id) if self.tools is not None else None
-        if tool_caller is not None and self.files is not None:
+        files, knowledge = self.files, self.knowledge
+        if tool_caller is not None and files is not None:
             if snapshot.get("workspace", {}).get("mode") == "sandbox":
                 if self.sandboxes is None:
                     raise ExecutionFailure("sandbox_not_ready")
                 sandbox = self.sandboxes.for_run(
-                    row.id, snapshot.get("input_files", []), self.files.read
+                    row.id, snapshot.get("input_files", []), files.read
                 )
             resources = RuntimeResources(
                 tools=tool_caller,
-                read_file=self.files.read,
-                list_sources=lambda: self.files.sources(row.id),
-                save_source=lambda name, data: self.files.save(
+                read_file=files.read,
+                list_sources=lambda: files.sources(row.id),
+                save_source=lambda name, data: files.save(
                     row.owner_user_id,
                     name,
                     data,
@@ -192,20 +229,20 @@ class ConversationPreparation:
                     run_id=row.id,
                     media_type="text/plain; charset=utf-8",
                 ),
-                save_output=lambda name, data: self.files.save(
+                save_output=lambda name, data: files.save(
                     row.owner_user_id, name, data, purpose="output", run_id=row.id
                 ),
                 sandbox=sandbox,
                 read_skill_blob=self.skills.read_blob if self.skills else None,
-                knowledge_call=(lambda name, args: self.knowledge.call(row.id, name, args))
-                if self.knowledge and snapshot.get("knowledge")
+                knowledge_call=(lambda name, args: knowledge.call(row.id, name, args))
+                if knowledge and snapshot.get("knowledge")
                 else None,
-                knowledge_finalize=(lambda text: self.knowledge.finalize_answer(row.id, text))
-                if self.knowledge and snapshot.get("knowledge")
+                knowledge_finalize=(lambda text: knowledge.finalize_answer(row.id, text))
+                if knowledge and snapshot.get("knowledge")
                 else None,
             )
 
-        async def execute(control):
+        async def execute(control: RunControl) -> AgentOutput:
             current = replace(
                 input,
                 recovered_usage=control.recovered_usage,

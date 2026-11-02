@@ -24,6 +24,7 @@ from app.execution.errors import ExecutionFailure
 from app.schemas import NonBlankText, RequestModel
 
 
+@pytest.mark.parametrize("specialized", [False, True])
 @pytest.mark.parametrize(
     "error,status,wait",
     [
@@ -36,7 +37,12 @@ from app.schemas import NonBlankText, RequestModel
         (ServiceUnavailableError("runtime_unavailable", "暂不可用。", retry_after=1), 503, "1"),
     ],
 )
-def test_application_errors_have_stable_http_shape_and_safe_details(error, status, wait):
+def test_application_errors_have_stable_http_shape_and_safe_details(
+    error, status, wait, specialized
+):
+    if specialized:
+        subclass = type("SpecializedError", (type(error),), {})
+        error = subclass(error.code, error.message, retry_after=error.retry_after)
     app = FastAPI()
     register_error_handlers(app)
 

@@ -2,6 +2,7 @@
 
 import ast
 import asyncio
+from importlib.util import resolve_name
 from pathlib import Path
 
 import pytest
@@ -73,6 +74,36 @@ def test_atomic_model_start_rolls_back_budget_when_recording_fails(api_client, m
         assert db.scalar(select(func.count()).select_from(RunAction)) == 0
 
 
+def imported_modules(source: str, package: str) -> set[str]:
+    modules = set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import):
+            modules.update(item.name for item in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            if node.level:
+                module = resolve_name("." * node.level + module, package)
+            modules.add(module)
+            modules.update(f"{module}.{item.name}" for item in node.names)
+    return modules
+
+
+@pytest.mark.parametrize(
+    "source,package,expected",
+    [
+        ("import app.bootstrap as setup", "app.api", "app.bootstrap"),
+        ("from app import bootstrap", "app.api", "app.bootstrap"),
+        ("from .. import bootstrap", "app.api", "app.bootstrap"),
+        ("from ..auth import service", "app.llm", "app.auth.service"),
+        ("from app.infrastructure import database", "app.llm", "app.infrastructure.database"),
+    ],
+)
+def test_import_guard_resolves_aliases_package_imports_and_relative_imports(
+    source, package, expected
+):
+    assert expected in imported_modules(source, package)
+
+
 def test_dependency_directions_prevent_sdk_and_application_state_leaks():
     root = Path(__file__).resolve().parents[1] / "app"
     rules = {
@@ -87,7 +118,6 @@ def test_dependency_directions_prevent_sdk_and_application_state_leaks():
         "execution": (
             "app.api",
             "app.conversations",
-            "app.ci_diagnosis",
             "langchain",
             "langchain_core",
             "langgraph",
@@ -112,24 +142,39 @@ def test_dependency_directions_prevent_sdk_and_application_state_leaks():
             "langchain",
             "deepagents",
         ),
+        "llm": (
+            "app.api",
+            "app.auth",
+            "app.agents",
+            "app.conversations",
+            "app.execution",
+            "app.agent_runtime",
+            "app.model_connections",
+            "app.knowledge",
+            "app.skills",
+            "app.tools",
+            "app.files",
+            "app.sandboxes",
+            "app.organization_rules",
+            "app.capability_catalog",
+            "app.infrastructure.database",
+            "app.bootstrap",
+            "app.main",
+            "sqlalchemy",
+        ),
+        "api": ("app.bootstrap", "app.main"),
     }
     for directory, forbidden in rules.items():
         for path in (root / directory).rglob("*.py"):
-            tree = ast.parse(path.read_text())
-            for node in ast.walk(tree):
-                modules = (
-                    [node.module or ""]
-                    if isinstance(node, ast.ImportFrom)
-                    else [item.name for item in node.names]
-                    if isinstance(node, ast.Import)
-                    else []
-                )
-                assert not any(
-                    module == prefix or module.startswith(prefix + ".")
-                    for module in modules
-                    for prefix in forbidden
-                ), path
+            source = path.read_text()
+            package = ".".join(("app", *path.relative_to(root).parent.parts))
+            assert not any(
+                module == prefix or module.startswith(prefix + ".")
+                for module in imported_modules(source, package)
+                for prefix in forbidden
+            ), path
             if directory == "agent_runtime":
+                tree = ast.parse(source)
                 assert not any(
                     isinstance(node, ast.Attribute)
                     and node.attr in ("store", "_store", "database", "auth")

@@ -1,5 +1,7 @@
 # 待实施方案索引
 
+- [工程评审后的可靠性与验证增量](engineering-review-reliability.md)：已完成验证基线、生命周期清理、执行准备类型、错误子类与边界守卫；[实际验收](../records/engineering-review-reliability.md)。
+
 - [对话页右侧辅助栏](conversation-sidebar.md)：默认展开、可收起，承载员工历史与能力；不加入任务入口。
 
 - [柔和工作台与紧凑卡片试版](soft-workspace-preview.md)：可恢复的外壳与视觉密度调整，待用户反馈。

@@ -63,10 +63,20 @@ SERVICE_ERROR_STATUS_CODES = {
 
 
 def service_error_response(error: ServiceError) -> JSONResponse:
-    """仅在 HTTP 边界解释错误类型；未知类型不能伪装成已知业务拒绝。"""
+    """沿 MRO 继承最近的已知分类；未知类型不能伪装成业务拒绝。"""
+    status = next(
+        (
+            SERVICE_ERROR_STATUS_CODES[cls]
+            for cls in type(error).__mro__
+            if cls in SERVICE_ERROR_STATUS_CODES
+        ),
+        None,
+    )
+    if status is None:
+        raise TypeError("Unclassified service error")
     headers = {"Retry-After": str(error.retry_after)} if error.retry_after is not None else {}
     return JSONResponse(
-        status_code=SERVICE_ERROR_STATUS_CODES[type(error)],
+        status_code=status,
         headers=headers,
         content={"detail": {"code": error.code, "message": error.message}},
     )

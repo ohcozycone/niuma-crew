@@ -41,6 +41,8 @@ backend/
 │   ├── agent_runtime/                  # Agent 循环、SDK 片段、技能加载和存档；通过受限控制请求宿主操作
 │   ├── llm/                            # 显式参数下的模型与供应商适配；不查询业务库
 │   ├── infrastructure/                 # 数据库连接、事务、字段和共用凭据加密；不拥有业务规则
+│   ├── errors.py                       # 定义公开的应用失败分类，不依赖 HTTP
+│   ├── schemas.py                      # 定义共享输入、分页与 PATCH 协议基础
 │   ├── bootstrap.py                    # 依赖装配、进程资源与 lifespan；注入后台回调
 │   ├── main.py                         # ASGI 导出；保持启动入口稳定
 │   └── config.py                       # 解析应用配置；数据库配置本体归基础设施
@@ -61,7 +63,7 @@ backend/
 
 绝对导入统一使用 app 前缀。普通业务从模型所属模块导入，不从数据库模型注册聚合文件取得业务模型。`__init__.py` 只在确有公共入口时导出，避免为每个目录建聚合层。迁移名称和框架约定沿用工具格式。
 
-新增或实质修改的公共入口、DTO 和跨模块返回值优先补明确类型；内部辅助函数按实际复杂度处理。当前用 mypy 检查执行契约、准入、查询、对话读写、Agent 契约、请求服务及发布；具体范围以 pyproject.toml 为准，导入的其他代码不自动视为已严格检查。新增受影响接口应补类型，逐步扩展覆盖。make typecheck-backend 已纳入 lint-backend。
+新增或实质修改的公共入口、DTO 和跨模块返回值优先补明确类型；内部辅助函数按实际复杂度处理。当前用 mypy 检查执行契约、准入、查询、对话读写和输入准备、Agent 契约、请求服务及发布；具体范围以 pyproject.toml 为准，导入的其他代码不自动视为已严格检查。新增受影响接口应补类型，逐步扩展覆盖。make typecheck-backend 已纳入 lint-backend。
 
 ## 文件职责与依赖
 
@@ -83,7 +85,7 @@ backend/
 | infrastructure/database                                        | 共用存储机制，不拥有员工、对话等业务规则                          |
 | bootstrap                                                      | 组合具体服务并管理生命周期，可以同时认识多类实现                  |
 
-api 不导入 main 或 bootstrap；装配层组合 HTTP 适配与具体服务，配置和跨模块引用检查回调由 bootstrap 固定注入。路由通过 dependencies 取得服务，不在请求中重新构造带默认配置的实例。服务不接收 FastAPI Request，不在模块导入时连接数据库或启动后台任务。不同业务模块确需协作时写清所有者和调用入口；对话服务和共享回复流程可以组合所需模块的公开操作，同库原子操作不拆成独立 commit。execution 不导入 conversations 或 HTTP 实现；准备、组合授权和发布回调由 bootstrap 注入；该边界由 test_execution_boundaries.py 自动检查。
+api 不导入 main 或 bootstrap；装配层组合 HTTP 适配与具体服务，配置和跨模块引用检查回调由 bootstrap 固定注入。路由通过 dependencies 取得服务，不在请求中重新构造带默认配置的实例。服务不接收 FastAPI Request，不在模块导入时连接数据库或启动后台任务。不同业务模块确需协作时写清所有者和调用入口；同库引用计数、兼容性验证和删除保护可使用所属模型或公开查询，是否注入回调取决于既有依赖边界，不要求统一所有查询形式；对话服务和共享回复流程可以组合所需模块的公开操作，同库原子操作不拆成独立 commit。execution 不导入 conversations 或 HTTP 实现；准备、组合授权和发布回调由 bootstrap 注入；该边界及 llm 不读取业务库、api 不反向导入装配层等方向由 test_runtime_boundaries.py 的表驱动检查和 test_execution_boundaries.py 执行，检查解析绝对、相对及包成员导入。
 
 Runner 与提交共同读取 RuntimeStatus；协调器只使用注入的准备、授权和发布能力。DatabaseConfig 定义在基础设施，app.config 负责配置组合。数据库 models.py 反向导入业务模型仅用于元数据注册，是窄用途装配入口。Agent 只接收普通 AgentRequest，通过 RuntimeControl 协议报告内容和请求受控操作；该协议不暴露 store 或数据库。
 
@@ -93,7 +95,7 @@ Runner 与提交共同读取 RuntimeStatus；协调器只使用注入的准备�
 
 输入优先复用 [RequestModel、分页和 PATCH 约定](../../backend/app/schemas.py)，字段结构由 schema 与运行 OpenAPI 维护。新增接口按现有规则声明请求、响应、状态和特殊错误；业务语义、权限、幂等及兼容在对应 reference 维护。
 
-应用操作按失败含义抛出 app.errors 的具体类型；code 表达细分原因，message 必须可公开，retry_after 是可选等待建议。HTTP 状态由 API 统一映射，不传入业务异常，也不通过公共父类吞掉所有故障。认证回退只处理认证失败，持续授权复核只将认证或权限失效解释为撤权；其他故障保留原有含义。类型、响应与传输例外见[应用错误约定](../../backend/app/api/README.md#应用错误分类与-http-转换)。
+应用操作按失败含义抛出 app.errors 的具体类型；已登记分类的子类沿 MRO 使用最近分类的 HTTP 状态，未分类的 ServiceError 仍是服务器错误；code 表达细分原因，message 必须可公开，retry_after 是可选等待建议。HTTP 状态由 API 统一映射，不传入业务异常，也不通过公共父类吞掉所有故障。认证回退只处理认证失败，持续授权复核只将认证或权限失效解释为撤权；其他故障保留原有含义。类型、响应与传输例外见[应用错误约定](../../backend/app/api/README.md#应用错误分类与-http-转换)。
 
 PATCH 用 exclude_unset 区分未提供与显式清空，不能把字段默认 None 当作客户端请求清空。非空字段显式 null 必须拒绝；可空字段的清空语义由各契约定义。配置变更核对对应预期修订，冲突保留客户端输入，服务不能静默采用最新版本覆盖。
 
@@ -113,7 +115,7 @@ UUID、UTC 时间、文本和 JSON 编码复用[字段类型](../../backend/app/
 
 ## 执行、外部调用与资源
 
-应用 lifespan 拥有连接池、Runner 和需关闭的服务；每次请求或后台步骤拥有自己的 Session。共享数据库只允许一个持锁 Runner，当前不支持多 worker 或跨主机租约。
+应用 lifespan 拥有连接池、Runner 和需关闭的服务；创建后立即登记最终释放，异步服务在启动尝试前登记停止。启动部分失败或任一关闭异常时仍尝试其余清理，先停止生产任务，再停止文件/沙箱维护，最后关闭 MCP 与数据库；异常链保留失败信息。每次请求或后台步骤拥有自己的 Session。共享数据库只允许一个持锁 Runner，当前不支持多 worker 或跨主机租约。
 
 接受输入命令、配置依据、消息 ID/序号与 queued run 原子保存，模型执行发生在事务外。checkpoint 专门保存恢复状态；接受时已建立助手 Message，成功发布事务原子写入其正文、输出文件关联、终态和关联释放，SSE 只观察已提交的过程或结果。配置快照固定本轮方法，当前启停、会话、关系及模型修订仍逐动作复核。SDK 解释留在 agent_runtime；宿主接收普通内容和真实动作。模型动作的当前授权、预算扣减与开始记录使用同一事务。断开订阅不取消运行，取消通过显式操作表达。
 
@@ -125,17 +127,17 @@ UUID、UTC 时间、文本和 JSON 编码复用[字段类型](../../backend/app/
 
 已知业务错误沿用 [ServiceError 及子类](../../backend/app/errors.py)，HTTP 状态与响应由 [API 转换入口](../../backend/app/api/errors.py)维护。422 当前是经过脱敏的校验条目数组，不能假定所有错误都有同一 code 包络。SQLite busy/locked 与业务冲突分别处理。数据库驱动错误码、唯一约束文本由[数据库错误识别](../../backend/app/infrastructure/database/errors.py)封装；业务只转换能够确认含义的冲突，其他完整性异常原样抛出，删除保护检查实际关联。
 
-不得将密码、Cookie、API Key、密文、完整配置快照或上游原始异常放入响应、日志和步骤。诊断信息优先记录非秘密标识、错误类别及已确认阶段；记录输入正文须有实际用途与边界，不能默认打印全部请求。当前没有统一结构化日志或请求追踪系统，不将未实现能力写成默认设施。
+不得将密码、Cookie、API Key、密文、完整配置快照或上游原始异常放入响应、日志和步骤。诊断信息优先记录非秘密标识、错误类别及已确认阶段；记录输入正文须有实际用途与边界，不能默认打印全部请求。HTTP 已提供 X-Request-ID 和安全失败日志，后台通过 Run 标识定位；尚无统一结构化日志及跨 HTTP/后台的全链路追踪。
 
 ## 检查与交付
 
-| 内容                                 | 当前工具或评审方式                                                                                        |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| 基础 Python 错误、未使用项、导入排序 | Ruff 已启用 E4/E7/E9/F/I；具体规则见 pyproject.toml                                                       |
-| Python 格式                          | Ruff format，包含 backend 与根 scripts                                                                    |
-| 业务与迁移行为                       | pytest 隔离数据库、假上游及真实迁移；重点覆盖失败、拒绝、并发和恢复                                       |
-| 类型、依赖方向及职责                 | mypy 检查数据库错误识别及已列入的执行边界；导入约束由 test_execution_boundaries.py 强制；其他模块仍需评审 |
-| 文档入口、文件和章节链接             | make check-docs；不判断业务内容是否正确                                                                   |
+| 内容                                 | 当前工具或评审方式                                                                                                                          |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 基础 Python 错误、未使用项、导入排序 | Ruff 已启用 E4/E7/E9/F/I；具体规则见 pyproject.toml                                                                                         |
+| Python 格式                          | Ruff format，包含 backend 与根 scripts                                                                                                      |
+| 业务与迁移行为                       | pytest 隔离数据库、假上游及真实迁移；重点覆盖失败、拒绝、并发和恢复                                                                         |
+| 类型、依赖方向及职责                 | mypy 检查数据库错误识别及已列入的执行边界；导入约束由 test_runtime_boundaries.py 与 test_execution_boundaries.py 强制；其余未列方向仍需评审 |
+| 文档入口、文件和章节链接             | make check-docs；不判断业务内容是否正确                                                                                                     |
 
 公共入口为 `make lint-backend`、`make test-backend`；修改启动器执行 `make test-dev`。后端测试的[共享夹具](../../backend/tests/conftest.py)使用 tmp_path、隔离迁移、注入配置与 TestClient lifespan；运行器测试按需显式启用并使用假执行器及真实 SDK 的假模型。外部响应格式变化应在适配边界测试，不仅 mock 最外层服务结果。
 

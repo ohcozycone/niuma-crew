@@ -1,5 +1,7 @@
 # NiumaCrew 文档索引
 
+- [工程评审后的可靠性与验证增量](proposals/engineering-review-reliability.md)：已完成验证、清理、类型与边界修复；[实际验收](records/engineering-review-reliability.md)。
+
 - [NiumaCrew 与 StaffDeck 产品及技术对比](records/niuma-staffdeck-comparison-2026-11-01.md)：2026-11-01 源码调查，覆盖功能差异、具体实现、发展优先级及验收方法；属于研究建议，未改变现行契约。
 
 - [对话页右侧辅助栏](proposals/conversation-sidebar.md)：正文与默认展开的历史/能力侧栏，复用真实会话和个人知识库；[验收记录](records/conversation-sidebar.md)。
@@ -12,18 +14,18 @@
 
 ## 按任务开始
 
-| 任务               | 阅读入口                                                                                                                                                                                                                                                                                    |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 第一次理解平台     | [项目 README](../README.md) → [平台与功能](product/README.md) → [使用流程与执行链路](product/workflows.md)；无需先读代码或历史方案                                                                                                                                                          |
-| 首次运行           | [项目 README](../README.md) → [本地开发](guides/local-development.md) → [后端配置与维护](guides/backend-operations.md)                                                                                                                                                                      |
-| 理解系统           | [系统架构与选型](architecture/overview.md) → [前端业务与工程架构](architecture/frontend.md) / [后端业务与工程架构](architecture/backend.md) → 模块 README → [代码链路阅读](learning/reading-code.md)                                                                                        |
-| 核对实际源码架构   | [源码调查](codebase/ARCHITECTURE.md) → [技术栈](codebase/STACK.md)、[目录与入口](codebase/STRUCTURE.md)、[工程约定](codebase/CONVENTIONS.md)、[外部集成](codebase/INTEGRATIONS.md)、[测试与验证](codebase/TESTING.md)、[风险与差异](codebase/CONCERNS.md)；含 2026-10-31 调查证据与未覆盖项 |
-| 修改已有功能       | [共享约定](engineering/shared.md) → 适用[前端手册](engineering/frontend.md) / [后端手册](engineering/backend.md) → 下方现行契约 → 模块与测试                                                                                                                                                |
-| 修改视觉与组件     | [设计系统](../frontend/src/design-system/README.md) → [对象、动作与确认](../frontend/src/design-system/resource-language.md)、[类型与空间](../frontend/src/design-system/component-catalog.md) / [布局](../frontend/src/design-system/layout.md) → 现行组件、颜色与真实样板                 |
-| 新增能力或变更边界 | 当前契约与代码 → [方案索引](proposals/README.md) → 受影响模块；生效后回写现行文档                                                                                                                                                                                                           |
-| 排查运行与数据问题 | [后端操作](guides/backend-operations.md)、[数据库配置](guides/database-configuration.md) → 当前日志、模块与测试 → 按需查看[历史记录](records/README.md)                                                                                                                                     |
-| 学习项目           | [学习路线](learning/roadmap.md) → [代码阅读](learning/reading-code.md) → [教学数据](../backend/datasets/travel-expense/README.md)                                                                                                                                                           |
-| 新建或整理文档     | [文档规范](documentation.md)、[增量方案模板](templates/design.md)；检查命令 make check-docs                                                                                                                                                                                                 |
+| 任务               | 阅读入口                                                                                                                                                                                                                                                                                                               |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 第一次理解平台     | [项目 README](../README.md) → [平台与功能](product/README.md) → [使用流程与执行链路](product/workflows.md)；无需先读代码或历史方案                                                                                                                                                                                     |
+| 首次运行           | [项目 README](../README.md) → [本地开发](guides/local-development.md) → [后端配置与维护](guides/backend-operations.md)                                                                                                                                                                                                 |
+| 理解系统           | [系统架构与选型](architecture/overview.md) → [前端业务与工程架构](architecture/frontend.md) / [后端业务与工程架构](architecture/backend.md) → 模块 README → [代码链路阅读](learning/reading-code.md)                                                                                                                   |
+| 阅读源码调查快照   | [源码调查](codebase/ARCHITECTURE.md) → [技术栈](codebase/STACK.md)、[目录与入口](codebase/STRUCTURE.md)、[工程约定](codebase/CONVENTIONS.md)、[外部集成](codebase/INTEGRATIONS.md)、[测试与验证](codebase/TESTING.md)、[风险与差异](codebase/CONCERNS.md)；保留 2026-10-31 时点，当前行为先核对 architecture/reference |
+| 修改已有功能       | [共享约定](engineering/shared.md) → 适用[前端手册](engineering/frontend.md) / [后端手册](engineering/backend.md) → 下方现行契约 → 模块与测试                                                                                                                                                                           |
+| 修改视觉与组件     | [设计系统](../frontend/src/design-system/README.md) → [对象、动作与确认](../frontend/src/design-system/resource-language.md)、[类型与空间](../frontend/src/design-system/component-catalog.md) / [布局](../frontend/src/design-system/layout.md) → 现行组件、颜色与真实样板                                            |
+| 新增能力或变更边界 | 当前契约与代码 → [方案索引](proposals/README.md) → 受影响模块；生效后回写现行文档                                                                                                                                                                                                                                      |
+| 排查运行与数据问题 | [后端操作](guides/backend-operations.md)、[数据库配置](guides/database-configuration.md) → 当前日志、模块与测试 → 按需查看[历史记录](records/README.md)                                                                                                                                                                |
+| 学习项目           | [学习路线](learning/roadmap.md) → [代码阅读](learning/reading-code.md) → [教学数据](../backend/datasets/travel-expense/README.md)                                                                                                                                                                                      |
+| 新建或整理文档     | [文档规范](documentation.md)、[增量方案模板](templates/design.md)；检查命令 make check-docs                                                                                                                                                                                                                            |
 
 ## 当前架构与工程标准
 

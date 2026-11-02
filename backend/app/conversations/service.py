@@ -22,7 +22,7 @@ from app.conversations.queries import (
 )
 from app.conversations.schemas import AcceptedSubmission, ConversationRead, ResponseSnapshot
 from app.conversations.writes import bind_run, create_conversation, prepare_input, require_idle
-from app.errors import ConflictError, InvalidInputError
+from app.errors import ConflictError, InvalidInputError, ServiceUnavailableError
 from app.execution.admission import RunAdmission, request_digest
 from app.execution.config import RuntimeConfig
 from app.execution.contracts import Completion
@@ -160,7 +160,10 @@ class ConversationService:
                         .where(Message.conversation_id == conversation_id)
                     )
                 )
-                snapshot["input_files"] = self.assembler.files.capture(
+                files = self.assembler.files
+                if files is None:
+                    raise ServiceUnavailableError("files_unavailable", "文件服务尚未装配。")
+                snapshot["input_files"] = files.capture(
                     db, selected_files, actor.user_id, allowed_ids=allowed_files
                 )
                 if not any(
@@ -197,8 +200,11 @@ class ConversationService:
                 len(context) // 2,
                 truncated,
             )
+            knowledge_service = self.assembler.knowledge
             if snapshot.get("knowledge"):
-                knowledge = self.assembler.knowledge.context
+                if knowledge_service is None:
+                    raise ServiceUnavailableError("knowledge_unavailable", "知识服务尚未装配。")
+                knowledge = knowledge_service.context
                 remaining = (
                     self.settings.context_bytes
                     - size
@@ -211,10 +217,10 @@ class ConversationService:
                     max(0, remaining - 1024),
                 )
                 snapshot["knowledge"] = {**snapshot["knowledge"], "history_evidence": evidence}
-            if self.assembler.knowledge:
+            if knowledge_service is not None:
                 for item in context:
                     if item["role"] == "assistant":
-                        item["content"] = self.assembler.knowledge.context.clean(
+                        item["content"] = knowledge_service.context.clean(
                             item["content"],
                             snapshot.get("knowledge", {}).get("history_evidence", []),
                         )
@@ -235,8 +241,8 @@ class ConversationService:
                 messages=[*context, {"id": message.id, "role": "user", "content": content}],
                 retry_of=previous,
             )
-            if snapshot.get("knowledge"):
-                self.assembler.knowledge.context.bind(db, run)
+            if snapshot.get("knowledge") and knowledge_service is not None:
+                knowledge_service.context.bind(db, run)
             bind_run(db, conversation, message, run)
             return read_submission(db, run), True
 

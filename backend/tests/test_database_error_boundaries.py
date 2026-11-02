@@ -74,7 +74,7 @@ def fail_flush(model, statement):
         ("model-connections", "delete", ModelConnection),
     ],
 )
-def test_unknown_integrity_failures_escape_and_roll_back(
+def test_unknown_integrity_failures_return_safe_500_and_roll_back(
     api_client, probe, resource, operation, model, failure
 ):
     base = f"/api/{resource}"
@@ -90,11 +90,26 @@ def test_unknown_integrity_failures_escape_and_roll_back(
     else:
         payload = None
     with fail_flush(model, FAILURES[failure]) as errors:
-        with pytest.raises(IntegrityError) as caught:
-            api_client.request(operation, url, json=payload)
-    assert len(errors) == 1 and caught.value is errors[0]
+        response = api_client.request(operation, url, json=payload)
+    assert len(errors) == 1
+    assert response.status_code == 500
+    assert response.json()["detail"]["code"] == "internal_error"
+    assert response.headers["X-Request-ID"]
+    for private in ("error_probe", "INSERT", "constraint", "test-only-credential"):
+        assert private not in response.text
     assert api_client.get(base).json() == before
     assert api_client.get(f"{base}/{original['id']}").json() == original
+
+
+def test_service_preserves_unknown_integrity_failure_and_rolls_back(api_client, probe):
+    from app.agents.schemas import AgentCreate
+
+    actor = api_client.app.state.auth.resolve(api_client.cookies.get("app_session"))
+    with fail_flush(Agent, FAILURES["not_null"]) as errors:
+        with pytest.raises(IntegrityError) as caught:
+            api_client.app.state.agents.create(AgentCreate(**INPUTS["agents"]), actor)
+    assert len(errors) == 1 and caught.value is errors[0]
+    assert api_client.get("/api/agents").json()["total"] == 0
 
 
 @pytest.mark.parametrize("operation", ["post", "patch"])

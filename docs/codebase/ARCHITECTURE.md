@@ -1,5 +1,6 @@
 # 实际架构与核心链路
 
+适用范围：本文保留 2026-10-31 的调查快照，未随之后的知识处理、向量及员工装配增量逐项更新，不作为当前能力清单或当前测试通过证明。当前行为从[系统架构](../architecture/overview.md)、[知识契约](../reference/knowledge.md)与[工程文档索引](../README.md)进入。
 调查日期：2026-10-31。结论依据本地源码和本次隔离验证，未验证已部署实例。本文中“已确认”指可定位的实现事实；“推断”只表示从该实现导出的工程判断；无法确认的项目使用 `[TODO]`。环境、目录、规则、集成、测试和风险分别见 [STACK](STACK.md)、[STRUCTURE](STRUCTURE.md)、[CONVENTIONS](CONVENTIONS.md)、[INTEGRATIONS](INTEGRATIONS.md)、[TESTING](TESTING.md)、[CONCERNS](CONCERNS.md)。
 
 ## 1. 架构风格、问题与约束

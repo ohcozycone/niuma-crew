@@ -1,5 +1,6 @@
 # 实际工程约定
 
+适用范围：本文保留 2026-10-31 的调查快照，未随之后的知识处理、向量及员工装配增量逐项更新，不作为当前能力清单或当前测试通过证明。当前行为从[系统架构](../architecture/overview.md)、[知识契约](../reference/knowledge.md)与[工程文档索引](../README.md)进入。
 调查日期：2026-10-31。区分“配置已启用”与“所有源码均已满足”；本次为文档调查，没有重跑全量 lint。详细工程规则继续维护在[共享约定](../engineering/shared.md)、[前端手册](../engineering/frontend.md)、[后端手册](../engineering/backend.md)。
 
 ## 1. 命名

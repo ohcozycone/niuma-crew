@@ -56,7 +56,7 @@ backend/                                # Python 工程；依赖、迁移和应�
 │   │   ├── preparation.py              # 固定依据并准备执行输入
 │   │   ├── authorization.py            # 当前许可与装配组合复核
 │   │   └── publication.py              # 正文、输出文件关联和终态共同提交
-│   ├── knowledge/                      # 本人资料库、文本入库与词法检索，另保留向量/问答实验
+│   ├── knowledge/                      # 本人资料库、后台处理、三种检索与个人员工知识，另保留独立实验
 │   ├── capability_catalog/             # 应用查询：组合技能与 MCP 服务的检索结果
 │   │   ├── queries.py                  # 按查看权限检索两类条目，统一排序、计数和分页
 │   │   └── schemas.py                  # 检索结果的概要字段，不代替源业务模型
@@ -96,6 +96,8 @@ HTTP 请求调用所属业务入口，服务通过有类型的 API 依赖取得�
 skills/definitions 统一解释新旧技能内容，agents/execution_config 组合装配与本次执行依据。agents/tool_account_bindings 只为员工已有许可选择当前用户自己的账号；账号与秘密仍归 tools。tools 的连接维护、工具清单和真实调用分别由 ToolConnectionService、ToolCatalogService、ToolInvocationService 负责；服务定义由 McpDefinitionService 维护。共用加密机制归 infrastructure/credentials，各业务转换自己的凭据失败。
 
 业务规则、HTTP 接入和受控运行分开维护，当前仍同进程、同库。产品管理接口不会自动成为模型工具；模型当前使用的是已授予的工作区、MCP操作及个人知识检索/补读工具。用户业务 CLI、机器身份和独立 worker 尚未接入。
+
+应用生命周期分层登记清理：启动尝试前登记异步停止，创建数据库和 MCP 服务后登记最终释放；部分启动失败也进入清理。知识与对话生产任务先停止，随后停止文件/沙箱维护，再关闭 MCP 与数据库。单个关闭异常不跳过后续资源，知识 worker 任务异常也释放进程锁；对应故障场景由[启动测试](../../backend/tests/test_bootstrap.py)覆盖。
 
 ## 运行调度与过程展示
 

@@ -1,5 +1,7 @@
 # 评审与验收记录索引
 
+- [工程评审可靠性修复与验证](engineering-review-reliability.md)：2026-11-02，验证基线、异常收尾、关键类型、错误子类与模块守卫的实际实施及结构取舍。
+
 - [NiumaCrew 与 StaffDeck 产品及技术对比](niuma-staffdeck-comparison-2026-11-01.md)：2026-11-01，固定公开源码版本，按 Agent、工具、技能/SOP、知识、记忆、调度、协作和运营横向分析；提出可验证的发展方向，附证据与未覆盖范围。
 
 - [对话页右侧辅助栏](conversation-sidebar.md)：2026-11-01，真实历史与能力、主辅布局及局部失败隔离的验证。

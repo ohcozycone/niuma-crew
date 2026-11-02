@@ -36,7 +36,7 @@
 
 追踪一次工作可从[对话操作](app/conversations/service.py)进入[输入准备](app/conversations/preparation.py)、[执行协调](app/execution/coordinator.py)和[模型循环](app/agent_runtime/langchain.py)，最后查看[交付事务](app/conversations/publication.py)。按文件学习见[代码阅读指南](../docs/learning/reading-code.md)。
 
-[知识模块](app/knowledge/README.md)当前代码已装配本人库、文本入库、原件/片段及 BM25 检索接口；独立 POC 继续验证向量、混合召回和回答引用，`make verify-knowledge` 是实验验证入口。
+[知识模块](app/knowledge/README.md)当前代码已装配本人库、原件/片段、手动后台处理、BM25/向量/混合检索，以及员工个人多库装配和带引用回答；独立 POC 保留另一套检索实验入口，`make verify-knowledge` 是实验验证入口。
 
 ## 验证
 

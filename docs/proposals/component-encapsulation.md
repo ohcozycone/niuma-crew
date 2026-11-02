@@ -4,7 +4,7 @@
 
 ## 盘点与边界
 
-对 frontend/src 中非测试、非生成的 TS/TSX/CSS 建立 AST 使用清单，排除头像 SVG 原画及图示；检查共享组件、页面私有组件、样式文件及原生控件。引用次数是模块族 JSX 直接导入计数，不等于运行覆盖或独立组件数；路由、barrel 与动态图例另核对，不凭零引用删除文件。原始清单见[CSV](../../.impeccable/review/component-encapsulation/usage.csv)。
+对 frontend/src 中非测试、非生成的 TS/TSX/CSS 建立 AST 使用清单，排除头像 SVG 原画及图示；检查共享组件、页面私有组件、样式文件及原生控件。引用次数是模块族 JSX 直接导入计数，不等于运行覆盖或独立组件数；路由、barrel 与动态图例另核对，不凭零引用删除文件。原始 CSV 当时位于 `.impeccable/review/component-encapsulation/usage.csv`，当前工作区未保留；可读结论见[本轮记录](../records/component-encapsulation.md)。
 
 组件负责默认字体、表面、尺寸、间距和交互状态；页面负责内容、事件、数据、放置位置和外部空间。className 本身不算问题，宽度/外部间距与重写内部样式要分开判断。登录、头像、品牌和对话编辑器保留自身任务造型，不强行并成普通表单。
 
