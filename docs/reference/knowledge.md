@@ -88,13 +88,13 @@ BM25 使用相同 jieba 词法规则建立、查询索引；分词器、词典�
 
 正式结构由Alembic0013、0014及[0015](../../backend/migrations/versions/0015_knowledge_processing.py)维护；0015保留旧正文/片段/向量，已处理文档迁移为关键词可用，新增处理批次与子任务，并修正原文档表两个唯一键重名。[0016迁移](../../backend/migrations/versions/0016_knowledge_chunk_preview.py)仅新增可空短章节覆盖，不重写旧正文/片段/向量。旧排队任务没有新版规则标记时仍按原不跨章切分。FTS5及shadow表由迁移显式管理。备份需包含业务数据库与持久原件，不能只备份索引。
 
-前端静态差旅正文已移除。现有差旅清单与评分资料继续保留在 datasets 作为可复现教学输入；只有用户显式导入的 documents 原件进入实际库。技术演示生成器见knowledge_demo.py，四份技术资料明确标注虚构；评分参考答案不进入索引。
+虚构差旅样本及清单保留在 [travel-expense](../../backend/datasets/travel-expense/README.md)，只有用户显式导入的 documents 原件进入实际库。四份虚构技术资料登记在 [samples.py](../../backend/app/knowledge/samples.py)。样例不会在启动时自动导入，也不包含真实企业资料。
 
 [API/持久化测试](../../backend/tests/test_knowledge_library.py)、[页面流程测试](../../frontend/src/pages/knowledge/knowledgeFlow.test.tsx)与[迁移测试](../../backend/tests/test_migrations.py)覆盖当前链路。
 
-手动处理、恢复及全局上传的实际验证见资料建设闭环记录，核心回归见[处理测试](../../backend/tests/test_knowledge_processing.py)与[上传队列测试](../../frontend/src/state/knowledge/uploadQueue.test.ts)。
+手动处理、恢复及全局上传的核心回归见[处理测试](../../backend/tests/test_knowledge_processing.py)与[上传队列测试](../../frontend/src/state/knowledge/uploadQueue.test.ts)。
 
-公开样例分为两组：通用技术手册只验证接线，虚构企业资料包含专有业务事实，用于后续 Agent 回答质量测试。题目和答案均在库外；真实向量索引与本机导入结果见记录，不能把文档命中率当作回答正确率。
+样例可用于检查导入、处理与检索链路。部署后的向量索引和检索结果取决于实际配置与导入内容；文档命中率不等于回答正确率。
 
 ## 员工个人装配与正式问答
 
