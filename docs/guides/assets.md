@@ -6,7 +6,7 @@
 
 头像使用十三角色静态 SVG 与 React 渲染实现，目录、回退和母版关系见[头像参考](../reference/avatar-assets.md)及[组件说明](../../frontend/src/components/avatars/README.md)。品牌源、生成资源及主题变体见[品牌参考](../reference/brand.md)。生成器和正式元数据是维护入口，修改来源后按[前端构建说明](../../frontend/scripts/README.md)重新生成。
 
-教学文档、题目与参考答案属于[数据集](../../backend/datasets/travel-expense/README.md)，不当作工程规范，也不默认加载进模型。参考答案与评测记录不能混入回答知识。
+[虚构差旅样本](../../backend/datasets/travel-expense/README.md)仅供显式示例导入。BFCL 固定题库位于 backend/app/evaluations/data，题目与参考答案用于专项考核，不混入员工知识。
 
 错误插画使用独立方形透明 PNG，正式资产在`frontend/public/failures/`；[生成元数据](../../frontend/failure-assets.json)维护提示词与最终来源，不进入公开资源目录。组件按[统一接入标准](../reference/failures.md)选择展示族，错误码与文案保持HTML。
 

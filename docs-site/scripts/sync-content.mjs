@@ -86,6 +86,7 @@ function headingText(node) {
 
 function isPublishedMarkdown(file) {
   if (!file.endsWith('.md')) return false;
+  if (file.startsWith('backend/datasets/')) return false;
   if (/^docs\/(proposals|records|codebase|templates)\//.test(file)) return false;
   return file.startsWith('docs/') || /^(frontend|backend)\/(src\/|app\/)?/.test(file);
 }
