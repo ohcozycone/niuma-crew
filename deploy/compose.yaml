@@ -1,0 +1,37 @@
+name: niuma
+services:
+  app:
+    image: niuma-app:local
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: app
+    environment:
+      APP_DATA_DIR: /data
+      SKILL_LIBRARY_DIR: /data/skill-library
+      AUTH_ALLOWED_ORIGINS: ${PLATFORM_URL:-http://127.0.0.1:3000}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - app-data:/data
+    restart: unless-stopped
+    init: true
+    logging:
+      options: { max-size: "5m", max-file: "3" }
+  docs:
+    image: niuma-docs:local
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: docs
+      args:
+        DOCS_BASE_PATH: /docs
+        PLATFORM_URL: ${PLATFORM_URL:-http://127.0.0.1:3000}
+    ports:
+      - "127.0.0.1:3001:3001"
+    restart: unless-stopped
+    logging:
+      options: { max-size: "5m", max-file: "3" }
+volumes:
+  app-data:

@@ -1,0 +1,202 @@
+@import "tailwindcss";
+@import "./design-system/theme.css";
+/* The shared controller applies .dark only for the resolved night theme. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@source "../node_modules/streamdown/dist/*.js";
+@source "../node_modules/@streamdown/code/dist/*.js";
+
+* {
+  box-sizing: border-box;
+}
+@layer base {
+  * {
+    border-color: var(--os-border);
+  }
+}
+body {
+  margin: 0;
+  background: var(--os-surface);
+  color: var(--os-type-body-color);
+  font-family: var(--font-sans);
+  font-size: var(--os-type-body-size);
+  font-weight: var(--os-type-body-weight);
+  line-height: var(--os-type-body-leading);
+  letter-spacing: var(--os-type-body-tracking);
+  color-scheme: inherit;
+  -webkit-font-smoothing: antialiased;
+}
+button,
+textarea,
+a,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+summary {
+  touch-action: manipulation;
+}
+button:not(:disabled),
+summary {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+button,
+a,
+textarea,
+summary {
+  outline-color: var(--os-focus);
+  outline-offset: var(--os-focus-outline-offset, 4px);
+}
+/* Shared form controls own their ring; other interactions retain a keyboard fallback. */
+:root
+  :where(button, a, input, textarea, select):not(
+    :where(
+      [data-slot="input"],
+      [data-slot="textarea"],
+      [data-slot="select-trigger"],
+      [data-slot="input-group-control"],
+      [data-slot="conversation-input"]
+    )
+  ):focus-visible {
+  outline: 2px solid var(--os-focus);
+  outline-offset: var(--os-focus-outline-offset, 3px);
+}
+::selection {
+  background: var(--os-selected);
+  color: var(--os-text);
+}
+input,
+textarea {
+  caret-color: var(--os-text);
+}
+html {
+  scrollbar-color: var(--os-input) transparent;
+}
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--os-input);
+  border-radius: var(--os-radius-control);
+}
+
+.answer-markdown {
+  font-size: var(--os-text-body);
+  line-height: 1.95;
+  overflow-wrap: anywhere;
+  color: var(--os-text);
+}
+.answer-markdown h1,
+.answer-markdown h2,
+.answer-markdown h3 {
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  margin-top: 1.5em;
+  margin-bottom: 0.7em;
+  letter-spacing: 0;
+}
+.answer-markdown h1 {
+  font-size: var(--os-text-section);
+}
+.answer-markdown h2 {
+  font-size: var(--os-text-title);
+}
+.answer-markdown h3 {
+  font-size: var(--os-text-body);
+}
+.answer-markdown strong {
+  font-weight: 600;
+  color: var(--os-text);
+}
+.answer-markdown p {
+  margin-block: 0.8em;
+}
+.answer-markdown code {
+  overflow-wrap: anywhere;
+  font-size: 0.85em;
+}
+.answer-markdown a {
+  color: var(--os-text);
+}
+.answer-markdown table {
+  font-size: var(--os-text-caption);
+}
+.answer-markdown th {
+  background: var(--os-muted);
+}
+/* Streamdown shares its sidebar token for transparent toolbars and their border. */
+[data-streamdown="code-block-actions"],
+[data-streamdown="mermaid-block-actions"] {
+  border-color: var(--os-border);
+}
+.answer-markdown td,
+.answer-markdown th {
+  padding: var(--os-space-3);
+  line-height: 1.8;
+}
+.icon-button {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  color: var(--os-text-muted);
+}
+.icon-button:hover {
+  color: var(--os-text);
+  background-color: var(--os-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Shared motion primitives. */
+@keyframes question-anchor-breathe {
+  0%,
+  100% {
+    background-color: var(--os-selected);
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--os-selected) 86%, var(--os-text) 14%);
+  }
+}
+
+@keyframes question-preview-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Text measure belongs to prose, never to the message or report workspace. */
+.answer-markdown :where(p, ul, ol, blockquote) {
+  max-width: 896px;
+  max-width: var(--os-prose-chat);
+}
+.answer-markdown:lang(en) :where(p, ul, ol, blockquote) {
+  max-width: 90ch;
+}
+.answer-markdown :where(pre, [data-streamdown="table-wrapper"]) {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media (pointer: coarse) {
+  .icon-button {
+    min-width: var(--os-target-touch);
+    min-height: var(--os-target-touch);
+  }
+}

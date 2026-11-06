@@ -1,0 +1,29 @@
+{
+  "name": "niuma-ui",
+  "colors": {
+    "editor.background": "var(--os-muted)",
+    "editor.foreground": "var(--os-text)"
+  },
+  "tokenColors": [
+    {
+      "scope": ["comment", "punctuation.definition.comment"],
+      "settings": { "foreground": "var(--os-code-comment)" }
+    },
+    {
+      "scope": ["keyword", "storage", "variable.language"],
+      "settings": { "foreground": "var(--os-code-keyword)" }
+    },
+    {
+      "scope": ["string", "markup.inline.raw", "markup.fenced_code"],
+      "settings": { "foreground": "var(--os-code-string)" }
+    },
+    {
+      "scope": ["constant", "entity.name.type", "support.type"],
+      "settings": { "foreground": "var(--os-code-constant)" }
+    },
+    {
+      "scope": ["entity.name.function", "support.function"],
+      "settings": { "foreground": "var(--os-code-function)" }
+    }
+  ]
+}

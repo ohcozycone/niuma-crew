@@ -1,0 +1,18 @@
+[Unit]
+Description=NiumaCrew trusted OpenSandbox lifecycle server
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=niuma-sandbox
+Group=niuma-sandbox
+SupplementaryGroups=docker
+WorkingDirectory=/opt/niuma-sandbox
+ExecStart=/opt/niuma-sandbox/server-venv/bin/opensandbox-server --config /etc/niuma-sandbox/sandbox.toml
+Restart=on-failure
+RestartSec=5
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

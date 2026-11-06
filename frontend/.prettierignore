@@ -1,0 +1,6 @@
+node_modules/
+dist/
+output/
+public/avatars/
+src/lib/avatars/manifest.generated.ts
+pnpm-lock.yaml

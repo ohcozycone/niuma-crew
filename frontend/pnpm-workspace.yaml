@@ -1,0 +1,5 @@
+allowBuilds:
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - "@boundaries/elements@3.1.2"
+  - eslint-plugin-boundaries@7.2.1

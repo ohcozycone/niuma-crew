@@ -1,0 +1,52 @@
+# Local and editor files
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.token
+*.cookie
+*.cookies
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.sqlite3-*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Local generated data
+output/
+backend/.data/
+backend/.runs/
+/data/
+/backups/
+
+# Frontend build outputs
+node_modules/
+.pnpm-store/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Local design restore points
+.design-backups/

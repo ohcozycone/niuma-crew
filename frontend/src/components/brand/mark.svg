@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <title>NiumaCrew</title>
+  <defs>
+    <clipPath id="l-eye-clip-left">
+      <ellipse cx="35" cy="62" rx="15" ry="15" />
+    </clipPath>
+    <clipPath id="l-eye-clip-right">
+      <ellipse cx="69" cy="59" rx="13" ry="13" />
+    </clipPath>
+  </defs>
+  <g transform="translate(16 4)">
+    <g>
+      <path d="M31 43C18 39 8 18 13 4C27 3 44 25 46 40Z" fill="#f5e6c5" />
+      <path d="M29 33C21 26 16 16 18 12C26 15 34 25 36 34Z" fill="#ec8a76" />
+    </g>
+    <g>
+      <path d="M67 38C65 20 75 2 87 0C99 14 95 33 81 47Z" fill="#f5e6c5" />
+      <path d="M76 33C75 23 80 12 86 9C91 20 86 31 80 37Z" fill="#ec8a76" />
+    </g>
+    <path d="M34 35C49 25 75 29 85 42C96 56 88 73 96 91C111 117 88 134 58 135C27 136 7 121 12 96C14 73 15 51 34 35Z" fill="#f5e6c5" />
+    <path d="M34 36C24 28 29 17 36 20C43 24 43 30 45 31C41 17 50 11 55 16C60 20 55 29 53 32C65 25 72 31 67 37C59 44 43 43 34 36Z" fill="#49383a" />
+    <ellipse cx="35" cy="69" rx="15" ry="17" fill="#a1768e" />
+    <ellipse cx="69" cy="64" rx="13" ry="14" fill="#a1768e" />
+    <g clip-path="url(#l-eye-clip-left)">
+      <ellipse cx="35" cy="62" rx="15" ry="16" fill="#fffaf0" />
+      <g transform="translate(0 0)">
+        <ellipse cx="35" cy="67" rx="2.8" ry="3.6" fill="#49383a" />
+      </g>
+      <path d="M20 60C19 45 30 43 40 46C48 48 51 56 50 61Q35 57 20 61Z" fill="#d8bd94" />
+    </g>
+    <g clip-path="url(#l-eye-clip-right)">
+      <ellipse cx="69" cy="58" rx="13" ry="16" fill="#fffaf0" />
+      <g transform="translate(0 0)">
+        <ellipse cx="69" cy="63" rx="2.6" ry="3.6" fill="#49383a" />
+      </g>
+      <path d="M57 58C57 45 69 43 76 48C81 51 82 55 81 59Q68 56 57 59Z" fill="#d8bd94" />
+    </g>
+    <path d="M21 88C39 80 73 83 91 95C106 105 101 124 78 128C56 135 25 128 14 115C7 104 10 93 21 88Z" fill="#ec8a76" />
+    <ellipse cx="23" cy="101" rx="4.3" ry="6.5" fill="#49383a" transform="rotate(19 23 101)" />
+    <ellipse cx="85" cy="108" rx="4.3" ry="6.5" fill="#49383a" transform="rotate(19 85 108)" />
+    <path d="M46 121Q55 122 64 118" fill="none" stroke="#49383a" stroke-width="2.2" stroke-linecap="round" />
+  </g>
+</svg>

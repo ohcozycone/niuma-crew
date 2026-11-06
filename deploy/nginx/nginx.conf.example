@@ -1,0 +1,134 @@
+# Optional, standalone gateway. Replace /ABSOLUTE/PATH and review the port/origin
+# settings before running nginx -t -c /absolute/path/to/your/nginx.conf.
+worker_processes 1;
+pid /tmp/niuma-crew-nginx.pid;
+# Nginx upstream errors may contain full OAuth request lines even without an
+# access log. Discard the default error stream; filter secrets before persistence.
+error_log /dev/null error;
+
+events { worker_connections 1024; }
+
+http {
+    # OAuth callback queries can contain codes. Do not log complete request URLs.
+    access_log off;
+    default_type application/octet-stream;
+    types { text/html html; image/png png; image/svg+xml svg; }
+
+    map $http_x_request_id $niuma_request_id {
+        "~^[A-Za-z0-9._-]{1,64}$" $http_x_request_id;
+        default $request_id;
+    }
+    map $request_uri $niuma_page_path {
+        ~^/(api|assets|brand|failures)(/|\?|$) 0;
+        ~^/avatars/(svg|playground(/[A-Za-z0-9_-]+)?|rive/programmer)/?(\?.*)?$ 1;
+        ~^/avatars(/|\?|$) 0;
+        ~^/[A-Za-z0-9/_-]*(\?.*)?$ 1;
+        default 0;
+    }
+    map $http_accept $niuma_accepts_html {
+        ~*text/html\s*\;\s*q=0(\.0*)?\s*(,|$) 0;
+        ~*text/html 1;
+        default 0;
+    }
+    map "$http_sec_fetch_mode:$niuma_page_path:$niuma_accepts_html" $niuma_legacy_document {
+        ":1:1" 1;
+        default 0;
+    }
+    map $http_sec_fetch_dest $niuma_document {
+        document $niuma_page_path;
+        "" $niuma_legacy_document;
+        default 0;
+    }
+    map $niuma_document $niuma_error_502 {
+        1 /__niuma_errors/502.html;
+        default /__niuma_errors/502.json;
+    }
+    map $niuma_document $niuma_error_503 {
+        1 /__niuma_errors/503.html;
+        default /__niuma_errors/503.json;
+    }
+    map $niuma_document $niuma_error_504 {
+        1 /__niuma_errors/504.html;
+        default /__niuma_errors/504.json;
+    }
+    map $status $niuma_error_cache {
+        ~^5 no-store;
+        default "";
+    }
+
+    server {
+        listen 127.0.0.1:3000;
+        server_name localhost 127.0.0.1;
+        root /ABSOLUTE/PATH/niuma-crew/frontend/dist;
+        client_max_body_size 32m;
+
+        add_header X-Request-ID $niuma_request_id always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header Cache-Control $niuma_error_cache always;
+
+        proxy_set_header Host $http_host;
+        proxy_set_header Origin $http_origin;
+        proxy_set_header X-Request-ID $niuma_request_id;
+        proxy_set_header Forwarded "";
+        proxy_set_header X-Forwarded-For "";
+        proxy_set_header X-Forwarded-Host "";
+        proxy_set_header X-Forwarded-Proto "";
+        proxy_hide_header X-Request-ID;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 60s;
+        # Preserve SSE immediately, and pass existing backend error protocols
+        # (including OAuth 303 and semantic JSON 503) through unchanged.
+        proxy_buffering off;
+        proxy_intercept_errors off;
+
+        location ~ ^/api(?:/|$) {
+            proxy_pass http://127.0.0.1:8000;
+            error_page 502 /__niuma_errors/502.json;
+            error_page 503 /__niuma_errors/503.json;
+            error_page 504 /__niuma_errors/504.json;
+        }
+        location / {
+            proxy_pass http://127.0.0.1:8000;
+            error_page 502 $niuma_error_502;
+            error_page 503 $niuma_error_503;
+            error_page 504 $niuma_error_504;
+        }
+
+        # These local files remain available when the application is stopped.
+        location ^~ /failures/ {
+            alias /ABSOLUTE/PATH/niuma-crew/frontend/dist/failures/;
+            error_page 404 /__niuma_errors/404.json;
+        }
+        location = /brand/mark.svg {
+            alias /ABSOLUTE/PATH/niuma-crew/frontend/dist/brand/mark.svg;
+            error_page 404 /__niuma_errors/404.json;
+        }
+        location ^~ /__niuma_errors/ {
+            internal;
+            alias /ABSOLUTE/PATH/niuma-crew/frontend/dist/failures/;
+        }
+        location = /__niuma_errors/404.json {
+            internal;
+            default_type application/json;
+            return 404 '{"detail":{"code":"resource_not_found","message":"资源不存在。"}}';
+        }
+        location = /__niuma_errors/502.json {
+            internal;
+            default_type application/json;
+            return 502 '{"detail":{"code":"backend_unavailable","message":"暂时无法连接服务。若刚提交过保存，请先核对结果。"}}';
+        }
+        location = /__niuma_errors/503.json {
+            internal;
+            default_type application/json;
+            return 503 '{"detail":{"code":"backend_unavailable","message":"服务暂不可用。若刚提交过保存，请先核对结果。"}}';
+        }
+        location = /__niuma_errors/504.json {
+            internal;
+            default_type application/json;
+            return 504 '{"detail":{"code":"backend_timeout","message":"等待服务响应超时。若刚提交过保存，请先核对结果。"}}';
+        }
+    }
+}

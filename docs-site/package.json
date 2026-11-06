@@ -1,0 +1,49 @@
+{
+  "name": "docs-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "sync": "node scripts/sync-content.mjs",
+    "build": "pnpm sync && next build --webpack",
+    "preview": "serve out --listen tcp://127.0.0.1:3001",
+    "typecheck": "pnpm sync && next typegen && tsc --noEmit",
+    "format": "prettier --write src scripts *.json *.mjs *.yaml README.md",
+    "format:check": "prettier --check src scripts *.json *.mjs *.yaml README.md",
+    "test": "node --test scripts/*.test.mjs",
+    "check": "pnpm typecheck && pnpm test && pnpm format:check && pnpm build"
+  },
+  "dependencies": {
+    "@fumadocs/language": "0.2.18",
+    "cn": "^0.5.0",
+    "fumadocs-core": "16.17.10",
+    "fumadocs-mdx": "15.4.10",
+    "fumadocs-ui": "npm:@fumadocs/base-ui@16.17.10",
+    "lucide-react": "^1.61.0",
+    "next": "16.4.5",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-stringify": "^11.0.0",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/mdx": "^2.0.14",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.31",
+    "prettier": "^3.9.10",
+    "serve": "^14.2.6",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2"
+  },
+  "packageManager": "pnpm@11.11.0",
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true
+  }
+}

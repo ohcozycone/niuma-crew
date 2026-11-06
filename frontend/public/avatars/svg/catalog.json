@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "status": "ready-for-use",
+  "viewBox": [0, 0, 1254, 1254],
+  "background": "transparent",
+  "animationReady": false,
+  "roles": [
+    {
+      "id": "intern-bull",
+      "label": "实习生牛",
+      "file": "intern-bull.svg",
+      "bytes": 130550,
+      "sha256": "e65423a916892cc555f235bcb3e9a0557a5db142ec128656cef10db790c5c120",
+      "gzipBytes": 50913,
+      "paths": 240,
+      "ellipses": 4,
+      "cubicSegments": 2876
+    },
+    {
+      "id": "finance-bull",
+      "label": "财务牛",
+      "file": "finance-bull.svg",
+      "bytes": 19128,
+      "sha256": "86584b72cd372e875d8f84db73ea8de4811ca3a8ef5a1ab65e5a40b3ffd92f5d",
+      "gzipBytes": 8744,
+      "paths": 31,
+      "ellipses": 4,
+      "cubicSegments": 407
+    },
+    {
+      "id": "admin-bull",
+      "label": "行政牛",
+      "file": "admin-bull.svg",
+      "bytes": 50785,
+      "sha256": "c6321d11ff393f0108b6c2c287bac63b752a5c484f358cdeb37fe8c887823b99",
+      "gzipBytes": 21696,
+      "paths": 83,
+      "ellipses": 5,
+      "cubicSegments": 1113
+    },
+    {
+      "id": "designer-bull",
+      "label": "设计师牛",
+      "file": "designer-bull.svg",
+      "bytes": 31925,
+      "sha256": "1a56e40a85b1f34103c5455d36b0b94f4844136b7d4120466e10233e1d4b59b7",
+      "gzipBytes": 14091,
+      "paths": 55,
+      "ellipses": 4,
+      "cubicSegments": 663
+    },
+    {
+      "id": "programmer-horse",
+      "label": "程序员马",
+      "file": "programmer-horse.svg",
+      "bytes": 25572,
+      "sha256": "1b5c769ae13da79926ee029defcb4eb8cbe44d01a30bd74f10d607d1d1c065d1",
+      "gzipBytes": 11229,
+      "paths": 48,
+      "ellipses": 4,
+      "cubicSegments": 512
+    },
+    {
+      "id": "backend-horse",
+      "label": "后端马",
+      "file": "backend-horse.svg",
+      "bytes": 149363,
+      "sha256": "6a886ca2eab667dc26ca8e87fb897fc7638d3bb531eefbbff499422267bd4415",
+      "gzipBytes": 56482,
+      "paths": 185,
+      "ellipses": 4,
+      "cubicSegments": 3010
+    },
+    {
+      "id": "frontend-bull",
+      "label": "前端牛",
+      "file": "frontend-bull.svg",
+      "bytes": 155790,
+      "sha256": "2fddc4853b0991871e66147e7c16b1bcbf79d9778038c3e65654400cadf243d0",
+      "gzipBytes": 59453,
+      "paths": 174,
+      "ellipses": 4,
+      "cubicSegments": 3266
+    },
+    {
+      "id": "product-horse",
+      "label": "产品经理马",
+      "file": "product-horse.svg",
+      "bytes": 35686,
+      "sha256": "bfece189a9fdfadebe1ce80e4ce8f1a724460f2f70fb689e48f9e4161d94cadb",
+      "gzipBytes": 15342,
+      "paths": 70,
+      "ellipses": 6,
+      "cubicSegments": 732
+    },
+    {
+      "id": "sysadmin-horse",
+      "label": "运维马",
+      "file": "sysadmin-horse.svg",
+      "bytes": 45076,
+      "sha256": "0f1b2f40b379cb941f71e10f06ee82933609e9e75d26ad5ed73a6f8098481486",
+      "gzipBytes": 19017,
+      "paths": 82,
+      "ellipses": 4,
+      "cubicSegments": 951
+    },
+    {
+      "id": "knowledge-bull",
+      "label": "知识牛",
+      "file": "knowledge-bull.svg",
+      "bytes": 151246,
+      "sha256": "516043b3153d909cb18fe9d6d4379155a57dc848f35e53779e63df2152a2b509",
+      "gzipBytes": 59677,
+      "paths": 212,
+      "ellipses": 6,
+      "cubicSegments": 3281
+    },
+    {
+      "id": "research-horse",
+      "label": "研究马",
+      "file": "research-horse.svg",
+      "bytes": 161242,
+      "sha256": "900460a55d2a88491582aaf3ff530f7f0fdfd75151de35308532e22278906f9f",
+      "gzipBytes": 60718,
+      "paths": 214,
+      "ellipses": 6,
+      "cubicSegments": 3202
+    },
+    {
+      "id": "operations-bull",
+      "label": "运营牛",
+      "file": "operations-bull.svg",
+      "bytes": 82685,
+      "sha256": "6042fbb7a0308843ecd5b6d8fc19697db7946af7ca044513010f349532d5af0d",
+      "gzipBytes": 33363,
+      "paths": 113,
+      "ellipses": 6,
+      "cubicSegments": 1749
+    },
+    {
+      "id": "support-horse",
+      "label": "客服马",
+      "file": "support-horse.svg",
+      "bytes": 168809,
+      "sha256": "25b9c1d7dee4ef018e291ca8aa1d210fef78f7dcd80ed98726a6e0e27346e0f6",
+      "gzipBytes": 63943,
+      "paths": 225,
+      "ellipses": 14,
+      "cubicSegments": 3446
+    }
+  ],
+  "artworkVersion": "1.0.0"
+}

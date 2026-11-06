@@ -1,0 +1,12 @@
+{
+  "data-root": "/var/lib/niuma-sandbox-docker",
+  "storage-driver": "overlay2",
+  "storage-opts": ["overlay2.size=256M"],
+  "default-pids-limit": 128,
+  "runtimes": {
+    "runsc": {
+      "path": "/usr/local/bin/runsc",
+      "runtimeArgs": ["--platform=systrap", "--overlay2=none"]
+    }
+  }
+}

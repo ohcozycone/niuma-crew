@@ -1,0 +1,138 @@
+export const chapters = [
+  { slug: 'start', title: '快速开始', description: '认识平台，完成第一次对话。', icon: 'Compass' },
+  {
+    slug: 'usage',
+    title: '使用指南',
+    description: '了解员工、能力、资料与工作成果。',
+    icon: 'BookOpen',
+  },
+  {
+    slug: 'tutorials',
+    title: '实操教程',
+    description: '从配置到验证，完整走通一条链路。',
+    icon: 'ListChecks',
+  },
+  {
+    slug: 'deployment',
+    title: '部署与维护',
+    description: '启动服务，管理配置与持久数据。',
+    icon: 'Server',
+  },
+  {
+    slug: 'development',
+    title: '开发指南',
+    description: '理解架构，找到代码与工程入口。',
+    icon: 'Code2',
+  },
+  {
+    slug: 'help',
+    title: '常见问题',
+    description: '从现象定位原因，恢复工作。',
+    icon: 'CircleHelp',
+  },
+];
+
+// 发布清单只维护导航和原文范围；正文仍由仓库 Markdown 维护。
+export const pages = [
+  {
+    slug: 'start',
+    title: '平台介绍',
+    description: '理解数字员工、工作方法和工具如何一起完成工作。',
+    file: 'docs/product/README.md',
+  },
+  {
+    slug: 'start/first-conversation',
+    title: '首次对话',
+    description: '选择一位可用员工，提出需求并取得正式回复。',
+    file: 'docs/product/workflows.md',
+    sections: ['发起对话并取得结果', '停止、断线与重试'],
+  },
+  {
+    slug: 'usage/agents',
+    searchDescription: '配置员工岗位与大脑，管理模型连接，并验证第一次对话。',
+    title: '员工与大脑',
+    description: '把岗位职责、模型连接和资源选择组合成可重复使用的员工。',
+    file: 'docs/product/README.md',
+    sections: ['数字员工：把职责与资源组成岗位', '大脑配置：集中管理模型连接'],
+  },
+  {
+    slug: 'usage/skills',
+    title: '技能与能力库',
+    description: '发现和复用工作方法，了解技能怎样参与执行。',
+    file: 'docs/product/README.md',
+    sections: ['能力库与技能：发现资源、复用工作方法'],
+  },
+  {
+    slug: 'usage/tools',
+    searchDescription: '接入 MCP 工具服务、配置账号，完成工具授权并绑定个人连接。',
+    title: '工具与账号',
+    description: '区分服务、工具许可和使用者账号，授予实际操作能力。',
+    file: 'docs/reference/mcp.md',
+  },
+  {
+    slug: 'usage/knowledge',
+    searchDescription: '在知识库上传资料，手动处理后测试检索，为员工装配知识并核对回答来源。',
+    title: '知识库',
+    description: '上传、处理与检索资料，为员工装配可核对来源的知识。',
+    file: 'docs/reference/knowledge.md',
+  },
+  {
+    slug: 'usage/conversations',
+    title: '对话与执行',
+    description: '了解提交、观察、停止、重试和持续交流的实际行为。',
+    file: 'docs/reference/conversations.md',
+  },
+  {
+    slug: 'usage/files',
+    searchDescription: '上传附件作为输入材料，保存并下载员工生成的成果文件。',
+    title: '文件与成果',
+    description: '区分输入材料、临时工作文件和正式可下载成果。',
+    file: 'docs/reference/agent-tools.md',
+    sections: ['文件与交付', '沙箱与命令'],
+  },
+  {
+    slug: 'tutorials/first-agent',
+    title: '配置第一个员工',
+    description: '管理员从模型连接开始，配置并验证一名可以工作的员工。',
+    file: 'docs/product/workflows.md',
+    sections: ['配置一名可以工作的员工'],
+  },
+  {
+    slug: 'tutorials/connect-mcp',
+    title: '接入一个 MCP 服务',
+    description: '完成登记、账号配置、工具确认、员工授权与真实调用验证。',
+    file: 'docs/product/workflows.md',
+    sections: ['接入工具并绑定使用账号'],
+  },
+  {
+    slug: 'deployment/local',
+    title: '本地启动',
+    description: '安装依赖、准备数据库和管理员，启动平台开发环境。',
+    file: 'README.md',
+    sections: ['本地运行'],
+  },
+  {
+    slug: 'deployment/operations',
+    title: '配置与维护',
+    description: '管理登录、模型、数据库、备份和生产静态交付。',
+    file: 'docs/guides/backend-operations.md',
+  },
+  {
+    slug: 'development/architecture',
+    title: '系统架构',
+    description: '沿着用户操作理解浏览器、后端、存储与执行运行时。',
+    file: 'docs/architecture/overview.md',
+  },
+  {
+    slug: 'development/contributing',
+    title: '开发与接口入口',
+    description: '找到工程约定、开发检查和按模块组织的接口说明。',
+    file: 'docs/engineering/shared.md',
+  },
+  {
+    slug: 'help/troubleshooting',
+    title: '问题排查',
+    description: '按具体症状核对配置、权限、执行与交付结果。',
+    file: 'docs/guides/troubleshooting.md',
+  },
+];

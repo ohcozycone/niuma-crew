@@ -1,0 +1,1062 @@
+/* Numerical source of truth: primitives → semantic roles → component mappings. */
+:root {
+  /* 基础色 · 暖白与燕麦灰 */
+  --gray-0: #fffefa;
+  --gray-5: #fffefb;
+  --gray-25: #fdfcf9;
+  --gray-50: #faf8f4;
+  --gray-60: #f8f6f0;
+  --gray-65: #f7f6f2;
+  --gray-75: #f6f3ec;
+  --gray-100: #f3efe7;
+  --gray-110: #f0ede6;
+  --gray-125: #eeebe5;
+  --gray-150: #eee6d9;
+  --gray-170: #e6e3dc;
+  --gray-175: #e5e1d7;
+  --gray-190: #dedbd3;
+  --gray-200: #ded8cd;
+  --gray-250: #d5cec1;
+  --gray-300: #c9c0b2;
+  --gray-400: #b7ad9e;
+  --gray-500: #9c9283;
+  --gray-600: #81796b;
+  --gray-700: #6b675d;
+  --gray-800: #48453d;
+  --gray-850: #3d3a34;
+  --gray-875: #333129;
+  --gray-900: #292923;
+  --gray-950: #201f1b;
+  --gray-1000: #000000;
+
+  /* 基础色 · 暖炭灰与米白 */
+  --night-25: #f2eee5;
+  --night-100: #e2dcd0;
+  --night-200: #cec8bc;
+  --night-300: #b9b4a8;
+  --night-400: #9a9183;
+  --night-500: #797162;
+  --night-600: #5d574c;
+  --night-700: #464239;
+  --night-750: #3a3329;
+  --night-800: #302d28;
+  --night-850: #2a2824;
+  --night-900: #242321;
+  --night-950: #1b1a18;
+
+  /* 基础色 · 陶橙 */
+  --orange-50: #f7eee5;
+  --orange-100: #f2e4d6;
+  --orange-125: #ecdbca;
+  --orange-150: #ead3bf;
+  --orange-200: #efc7ab;
+  --orange-300: #eea379;
+  --orange-400: #d58b5c;
+  --orange-500: #bd6c3b;
+  --orange-600: #aa542c;
+  --orange-700: #8c4628;
+  --orange-800: #633b2b;
+  --orange-850: #5c3a2a;
+  --orange-900: #493025;
+
+  /* 基础色 · 绿色 */
+  --green-50: #eef2e9;
+  --green-300: #a2c3a7;
+  --green-700: #477352;
+  --green-900: #29392c;
+
+  /* 基础色 · 琥珀色 */
+  --amber-50: #f8f1df;
+  --amber-300: #d9bc7f;
+  --amber-700: #84611e;
+  --amber-900: #3d3220;
+
+  /* 基础色 · 红色 */
+  --red-50: #f7ede8;
+  --red-300: #e8aa98;
+  --red-700: #a24838;
+  --red-800: #873d31;
+  --red-850: #74362c;
+  --red-900: #432d27;
+
+  /* 基础色 · 蓝色 */
+  --blue-50: #edf0f1;
+  --blue-300: #a8c0cb;
+  --blue-700: #4e6b79;
+  --blue-900: #2b363b;
+
+  /* 基础色 · 透明遮罩 */
+  --overlay-drawer: #29292355;
+  --overlay-dialog: rgb(27 26 24 / 50%);
+  --overlay-night: #15130fcc;
+
+  /* 基础色 · 场景 */
+  --scene-shadow: #7c846f;
+
+  /* 基础色 · 日月插画 */
+  --art-sun: #e8ba68;
+  --art-sun-highlight: #f4d695;
+  --art-sun-shade: #d6a655;
+  --art-sun-ray: #c58c32;
+  --art-moon: #d4e0df;
+  --art-moon-highlight: #f0f1de;
+  --art-moon-crater: #a4b8bc;
+
+  /* 语义 · 背景与边界 */
+  --os-surface: var(--gray-65);
+  --os-raised: var(--gray-5);
+  --os-canvas: var(--gray-125);
+  --os-muted: var(--gray-100);
+  --os-selected: var(--gray-150);
+  --os-hover: var(--gray-100);
+  --os-hover-text: var(--gray-800);
+  --os-pressed: var(--gray-175);
+  --os-border: var(--gray-170);
+
+  /* 语义 · 文字 */
+  --os-text: var(--gray-900);
+  --os-text-muted: var(--gray-700);
+
+  /* 语义 · 交互与遮罩 */
+  --os-overlay: var(--overlay-drawer);
+  --os-modal-overlay: var(--overlay-dialog);
+  --os-input: var(--gray-200);
+  --os-focus: var(--gray-800);
+  --os-field-focus: var(--gray-600);
+  --os-disabled-bg: var(--gray-100);
+  --os-disabled-text: var(--gray-500);
+
+  /* 语义 · 操作 */
+  --os-action: var(--gray-800);
+  --os-action-hover: var(--gray-850);
+  --os-action-pressed: var(--gray-875);
+  --os-action-text: var(--gray-25);
+  --os-action-soft: var(--orange-50);
+  --os-action-soft-hover: var(--orange-100);
+  --os-action-soft-pressed: var(--orange-125);
+  --os-action-soft-text: var(--orange-800);
+  --os-danger-action: var(--red-700);
+  --os-danger-action-hover: var(--red-800);
+  --os-danger-action-pressed: var(--red-850);
+  --os-danger-action-text: var(--gray-25);
+
+  /* 语义 · 品牌 */
+  --os-brand: var(--orange-600);
+  --os-brand-text: var(--orange-600);
+  --os-title-accent: var(--orange-200);
+
+  /* 语义 · 反馈 */
+  --os-success: var(--green-700);
+  --os-success-bg: var(--green-50);
+  --os-warning: var(--amber-700);
+  --os-warning-bg: var(--amber-50);
+  --os-danger: var(--red-700);
+  --os-danger-bg: var(--red-50);
+  --os-danger-text: var(--gray-0);
+  --os-info: var(--blue-700);
+  --os-info-bg: var(--blue-50);
+
+  /* 组件映射 · 差异通过引用表达 */
+  --os-nav-active: var(--gray-175);
+  --os-nav-active-text: var(--os-text);
+  --os-nav-count-bg: var(--os-muted);
+  --os-card-border: var(--os-border);
+  --os-workspace-border: var(--gray-150);
+  --os-card-border-width: 1px;
+  --os-avatar-bg: var(--gray-110);
+  --os-code-comment: var(--os-text-muted);
+  --os-code-keyword: var(--orange-700);
+  --os-code-string: var(--green-700);
+  --os-code-constant: var(--blue-700);
+  --os-code-function: var(--amber-700);
+  --login-bg: var(--os-canvas);
+  --login-scene: var(--os-muted);
+  --login-border: var(--os-border);
+  --login-title: var(--gray-950);
+  --login-input: var(--os-input);
+  --login-ring: var(--os-focus);
+  --login-selection: var(--os-border);
+  --login-shadow: var(--scene-shadow);
+
+  /* 普通矩形共用圆角曲线，按容器职责分配半径。 */
+  --os-corner-shape: round;
+  --os-radius-tiny: 2px;
+  --os-radius-small: 4px;
+  --os-radius-soft: 6px;
+  --os-radius-control: 8px;
+  --os-radius-panel: 12px;
+  --os-radius-card: 16px;
+  --os-radius-roomy: 24px;
+
+  /* 间距 */
+  --os-space-1: 4px;
+  --os-space-2: 8px;
+  --os-space-3: 12px;
+  --os-space-4: 16px;
+  --os-space-5: 20px;
+  --os-space-6: 24px;
+  --os-space-8: 32px;
+  /* Also covers the browser outline while focus transitions settle. */
+  --os-focus-gutter: var(--os-space-2);
+
+  /* C21 illustrated failures: independent square art and optional HTML content. */
+  --os-failure-art: 240px;
+  --os-failure-art-compact: 192px;
+  --os-failure-copy: 384px;
+  --os-failure-gap: 48px;
+  --os-failure-code: 48px;
+  --os-failure-code-weight: 500;
+  --os-failure-code-compact: 40px;
+  --os-failure-gutter: 28px;
+  /* Layout budgets: see layout.md. Query thresholds below use literal CSS lengths. */
+  --os-workspace-max: 1536px;
+  --os-agent-editor-max: 1280px;
+  --os-agent-context-width: 280px;
+  --os-conversation-standard: 960px;
+  --os-conversation-wide: 1120px;
+  --os-conversation-ultrawide: 1280px;
+  --os-conversation-sidebar-width: 300px;
+  --os-conversation-max: var(--os-conversation-standard);
+  --os-conversation-gutter: var(--os-space-8);
+  --os-navigation-width: 240px;
+  --os-page-gutter: var(--os-space-4);
+  --os-grid-gap: var(--os-space-6);
+  --os-employee-min: 320px;
+  --os-capability-min: 280px;
+  --os-connection-min: 480px;
+  --os-preview-width: 350px;
+  --os-field-max: 640px;
+  --os-heading-copy-min: 320px;
+  --os-file-navigation: 240px;
+  --os-prose-chat: 64ic;
+  --os-prose-article: 48ic;
+  --os-target-touch: 44px;
+  --os-question-reserve: 48px;
+  --os-dialog-small: 448px;
+  --os-dialog-standard: 640px;
+  --os-dialog-wide: 800px;
+  --os-dialog-workspace: 1280px;
+  --os-popover-max: 360px;
+  --os-tooltip-max: 240px;
+
+  /* 字号 */
+  --os-text-caption: 12px;
+  --os-text-support: 13px;
+  --os-text-body: 14px;
+  --os-text-title: 16px;
+  --os-text-section: 18px;
+  --os-text-page: 22px;
+  --os-text-display: 28px;
+
+  /* 字重 */
+  --os-weight-regular: 400;
+  --os-weight-heading: 600;
+
+  /* 行高 */
+  --os-leading-heading: 1.35;
+  --os-leading-compact: 1.5;
+  --os-leading-body: 1.6;
+
+  /* 字距 */
+  --os-tracking-normal: 0em;
+  --os-tracking-label: 0.08em;
+
+  /* 控件高度 */
+  --os-control-small: 32px;
+  --os-control-default: 36px;
+  --os-control-large: 40px;
+
+  /* 阴影 */
+  --os-shadow-toast: 0 6px 25px #19191912;
+  --os-shadow-drawer: 10px 0 30px #12121213;
+  --os-shadow-composer: 0 3px 14px #00000004;
+  --os-shadow-card: none;
+  --os-shadow-hover: 0 4px 12px -6px rgb(24 24 23 / 12%);
+  --os-shadow-popover: 0 8px 32px -8px rgb(24 24 23 / 16%);
+
+  /* 动效 */
+  --os-motion-fast: 150ms;
+  --os-motion-normal: 200ms;
+  --os-motion-swap: 280ms;
+
+  /* 文字角色 */
+  --os-type-page-size: var(--os-text-page);
+  --os-type-page-weight: var(--os-weight-heading);
+  --os-type-page-leading: var(--os-leading-heading);
+  --os-type-page-tracking: var(--os-tracking-normal);
+  --os-type-page-color: var(--os-text);
+  --os-type-section-size: var(--os-text-section);
+  --os-type-section-weight: var(--os-weight-heading);
+  --os-type-section-leading: var(--os-leading-heading);
+  --os-type-section-tracking: var(--os-tracking-normal);
+  --os-type-section-color: var(--os-text);
+  --os-type-title-size: var(--os-text-title);
+  --os-type-title-weight: var(--os-weight-heading);
+  --os-type-title-leading: var(--os-leading-heading);
+  --os-type-title-tracking: var(--os-tracking-normal);
+  --os-type-title-color: var(--os-text);
+  --os-type-label-size: var(--os-text-caption);
+  --os-type-label-weight: var(--os-weight-regular);
+  --os-type-label-leading: var(--os-leading-compact);
+  --os-type-label-tracking: var(--os-tracking-label);
+  --os-type-label-color: var(--os-text-muted);
+  --os-type-description-size: var(--os-text-body);
+  --os-type-description-weight: var(--os-weight-regular);
+  --os-type-description-leading: var(--os-leading-body);
+  --os-type-description-tracking: var(--os-tracking-normal);
+  --os-type-description-color: var(--os-text-muted);
+  --os-type-body-size: var(--os-text-body);
+  --os-type-body-weight: var(--os-weight-regular);
+  --os-type-body-leading: var(--os-leading-body);
+  --os-type-body-tracking: var(--os-tracking-normal);
+  --os-type-body-color: var(--os-text);
+  --os-type-caption-size: var(--os-text-caption);
+  --os-type-caption-weight: var(--os-weight-regular);
+  --os-type-caption-leading: var(--os-leading-compact);
+  --os-type-caption-tracking: var(--os-tracking-normal);
+  --os-type-caption-color: var(--os-text-muted);
+
+  /* 页头组合 */
+  --os-heading-description-gap: var(--os-space-2);
+  --os-heading-gap: var(--os-space-6);
+  --os-heading-actions-gap: var(--os-space-2);
+  --os-heading-stack-gap: var(--os-space-4);
+  --os-heading-content-gap: var(--os-space-6);
+
+  /* 组件组合 · 卡片与导航 */
+  --os-nav-icon-size: 17px;
+  --os-nav-icon-stroke: 1.75;
+  --os-nav-icon-active-stroke: 1.75;
+  --os-card-padding: var(--os-space-4);
+  --os-card-gap: var(--os-space-3);
+  --os-card-gap-sm: var(--os-space-2);
+  --os-avatar-size: var(--os-control-large);
+  --os-favorite-gap: var(--os-space-3);
+  --os-favorite-px: var(--os-space-2);
+  --os-favorite-py: var(--os-space-1);
+  --os-favorite-stack: var(--os-space-1);
+  --os-nav-weight: var(--os-weight-regular);
+  --os-nav-active-weight: 500;
+
+  /* 插画与主题动效 */
+  --os-sun: var(--art-sun);
+  --os-sun-highlight: var(--art-sun-highlight);
+  --os-sun-shade: var(--art-sun-shade);
+  --os-sun-ray: var(--art-sun-ray);
+  --os-moon: var(--art-moon);
+  --os-moon-highlight: var(--art-moon-highlight);
+  --os-moon-crater: var(--art-moon-crater);
+  --os-theme-duration: 480ms;
+
+  /* 登录场景布局 */
+  --login-column: 266px;
+  --login-gutter: 54px;
+  --login-feedback: 28px;
+
+  /* 主题模式 */
+  --os-color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  /* 语义 · 背景与边界 */
+  --os-surface: var(--night-900);
+  --os-raised: var(--night-850);
+  --os-canvas: var(--night-950);
+  --os-muted: var(--night-800);
+  --os-selected: var(--night-750);
+  --os-hover: var(--night-800);
+  --os-hover-text: var(--night-100);
+  --os-pressed: var(--night-700);
+  --os-border: var(--night-700);
+
+  /* 语义 · 文字 */
+  --os-text: var(--night-25);
+  --os-text-muted: var(--night-300);
+
+  /* 语义 · 交互与遮罩 */
+  --os-overlay: var(--overlay-night);
+  --os-modal-overlay: var(--overlay-night);
+  --os-input: var(--night-700);
+  --os-focus: var(--night-300);
+  --os-field-focus: var(--night-400);
+  --os-disabled-bg: var(--night-850);
+  --os-disabled-text: var(--night-500);
+
+  /* 语义 · 操作 */
+  --os-action: var(--night-100);
+  --os-action-hover: var(--night-25);
+  --os-action-pressed: var(--night-200);
+  --os-action-text: var(--night-950);
+  --os-action-soft: var(--orange-900);
+  --os-action-soft-hover: var(--orange-850);
+  --os-action-soft-pressed: var(--orange-800);
+  --os-action-soft-text: var(--orange-300);
+  --os-danger-action: var(--red-800);
+  --os-danger-action-hover: var(--red-700);
+  --os-danger-action-pressed: var(--red-850);
+  --os-danger-action-text: var(--gray-25);
+
+  /* 语义 · 品牌 */
+  --os-brand: var(--orange-300);
+  --os-brand-text: var(--orange-300);
+  --os-title-accent: var(--orange-900);
+
+  /* 语义 · 反馈 */
+  --os-success: var(--green-300);
+  --os-success-bg: var(--green-900);
+  --os-warning: var(--amber-300);
+  --os-warning-bg: var(--amber-900);
+  --os-danger: var(--red-300);
+  --os-danger-bg: var(--red-900);
+  --os-danger-text: var(--night-950);
+  --os-info: var(--blue-300);
+  --os-info-bg: var(--blue-900);
+
+  /* 组件映射 · 差异通过引用表达 */
+  --os-nav-active: var(--os-selected);
+  --os-nav-active-text: var(--os-text);
+  --os-nav-count-bg: var(--os-selected);
+  --os-card-border: var(--os-border);
+  --os-workspace-border: var(--night-850);
+  --os-avatar-bg: var(--os-selected);
+  --os-code-keyword: var(--orange-300);
+  --os-code-string: var(--green-300);
+  --os-code-constant: var(--blue-300);
+  --os-code-function: var(--amber-300);
+  --login-bg: var(--night-950);
+  --login-scene: var(--os-canvas);
+  --login-border: var(--os-border);
+  --login-title: var(--os-text);
+  --login-input: var(--os-input);
+  --login-ring: var(--os-focus);
+  --login-selection: var(--os-selected);
+  --login-shadow: var(--gray-1000);
+
+  /* 阴影 */
+  --os-shadow-toast: 0 6px 25px rgb(0 0 0 / 40%);
+  --os-shadow-drawer: 10px 0 30px rgb(0 0 0 / 45%);
+  --os-shadow-composer: 0 3px 14px rgb(0 0 0 / 18%);
+  --os-shadow-card: none;
+  --os-shadow-hover: 0 4px 12px -6px rgb(0 0 0 / 32%);
+  --os-shadow-popover: 0 8px 32px -8px rgb(0 0 0 / 60%);
+
+  /* 主题模式 */
+  --os-color-scheme: dark;
+}
+
+html {
+  color-scheme: var(--os-color-scheme);
+  background: var(--os-canvas);
+  color: var(--os-text);
+}
+
+/* C21: the host owns available height; optional groups never reserve blank rows. */
+.failure-region {
+  container: failure / inline-size;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding-block: calc(var(--os-space-6) * 2);
+}
+.failure-page {
+  min-height: 100dvh;
+}
+.failure-content {
+  display: grid;
+  grid-template-columns: var(--os-failure-art) minmax(0, var(--os-failure-copy));
+  gap: var(--os-failure-gap);
+  align-items: center;
+  flex-shrink: 0;
+  width: calc(100% - var(--os-failure-gutter) * 2);
+  max-width: calc(var(--os-failure-art) + var(--os-failure-gap) + var(--os-failure-copy));
+  margin-block: auto;
+}
+.failure-art {
+  width: var(--os-failure-art);
+  max-width: 100%;
+  aspect-ratio: 1;
+  margin: 0;
+  justify-self: center;
+}
+.failure-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.failure-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--os-space-4);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.failure-message {
+  display: flex;
+  flex-direction: column;
+  gap: var(--os-space-2);
+}
+.failure-status {
+  margin: 0 0 var(--os-space-1);
+  font-size: var(--os-failure-code);
+  font-weight: var(--os-failure-code-weight);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+.failure-message h1 {
+  margin: 0;
+  font-size: var(--os-type-section-size);
+  font-weight: var(--os-type-section-weight);
+  line-height: var(--os-type-section-leading);
+  text-wrap: balance;
+}
+.failure-description {
+  margin: 0;
+  color: var(--os-text-muted);
+  font-size: var(--os-type-body-size);
+  line-height: 1.8;
+}
+.failure-recovery {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--os-space-3);
+}
+.failure-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--os-space-2);
+  align-items: center;
+}
+.failure-actions > [data-slot="button"] {
+  white-space: normal;
+  height: auto;
+  min-height: var(--os-control-default);
+}
+.failure-wait,
+.failure-reference {
+  margin: 0;
+  color: var(--os-text-muted);
+  font-size: var(--os-text-caption);
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.failure-content:not(:has(.failure-art)) {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: var(--os-failure-copy);
+}
+.failure-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--os-space-3);
+  padding: var(--os-space-4);
+  background: var(--os-warning-bg);
+  color: var(--os-text);
+  border-radius: var(--os-radius-control);
+  font-size: var(--os-type-body-size);
+  overflow-wrap: anywhere;
+}
+.failure-notice > svg {
+  flex-shrink: 0;
+  margin-block-start: var(--os-space-1);
+  color: var(--os-warning);
+}
+.failure-notice-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--os-space-2);
+  min-width: 0;
+}
+.failure-notice-copy > p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.failure-notice .failure-recovery {
+  margin-block-start: var(--os-space-1);
+}
+.failure-notice-compact {
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  color: inherit;
+  font: inherit;
+}
+@container failure (max-width: 727px) {
+  .failure-content {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: var(--os-failure-copy);
+    gap: var(--os-space-6);
+  }
+  .failure-art {
+    width: var(--os-failure-art-compact);
+  }
+  .failure-status {
+    font-size: var(--os-failure-code-compact);
+  }
+}
+@media (max-width: 760px) {
+  .failure-region {
+    --os-failure-gutter: var(--os-space-6);
+    padding-block: var(--os-space-8);
+  }
+}
+
+/* Tailwind utilities */
+@utility button-availability {
+  /* :disabled includes disabled fieldsets; data-disabled includes composed links. */
+  &:is(:disabled, [data-disabled]):not([data-loading]) {
+    color: var(--os-disabled-text);
+    font-weight: var(--os-weight-regular);
+    background-color: var(--os-disabled-bg);
+    border-color: transparent;
+  }
+  &:is(:disabled, [data-disabled]):not([data-loading]) svg {
+    color: inherit;
+  }
+  &:is(:disabled, [data-disabled]):not([data-loading]):is(
+      [data-variant="ghost"],
+      [data-variant="link"],
+      [data-variant="destructive-ghost"]
+    ) {
+    background-color: transparent;
+    border-color: transparent;
+  }
+}
+@theme inline {
+  --color-canvas: var(--os-canvas);
+  --color-surface: var(--os-surface);
+  --color-raised: var(--os-raised);
+  --color-muted: var(--os-muted);
+  --color-selected: var(--os-selected);
+  --color-hover: var(--os-hover);
+  --color-hover-text: var(--os-hover-text);
+  --color-pressed: var(--os-pressed);
+  --color-border: var(--os-border);
+  --color-text: var(--os-text);
+  --color-text-muted: var(--os-text-muted);
+  --color-input: var(--os-input);
+  --color-focus: var(--os-focus);
+  --color-field-focus: var(--os-field-focus);
+  --color-disabled-bg: var(--os-disabled-bg);
+  --color-disabled-text: var(--os-disabled-text);
+  --color-overlay: var(--os-overlay);
+  --color-modal-overlay: var(--os-modal-overlay);
+  --color-action: var(--os-action);
+  --color-action-hover: var(--os-action-hover);
+  --color-action-pressed: var(--os-action-pressed);
+  --color-action-text: var(--os-action-text);
+  --color-action-soft: var(--os-action-soft);
+  --color-action-soft-hover: var(--os-action-soft-hover);
+  --color-action-soft-pressed: var(--os-action-soft-pressed);
+  --color-action-soft-text: var(--os-action-soft-text);
+  --color-danger-action: var(--os-danger-action);
+  --color-danger-action-hover: var(--os-danger-action-hover);
+  --color-danger-action-pressed: var(--os-danger-action-pressed);
+  --color-danger-action-text: var(--os-danger-action-text);
+  --color-brand: var(--os-brand);
+  --color-brand-text: var(--os-brand-text);
+  --color-title-accent: var(--os-title-accent);
+  --color-success: var(--os-success);
+  --color-success-bg: var(--os-success-bg);
+  --color-warning: var(--os-warning);
+  --color-warning-bg: var(--os-warning-bg);
+  --color-danger: var(--os-danger);
+  --color-danger-bg: var(--os-danger-bg);
+  --color-danger-text: var(--os-danger-text);
+  --color-info: var(--os-info);
+  --color-info-bg: var(--os-info-bg);
+  --color-card-border: var(--os-card-border);
+  --color-workspace-border: var(--os-workspace-border);
+  --color-nav-active: var(--os-nav-active);
+  --color-nav-active-text: var(--os-nav-active-text);
+  --color-nav-count-bg: var(--os-nav-count-bg);
+  --color-avatar-bg: var(--os-avatar-bg);
+  --color-code-comment: var(--os-code-comment);
+  --color-code-keyword: var(--os-code-keyword);
+  --color-code-string: var(--os-code-string);
+  --color-code-constant: var(--os-code-constant);
+  --color-code-function: var(--os-code-function);
+  /* Streamdown's public theme names; application components use the roles above. */
+  --color-background: var(--os-surface);
+  --color-foreground: var(--os-text);
+  --color-primary: var(--os-action);
+  --color-primary-foreground: var(--os-action-text);
+  --color-muted-foreground: var(--os-text-muted);
+  --color-sidebar: transparent;
+  /* Radius aliases used by the Markdown renderer. */
+  --radius-xs: var(--os-radius-tiny);
+  --radius-sm: var(--os-radius-small);
+  --radius-md: var(--os-radius-soft);
+  --radius-lg: var(--os-radius-control);
+  --radius-xl: var(--os-radius-panel);
+  --radius-2xl: var(--os-radius-card);
+  --radius-3xl: var(--os-radius-roomy);
+  --radius-tiny: var(--os-radius-tiny);
+  --radius-small: var(--os-radius-small);
+  --radius-soft: var(--os-radius-soft);
+  --radius-control: var(--os-radius-control);
+  --radius-panel: var(--os-radius-panel);
+  --radius-card: var(--os-radius-card);
+  --radius-roomy: var(--os-radius-roomy);
+  --text-body: var(--os-text-body);
+  --text-section: var(--os-text-section);
+  --shadow-popover: var(--os-shadow-popover);
+  --transition-duration-fast: var(--os-motion-fast);
+  --font-sans:
+    "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+@utility type-page {
+  font-size: var(--os-type-page-size);
+  font-weight: var(--os-type-page-weight);
+  line-height: var(--os-type-page-leading);
+  letter-spacing: var(--os-type-page-tracking);
+  color: var(--os-type-page-color);
+}
+
+@utility type-section {
+  font-size: var(--os-type-section-size);
+  font-weight: var(--os-type-section-weight);
+  line-height: var(--os-type-section-leading);
+  letter-spacing: var(--os-type-section-tracking);
+  color: var(--os-type-section-color);
+}
+
+@utility type-title {
+  font-size: var(--os-type-title-size);
+  font-weight: var(--os-type-title-weight);
+  line-height: var(--os-type-title-leading);
+  letter-spacing: var(--os-type-title-tracking);
+  color: var(--os-type-title-color);
+}
+
+@utility type-label {
+  font-size: var(--os-type-label-size);
+  font-weight: var(--os-type-label-weight);
+  line-height: var(--os-type-label-leading);
+  letter-spacing: var(--os-type-label-tracking);
+  color: var(--os-type-label-color);
+}
+
+@utility type-description {
+  font-size: var(--os-type-description-size);
+  font-weight: var(--os-type-description-weight);
+  line-height: var(--os-type-description-leading);
+  letter-spacing: var(--os-type-description-tracking);
+  color: var(--os-type-description-color);
+}
+
+@utility type-body {
+  font-size: var(--os-type-body-size);
+  font-weight: var(--os-type-body-weight);
+  line-height: var(--os-type-body-leading);
+  letter-spacing: var(--os-type-body-tracking);
+  color: var(--os-type-body-color);
+}
+
+@utility type-caption {
+  font-size: var(--os-type-caption-size);
+  font-weight: var(--os-type-caption-weight);
+  line-height: var(--os-type-caption-leading);
+  letter-spacing: var(--os-type-caption-tracking);
+  color: var(--os-type-caption-color);
+}
+
+/* Form controls retain shadcn’s ordinary 8px round corners. */
+@utility rounded-field {
+  border-radius: var(--os-radius-control);
+  corner-shape: round;
+}
+
+/* Other semantic radius utilities share the corner shape; circles stay round. */
+@utility rounded-tiny {
+  border-radius: var(--os-radius-tiny);
+  corner-shape: var(--os-corner-shape);
+}
+@utility rounded-small {
+  border-radius: var(--os-radius-small);
+  corner-shape: var(--os-corner-shape);
+}
+@utility rounded-soft {
+  border-radius: var(--os-radius-soft);
+  corner-shape: var(--os-corner-shape);
+}
+@utility rounded-control {
+  border-radius: var(--os-radius-control);
+  corner-shape: var(--os-corner-shape);
+}
+@utility rounded-panel {
+  border-radius: var(--os-radius-panel);
+  corner-shape: var(--os-corner-shape);
+}
+@utility rounded-card {
+  border-radius: var(--os-radius-card);
+  corner-shape: var(--os-corner-shape);
+}
+@utility rounded-roomy {
+  border-radius: var(--os-radius-roomy);
+  corner-shape: var(--os-corner-shape);
+}
+
+/* Third-party surfaces share the same corner entry without dependency patches. */
+@utility rounded-xs {
+  @apply rounded-tiny;
+}
+@utility rounded-sm {
+  @apply rounded-small;
+}
+@utility rounded-md {
+  @apply rounded-soft;
+}
+@utility rounded-lg {
+  @apply rounded-control;
+}
+@utility rounded-xl {
+  @apply rounded-panel;
+}
+@utility rounded-2xl {
+  @apply rounded-card;
+}
+@utility rounded-3xl {
+  @apply rounded-roomy;
+}
+
+/* Explicit shape resets preserve circular and square overrides on shared controls. */
+@utility rounded-full {
+  border-radius: calc(infinity* 1px);
+  corner-shape: round;
+}
+@utility rounded-none {
+  border-radius: 0;
+  corner-shape: round;
+}
+
+@utility workspace-region {
+  container: workspace / inline-size;
+  min-width: 0;
+}
+
+@utility workspace-surface {
+  width: calc(100% - var(--os-navigation-width) - var(--os-space-2));
+  height: calc(100% - var(--os-space-2) * 2);
+  margin: var(--os-space-2) var(--os-space-2) var(--os-space-2) var(--os-navigation-width);
+  background: var(--os-surface);
+  border: 1px solid var(--os-workspace-border);
+  border-radius: var(--os-radius-roomy);
+  corner-shape: var(--os-corner-shape);
+  @media (width <= 768px) {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+@utility page-gutters {
+  --os-page-gutter: var(--os-space-4);
+  @container workspace (min-width: 640px) {
+    --os-page-gutter: var(--os-space-6);
+  }
+  @container workspace (min-width: 1200px) {
+    --os-page-gutter: var(--os-space-8);
+  }
+  padding-inline: var(--os-page-gutter);
+}
+
+@utility page-frame {
+  @apply page-gutters;
+  container: page / inline-size;
+  width: 100%;
+  max-width: var(--os-workspace-max);
+  min-width: 0;
+  margin-inline: auto;
+}
+
+@utility resource-grid {
+  display: grid;
+  min-width: 0;
+  align-items: start;
+  gap: var(--os-grid-gap);
+  @container (width < 640px) {
+    gap: var(--os-space-4);
+  }
+}
+@utility employee-grid {
+  @apply resource-grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--os-employee-min)), 1fr));
+}
+@utility capability-grid {
+  @apply resource-grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--os-capability-min)), 1fr));
+}
+@utility connection-grid {
+  @apply resource-grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--os-connection-min)), 1fr));
+}
+@utility configuration-layout {
+  display: grid;
+  min-width: 0;
+  align-items: start;
+  gap: var(--os-space-6);
+  grid-template-columns: minmax(0, 1fr);
+  @container (min-width: 1008px) {
+    grid-template-columns: minmax(0, 1fr) var(--os-preview-width);
+  }
+}
+@utility agent-editor-frame {
+  max-width: var(--os-agent-editor-max);
+}
+@utility agent-instructions-layout {
+  @apply configuration-layout;
+  @container (min-width: 1008px) {
+    grid-template-columns: minmax(0, 1fr) var(--os-agent-context-width);
+  }
+}
+@utility form-panel {
+  container: panel / inline-size;
+  min-width: 0;
+  padding: var(--os-space-6);
+  @container (width < 632px) {
+    padding: var(--os-space-4);
+  }
+}
+/* Scrollports clip both axes: reserve focus paint while preserving content alignment. */
+@utility focus-gutter {
+  margin: calc(var(--os-focus-gutter) * -1);
+  padding: var(--os-focus-gutter);
+  scroll-padding: var(--os-focus-gutter);
+}
+/* Edge-aligned controls keep both Tailwind rings and the fallback outline inside. */
+@utility focus-inset {
+  --os-focus-outline-offset: -2px;
+  @apply ring-inset;
+}
+@utility form-grid {
+  & > :is(label, [data-slot="field"]):not(.col-span-full) {
+    min-width: 0;
+    max-width: var(--os-field-max);
+  }
+  display: grid;
+  min-width: 0;
+  gap: var(--os-space-6);
+  grid-template-columns: minmax(0, 1fr);
+  /* Query the field region after panel padding: 2 × 280 + 24. */
+  @container (min-width: 584px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@utility file-layout {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+  @container (min-width: 800px) {
+    grid-template-columns: var(--os-file-navigation) minmax(0, 1fr);
+  }
+}
+/* A centered reading frame expands in tiers; resource-page budgets stay independent. */
+@utility conversation-gutters {
+  --os-conversation-gutter: var(--os-space-8);
+  padding-inline: var(--os-conversation-gutter);
+  @media (max-width: 1250px) {
+    --os-conversation-gutter: var(--os-space-6);
+  }
+  @media (max-width: 760px) {
+    --os-conversation-gutter: var(--os-space-4);
+  }
+}
+@utility conversation-workspace {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  @container workspace (min-width: 912px) {
+    flex-direction: row;
+  }
+}
+@utility conversation-sidebar {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 38%;
+  min-width: 0;
+  min-height: 0;
+  background: var(--os-canvas);
+  border-radius: var(--os-radius-card);
+  margin: var(--os-space-2);
+  @container workspace (min-width: 912px) {
+    flex: 0 0 var(--os-conversation-sidebar-width);
+    margin: var(--os-space-4) var(--os-space-4) var(--os-space-4) var(--os-space-2);
+  }
+}
+@utility conversation-page-frame {
+  @apply page-frame conversation-gutters;
+  --os-conversation-max: var(--os-conversation-standard);
+  max-width: var(--os-conversation-max);
+  @media (min-width: 1920px) {
+    --os-conversation-max: var(--os-conversation-wide);
+  }
+  @media (min-width: 2560px) {
+    --os-conversation-max: var(--os-conversation-ultrawide);
+  }
+}
+@utility conversation-frame {
+  @apply conversation-page-frame;
+  /* Percentage padding resolves against the message viewport, without an inherited cqw value. */
+  padding-right: max(
+    var(--os-conversation-gutter),
+    calc(var(--os-question-reserve) - max(0px, (100% - var(--os-conversation-max)) / 2))
+  );
+}
+@utility article-measure {
+  max-width: 672px;
+  max-width: var(--os-prose-article);
+  &:lang(en) {
+    max-width: 75ch;
+  }
+}
+@utility dialog-surface {
+  overflow-y: auto;
+  padding: var(--os-space-6);
+  @media (width < 640px) {
+    padding: var(--os-space-4);
+  }
+}
+@utility dialog-center {
+  max-height: calc(100dvh - var(--os-space-4) * 2);
+}
+@utility dialog-standard {
+  width: min(var(--os-dialog-standard), calc(100vw - var(--os-space-4) * 2));
+}
+@utility dialog-small {
+  width: min(var(--os-dialog-small), calc(100vw - var(--os-space-4) * 2));
+}
+@utility dialog-wide {
+  width: min(var(--os-dialog-wide), calc(100vw - var(--os-space-4) * 2));
+}
+@utility dialog-workspace {
+  width: min(var(--os-dialog-workspace), calc(100vw - var(--os-space-4) * 2));
+  height: calc(100dvh - var(--os-space-4) * 2);
+  overflow: hidden;
+  padding: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+@utility dialog-side {
+  width: 100%;
+  max-height: 100dvh;
+  @media (min-width: 768px) {
+    width: var(--os-dialog-standard);
+  }
+}
+
+@utility resource-card-content {
+  min-width: 0;
+  padding: var(--os-space-5);
+  @container resource-card (width < 280px) {
+    padding: var(--os-space-4);
+  }
+}
