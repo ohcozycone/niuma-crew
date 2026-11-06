@@ -30,7 +30,11 @@ RUN pip install --no-cache-dir --index-url "$UV_BOOTSTRAP_INDEX" uv==0.12.7 \
     && useradd --uid 10001 --create-home niuma \
     && mkdir /data && chown niuma:niuma /data
 COPY backend/pyproject.toml backend/uv.lock ./
-RUN uv sync --locked --no-dev --no-install-project
+ARG PYPI_INSTALL_INDEX=https://pypi.org/simple
+# Export the frozen graph with hashes, so mirrors cannot change dependency versions.
+RUN uv export --frozen --offline --no-dev --no-emit-project --format requirements-txt --output-file /tmp/requirements.txt \
+    && uv venv --python /usr/local/bin/python .venv \
+    && uv pip install --python .venv/bin/python --no-deps --require-hashes --index-url "$PYPI_INSTALL_INDEX" -r /tmp/requirements.txt
 COPY backend/app ./app
 COPY backend/migrations ./migrations
 COPY backend/alembic.ini ./

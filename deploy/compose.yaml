@@ -6,6 +6,9 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
       target: app
+      args:
+        UV_BOOTSTRAP_INDEX: ${UV_BOOTSTRAP_INDEX:-https://pypi.org/simple}
+        PYPI_INSTALL_INDEX: ${PYPI_INSTALL_INDEX:-https://pypi.org/simple}
     environment:
       APP_DATA_DIR: /data
       SKILL_LIBRARY_DIR: /data/skill-library

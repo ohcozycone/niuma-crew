@@ -48,7 +48,7 @@ access_log off;
 
 Docker 构建固定按 uv/pnpm 锁文件安装。内存较小的主机按 app、docs 顺序构建；文档构建限制 JavaScript 堆并使用单个构建 CPU。构建过程仍需访问镜像与软件包源。
 
-若目标网络下载 uv 安装包缓慢，可在 `build app` 时通过 `--build-arg UV_BOOTSTRAP_INDEX=https://mirrors.cloud.tencent.com/pypi/simple/` 指定已验证可达的软件包镜像。uv 版本保持固定，应用依赖仍使用仓库锁文件。
+若目标网络下载软件包缓慢，可在 .env 配置 UV_BOOTSTRAP_INDEX 和 PYPI_INSTALL_INDEX 为已验证可达的镜像，例如 `https://mirrors.cloud.tencent.com/pypi/simple/`。uv 版本固定；应用安装从冻结的 uv.lock 导出完整版本与哈希，安装器必须校验哈希，不重新选择依赖版本。
 
 ## 验证、更新和恢复
 
