@@ -2975,7 +2975,23 @@
     "run_lifecycle": "runtime/execution/runner.py",
     "run_actions_budget_evidence": "runtime/execution/store.py",
     "agent_sdk_loop": "runtime/agent/engine.py",
-    "resource_lifecycle": "bootstrap/lifecycle.py"
+    "process_resource_lifecycle": "bootstrap/lifecycle.py",
+    "conversation_message_writes": "applications/conversations/writes.py",
+    "evaluation_commands": "applications/evaluations/commands.py",
+    "employee_configuration": "resources/employees/service.py",
+    "organization_rules": "resources/organization_rules/service.py",
+    "skill_publication": "resources/skills/service.py",
+    "model_connection_configuration": "resources/model_connections/service.py",
+    "knowledge_libraries": "resources/knowledge/libraries.py",
+    "knowledge_documents": "resources/knowledge/documents.py",
+    "knowledge_processing": "resources/knowledge/processing.py",
+    "knowledge_vector_publication": "resources/knowledge/vectors.py",
+    "mcp_definitions": "resources/mcp/definitions.py",
+    "mcp_connections": "resources/mcp/connections.py",
+    "mcp_tokens": "resources/mcp/tokens.py",
+    "file_registration": "resources/files/service.py",
+    "file_retention_cleanup": "resources/files/cleanup.py",
+    "sandbox_lifecycle": "resources/environments/service.py"
   },
   "callback_contracts": [
     {
