@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import OperationalError
 from test_capability_runtime import ScriptedModel, discovery_response, execute, response, setup
 
-from app.builtin_tools.workspace import _SandboxFileBackend
+from app.builtin_tools.sandbox_backend import SandboxFileBackend
 from app.employees.models import AgentToolGrant
 from app.environments.models import SandboxResource
 from app.environments.service import SandboxService
@@ -589,7 +589,7 @@ def test_sandbox_sdk_commands_are_unprivileged_and_bounded():
         handlers.on_stdout(SimpleNamespace(text="done"))
         return SimpleNamespace(exit_code=0)
 
-    backend = _SandboxFileBackend(
+    backend = SandboxFileBackend(
         sandbox=SimpleNamespace(id="fake", commands=SimpleNamespace(run=run)), timeout=60
     )
     assert backend.execute("python script.py", timeout=500).output == "done"

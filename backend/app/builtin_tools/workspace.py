@@ -1,6 +1,5 @@
 from deepagents.backends import StateBackend
 from deepagents.backends.protocol import (
-    ExecuteResponse,
     FileDownloadResponse,
     GlobResult,
     GrepResult,
@@ -9,10 +8,9 @@ from deepagents.backends.protocol import (
 )
 from deepagents.backends.utils import create_file_data, file_data_to_string
 from deepagents.middleware.filesystem import FilesystemMiddleware
-from langchain_opensandbox import OpenSandboxBackend
 
 from app.builtin_tools.results import feedback_outcome, tool_message
-from app.environments.open_sandbox import OpenSandboxOperations
+from app.builtin_tools.sandbox_backend import SandboxFileBackend
 from app.environments.policy import WRITE_TOOLS, checked_path, under
 from app.errors import InvalidInputError, PermissionDeniedError
 from app.runtime.contracts.tools import ToolInvocation, ToolOutcome, WorkspaceHost
@@ -80,7 +78,7 @@ class WorkspaceBackend(SandboxBackendProtocol):
         self.result_sources = result_sources
 
     def _sandbox_backend(self, handle):
-        return _SandboxFileBackend(
+        return SandboxFileBackend(
             sandbox=handle, timeout=self.snapshot.get("workspace", {}).get("command_seconds", 60)
         )
 
@@ -305,25 +303,6 @@ class WorkspaceBackend(SandboxBackendProtocol):
                 )
             work.materialize_readonly(files)
             self.materialized_skills.add(skill_id)
-
-
-class _SandboxFileBackend(OpenSandboxBackend):
-    def __init__(self, *, sandbox, timeout=60):
-        super().__init__(sandbox=sandbox, timeout=timeout)
-        self.operations = OpenSandboxOperations(sandbox, timeout)
-
-    def execute(self, command, *, timeout=None):
-        result = self.operations.execute(command, timeout=timeout)
-        return ExecuteResponse(output=result.output, exit_code=result.exit_code)
-
-    def materialize_readonly(self, files):
-        self.operations.materialize_readonly(files)
-
-    def check_path(self, path, *, write=False):
-        self.operations.check_path(path, write=write)
-
-    def collect_outputs(self):
-        return self.operations.collect_outputs()
 
 
 def filesystem_middleware(backend, names=None, *, context_bytes=131072):
