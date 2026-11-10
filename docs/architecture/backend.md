@@ -88,6 +88,7 @@ backend/
 │   ├── test_architecture_contract.py
 │   ├── test_architecture_substitution.py
 │   ├── test_architecture_recovery.py
+│   ├── test_legacy_model_bootstrap.py
 │   ├── fixtures/backend_boundary_v8.tar.gz
 │   └── 其他业务、事务、故障与恢复测试
 ├── datasets/                    # 保留全部样本与来源说明
@@ -148,5 +149,7 @@ API 只调用应用或资源的公开查询；对话与考核查询负责核对�
 模型用量的数据定义在 `common/usage`，供应商字段解释在 `infrastructure/llm/usage`，纯累计在 `runtime/usage`，诊断投影在 `runtime/execution/metrics`。普通调用与摘要共用一份累计状态，不能把已累计用量再次相加。
 
 模型适配、检索实现和业务发布的隔离由[替换测试](../../backend/tests/test_architecture_substitution.py)验证。[旧版本中断恢复测试](../../backend/tests/test_architecture_recovery.py)使用源码快照生成的合成持久样本，核对已保存工具、未知尝试、预算与未知用量。外部协议、表结构和旧 SDK 存档恢复仍须与迁移前样本比较；架构检查或单元测试通过不能替代这些验收。
+
+本次迁移的六项门槛、跨版本样本和快照恢复结果见[迁移验收](../records/后端模块边界迁移验收.md)。
 
 当前宿主采用单进程锁，不支持多 worker 或跨主机领取。完整机制见[执行说明](../../backend/app/runtime/execution/README.md)，工程要求见[后端手册](../engineering/backend.md)，部署与恢复见[运维指南](../guides/backend-operations.md)。
