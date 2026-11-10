@@ -33,8 +33,6 @@ from app.resources.model_connections.service import ModelConnectionService
 from app.resources.organization_rules.service import OrganizationRulesService
 from app.resources.skills.service import SkillService
 from app.runtime.contracts.runs import ExecutionStatus
-from app.runtime.execution.knowledge_evidence import KnowledgeEvidence
-from app.runtime.execution.queries import ExecutionQueries
 
 
 def get_database(request: Request) -> Database:
@@ -172,13 +170,6 @@ def get_knowledge_search(request: Request) -> KnowledgeSearch:
 KnowledgeSearchDependency = Annotated[KnowledgeSearch, Depends(get_knowledge_search)]
 
 
-def get_knowledge_evidence(request: Request) -> KnowledgeEvidence:
-    return request.app.state.knowledge_evidence
-
-
-KnowledgeEvidenceDependency = Annotated[KnowledgeEvidence, Depends(get_knowledge_evidence)]
-
-
 def get_rate_limiter(request: Request) -> RateLimiter:
     return request.app.state.rate_limiter
 
@@ -245,10 +236,3 @@ def get_sandboxes(request: Request) -> SandboxService:
 
 
 SandboxDependency = Annotated[SandboxService, Depends(get_sandboxes)]
-
-
-def get_execution_queries(request: Request) -> ExecutionQueries:
-    return request.app.state.execution_queries
-
-
-ExecutionQueriesDependency = Annotated[ExecutionQueries, Depends(get_execution_queries)]

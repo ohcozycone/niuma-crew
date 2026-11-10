@@ -194,12 +194,16 @@ def build_services(app, settings, cleanup):
     )
     app.state.runs, app.state.run_worker = runs, worker
     app.state.evaluation_commands = EvaluationCommands(database, runs)
-    app.state.evaluation_queries = EvaluationQueries(database)
+    app.state.evaluation_queries = EvaluationQueries(
+        database, executions=app.state.execution_queries
+    )
     app.state.evaluation_progression = EvaluationProgression(database, runs)
     app.state.evaluation_worker = EvaluationWorker(app.state.evaluation_progression)
     app.state.runtime_status = worker.status
     app.state.stream_settings = settings.stream
-    app.state.conversation_queries = ConversationQueries(database)
+    app.state.conversation_queries = ConversationQueries(
+        database, executions=app.state.execution_queries, knowledge=app.state.knowledge_evidence
+    )
     app.state.subscriptions = {}
     acceptance = ConversationAcceptance(database, runs.authorize, settings.runtime.poll_interval)
     worker.set_completion_notifier(acceptance.wake)

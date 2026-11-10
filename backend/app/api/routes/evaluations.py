@@ -7,7 +7,6 @@ from app.api.dependencies import (
     ActorDependency,
     EvaluationCommandsDependency,
     EvaluationQueriesDependency,
-    ExecutionQueriesDependency,
     require_capability,
 )
 from app.applications.evaluations.benchmark import catalog
@@ -66,16 +65,19 @@ def execution_trace(
     case_id: UUID,
     actor: ActorDependency,
     evaluations: EvaluationQueriesDependency,
-    traces: ExecutionQueriesDependency,
     response: Response,
     offset: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
     action_id: UUID | None = None,
 ) -> dict:
-    run_id = evaluations.trace_run(actor, batch_id, str(case_id))
     response.headers["Cache-Control"] = "no-store"
-    return traces.read(
-        actor, run_id, offset=offset, limit=limit, action_id=str(action_id) if action_id else None
+    return evaluations.trace(
+        actor,
+        batch_id,
+        str(case_id),
+        offset=offset,
+        limit=limit,
+        action_id=str(action_id) if action_id else None,
     )
 
 
@@ -85,13 +87,11 @@ def execution_evidence(
     case_id: UUID,
     actor: ActorDependency,
     evaluations: EvaluationQueriesDependency,
-    traces: ExecutionQueriesDependency,
     action_id: UUID,
     direction: str,
 ) -> Response:
-    run_id = evaluations.trace_run(actor, batch_id, str(case_id))
     return Response(
-        traces.download(actor, run_id, str(action_id), direction),
+        evaluations.trace_evidence(actor, batch_id, str(case_id), str(action_id), direction),
         media_type="application/json",
         headers={
             "Cache-Control": "no-store",

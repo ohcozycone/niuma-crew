@@ -8,8 +8,8 @@ from fastapi.responses import Response
 
 from app.api.dependencies import (
     ActorDependency,
+    ConversationQueriesDependency,
     KnowledgeDocumentsDependency,
-    KnowledgeEvidenceDependency,
     KnowledgeLibrariesDependency,
     KnowledgeProcessingDependency,
     KnowledgeSearchDependency,
@@ -237,9 +237,9 @@ source_router = APIRouter(prefix="/api/runs", tags=["knowledge"])
 
 @source_router.get("/{run_id}/knowledge-evidence", response_model=list[KnowledgeEvidenceReference])
 def evidence_references(
-    run_id: RecordID, actor: ActorDependency, knowledge: KnowledgeEvidenceDependency
+    run_id: RecordID, actor: ActorDependency, queries: ConversationQueriesDependency
 ):
-    return knowledge.references(actor, run_id)
+    return queries.knowledge_references(actor, run_id)
 
 
 @source_router.get(
@@ -249,7 +249,7 @@ def evidence_preview(
     run_id: RecordID,
     evidence_id: Annotated[str, Path(pattern=r"^K-[0-9a-f]{16}$")],
     actor: ActorDependency,
-    knowledge: KnowledgeEvidenceDependency,
+    queries: ConversationQueriesDependency,
     offset: int = Query(default=0, ge=0, le=2000),
 ):
-    return knowledge.preview(actor, run_id, evidence_id, offset)
+    return queries.knowledge_preview(actor, run_id, evidence_id, offset)

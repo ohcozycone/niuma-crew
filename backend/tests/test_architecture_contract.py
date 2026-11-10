@@ -209,6 +209,7 @@ def test_dependency_rules_and_named_orm_exceptions():
                 assert not any(
                     under(target, p)
                     for p in (
+                        "app.runtime.execution",
                         "app.runtime.agent",
                         "app.runtime.tools",
                         "app.runtime.execution.store",
