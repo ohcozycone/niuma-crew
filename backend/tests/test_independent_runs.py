@@ -21,12 +21,12 @@ from app.bootstrap import create_app
 from app.conversations.acceptance import ConversationAcceptance
 from app.conversations.models import Conversation, ConversationRun, Message
 from app.errors import NotFoundError, PermissionDeniedError
-from app.execution.contracts import Completion
 from app.execution.errors import PersistenceFailure
 from app.execution.models import Run, RunAction
 from app.execution.store import RunStore, require_run, retained_file_ids
 from app.files.models import StoredFile
 from app.infrastructure.database.transactions import reserve_writer
+from app.runtime.contracts.runs import Completion
 from app.values import utc_now
 
 

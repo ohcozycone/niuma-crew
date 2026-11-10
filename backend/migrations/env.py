@@ -4,8 +4,8 @@ from logging.config import fileConfig
 
 from alembic import context
 
+from app.bootstrap.model_registry import Base
 from app.config import load_config
-from app.infrastructure.database.models import Base
 from app.infrastructure.database.session import Database
 
 config = context.config

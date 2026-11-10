@@ -4,8 +4,14 @@ import logging
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, cast
 
-from app.agent.contracts import ContentUpdate
-from app.builtin_tools.contracts import (
+from app.execution.errors import (
+    ExecutionFailure,
+    PersistenceFailure,
+)
+from app.execution.tool_results import ToolResults
+from app.infrastructure.concurrency import run_sync
+from app.runtime.contracts.content import ContentUpdate
+from app.runtime.contracts.tools import (
     ModelExposure,
     SandboxAccess,
     ToolCaller,
@@ -13,12 +19,6 @@ from app.builtin_tools.contracts import (
     ToolOutcome,
     ToolPermit,
 )
-from app.execution.errors import (
-    ExecutionFailure,
-    PersistenceFailure,
-)
-from app.execution.tool_results import ToolResults
-from app.infrastructure.concurrency import run_sync
 
 if TYPE_CHECKING:
     from app.execution.models import Run

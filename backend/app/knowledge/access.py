@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 
 from app.auth.permissions import require_permission
 from app.auth.work_authorizations import authorize_work
-from app.builtin_tools.contracts import ToolInvocation
 from app.employees.knowledge import capture_knowledge
 from app.employees.models import Agent
 from app.errors import AuthenticationError, ConflictError, InvalidInputError, PermissionDeniedError
@@ -24,6 +23,7 @@ from app.knowledge.schemas import (
     KnowledgeReadInput,
     KnowledgeSearchInput,
 )
+from app.runtime.contracts.tools import ToolInvocation
 from app.values import utc_now
 
 if TYPE_CHECKING:

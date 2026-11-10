@@ -4,8 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.common.usage import TokenUsage
 from app.errors import FailureKind
-from app.llm.usage import TokenUsage
 from app.schemas import RequestModel
 
 

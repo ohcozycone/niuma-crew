@@ -4,10 +4,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.builtin_tools.contracts import ToolInvocation
 from app.errors import InvalidInputError
 from app.execution.tool_results import ToolResults
 from app.mcp.policy import authorize_arguments, validate_scope
+from app.runtime.contracts.tools import ToolInvocation
 
 
 def test_url_named_parameters_are_generic():

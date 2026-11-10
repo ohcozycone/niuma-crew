@@ -4,12 +4,12 @@ from typing import Any
 from app.agent.checkpoints import CheckpointStore
 from app.agent.config import AgentConfig
 from app.agent.engine import execute_agent
-from app.execution.contracts import ExecutionStatus
 from app.execution.runner import RunTask
 from app.execution.scheduler import RunWorker
 from app.execution.service import RunService
 from app.execution.snapshot import RunConfiguration
 from app.execution.store import RunStore
+from app.runtime.contracts.runs import ExecutionStatus
 
 
 def build_execution(

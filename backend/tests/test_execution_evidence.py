@@ -305,7 +305,7 @@ def test_0024_preserves_file_bytes_metadata_and_old_actions(api_client, monkeypa
 def test_readonly_retry_evidence_targets_new_attempt_and_cached_result_stays_compatible(api_client):
     from runtime_helpers import bind_model_calls, make_task
 
-    from app.builtin_tools.contracts import ToolInvocation, ToolOutcome
+    from app.runtime.contracts.tools import ToolInvocation, ToolOutcome
 
     _, _, _, conversation = setup(api_client)
     run_id = submit(api_client, conversation).json()["response"]["id"]

@@ -6,18 +6,18 @@ from typing import Any, cast
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.agent.contracts import ContentUpdate, InputMessage
 from app.auth.actor import Actor
 from app.auth.permissions import require_resource_access
-from app.builtin_tools.contracts import ModelExposure, ToolInvocation, ToolPermit
 from app.errors import ConflictError, NotFoundError, PermissionDeniedError
-from app.execution.contracts import SUPPORTED_SNAPSHOT_VERSIONS, Completion
 from app.execution.errors import ExecutionFailure
 from app.execution.evidence import document
 from app.execution.models import ACTIVE, TERMINAL, Run, RunAction
 from app.files.models import StoredFile
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
+from app.runtime.contracts.content import ContentUpdate, InputMessage
+from app.runtime.contracts.runs import SUPPORTED_SNAPSHOT_VERSIONS, Completion
+from app.runtime.contracts.tools import ModelExposure, ToolInvocation, ToolPermit
 from app.values import utc_now
 
 

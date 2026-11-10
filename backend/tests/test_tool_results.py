@@ -175,11 +175,11 @@ def test_result_reader_rechecks_originating_permission(api_client):
 
     from sqlalchemy import select
 
-    from app.builtin_tools.contracts import ToolInvocation
     from app.employees.access import authorize_tool
     from app.employees.models import AgentToolGrant
     from app.errors import ConflictError
     from app.execution.models import Run
+    from app.runtime.contracts.tools import ToolInvocation
 
     agent, conversation, _ = search_setup(api_client)
     run = submit(api_client, conversation).json()["response"]

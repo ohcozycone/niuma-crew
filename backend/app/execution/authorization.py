@@ -5,12 +5,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth.work_authorizations import authorize_work
-from app.builtin_tools.contracts import ToolInvocation
 from app.employees.access import assert_binding, authorize_execution, authorize_tool
 from app.errors import AuthenticationError, PermissionDeniedError
 from app.execution.errors import ExecutionFailure
 from app.execution.models import Run, RunAction
 from app.execution.store import assert_tool_exposure, require_run
+from app.runtime.contracts.tools import ToolInvocation
 from app.values import digest
 
 

@@ -2,7 +2,8 @@
 
 from langchain.tools import ToolRuntime
 
-from app.agent.contracts import AgentRuntimeContext, ContentUpdate
+from app.runtime.contracts.agent import AgentRuntimeContext
+from app.runtime.contracts.content import ContentUpdate
 
 
 def agent_runtime(host, run_id="run"):
@@ -75,7 +76,7 @@ class MemoryContext:
         raise AssertionError("No output storage was granted")
 
     async def begin_tool(self, invocation):
-        from app.builtin_tools.contracts import ToolPermit
+        from app.runtime.contracts.tools import ToolPermit
 
         await self.start(invocation.key, "tool_call")
         return ToolPermit(invocation.key, invocation.fingerprint)

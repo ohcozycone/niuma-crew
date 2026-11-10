@@ -7,8 +7,8 @@ from deepagents.middleware.skills import SkillsMiddleware
 from langchain.agents.middleware import AgentMiddleware
 
 from app.agent import prompts
-from app.agent.contracts import AgentContext
 from app.agent.errors import RuntimeFailure
+from app.runtime.contracts.agent import AgentContext
 
 SKILLS_ROOT = "/skills/"
 

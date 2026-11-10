@@ -12,7 +12,7 @@ from langchain.agents.middleware import AgentMiddleware
 from app.agent import prompts
 from app.agent.checkpoints import AgentRunState
 from app.agent.errors import RuntimeFailure
-from app.builtin_tools.contracts import TOOL_CATALOG_VERSION, ToolOutcome, catalog_hash
+from app.runtime.contracts.tools import TOOL_CATALOG_VERSION, ToolOutcome, catalog_hash
 
 INDEX_VERSION = TOOL_CATALOG_VERSION
 MCP_KINDS = {"mcp_http", "mcp_stdio"}

@@ -25,12 +25,12 @@ from app.evaluations.benchmark import (
     load_suite,
 )
 from app.evaluations.models import BATCH_ACTIVE, CASE_TERMINAL, EvaluationBatch, EvaluationCase
-from app.execution.contracts import run_thread_id
 from app.execution.models import ACTIVE, Run
 from app.execution.service import RunService
 from app.infrastructure.database.identifiers import allocate_id
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
+from app.runtime.contracts.runs import run_thread_id
 from app.values import digest, utc_now
 
 logger = logging.getLogger(__name__)

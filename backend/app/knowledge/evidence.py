@@ -9,7 +9,6 @@ from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
-from app.builtin_tools.contracts import ToolOutcome
 from app.errors import ConflictError, InvalidInputError, NotFoundError
 from app.execution.models import Run
 from app.execution.store import require_run
@@ -24,6 +23,7 @@ from app.knowledge.schemas import (
     KnowledgeEvidenceReference,
     KnowledgeReadInput,
 )
+from app.runtime.contracts.tools import ToolOutcome
 from app.values import digest
 
 if TYPE_CHECKING:

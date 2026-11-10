@@ -364,9 +364,9 @@ def test_oversized_summary_stops_before_request_without_replacing_task():
     "kind,reader_present", [("workspace", True), ("knowledge", True), ("mcp_http", False)]
 )
 def test_character_read_hint_does_not_advertise_unavailable_capability(kind, reader_present):
-    from app.builtin_tools.contracts import ToolInvocation
     from app.builtin_tools.result_files import ResultScope, result_read_hint
     from app.builtin_tools.results import result_reader_binding
+    from app.runtime.contracts.tools import ToolInvocation
 
     binding = {"kind": kind, "binding_id": "origin", "exposed_name": "source"}
     scope = ResultScope(
@@ -624,7 +624,7 @@ def test_image_only_mcp_result_does_not_serialize_image_into_text():
     from runtime_helpers import agent_runtime
     from test_tool_runtime import TraceHost, binding, call, message, tool_graph
 
-    from app.builtin_tools.contracts import ToolOutcome
+    from app.runtime.contracts.tools import ToolOutcome
 
     class Images(TraceHost):
         async def mcp_call(self, bound, arguments, guard):
@@ -657,8 +657,8 @@ def test_image_only_mcp_result_does_not_serialize_image_into_text():
 def test_failed_result_status_is_visible_beyond_application_metadata():
     from types import SimpleNamespace
 
-    from app.builtin_tools.contracts import ToolInvocation
     from app.execution.tool_results import ToolResults
+    from app.runtime.contracts.tools import ToolInvocation
 
     bodies = []
 

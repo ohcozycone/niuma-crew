@@ -8,7 +8,7 @@ from test_conversations import send, setup_agent
 
 from app.conversations.models import ConversationRun
 from app.conversations.queries import ConversationQueries
-from app.execution.contracts import Completion
+from app.runtime.contracts.runs import Completion
 
 
 def test_latest_attempt_filters_pending_adoption_and_literal_search(api_client):

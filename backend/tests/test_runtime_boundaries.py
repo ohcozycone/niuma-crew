@@ -10,9 +10,9 @@ from sqlalchemy.exc import OperationalError
 from test_capability_runtime import ScriptedModel, response, setup, submit
 
 from app.agent.checkpoints import CheckpointStore
-from app.agent.contracts import AgentRequest
 from app.agent.engine import execute_agent
 from app.execution.models import Run, RunAction
+from app.runtime.contracts.agent import AgentRequest
 
 
 def test_real_sdk_runs_with_memory_control_and_its_own_checkpoint_store(

@@ -7,10 +7,10 @@ from test_response_contract import employee
 
 from app.conversations.models import Conversation, ConversationRun, Message
 from app.errors import ServiceUnavailableError
-from app.execution.contracts import Completion
 from app.execution.models import Run
 from app.infrastructure.database.identifiers import MAX_ID, IdentifierSequence, allocate_id
 from app.infrastructure.database.session import Database
+from app.runtime.contracts.runs import Completion
 
 
 def first_input(client, **changes):

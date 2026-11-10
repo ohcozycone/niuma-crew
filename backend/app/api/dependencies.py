@@ -18,7 +18,6 @@ from app.employees.service import AgentService
 from app.environments.service import SandboxService
 from app.errors import PermissionDeniedError
 from app.evaluations.service import EvaluationService
-from app.execution.contracts import ExecutionStatus
 from app.execution.queries import ExecutionQueries
 from app.files.service import FileService
 from app.infrastructure.database.session import Database
@@ -28,6 +27,7 @@ from app.mcp.connections import ToolConnectionService
 from app.mcp.definitions import McpDefinitionService
 from app.mcp.oauth import OAuthService
 from app.model_connections.service import ModelConnectionService
+from app.runtime.contracts.runs import ExecutionStatus
 from app.skills.service import SkillService
 
 

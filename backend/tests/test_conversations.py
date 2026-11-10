@@ -20,15 +20,16 @@ from run_helpers import (
 from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 
-from app.agent.contracts import AgentOutput, AgentRequest, ContentUpdate
 from app.agent.prompts import compose_system_prompt
 from app.auth.models import AuthSession
 from app.auth.permissions import ROLE_PERMISSIONS
 from app.bootstrap import create_app
-from app.execution.contracts import RUN_SNAPSHOT_VERSION, Completion
 from app.execution.errors import ExecutionFailure
 from app.execution.models import Run
 from app.infrastructure.database.transactions import reserve_writer
+from app.runtime.contracts.agent import AgentOutput, AgentRequest
+from app.runtime.contracts.content import ContentUpdate
+from app.runtime.contracts.runs import RUN_SNAPSHOT_VERSION, Completion
 from app.values import utc_now
 
 
@@ -882,7 +883,7 @@ def test_http_model_adapter_uses_fixed_config_and_normalizes_finish_and_usage(
 
     from runtime_helpers import MemoryContext
 
-    from app.builtin_tools.contracts import catalog_hash
+    from app.runtime.contracts.tools import catalog_hash
 
     snapshot = {
         "tools": [],

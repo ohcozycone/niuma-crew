@@ -6,10 +6,10 @@ from run_helpers import complete_run, read_reply
 from test_conversations import send, setup_agent
 
 from app.agent.errors import RuntimeFailure
-from app.execution.contracts import Completion
 from app.execution.models import Run
 from app.execution.service import request_digest
 from app.execution.snapshot import validate_snapshot
+from app.runtime.contracts.runs import Completion
 
 
 def test_retired_routes_are_absent_and_old_inputs_are_rejected(api_client):

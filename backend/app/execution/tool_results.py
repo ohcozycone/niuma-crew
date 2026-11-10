@@ -1,9 +1,9 @@
 import json
 
-from app.agent.contracts import AgentContext
 from app.agent.errors import RuntimeFailure
-from app.builtin_tools.contracts import ToolInvocation
 from app.infrastructure.concurrency import run_sync
+from app.runtime.contracts.agent import AgentContext
+from app.runtime.contracts.tools import ToolInvocation
 
 PAGE_BYTES = 8000
 

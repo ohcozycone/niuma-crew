@@ -5,9 +5,9 @@ from test_agent_foundations import SearchClient, search_grant, send
 from test_capability_runtime import ScriptedModel, discovery_response, execute, response, setup
 
 from app.agent.tool_discovery import ToolDiscovery
-from app.builtin_tools.contracts import catalog_hash
 from app.builtin_tools.tool_search import search_binding, search_tool
 from app.mcp.contracts import exposed_name
+from app.runtime.contracts.tools import catalog_hash
 
 
 def test_search_expands_next_request_and_saves_exact_parent_exposure(api_client, monkeypatch):
@@ -191,8 +191,8 @@ def test_official_parallel_commands_union_only_after_results_are_saved():
 
 
 def test_model_exposure_cannot_be_overwritten_or_reused_for_hidden_tool(api_client):
-    from app.builtin_tools.contracts import ToolInvocation
     from app.execution.errors import ExecutionFailure
+    from app.runtime.contracts.tools import ToolInvocation
 
     _, _, employee, conversation = setup(api_client)
     connection = search_grant(api_client, employee)

@@ -10,7 +10,8 @@ from openai import APITimeoutError
 
 from app.llm.config import LLMConfig
 from app.llm.factory import create_chat_model, model_session
-from app.llm.usage import aggregate_usage, parse_token_usage
+from app.llm.usage import parse_token_usage
+from app.runtime.usage import aggregate_usage
 
 
 @pytest.mark.parametrize(

@@ -12,11 +12,11 @@ from langgraph.prebuilt import ToolNode
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from runtime_helpers import MemoryContext, agent_runtime, tool_runtime
 
-from app.agent.contracts import AgentRuntimeContext
 from app.agent.errors import RuntimeFailure
 from app.agent.skills import prepare_skills
 from app.agent.tool_calls import ToolExecutionMiddleware, prepare_agent_tools
-from app.builtin_tools.contracts import ToolOutcome
+from app.runtime.contracts.agent import AgentRuntimeContext
+from app.runtime.contracts.tools import ToolOutcome
 
 
 def binding(kind="mcp_http", name="lookup"):
@@ -61,7 +61,7 @@ def tool_graph(bindings, run_id="run", *, tools=None, saver=None, interrupt_befo
 
 
 def test_mcp_multimodal_blocks_and_failure_status_survive_saved_feedback():
-    from app.builtin_tools.contracts import ToolPermit
+    from app.runtime.contracts.tools import ToolPermit
 
     class Host(TraceHost):
         saved = None

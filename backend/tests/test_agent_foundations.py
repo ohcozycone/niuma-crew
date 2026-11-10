@@ -13,7 +13,6 @@ from sqlalchemy import select
 from sqlalchemy.exc import OperationalError
 from test_capability_runtime import ScriptedModel, discovery_response, execute, response, setup
 
-from app.builtin_tools.contracts import ToolInvocation
 from app.builtin_tools.workspace import _SandboxFileBackend
 from app.employees.models import AgentToolGrant
 from app.environments.models import SandboxResource
@@ -25,6 +24,7 @@ from app.mcp.adapters.http import MCPClient
 from app.mcp.config import ToolConfig
 from app.mcp.contracts import exposed_name
 from app.mcp.network import BoundedStream, PinnedTransport
+from app.runtime.contracts.tools import ToolInvocation
 from app.values import digest
 
 
@@ -288,8 +288,8 @@ def test_mcp_explicit_and_default_limits_survive_shared_budget_cleanup(
 ):
     from configuration_helpers import set_submission_limits
 
-    from app.builtin_tools.contracts import ToolOutcome
     from app.execution.errors import ExecutionFailure
+    from app.runtime.contracts.tools import ToolOutcome
 
     _, _, agent, conversation = setup(api_client)
     connection = search_grant(api_client, agent)

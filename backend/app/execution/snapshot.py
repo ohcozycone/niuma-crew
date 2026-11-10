@@ -7,10 +7,8 @@ from typing import Any, cast
 from sqlalchemy.orm import Session
 
 from app.agent.config import AgentConfig
-from app.agent.contracts import AgentSnapshot
 from app.agent.errors import RuntimeFailure
 from app.agent.prompts import compose_system_prompt
-from app.builtin_tools.contracts import TOOL_CATALOG_VERSION, catalog_hash
 from app.builtin_tools.knowledge import knowledge_instructions
 from app.builtin_tools.knowledge import tool_bindings as knowledge_bindings
 from app.builtin_tools.results import result_reader_binding
@@ -22,9 +20,11 @@ from app.employees.knowledge import capture_knowledge
 from app.employees.organization_rules import current_rules
 from app.errors import ConflictError, InvalidInputError, ServiceUnavailableError
 from app.execution.config import RuntimeConfig
-from app.execution.contracts import RUN_SNAPSHOT_VERSION, RunSpec
 from app.model_connections.models import ModelConnection
 from app.model_connections.presets import PRESETS
+from app.runtime.contracts.agent import AgentSnapshot
+from app.runtime.contracts.runs import RUN_SNAPSHOT_VERSION, RunSpec
+from app.runtime.contracts.tools import TOOL_CATALOG_VERSION, catalog_hash
 from app.values import digest
 
 
