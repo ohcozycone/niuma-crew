@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from test_employee_knowledge import agent, assemble, member, ready, run
 from test_knowledge_library import create
 
-from app.api.dependencies import get_actor, get_knowledge_evidence
+from app.api.dependencies import get_actor, get_conversation_queries
 from app.api.routes.knowledge import source_router
 from app.auth.actor import Actor
 from app.common.errors import ConflictError, NotFoundError, PermissionDeniedError
@@ -70,7 +70,7 @@ def test_run_source_http_endpoint_and_guest_denial(api_client):
         owner = db.get(Run, run_id).owner_user_id
     actor = Actor("user", "", owner, "admin", "admin", utc_now() + timedelta(hours=1))
     app.dependency_overrides[get_actor] = lambda: actor
-    app.dependency_overrides[get_knowledge_evidence] = lambda: service.knowledge_evidence
+    app.dependency_overrides[get_conversation_queries] = lambda: service.conversation_queries
     with TestClient(app) as client:
         result = client.get(path)
         assert result.status_code == 200, result.text

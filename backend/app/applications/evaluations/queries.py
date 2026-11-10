@@ -12,6 +12,7 @@ from app.common.errors import (
     NotFoundError,
 )
 from app.runtime.execution.models import Run
+from app.runtime.execution.queries import ExecutionQueries
 
 
 def require_batch(db, actor: Actor, batch_id: str) -> EvaluationBatch:
@@ -62,8 +63,27 @@ def summary(db, row: EvaluationBatch) -> dict:
 
 
 class EvaluationQueries:
-    def __init__(self, database):
-        self.database = database
+    def __init__(self, database, *, executions: ExecutionQueries):
+        self.database, self.executions = database, executions
+
+    def trace(
+        self,
+        actor: Actor,
+        batch_id: str,
+        case_id: str,
+        *,
+        offset: int = 0,
+        limit: int = 100,
+        action_id: str | None = None,
+    ) -> dict:
+        run_id = self.trace_run(actor, batch_id, case_id)
+        return self.executions.read(actor, run_id, offset=offset, limit=limit, action_id=action_id)
+
+    def trace_evidence(
+        self, actor: Actor, batch_id: str, case_id: str, action_id: str, direction: str
+    ) -> bytes:
+        run_id = self.trace_run(actor, batch_id, case_id)
+        return self.executions.download(actor, run_id, action_id, direction)
 
     def trace_run(self, actor: Actor, batch_id: str, case_id: str) -> str:
         with self.database.transaction() as db:

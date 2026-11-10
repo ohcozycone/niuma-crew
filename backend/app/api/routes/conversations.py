@@ -10,7 +10,6 @@ from app.api.dependencies import (
     ActorDependency,
     ConversationDependency,
     ConversationQueriesDependency,
-    ExecutionQueriesDependency,
 )
 from app.api.streaming import ResponseEventsDependency
 from app.applications.conversations.schemas import (
@@ -256,19 +255,20 @@ def execution_trace(
     response_id: RecordID,
     actor: ActorDependency,
     queries: ConversationQueriesDependency,
-    traces: ExecutionQueriesDependency,
     response: Response,
     offset: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
     action_id: UUID | None = None,
 ) -> dict:
-    run_id = queries.trace_run(actor, id, response_id)
     response.headers["Cache-Control"] = "no-store"
-    result = traces.read(
-        actor, run_id, offset=offset, limit=limit, action_id=str(action_id) if action_id else None
+    return queries.trace(
+        actor,
+        id,
+        response_id,
+        offset=offset,
+        limit=limit,
+        action_id=str(action_id) if action_id else None,
     )
-    result["context"] = queries.trace_context(actor, id, run_id)
-    return result
 
 
 @router.get(
@@ -279,13 +279,11 @@ def execution_evidence(
     response_id: RecordID,
     actor: ActorDependency,
     queries: ConversationQueriesDependency,
-    traces: ExecutionQueriesDependency,
     action_id: UUID,
     direction: str,
 ) -> Response:
-    run_id = queries.trace_run(actor, id, response_id)
     return Response(
-        traces.download(actor, run_id, str(action_id), direction),
+        queries.trace_evidence(actor, id, response_id, str(action_id), direction),
         media_type="application/json",
         headers={
             "Cache-Control": "no-store",
@@ -300,16 +298,12 @@ def latest_execution_trace(
     id: RecordID,
     actor: ActorDependency,
     queries: ConversationQueriesDependency,
-    traces: ExecutionQueriesDependency,
     response: Response,
     offset: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 100,
     action_id: UUID | None = None,
 ) -> dict:
-    run_id = queries.trace_run(actor, id)
     response.headers["Cache-Control"] = "no-store"
-    result = traces.read(
-        actor, run_id, offset=offset, limit=limit, action_id=str(action_id) if action_id else None
+    return queries.trace(
+        actor, id, offset=offset, limit=limit, action_id=str(action_id) if action_id else None
     )
-    result["context"] = queries.trace_context(actor, id, run_id)
-    return result

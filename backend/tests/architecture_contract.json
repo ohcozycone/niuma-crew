@@ -3479,7 +3479,7 @@
       "get_knowledge_processing",
       "get_knowledge_vectors",
       "get_knowledge_search",
-      "get_knowledge_evidence"
+      "get_conversation_queries"
     ],
     "api/dependencies.py:get_evaluations": [
       "get_evaluation_commands",
@@ -3498,6 +3498,10 @@
     "knowledge/service.py:KnowledgeService": [
       "KnowledgeLibraries",
       "KnowledgeDocuments"
+    ],
+    "api/dependencies.py:get_execution_queries": [
+      "get_conversation_queries",
+      "get_evaluation_queries"
     ]
   }
 }

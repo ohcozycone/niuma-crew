@@ -22,7 +22,15 @@ class ExecutionQueries:
     def __init__(self, database, files, logs):
         self.database, self.files, self.logs = database, files, logs
 
-    def read(self, actor, run_id, *, offset=0, limit=100, action_id=None):
+    def read(
+        self,
+        actor: Actor,
+        run_id: str,
+        *,
+        offset: int = 0,
+        limit: int = 100,
+        action_id: str | None = None,
+    ) -> dict:
         require_permission(actor, "runs:read")
         diagnostic = {"agents:read", "organization_rules:read"} <= permissions_for(actor)
         with self.database.transaction() as db:
@@ -168,7 +176,7 @@ class ExecutionQueries:
             else None,
         }
 
-    def download(self, actor, run_id, action_id, direction):
+    def download(self, actor: Actor, run_id: str, action_id: str, direction: str) -> bytes:
         require_permission(actor, "runs:read")
         require_permission(actor, "agents:read")
         require_permission(actor, "organization_rules:read")

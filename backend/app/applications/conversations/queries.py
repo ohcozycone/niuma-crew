@@ -15,11 +15,57 @@ from app.applications.conversations.schemas import (
 from app.auth.actor import Actor
 from app.common.schemas import Page
 from app.infrastructure.database.session import Database
+from app.resources.knowledge.schemas import KnowledgeEvidenceRead, KnowledgeEvidenceReference
+from app.runtime.execution.knowledge_evidence import KnowledgeEvidence
+from app.runtime.execution.queries import ExecutionQueries
 
 
 class ConversationQueries:
-    def __init__(self, database: Database) -> None:
+    def __init__(
+        self,
+        database: Database,
+        *,
+        executions: ExecutionQueries | None = None,
+        knowledge: KnowledgeEvidence | None = None,
+    ) -> None:
         self.database = database
+        self.executions, self.knowledge = executions, knowledge
+
+    def trace(
+        self,
+        actor: Actor,
+        conversation_id: str,
+        response_id: str | None = None,
+        *,
+        offset: int = 0,
+        limit: int = 100,
+        action_id: str | None = None,
+    ) -> dict:
+        """先确认业务归属，再读取执行诊断并补齐对话上下文。"""
+        assert self.executions is not None
+        run_id = self.trace_run(actor, conversation_id, response_id)
+        result = self.executions.read(
+            actor, run_id, offset=offset, limit=limit, action_id=action_id
+        )
+        result["context"] = self.trace_context(actor, conversation_id, run_id)
+        return result
+
+    def trace_evidence(
+        self, actor: Actor, conversation_id: str, response_id: str, action_id: str, direction: str
+    ) -> bytes:
+        assert self.executions is not None
+        run_id = self.trace_run(actor, conversation_id, response_id)
+        return self.executions.download(actor, run_id, action_id, direction)
+
+    def knowledge_references(self, actor: Actor, run_id: str) -> list[KnowledgeEvidenceReference]:
+        assert self.knowledge is not None
+        return self.knowledge.references(actor, run_id)
+
+    def knowledge_preview(
+        self, actor: Actor, run_id: str, evidence_id: str, offset: int = 0
+    ) -> KnowledgeEvidenceRead:
+        assert self.knowledge is not None
+        return self.knowledge.preview(actor, run_id, evidence_id, offset)
 
     def trace_context(self, actor: Actor, conversation_id: str, response_id: str) -> dict:
         with self.database.transaction() as db:
