@@ -112,7 +112,7 @@ backend/
 | capability_catalog | 技能与 MCP 只读概要 | 不管理资源或推进执行 |
 | auth、infrastructure、common | 必要的基础机制和普通值 | 不反向获取业务服务；common 不保存服务实例 |
 
-跨表只读投影与环境历史多态映射按文件声明，不能豁免整个目录。投影禁止写入、提交或回滚。数据库元数据聚合只在 `bootstrap/model_registry.py`，数据库机制不导入业务模型。绝对、相对、包聚合、类型分支、局部和字面量动态导入均受[架构测试](../../backend/tests/test_architecture_contract.py)检查；普通运行契约另做独立进程导入验证。
+跨表只读投影与环境历史多态映射按文件声明，不能豁免整个目录。投影禁止写入、提交或回滚。数据库元数据聚合只在 `bootstrap/model_registry.py`，数据库机制不导入业务模型。应用启动与 Alembic 均经该入口完成注册，包括历史 `native` 多态记录；不能依赖迁移进程替运行进程完成映射初始化。绝对、相对、包聚合、类型分支、局部和字面量动态导入均受[架构测试](../../backend/tests/test_architecture_contract.py)检查；普通运行契约另做独立进程导入验证。
 
 ## 状态所有权与事务
 

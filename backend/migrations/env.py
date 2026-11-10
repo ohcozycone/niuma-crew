@@ -4,7 +4,7 @@ from logging.config import fileConfig
 
 from alembic import context
 
-from app.bootstrap.model_registry import Base
+from app.bootstrap.model_registry import Base, register_models
 from app.config import load_config
 from app.infrastructure.database.session import Database
 
@@ -13,6 +13,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # The model registry loads every table before Alembic compares metadata.
+register_models()
 target_metadata = Base.metadata
 settings = load_config().database
 

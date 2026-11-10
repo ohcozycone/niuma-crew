@@ -14,6 +14,7 @@ from app.applications.evaluations.references import assert_employee_unused as ev
 from app.applications.evaluations.worker import EvaluationWorker
 from app.auth.github import GitHubOAuth
 from app.auth.service import AuthService
+from app.bootstrap.model_registry import register_models
 from app.common.errors import ConflictError
 from app.infrastructure.credentials import CredentialVault
 from app.infrastructure.database.session import Database
@@ -67,6 +68,7 @@ def check_model_references(db, connection_id):
 
 
 def build_services(app, settings, cleanup):
+    register_models()
     database = Database(settings.database)
     cleanup.callback(database.close)
     app.state.database = database
