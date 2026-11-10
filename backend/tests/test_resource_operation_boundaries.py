@@ -13,7 +13,7 @@ from app.employees.access import authorize_execution, configured_agent
 from app.employees.assembly import capture_skills
 from app.employees.models import AgentSkill, AgentToolGrant
 from app.employees.organization_rules import OrganizationRulesService, current_rules
-from app.employees.references import model_employees, skill_assignments
+from app.employees.references import model_employees, skill_assignment_counts, skill_assignments
 from app.employees.schemas import (
     AgentCreate,
     AgentPatch,
@@ -50,7 +50,12 @@ def resources(migrated_config):
         actors["guest"] = Actor("guest", str(uuid4()), None, None, "guest", expires)
     services = SimpleNamespace(
         database=database,
-        skills=SkillService(database, migrated_config.skills, assignment_facts=skill_assignments),
+        skills=SkillService(
+            database,
+            migrated_config.skills,
+            assignment_facts=skill_assignments,
+            assignment_counts=skill_assignment_counts,
+        ),
         agents=AgentService(database, check_history=check_employee_history),
         rules=OrganizationRulesService(database),
         models=ModelConnectionService(

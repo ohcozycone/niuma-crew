@@ -23,7 +23,7 @@ from sqlalchemy import URL, select
 
 from app.agent import engine, prompts
 from app.auth.service import AuthService
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.config import AppConfig, DatabaseConfig, load_config
 from app.execution.config import RuntimeConfig
 from app.execution.models import RunAction

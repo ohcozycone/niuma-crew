@@ -138,7 +138,7 @@ class McpDefinitionService:
         ):
             raise InvalidInputError("mcp_input_invalid", "输入字段必须唯一且与接入配置一致。")
         if data.transport == "http" and names:
-            from app.mcp.connections import valid_header
+            from app.mcp.network import valid_header
 
             if len(names) > 1 or (
                 names[0].lower() != "authorization" and not valid_header(names[0])
@@ -318,7 +318,7 @@ class McpDefinitionService:
                         )
                     auth_type = "bearer"
                 else:
-                    from app.mcp.connections import valid_header
+                    from app.mcp.network import valid_header
 
                     if not valid_header(key):
                         raise InvalidInputError("mcp_config_unsupported", "不支持此认证头名称。")
@@ -396,7 +396,7 @@ class McpDefinitionService:
                 )
             url = remote.get("url", "")
             validate_endpoint(url)
-            from app.mcp.connections import valid_header
+            from app.mcp.network import valid_header
 
             if (
                 inputs
@@ -509,3 +509,10 @@ def validate_stdio(command, args, env_keys, config):
             "stdio_environment_denied",
             "环境变量只允许业务凭据或参数，不能改变程序搜索、加载、代理或宿主目录。",
         )
+
+
+def service_fact(db, id):
+    from types import SimpleNamespace
+
+    row = db.get(McpService, id)
+    return SimpleNamespace(name=row.name, enabled=row.enabled) if row else None

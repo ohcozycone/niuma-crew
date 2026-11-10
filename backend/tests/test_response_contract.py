@@ -8,8 +8,8 @@ from fastapi.testclient import TestClient
 from run_helpers import complete_run, empty_conversation
 from sqlalchemy import inspect, select
 
-from app.bootstrap import create_app
-from app.conversations import queries
+from app.bootstrap.app import create_app
+from app.conversations import projections as queries
 from app.conversations.models import ConversationRun, Message
 from app.runtime.contracts.runs import Completion
 

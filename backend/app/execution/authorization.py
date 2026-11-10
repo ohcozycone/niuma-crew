@@ -5,12 +5,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth.work_authorizations import authorize_work
-from app.employees.access import assert_binding, authorize_execution, authorize_tool
-from app.errors import AuthenticationError, PermissionDeniedError
+from app.employees.access import assert_binding, authorize_execution
+from app.environments.policy import authorize_workspace_arguments
+from app.errors import AuthenticationError, ConflictError, PermissionDeniedError
 from app.execution.errors import ExecutionFailure
 from app.execution.models import Run, RunAction
 from app.execution.store import assert_tool_exposure, require_run
 from app.knowledge.sources import context_revision
+from app.mcp.policy import authorize_arguments
 from app.runtime.contracts.tools import ToolInvocation
 from app.values import digest
 
@@ -103,3 +105,42 @@ def authorize_run(
                 raise ExecutionFailure("tool_not_allowed")
             return knowledge.authorize(db, snapshot, invocation)
         return authorize_tool(db, snapshot, invocation)
+
+
+def authorize_tool(db: Session, snapshot: dict, invocation: ToolInvocation) -> dict:
+    if invocation.skill_id:
+        authorize_execution(db, snapshot, [invocation.skill_id])
+        root = f"/skills/s-{invocation.skill_id}/"
+        skill = next(item for item in snapshot["skills"] if item["skill_id"] == invocation.skill_id)
+        allowed = {root + "SKILL.md"} | {
+            root + item["path"] for item in skill.get("package_manifest", [])
+        }
+        if invocation.name != "read_file" or invocation.arguments.get("file_path") not in allowed:
+            raise ConflictError("skill_not_allowed")
+        return {"recovery": "readonly", "scope_policy": {"max_calls": 32}}
+    result_read = invocation.name == "read_tool_result" and invocation.binding_id.startswith(
+        "result:"
+    )
+    origin_id = (
+        invocation.binding_id.removeprefix("result:") if result_read else invocation.binding_id
+    )
+    binding = next(
+        (item for item in snapshot.get("tools", []) if item["binding_id"] == origin_id),
+        None,
+    )
+    if not binding or (
+        binding["kind"] == "workspace"
+        if result_read
+        else binding["exposed_name"] != invocation.name
+    ):
+        raise ConflictError("tool_not_allowed")
+    if binding["kind"] == "workspace":
+        authorize_workspace_arguments(binding, invocation.arguments)
+        return cast(dict, binding)
+    assert_binding(db, snapshot, binding)
+    if result_read:
+        # 分页不调用上游，但仍检查来源工具当前许可并独立扣减读取预算。
+        return {**binding, "recovery": "readonly", "scope_policy": {"max_calls": 32}}
+    authorize_arguments(binding, invocation.arguments)
+    # MCP 的默认单工具限次属于许可策略，不给其他工具附加隐式限次。
+    return {**binding, "scope_policy": {"max_calls": 32, **binding["scope_policy"]}}

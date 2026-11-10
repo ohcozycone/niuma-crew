@@ -11,7 +11,6 @@ from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
 from app.errors import ConflictError, InvalidInputError, NotFoundError
-from app.files.models import StoredFile
 from app.files.service import FileService, safe_name
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
@@ -80,9 +79,8 @@ class KnowledgeDocuments:
         self.database, self.files, self.libraries = database, files, libraries
         self.prune_vectors = prune_vectors
 
-    @staticmethod
-    def document_read(session: Session, row: LibraryDocument) -> DocumentRead:
-        original = session.get(StoredFile, row.file_id)
+    def document_read(self, session: Session, row: LibraryDocument) -> DocumentRead:
+        original = self.files.metadata(session, row.file_id)
         if original is None:
             raise RuntimeError("knowledge original metadata missing")
         count = (

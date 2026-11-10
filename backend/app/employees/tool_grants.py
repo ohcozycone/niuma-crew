@@ -5,8 +5,7 @@ from sqlalchemy import select
 
 from app.employees.models import AgentToolGrant
 from app.errors import ConflictError, InvalidInputError
-from app.mcp.connections import require_connection
-from app.mcp.models import ToolConnection
+from app.mcp.connections import assignable_connection_ids, connection_fact
 from app.mcp.policy import validate_scope
 from app.schemas import RequestModel
 
@@ -48,9 +47,8 @@ def grants_for(db, agent_id):
     return list(
         db.scalars(
             select(AgentToolGrant)
-            .join(ToolConnection, ToolConnection.id == AgentToolGrant.tool_connection_id)
             .where(AgentToolGrant.agent_id == agent_id)
-            .where(ToolConnection.kind != "native")
+            .where(AgentToolGrant.tool_connection_id.in_(assignable_connection_ids()))
             .order_by(AgentToolGrant.id)
         )
     )
@@ -79,7 +77,7 @@ def apply_grants(db, agent, requested_grants, user_id):
         if requested.connection_id in seen or len(requested.tools) != len(set(requested.tools)):
             raise InvalidInputError("duplicate_tool_grant", "连接和工具不能重复。")
         seen.add(requested.connection_id)
-        connection = require_connection(db, requested.connection_id)
+        connection = connection_fact(db, requested.connection_id)
         if connection.kind == "native":
             raise InvalidInputError(
                 "workspace_not_assignable", "文件与执行由平台提供，不再作为员工工具装配。"

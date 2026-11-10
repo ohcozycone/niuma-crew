@@ -12,7 +12,7 @@ from app.auth.config import AuthConfig
 from app.auth.models import AuthSession, User
 from app.auth.permissions import ROLE_PERMISSIONS
 from app.auth.service import AuthService, token_digest
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.errors import AuthenticationError, RateLimitError
 from app.values import utc_now
 

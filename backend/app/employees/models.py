@@ -14,7 +14,6 @@ from app.infrastructure.database.fields import (
     UTCDateTime,
     UUIDText,
 )
-from app.skills.models import Skill
 from app.values import optional_text, required_text, utc_now
 
 
@@ -91,7 +90,7 @@ class AgentSkill(Base):
         UUIDText(), ForeignKey(Agent.id, ondelete="CASCADE"), primary_key=True
     )
     skill_id: Mapped[str] = mapped_column(
-        UUIDText(), ForeignKey(Skill.id, ondelete="RESTRICT"), primary_key=True
+        UUIDText(), ForeignKey("skills.id", ondelete="RESTRICT"), primary_key=True
     )
     created_at: Mapped[datetime] = mapped_column(
         UTCDateTime(), server_default=UTC_TIMESTAMP_DEFAULT

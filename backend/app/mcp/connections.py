@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 from collections.abc import Callable
 
 from sqlalchemy import select
@@ -17,32 +16,9 @@ from app.infrastructure.database.transactions import reserve_writer
 from app.mcp.access import managed_connection
 from app.mcp.config import ToolConfig
 from app.mcp.models import HttpConnection, McpService, StdioConnection, ToolConnection
-from app.mcp.network import validate_endpoint
+from app.mcp.network import valid_header, validate_endpoint
 from app.mcp.schemas import ToolConnectionCreate, ToolConnectionPatch, ToolConnectionRead
 from app.values import digest
-
-
-def valid_header(name):
-    return (
-        isinstance(name, str)
-        and re.fullmatch(r"[A-Za-z][A-Za-z0-9-]{0,63}", name)
-        and name.lower()
-        not in {
-            "host",
-            "cookie",
-            "content-length",
-            "content-type",
-            "proxy-authorization",
-            "connection",
-            "transfer-encoding",
-            "authorization",
-            "accept",
-            "accept-encoding",
-            "origin",
-            "referer",
-        }
-        and not name.lower().startswith(("proxy-", "sec-"))
-    )
 
 
 def connection_read(row) -> ToolConnectionRead:
@@ -505,3 +481,29 @@ class ToolConnectionService:
             if row.auth_type == "env"
             else [self._decrypt(row)]
         )
+
+
+def connection_fact(db, id):
+    from copy import deepcopy
+    from types import SimpleNamespace
+
+    row = require_connection(db, id)
+    keys = (
+        "id",
+        "name",
+        "service_id",
+        "kind",
+        "enabled",
+        "auth_type",
+        "oauth_status",
+        "config_revision",
+        "credential_revision",
+        "catalog_revision",
+        "approved_catalog",
+        "approved_instructions",
+    )
+    return SimpleNamespace(**{key: deepcopy(getattr(row, key)) for key in keys})
+
+
+def assignable_connection_ids():
+    return select(ToolConnection.id).where(ToolConnection.kind != "native")

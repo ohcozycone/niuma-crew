@@ -8,7 +8,7 @@ from test_conversations import send, setup_agent
 
 from app.auth.models import User
 from app.auth.permissions import ROLE_PERMISSIONS
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.conversations.queries import ConversationQueries
 from app.errors import PermissionDeniedError
 from app.runtime.contracts.runs import Completion

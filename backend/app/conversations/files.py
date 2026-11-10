@@ -4,7 +4,6 @@ from app.auth.permissions import require_permission
 from app.conversations.access import require_conversation
 from app.conversations.models import ConversationRun, Message, MessageFile
 from app.errors import NotFoundError
-from app.files.models import StoredFile
 from app.files.service import file_ref
 
 
@@ -22,20 +21,19 @@ class ConversationFiles:
         require_permission(actor, "conversations:read")
         with self.database.transaction() as db:
             require_conversation(db, conversation_id, actor)
-            rows = db.scalars(
-                select(StoredFile)
-                .join(MessageFile, MessageFile.file_id == StoredFile.id)
+            ids = db.scalars(
+                select(MessageFile.file_id)
                 .join(Message, Message.id == MessageFile.message_id)
                 .where(Message.conversation_id == conversation_id)
                 .distinct()
             )
-            return [file_ref(row) for row in rows]
+            return [file_ref(info) for id in ids if (info := self.files.metadata(db, id))]
 
     def download(self, actor, conversation_id, file_id):
         require_permission(actor, "conversations:read")
         with self.database.transaction() as db:
             require_conversation(db, conversation_id, actor)
-            row = db.get(StoredFile, file_id)
+            row = self.files.metadata(db, file_id)
             associated = db.scalar(
                 select(MessageFile.file_id)
                 .join(Message, Message.id == MessageFile.message_id)

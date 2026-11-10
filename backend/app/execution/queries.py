@@ -1,15 +1,19 @@
 import json
+from copy import deepcopy
+from dataclasses import fields
 
 from sqlalchemy import func, or_, select
+from sqlalchemy.orm import Session
 
+from app.auth.actor import Actor
 from app.auth.permissions import permissions_for, require_permission
 from app.errors import InvalidInputError, NotFoundError
 from app.execution.errors import failure_kind
 from app.execution.evidence import redact
 from app.execution.metrics import diagnostic_metrics
-from app.execution.models import RunAction
+from app.execution.models import Run, RunAction
 from app.execution.store import require_run
-from app.files.models import StoredFile
+from app.runtime.contracts.runs import RunState
 
 PREVIEW_BYTES = 256 * 1024
 
@@ -144,7 +148,7 @@ class ExecutionQueries:
             return {"status": "restricted"}
         if not file_id:
             return {"status": "not_collected"}
-        file = db.get(StoredFile, file_id)
+        file = self.files.metadata(db, file_id)
         if not file or file.purpose != "evidence" or file.origin_run_id != run_id:
             return {"status": "unavailable"}
         try:
@@ -174,7 +178,7 @@ class ExecutionQueries:
             require_run(db, run_id, actor)
             action = self._require_action(db, run_id, action_id)
             file = (
-                db.get(StoredFile, getattr(action, direction + "_file_id"))
+                self.files.metadata(db, getattr(action, direction + "_file_id"))
                 if getattr(action, direction + "_file_id")
                 else None
             )
@@ -182,3 +186,19 @@ class ExecutionQueries:
                 raise NotFoundError("evidence_not_found")
             file_id = file.id
         return self.files.read(file_id)
+
+
+def run_state(row: Run) -> RunState:
+    return RunState(
+        **{field.name: deepcopy(getattr(row, field.name)) for field in fields(RunState)}
+    )
+
+
+def read_run(db: Session, run_id: str, actor: Actor | None = None) -> RunState:
+    """在调用方事务内读取独立值，不返回可变的执行记录。"""
+    return run_state(require_run(db, run_id, actor))
+
+
+def optional_run(db: Session, run_id: str) -> RunState | None:
+    row = db.get(Run, run_id)
+    return run_state(row) if row else None

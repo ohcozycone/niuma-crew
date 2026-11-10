@@ -27,6 +27,7 @@ from app.execution.errors import (
     terminal_status,
 )
 from app.execution.models import ACTIVE, Run, RunAction
+from app.execution.queries import run_state
 from app.execution.store import RunStore, require_run
 from app.infrastructure.database.identifiers import allocate_id
 from app.infrastructure.database.session import Database
@@ -35,6 +36,7 @@ from app.runtime.contracts.runs import (
     RUN_SNAPSHOT_VERSION,
     Completion,
     ExecutionStatus,
+    RunState,
     run_thread_id,
 )
 from app.runtime.contracts.tools import ModelExposure, ToolInvocation
@@ -53,7 +55,7 @@ def request_digest(command: dict) -> str:
 
 def find_request(
     db: Session, actor: Actor, operation: str, key: str, digest: str | None = None
-) -> Run | None:
+) -> RunState | None:
     """先查幂等原请求，再检查新工作的准入条件。"""
     require_permission(actor, "runs:create")
     row = db.scalar(
@@ -66,7 +68,7 @@ def find_request(
     if row is not None:
         if digest is not None and row.request_hash != digest:
             raise ConflictError("idempotency_conflict")
-        return require_run(db, row.id, actor)
+        return run_state(require_run(db, row.id, actor))
     return None
 
 
@@ -95,7 +97,7 @@ class RunService:
 
     def authorize(
         self,
-        row: Run,
+        row: Run | RunState,
         active: Iterable[str] = (),
         db: Session | None = None,
         invocation: ToolInvocation | None = None,
@@ -106,6 +108,7 @@ class RunService:
         if db is None:
             with self.database.transaction() as session:
                 return self.authorize(row, active, session, invocation, exposure=exposure)
+        row = require_run(db, row.id)
         return authorize_run(
             db,
             row,
@@ -133,13 +136,13 @@ class RunService:
         digest: str,
         thread_id: str,
         base_run_id: str | None = None,
-        retry_of: Run | None = None,
+        retry_of: Run | RunState | None = None,
         allowed_file_ids: set[str] | None = None,
         tools_enabled: bool = True,
-    ) -> Run:
+    ) -> RunState:
         """在调用方事务中冻结输入并创建排队记录。"""
-        if row := find_request(db, actor, operation, request_id, digest):
-            return row
+        if existing := find_request(db, actor, operation, request_id, digest):
+            return existing
         if not self.status.accepting:
             raise ServiceUnavailableError("runtime_unavailable", retry_after=1)
         active = (
@@ -237,11 +240,12 @@ class RunService:
         if snapshot.get("knowledge"):
             self.configuration.bind_history(db, row)
             RunStore.record_history(db, row)
-        return row
+        return run_state(row)
 
     @staticmethod
-    def cancel(db: Session, row: Run) -> None:
+    def cancel(db: Session, row: Run | RunState) -> None:
         """登记取消，不提交调用方事务。"""
+        row = require_run(db, row.id)
         if row.status not in ("queued", "running"):
             return
         row.cancel_requested_at = utc_now()

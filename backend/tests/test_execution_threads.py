@@ -7,7 +7,7 @@ from test_capability_runtime import ScriptedModel, response
 from test_response_contract import employee, submit
 from test_response_contract import wire as wire
 
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.execution.models import Run
 
 

@@ -1,6 +1,6 @@
 import json
 
-from app.agent.errors import RuntimeFailure
+from app.execution.errors import ExecutionFailure
 from app.infrastructure.concurrency import run_sync
 from app.runtime.contracts.agent import AgentContext
 from app.runtime.contracts.tools import ToolInvocation
@@ -24,21 +24,21 @@ class ToolResults:
             ref["id"] == result_id and ref["name"].startswith("tool-result-")
             for ref in self.resources.list_sources()
         ):
-            raise RuntimeFailure("tool_not_allowed")
+            raise ExecutionFailure("tool_not_allowed")
         try:
             envelope = json.loads(self.resources.read_file(result_id))
         except (ValueError, TypeError):
-            raise RuntimeFailure("tool_result_unknown") from None
+            raise ExecutionFailure("tool_result_unknown") from None
         if not isinstance(envelope, dict) or not isinstance(envelope.get("platform_result"), dict):
-            raise RuntimeFailure("tool_result_unknown")
+            raise ExecutionFailure("tool_result_unknown")
         meta = envelope["platform_result"]
         if meta.get("format_version") not in (None, 2) or (
             meta.get("format_version") == 2 and not isinstance(envelope.get("text"), str)
         ):
-            raise RuntimeFailure("tool_result_unknown")
+            raise ExecutionFailure("tool_result_unknown")
         binding = self.bindings.get(meta.get("binding_id"))
         if not binding or not isinstance(envelope.get("data"), dict):
-            raise RuntimeFailure("tool_not_allowed")
+            raise ExecutionFailure("tool_not_allowed")
         return envelope
 
     def read_page(self, result_id: str, offset: int = 0, limit: int = 6000) -> str:
@@ -51,7 +51,7 @@ class ToolResults:
             or type(limit) is not int
             or not (0 <= offset <= len(text) and limit >= 1)
         ):
-            raise RuntimeFailure("tool_arguments_invalid")
+            raise ExecutionFailure("tool_arguments_invalid")
         # limit 是期望字符数；只按现有正文容量返回窗口，不因请求较大而中止 Run。
         # 每字符至少占一字节，先限字符可避免为很大的 limit 编码整份归档。
         chunk = (

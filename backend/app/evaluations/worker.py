@@ -1,13 +1,13 @@
 import asyncio
 import logging
 
-from app.evaluations.service import EvaluationService
+from app.evaluations.progression import EvaluationProgression
 
 logger = logging.getLogger(__name__)
 
 
 class EvaluationWorker:
-    def __init__(self, service: EvaluationService, interval: float = 0.5) -> None:
+    def __init__(self, service: EvaluationProgression, interval: float = 0.5) -> None:
         self.service, self.interval = service, interval
         self.task: asyncio.Task | None = None
 

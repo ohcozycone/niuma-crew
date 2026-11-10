@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from uvicorn.importer import import_from_string
 
 from app import __version__
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.files.cleanup import FileCleanup
 from app.infrastructure.database.session import Database
 from app.knowledge.worker import KnowledgeWorker
@@ -175,7 +175,7 @@ def test_lifespan_releases_created_resources_despite_failures(app_config, monkey
         def broken_files(*args):
             raise RuntimeError("construction")
 
-        monkeypatch.setattr("app.bootstrap.app.FileService", broken_files)
+        monkeypatch.setattr("app.bootstrap.services.FileService", broken_files)
     else:
         for cls, name in (
             (RunWorker, "run_worker"),

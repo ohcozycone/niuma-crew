@@ -5,7 +5,7 @@ import logging
 import sqlite3
 import time
 from collections.abc import Awaitable, Callable, Coroutine
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -18,16 +18,15 @@ from app.execution.errors import (
     execution_failure,
     terminal_status,
 )
-from app.execution.snapshot import validate_snapshot
+from app.execution.preparation import prepare_run
 from app.infrastructure.concurrency import run_sync, settle
 from app.infrastructure.observability import correlate_run, failure_frames
-from app.runtime.contracts.agent import AgentContext, AgentOutput, AgentRequest, AgentSnapshot
+from app.runtime.contracts.agent import AgentContext, AgentOutput, AgentRequest, CheckpointReader
 from app.runtime.contracts.runs import SUPPORTED_SNAPSHOT_VERSIONS, Completion
 from app.runtime.contracts.tools import SandboxAccess, ToolCaller
 from app.values import utc_now
 
 if TYPE_CHECKING:
-    from app.agent.checkpoints import CheckpointStore
     from app.environments.service import SandboxService
     from app.execution.knowledge import RunKnowledgeSearch
     from app.execution.models import Run
@@ -56,7 +55,7 @@ class RunTask:
         settings: RuntimeConfig,
         agent: Callable[[AgentRequest, AgentContext], Coroutine[Any, Any, AgentOutput]],
         connections: ModelConnectionService,
-        checkpoints: CheckpointStore,
+        checkpoints: CheckpointReader,
         tools: ToolInvocationService,
         files: FileService,
         sandboxes: SandboxService,
@@ -243,49 +242,4 @@ class RunTask:
             raise
 
     def _prepare(self) -> None:
-        if self.row is None:
-            self.row, _ = self._store.load(self.run_id)
-        row = self.row
-        if row.config_snapshot.get("schema_version") not in SUPPORTED_SNAPSHOT_VERSIONS:
-            raise ExecutionFailure("checkpoint_unavailable")
-        checkpoint = self._checkpoints.for_run(row.id, row.checkpoint_id, thread_id=row.thread_id)
-        if row.model_calls and checkpoint is None:
-            raise ExecutionFailure("checkpoint_unavailable")
-        snapshot = cast(AgentSnapshot, dict(validate_snapshot(row.config_snapshot)))
-        config = self._connections.resolve(
-            snapshot["connection_id"],
-            snapshot["connection_config_revision"],
-            snapshot["connection_credential_revision"],
-        )
-        self._tools = self._tool_service.for_run(row.id)
-        if snapshot.get("workspace", {}).get("mode") == "sandbox":
-            self.sandbox = self._sandboxes.for_run(
-                row.id,
-                snapshot.get("input_files", []),
-                self._files.read,
-                profile=snapshot["workspace"],
-            )
-        self.context = RunContext(
-            row,
-            store=self._store,
-            runs=self._runs,
-            files=self._files,
-            skills=self._skills,
-            knowledge=self._knowledge,
-            tools=self._tools,
-            sandbox=self.sandbox,
-        )
-        self.context.restore(self._store.restore_control(row.id))
-        self.request = AgentRequest(
-            row.id,
-            snapshot,
-            row.input_snapshot,
-            config,
-            checkpoint,
-            recovered_usage=self.context.recovered_usage,
-            activated_skills=frozenset(self.context.active_skills),
-            recovered_content=tuple(self.context.progress.contents.values()),
-            thread_id=row.thread_id,
-            base_checkpoint_id=row.base_checkpoint_id,
-            base_run_id=row.base_run_id,
-        )
+        prepare_run(self)

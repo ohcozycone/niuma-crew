@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
@@ -183,3 +184,13 @@ class OrganizationRulesRead(BaseModel):
     instructions: str
     revision: int
     updated_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class AgentConfiguration:
+    id: str
+    name: str
+    revision: int
+    updated_at: datetime
+    system_prompt: str
+    model_connection_id: str

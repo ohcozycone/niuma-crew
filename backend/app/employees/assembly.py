@@ -7,31 +7,31 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.employees.models import Agent, AgentSkill
+from app.employees.schemas import AgentConfiguration
 from app.employees.tool_grants import grants_for
 from app.errors import ConflictError, InvalidInputError
-from app.mcp.connections import require_connection
+from app.mcp.connections import connection_fact
 from app.mcp.contracts import exposed_name
-from app.mcp.models import McpService
+from app.mcp.definitions import service_fact
 from app.skills.contracts import SkillExecutionEntry
-from app.skills.definitions import definition_from_record, readiness_reason
-from app.skills.models import Skill
+from app.skills.definitions import published_skill, readiness_reason
 from app.skills.parameters import validate_parameters
 from app.values import digest
 
 
 def capture_skills(
-    db: Session, agent: Agent, selected: Collection[str]
+    db: Session, agent: Agent | AgentConfiguration, selected: Collection[str]
 ) -> list[SkillExecutionEntry]:
-    rows = db.execute(
-        select(AgentSkill, Skill)
-        .join(Skill)
-        .where(AgentSkill.agent_id == agent.id)
-        .order_by(Skill.id)
+    rows = db.scalars(
+        select(AgentSkill).where(AgentSkill.agent_id == agent.id).order_by(AgentSkill.skill_id)
     )
     candidates: list[SkillExecutionEntry] = []
     available = set()
-    for relation, skill in rows:
-        definition = definition_from_record(skill)
+    for relation in rows:
+        definition = published_skill(db, relation.skill_id)
+        if definition is None:
+            continue
+        skill = definition
         ready = relation.enabled and readiness_reason(definition) is None
         if skill.id in selected and not ready:
             raise ConflictError("skill_not_ready", "所选技能尚未就绪。")
@@ -71,11 +71,11 @@ def capture_tools(db, agent_id):
     for grant in grants_for(db, agent_id):
         if not grant.enabled:
             continue
-        connection = require_connection(db, grant.tool_connection_id)
+        connection = connection_fact(db, grant.tool_connection_id)
         pending = connection.auth_type == "oauth" and connection.oauth_status != "connected"
         if not connection.enabled:
             continue
-        service = db.get(McpService, connection.service_id) if connection.service_id else None
+        service = service_fact(db, connection.service_id) if connection.service_id else None
         if service is not None and not service.enabled:
             continue
         catalog = {item["name"]: item for item in connection.approved_catalog}

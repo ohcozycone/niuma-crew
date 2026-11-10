@@ -17,7 +17,7 @@ from app.auth.github import OAUTH_COOKIE, OAUTH_COOKIE_PATH, OAUTH_TTL, safe_ret
 from app.auth.models import AuthSession, ExternalIdentity, User
 from app.auth.permissions import ROLE_PERMISSIONS
 from app.auth.service import token_digest
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.errors import InvalidInputError, RateLimitError, ServiceUnavailableError
 from app.values import utc_now
 

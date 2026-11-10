@@ -1,9 +1,16 @@
 from functools import partial
+from types import SimpleNamespace
 from typing import Any
 
 from app.agent.checkpoints import CheckpointStore
 from app.agent.config import AgentConfig
 from app.agent.engine import execute_agent
+from app.agent.prompts import compose_system_prompt
+from app.builtin_tools.knowledge import knowledge_instructions
+from app.builtin_tools.knowledge import tool_bindings as knowledge_bindings
+from app.builtin_tools.results import result_reader_binding
+from app.builtin_tools.tool_search import search_binding
+from app.builtin_tools.workspace import workspace_tools
 from app.execution.runner import RunTask
 from app.execution.scheduler import RunWorker
 from app.execution.service import RunService
@@ -32,6 +39,14 @@ def build_execution(
     checkpoints = CheckpointStore(database.engine.url.database)
     configuration = RunConfiguration(
         runtime,
+        SimpleNamespace(
+            workspace_tools=workspace_tools,
+            knowledge_bindings=knowledge_bindings,
+            knowledge_instructions=knowledge_instructions,
+            result_reader_binding=result_reader_binding,
+            search_binding=search_binding,
+            compose_system_prompt=compose_system_prompt,
+        ),
         agent=agent_settings,
         files=files,
         sandboxes=sandboxes,

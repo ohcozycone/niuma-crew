@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -12,6 +13,7 @@ from app.errors import ConflictError, InvalidInputError, NotFoundError
 from app.execution.evidence_models import RunKnowledgeEvidence
 from app.execution.models import Run
 from app.execution.store import require_run
+from app.infrastructure.database.session import Database
 from app.knowledge.contracts import Chunk
 from app.knowledge.schemas import (
     KnowledgeEvidenceRead,
@@ -28,7 +30,9 @@ class KnowledgeEvidence:
     context_revision = staticmethod(context_revision)
     assert_evidence = staticmethod(assert_evidence)
 
-    def __init__(self, database, *, run_scope) -> None:
+    def __init__(
+        self, database: Database, *, run_scope: Callable[[Session, str], tuple[Run, dict]]
+    ) -> None:
         self.database, self.run_scope = database, run_scope
 
     @staticmethod
@@ -55,7 +59,7 @@ class KnowledgeEvidence:
         result = self.hit(evidence, offset, limit)
         row = db.get(Run, evidence.run_id)
         if row is None:
-            raise ConflictError("knowledge_source_changed", "来源运行不存在。")
+            raise ConflictError("knowledge_source_changed")
         for item in row.config_snapshot.get("knowledge", {}).get("history_evidence", []):
             if item["evidence_id"] != evidence.evidence_id:
                 continue
@@ -73,7 +77,7 @@ class KnowledgeEvidence:
                 or source_run.thread_id != row.thread_id
                 or not self.frozen_scope(source_run, source)
             ):
-                raise ConflictError("knowledge_source_changed", "历史知识来源已变化。")
+                raise ConflictError("knowledge_source_changed")
             result["source_url"] = item["source_url"]
             break
         return result
@@ -83,9 +87,7 @@ class KnowledgeEvidence:
             self.run_scope(db, run_id)
             evidence = db.get(RunKnowledgeEvidence, (run_id, data.evidence_id))
             if evidence is None:
-                raise NotFoundError(
-                    "knowledge_evidence_not_found", "该证据不属于本轮已取得的来源。"
-                )
+                raise NotFoundError("knowledge_evidence_not_found")
             result = self.citation_hit(db, evidence, data.offset, 2000)
         return KnowledgeResult(
             json.dumps(result, ensure_ascii=False),
@@ -140,9 +142,7 @@ class KnowledgeEvidence:
             if internal and raw not in urls:
                 invalid.add(raw)
         if invalid:
-            raise InvalidInputError(
-                "knowledge_citation_invalid", "回答包含未在本轮取得或不匹配的知识来源，未发布结果。"
-            )
+            raise InvalidInputError("knowledge_citation_invalid")
         return text
 
     @staticmethod
@@ -192,7 +192,7 @@ class KnowledgeEvidence:
             row = self.readable_run(db, actor, run_id)
             evidence = db.get(RunKnowledgeEvidence, (run_id, evidence_id))
             if evidence is None or not self.frozen_scope(row, evidence):
-                raise NotFoundError("knowledge_evidence_not_found", "该运行没有此知识来源。")
+                raise NotFoundError("knowledge_evidence_not_found")
             assert_evidence(db, evidence, {evidence.knowledge_base_id})
             return KnowledgeEvidenceRead(
                 **{
@@ -304,7 +304,7 @@ class KnowledgeEvidence:
                     **self.citation_hit(db, evidence),
                 }
             ):
-                raise ConflictError("knowledge_source_changed", "历史知识来源已变化，请重新发送。")
+                raise ConflictError("knowledge_source_changed")
             assert_evidence(db, evidence, allowed)
             db.add(
                 RunKnowledgeEvidence(

@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from app.conversations.access import require_binding
 from app.conversations.models import Conversation, ConversationRun, Message
 from app.errors import ConflictError
-from app.execution.models import Run
 from app.infrastructure.database.identifiers import allocate_id
+from app.runtime.contracts.runs import RunState
 from app.values import utc_now
 
 
@@ -53,7 +53,7 @@ def prepare_input(
 
 
 def bind_run(
-    db: Session, conversation: Conversation, message: Message, run: Run
+    db: Session, conversation: Conversation, message: Message, run: RunState
 ) -> ConversationRun:
     if (
         run.origin_kind != "conversation"
@@ -85,7 +85,7 @@ def bind_run(
     return binding
 
 
-def publish_conversation(db: Session, row: Run, content: str | None) -> None:
+def publish_conversation(db: Session, row: RunState, content: str | None) -> None:
     binding = require_binding(db, row)
     conversation = db.get(Conversation, binding.conversation_id)
     if (

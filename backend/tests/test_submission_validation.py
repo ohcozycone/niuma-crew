@@ -5,10 +5,10 @@ import pytest
 from run_helpers import complete_run, read_reply
 from test_conversations import send, setup_agent
 
-from app.agent.errors import RuntimeFailure
+from app.execution.errors import ExecutionFailure
 from app.execution.models import Run
 from app.execution.service import request_digest
-from app.execution.snapshot import validate_snapshot
+from app.execution.snapshot_rules import validate_snapshot
 from app.runtime.contracts.runs import Completion
 
 
@@ -89,7 +89,7 @@ def test_malformed_snapshot_stops_before_credentials_and_model(
         "resolve",
         lambda *args: pytest.fail("Invalid snapshot reached credential resolution"),
     )
-    with pytest.raises(RuntimeFailure, match="checkpoint_unavailable"):
+    with pytest.raises(ExecutionFailure, match="checkpoint_unavailable"):
         worker = api_client.app.state.run_worker
         task = worker.task_factory(row.id, worker._complete)
         task.row = row

@@ -16,6 +16,7 @@ def connection_fact(db, id):
             config_revision=row.config_revision,
             credential_revision=row.credential_revision,
             model_id=row.model_id,
+            preset_id=row.preset_id,
         )
         if row
         else None
@@ -31,3 +32,9 @@ def embedding_connections(db):
             .order_by(ModelConnection.name, ModelConnection.id)
         )
     ]
+
+
+def chat_connection_ids():
+    return select(ModelConnection.id).where(
+        ModelConnection.enabled.is_(True), ModelConnection.capability == "chat"
+    )

@@ -11,7 +11,7 @@ from app.auth.actor import Actor
 from app.auth.permissions import require_permission
 from app.conversations.schemas import ResponseSnapshot
 from app.errors import AuthenticationError, PermissionDeniedError, RateLimitError
-from app.execution.models import TERMINAL
+from app.runtime.contracts.runs import TERMINAL
 from app.schemas import RecordID
 
 

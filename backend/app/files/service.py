@@ -4,6 +4,7 @@ from pathlib import Path, PurePosixPath
 from sqlalchemy import func, select
 
 from app.errors import InvalidInputError, NotFoundError
+from app.files.contracts import FileMetadata
 from app.files.models import StoredFile
 from app.files.storage import FileStorage
 from app.infrastructure.database.transactions import reserve_writer
@@ -141,3 +142,8 @@ class FileService:
                 or row.content_hash != ref["content_hash"]
             ):
                 raise InvalidInputError("invalid_output_file", "成果文件不属于本次执行。")
+
+    @staticmethod
+    def metadata(db, id: str) -> FileMetadata | None:
+        row = db.get(StoredFile, id)
+        return FileMetadata(**file_ref(row), origin_run_id=row.origin_run_id) if row else None

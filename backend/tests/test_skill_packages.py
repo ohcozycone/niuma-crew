@@ -12,6 +12,7 @@ from test_capability_runtime import ScriptedModel, execute, response, submit
 from app.agent.skills import prepare_skills
 from app.builtin_tools.sandbox_backend import SandboxFileBackend
 from app.builtin_tools.workspace import WorkspaceBackend
+from app.environments.open_sandbox import OpenSandboxOperations
 from app.errors import InvalidInputError
 from app.execution.models import Run
 from app.skills.packages import archive_files, parse_skill_md
@@ -339,7 +340,7 @@ def test_skill_bytes_materialize_only_for_active_skill_and_remain_readonly():
         ),
         files=SimpleNamespace(write_files=lambda entries: written.extend(entries)),
     )
-    backend = SandboxFileBackend(sandbox=fake, timeout=60)
+    backend = SandboxFileBackend(sandbox=fake, operations=OpenSandboxOperations(fake), timeout=60)
     backend.execute = lambda command, *, timeout: (
         executions.append(command) or ExecuteResponse(output="ok", exit_code=0)
     )

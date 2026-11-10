@@ -11,7 +11,7 @@ from deepagents.middleware.filesystem import FilesystemMiddleware
 
 from app.builtin_tools.results import feedback_outcome, tool_message
 from app.builtin_tools.sandbox_backend import SandboxFileBackend
-from app.environments.policy import WRITE_TOOLS, checked_path, under
+from app.environments.contracts import WRITE_TOOLS, checked_path, under
 from app.errors import InvalidInputError, PermissionDeniedError
 from app.runtime.contracts.tools import ToolInvocation, ToolOutcome, WorkspaceHost
 from app.values import digest
@@ -78,8 +78,11 @@ class WorkspaceBackend(SandboxBackendProtocol):
         self.result_sources = result_sources
 
     def _sandbox_backend(self, handle):
+        assert self.context.sandbox is not None
         return SandboxFileBackend(
-            sandbox=handle, timeout=self.snapshot.get("workspace", {}).get("command_seconds", 60)
+            sandbox=handle,
+            operations=self.context.sandbox.operations(),
+            timeout=self.snapshot.get("workspace", {}).get("command_seconds", 60),
         )
 
     def _work(self):

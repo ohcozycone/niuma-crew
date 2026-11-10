@@ -1,5 +1,3 @@
-from types import SimpleNamespace
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -117,7 +115,6 @@ def test_identity_rechecks_only_convert_lost_authorization(
     api_client, monkeypatch, consumer, failure
 ):
     state = api_client.app.state
-    actor = state.auth.resolve(api_client.cookies.get("app_session"))
 
     def resolve(*_):
         if failure == "authentication":
@@ -126,21 +123,22 @@ def test_identity_rechecks_only_convert_lost_authorization(
             raise PermissionDeniedError("permission_denied", "身份权限已失效。")
         raise ServiceUnavailableError("identity_unavailable", "身份服务暂不可用。")
 
+    from test_capability_runtime import setup, submit
+
+    from app.execution.queries import read_run
+
+    _, _, _, conversation = setup(api_client)
+    run_id = submit(api_client, conversation).json()["response"]["id"]
+    with state.database.transaction() as db:
+        row = read_run(db, run_id)
+
     monkeypatch.setattr("app.execution.authorization.authorize_work", resolve)
 
     def recheck():
         if consumer == "execution":
-            state.runs.authorize(
-                SimpleNamespace(
-                    initiated_by_user_id=actor.user_id, initiated_by_session_id=actor.session_id
-                )
-            )
+            state.runs.authorize(row)
         else:
-            state.runs.authorize(
-                SimpleNamespace(
-                    initiated_by_user_id=actor.user_id, initiated_by_session_id=actor.session_id
-                )
-            )
+            state.runs.authorize(row)
 
     if failure == "dependency":
         with pytest.raises(ServiceUnavailableError) as raised:

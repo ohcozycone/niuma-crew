@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 from app.api.oauth_logging import OAuthAccessFilter
 from app.auth.config import AuthConfig
 from app.auth.service import AuthService
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.errors import InvalidInputError
 from app.infrastructure.database.session import Database
 from app.mcp.adapters.http import MCPClient

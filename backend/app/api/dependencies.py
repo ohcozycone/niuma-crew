@@ -17,7 +17,8 @@ from app.employees.organization_rules import OrganizationRulesService
 from app.employees.service import AgentService
 from app.environments.service import SandboxService
 from app.errors import PermissionDeniedError
-from app.evaluations.service import EvaluationService
+from app.evaluations.commands import EvaluationCommands
+from app.evaluations.queries import EvaluationQueries
 from app.execution.knowledge_evidence import KnowledgeEvidence
 from app.execution.queries import ExecutionQueries
 from app.files.service import FileService
@@ -225,11 +226,18 @@ def require_capability(permission: str):
     return check
 
 
-def get_evaluations(request: Request) -> EvaluationService:
-    return request.app.state.evaluations
+def get_evaluation_commands(request: Request) -> EvaluationCommands:
+    return request.app.state.evaluation_commands
 
 
-EvaluationDependency = Annotated[EvaluationService, Depends(get_evaluations)]
+EvaluationCommandsDependency = Annotated[EvaluationCommands, Depends(get_evaluation_commands)]
+
+
+def get_evaluation_queries(request: Request) -> EvaluationQueries:
+    return request.app.state.evaluation_queries
+
+
+EvaluationQueriesDependency = Annotated[EvaluationQueries, Depends(get_evaluation_queries)]
 
 
 def get_sandboxes(request: Request) -> SandboxService:

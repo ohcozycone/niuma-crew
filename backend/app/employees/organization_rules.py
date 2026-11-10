@@ -10,11 +10,11 @@ from app.infrastructure.database.session import Database
 from app.values import utc_now
 
 
-def current_rules(session: Session) -> OrganizationRules:
+def current_rules(session: Session) -> OrganizationRulesRead:
     row = session.get(OrganizationRules, 1)
     if row is None:
         raise RuntimeError("缺少规章制度记录，请检查数据库迁移。")
-    return row
+    return OrganizationRulesRead.model_validate(row)
 
 
 class OrganizationRulesService:

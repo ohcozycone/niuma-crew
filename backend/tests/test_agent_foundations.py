@@ -16,6 +16,7 @@ from test_capability_runtime import ScriptedModel, discovery_response, execute, 
 from app.builtin_tools.sandbox_backend import SandboxFileBackend
 from app.employees.models import AgentToolGrant
 from app.environments.models import SandboxResource
+from app.environments.open_sandbox import OpenSandboxOperations
 from app.environments.service import SandboxService
 from app.errors import ConflictError, InvalidInputError
 from app.execution.models import Run, RunAction
@@ -589,8 +590,9 @@ def test_sandbox_sdk_commands_are_unprivileged_and_bounded():
         handlers.on_stdout(SimpleNamespace(text="done"))
         return SimpleNamespace(exit_code=0)
 
+    sandbox = SimpleNamespace(id="fake", commands=SimpleNamespace(run=run))
     backend = SandboxFileBackend(
-        sandbox=SimpleNamespace(id="fake", commands=SimpleNamespace(run=run)), timeout=60
+        sandbox=sandbox, operations=OpenSandboxOperations(sandbox), timeout=60
     )
     assert backend.execute("python script.py", timeout=500).output == "done"
     assert calls[0].uid == calls[0].gid == 1000
@@ -675,7 +677,7 @@ def test_reference_retention_keeps_published_outputs_and_cleans_orphans(api_clie
     with api_client.app.state.database.transaction() as db:
         for row in db.scalars(select(StoredFile)):
             row.created_at = utc_now() - timedelta(days=2)
-    from app.execution.store import retained_file_ids as retained_execution_files
+    from app.execution.references import retained_file_ids as retained_execution_files
 
     api_client.app.state.file_cleanup.sweep(
         lambda db, candidates: (

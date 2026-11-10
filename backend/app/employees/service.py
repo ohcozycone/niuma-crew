@@ -36,10 +36,15 @@ from app.errors import ConflictError, InvalidInputError, NotFoundError
 from app.infrastructure.database.errors import is_unique_violation
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
-from app.model_connections.models import ModelConnection
+from app.model_connections.references import chat_connection_ids, connection_fact
 from app.schemas import Page
-from app.skills.definitions import definition_from_record, readiness_reason
-from app.skills.models import Skill
+from app.skills.definitions import (
+    SkillDefinition,
+    matching_skill_ids,
+    published_skill,
+    readiness_reason,
+    skill_name_projection,
+)
 from app.skills.parameters import validate_parameters
 from app.values import utc_now
 
@@ -54,7 +59,7 @@ def require_agent(session: Session, agent_id: str) -> Agent:
 def validate_model_binding(session: Session, connection_id) -> None:
     if connection_id is None:
         return
-    connection = session.get(ModelConnection, str(connection_id))
+    connection = connection_fact(session, str(connection_id))
     if connection is None:
         raise NotFoundError("model_connection_not_found", "所选大脑不存在，请刷新后重新选择。")
     if not connection.enabled or connection.capability != "chat":
@@ -85,17 +90,17 @@ def assignments(session, agent_id):
     )
 
 
-def skill_readiness(enabled: bool, skill: Skill) -> str | None:
+def skill_readiness(enabled: bool, skill: SkillDefinition) -> str | None:
     if not enabled:
         return "装配已停用"
-    return readiness_reason(definition_from_record(skill))
+    return readiness_reason(skill)
 
 
 def agent_response(session, agent):
     result = AgentRead.model_validate(agent)
     values = []
     for assignment in assignments(session, agent.id):
-        skill = session.get(Skill, assignment.skill_id)
+        skill = published_skill(session, assignment.skill_id)
         reason = skill_readiness(assignment.enabled, skill)
         values.append(
             SkillAssignmentRead(
@@ -131,7 +136,7 @@ def replace_assignments(session, agent, requested):
         raise InvalidInputError("duplicate_skill_assignment", "每位员工只能装配同一技能一次。")
     existing = {a.skill_id: a for a in assignments(session, agent.id)}
     for skill_id, data in desired.items():
-        skill = session.get(Skill, skill_id)
+        skill = published_skill(session, skill_id)
         if skill is None:
             raise NotFoundError("skill_not_found", "待装配技能不存在。")
         validate_parameters(skill.configuration_schema, data["parameters"])
@@ -251,13 +256,14 @@ class AgentService:
             if agent is None:
                 raise NotFoundError("agent_not_found", "员工不存在。")
             values = []
-            rows = session.execute(
-                select(AgentSkill.enabled, Skill)
-                .join(Skill, Skill.id == AgentSkill.skill_id)
+            rows = session.scalars(
+                select(AgentSkill)
                 .where(AgentSkill.agent_id == agent.id)
                 .order_by(AgentSkill.skill_id)
             )
-            for enabled, skill in rows:
+            for relation in rows:
+                enabled = relation.enabled
+                skill = published_skill(session, relation.skill_id)
                 reason = skill_readiness(enabled, skill)
                 values.append(
                     UsageSkill(
@@ -318,18 +324,14 @@ class AgentService:
                     Agent.role_label.icontains(q.strip(), autoescape=True),
                     Agent.code.icontains(q.strip(), autoescape=True),
                     Agent.id.in_(
-                        select(AgentSkill.agent_id)
-                        .join(Skill)
-                        .where(Skill.name.icontains(q.strip(), autoescape=True))
+                        select(AgentSkill.agent_id).where(
+                            AgentSkill.skill_id.in_(matching_skill_ids(q.strip()))
+                        )
                     ),
                 )
             )
         if model_configured is not None:
-            configured = Agent.model_connection_id.in_(
-                select(ModelConnection.id).where(
-                    ModelConnection.enabled.is_(True), ModelConnection.capability == "chat"
-                )
-            )
+            configured = Agent.model_connection_id.in_(chat_connection_ids())
             conditions.append(configured if model_configured else ~configured)
         if category is not None:
             conditions.append(Agent.category == category)
@@ -378,14 +380,15 @@ class AgentService:
             knowledge_counts = {row[0].id: row[2] for row in agent_rows}
             grouped = {agent.id: [] for agent in agents}
             if grouped:
+                names = skill_name_projection()
                 for agent_id, skill_id, enabled, name in session.execute(
                     select(
                         AgentSkill.agent_id,
                         AgentSkill.skill_id,
                         AgentSkill.enabled,
-                        Skill.name,
+                        names.c.name,
                     )
-                    .join(Skill)
+                    .join(names, names.c.id == AgentSkill.skill_id)
                     .where(AgentSkill.agent_id.in_(grouped))
                     .order_by(AgentSkill.skill_id)
                 ):

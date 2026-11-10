@@ -11,7 +11,7 @@ from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 from sqlalchemy import URL
 
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.config import AppConfig, DatabaseConfig
 from app.execution.config import RuntimeConfig
 from app.llm import factory
