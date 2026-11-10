@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import cast
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -9,7 +7,8 @@ from app.auth.actor import Actor
 from app.auth.permissions import require_resource_access
 from app.conversations.models import Conversation, ConversationRun
 from app.errors import NotFoundError
-from app.execution.models import Run
+from app.execution.queries import read_run
+from app.runtime.contracts.runs import RunState
 
 
 def require_conversation(db: Session, id: str, actor: Actor) -> Conversation:
@@ -20,14 +19,14 @@ def require_conversation(db: Session, id: str, actor: Actor) -> Conversation:
     return row
 
 
-def require_binding(db: Session, row: Run) -> ConversationRun:
+def require_binding(db: Session, row: RunState) -> ConversationRun:
     binding = db.get(ConversationRun, row.id)
     if row.origin_kind != "conversation" or binding is None:
         raise NotFoundError("conversation_run_not_found", "对话执行记录不存在。")
     return binding
 
 
-def require_response(db: Session, actor: Actor, conversation_id: str, response_id: str) -> Run:
+def require_response(db: Session, actor: Actor, conversation_id: str, response_id: str) -> RunState:
     require_conversation(db, conversation_id, actor)
     binding = db.scalar(
         select(ConversationRun).where(
@@ -37,4 +36,4 @@ def require_response(db: Session, actor: Actor, conversation_id: str, response_i
     )
     if not binding:
         raise NotFoundError("response_not_found", "回复不存在。")
-    return cast(Run, db.get(Run, binding.run_id))
+    return read_run(db, binding.run_id)

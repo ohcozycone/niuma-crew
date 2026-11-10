@@ -452,7 +452,7 @@ def test_restart_action_dedup_pagination_and_guest_scope(api_client, migrated_co
     import pytest
     from fastapi.testclient import TestClient
 
-    from app.bootstrap import create_app
+    from app.bootstrap.app import create_app
     from app.errors import ConflictError
 
     _, _, _, conversation = setup(api_client)

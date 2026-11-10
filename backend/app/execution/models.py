@@ -22,9 +22,8 @@ from app.infrastructure.database.fields import (
     UTCDateTime,
     UUIDText,
 )
-
-ACTIVE = ("queued", "running", "cancelling")
-TERMINAL = ("succeeded", "failed", "cancelled", "interrupted")
+from app.runtime.contracts.runs import ACTIVE as ACTIVE
+from app.runtime.contracts.runs import TERMINAL as TERMINAL
 
 
 class Run(NumericIdentityTimestamps, Base):

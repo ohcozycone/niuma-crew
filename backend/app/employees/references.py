@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.employees.models import Agent, AgentSkill
 from app.errors import ConflictError
@@ -26,3 +26,18 @@ def model_employees(db, connection_id):
 def assert_model_unused(db, connection_id):
     if model_employees(db, connection_id):
         raise ConflictError("model_connection_in_use", "仍有员工使用这个大脑，请先更换或解除装配。")
+
+
+def employee_active(db, id):
+    row = db.get(Agent, id)
+    return row is not None and row.is_active
+
+
+def skill_assignment_counts(db, ids):
+    return dict(
+        db.execute(
+            select(AgentSkill.skill_id, func.count())
+            .where(AgentSkill.skill_id.in_(ids))
+            .group_by(AgentSkill.skill_id)
+        ).all()
+    )

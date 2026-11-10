@@ -1,6 +1,5 @@
 import json
 import shlex
-from dataclasses import dataclass
 from datetime import timedelta
 from urllib.parse import urlsplit
 
@@ -12,6 +11,7 @@ from opensandbox.models.execd import RunCommandOpts
 from opensandbox.models.execd_sync import ExecutionHandlersSync
 from opensandbox.transport.retry import RetryPolicy
 
+from app.environments.contracts import CommandResult
 from app.errors import InvalidInputError, PermissionDeniedError, ServiceUnavailableError
 
 
@@ -173,12 +173,6 @@ def load_verification(config):
             "sandbox_not_ready", "沙箱主机验收文件缺失、过期或与当前配置不匹配，请重新运行验收。"
         )
     return value
-
-
-@dataclass(frozen=True)
-class CommandResult:
-    output: str
-    exit_code: int
 
 
 class OpenSandboxOperations:

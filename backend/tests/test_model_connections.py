@@ -13,7 +13,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.auth.models import AuthSession
 from app.auth.permissions import ROLE_PERMISSIONS
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.infrastructure.credentials import CredentialUnavailableError, CredentialVault
 from app.infrastructure.database.transactions import reserve_writer
 from app.model_connections.models import ModelConnection

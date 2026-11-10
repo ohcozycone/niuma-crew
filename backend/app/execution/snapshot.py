@@ -1,108 +1,39 @@
 from __future__ import annotations
 
 import json
-from math import isfinite
-from typing import Any, cast
+from typing import Any
 
 from sqlalchemy.orm import Session
 
-from app.agent.config import AgentConfig
-from app.agent.errors import RuntimeFailure
-from app.agent.prompts import compose_system_prompt
-from app.builtin_tools.knowledge import knowledge_instructions
-from app.builtin_tools.knowledge import tool_bindings as knowledge_bindings
-from app.builtin_tools.results import result_reader_binding
-from app.builtin_tools.tool_search import search_binding
-from app.builtin_tools.workspace import workspace_tools
 from app.employees.access import configured_agent
 from app.employees.assembly import capture_skills, capture_tools
 from app.employees.knowledge import capture_knowledge
 from app.employees.organization_rules import current_rules
 from app.errors import ConflictError, InvalidInputError, ServiceUnavailableError
 from app.execution.config import RuntimeConfig
-from app.model_connections.models import ModelConnection
+from app.execution.snapshot_rules import invalidates_memory
 from app.model_connections.presets import PRESETS
-from app.runtime.contracts.agent import AgentSnapshot
+from app.model_connections.references import connection_fact
+from app.runtime.contracts.agent import AgentConfig
 from app.runtime.contracts.runs import RUN_SNAPSHOT_VERSION, RunSpec
-from app.runtime.contracts.tools import TOOL_CATALOG_VERSION, catalog_hash
+from app.runtime.contracts.tools import TOOL_CATALOG_VERSION, SnapshotDescriptors, catalog_hash
 from app.values import digest
 
 
-def validate_snapshot(value: dict) -> AgentSnapshot:
-    """解析凭据和调用模型前拒绝无效快照。"""
-    valid = all(
-        isinstance(value.get(key), str) for key in ("agent_id", "connection_id", "system_prompt")
-    ) and all(
-        type(value.get(key)) is int and value[key] > 0
-        for key in (
-            "schema_version",
-            "connection_config_revision",
-            "connection_credential_revision",
-            "recursion_limit",
-            "max_model_calls",
-            "max_skill_reads",
-            "max_output_tokens",
-            "max_output_bytes",
-            "max_reasoning_bytes",
-            "context_bytes",
-        )
-    )
-    if value.get("schema_version") in (4, 5, RUN_SNAPSHOT_VERSION) and (
-        any(
-            type(value.get(key)) is not int or value[key] <= 0
-            for key in ("summary_trigger_tokens", "summary_keep_tokens")
-        )
-        or value.get("summary_keep_tokens", 0) >= value.get("summary_trigger_tokens", 0)
-        or not isinstance(value.get("memory_scope"), str)
-        or not isinstance(value.get("memory_reset"), bool)
-    ):
-        raise RuntimeFailure("checkpoint_unavailable")
-    skills = value.get("skills")
-    selected = value.get("selected_skill_ids")
-    if not valid or not isinstance(skills, list) or not isinstance(selected, list):
-        raise RuntimeFailure("checkpoint_unavailable")
-    if not all(isinstance(item, str) for item in selected):
-        raise RuntimeFailure("checkpoint_unavailable")
-    for skill in skills:
-        if (
-            not isinstance(skill, dict)
-            or not all(
-                isinstance(skill.get(key), str)
-                for key in (
-                    "skill_id",
-                    "name",
-                    "description",
-                    "instructions",
-                    "instructions_hash",
-                    "assignment_created_at",
-                )
-            )
-            or not all(
-                type(skill.get(key)) is int and skill[key] > 0
-                for key in ("skill_revision", "assignment_revision")
-            )
-            or not isinstance(skill.get("parameters"), dict)
-        ):
-            raise RuntimeFailure("checkpoint_unavailable")
-    if (
-        type(value.get("run_timeout")) not in (int, float)
-        or not isfinite(value["run_timeout"])
-        or value["run_timeout"] <= 0
-    ):
-        raise RuntimeFailure("checkpoint_unavailable")
-    return cast(AgentSnapshot, value)
-
-
 class RunConfiguration:
+    invalidates_memory = staticmethod(invalidates_memory)
+
     def __init__(
         self,
         settings: RuntimeConfig,
+        descriptors: SnapshotDescriptors,
         *,
         agent: AgentConfig = AgentConfig(),
         files: Any = None,
         sandboxes: Any = None,
         knowledge: Any = None,
     ) -> None:
+        self.descriptors = descriptors
         self.settings, self.files, self.agent = settings, files, agent
         self.sandboxes, self.knowledge = sandboxes, knowledge
 
@@ -116,19 +47,19 @@ class RunConfiguration:
         tools_enabled: bool = True,
     ) -> tuple[RunSpec, int]:
         agent = configured_agent(db, agent_id)
-        connection = db.get(ModelConnection, agent.model_connection_id)
+        connection = connection_fact(db, agent.model_connection_id)
         if connection is None or not connection.enabled or connection.capability != "chat":
             raise ConflictError("model_not_configured")
         preset = PRESETS[connection.preset_id]
         if len(content.encode()) > self.settings.max_input_bytes:
             raise InvalidInputError("input_too_large")
         rules = current_rules(db)
-        system_prompt = compose_system_prompt(
+        system_prompt = self.descriptors.compose_system_prompt(
             rules.instructions, agent.system_prompt, agent_name=agent.name
         )
         knowledge = capture_knowledge(db, agent.id) if self.knowledge and tools_enabled else None
         if knowledge:
-            system_prompt += knowledge_instructions(knowledge)
+            system_prompt += self.descriptors.knowledge_instructions(knowledge)
         skills = capture_skills(db, agent, selected_skill_ids) if tools_enabled else []
         size = len(system_prompt.encode()) + len(content.encode())
         if size > self.agent.context_bytes:
@@ -188,7 +119,7 @@ class RunConfiguration:
                     workspace.update(profile)
                     workspace.update({"mode": "sandbox", "execution_error": None})
                     resumable = False
-            bindings.extend(workspace_tools(workspace))
+            bindings.extend(self.descriptors.workspace_tools(workspace))
         snapshot.update(
             {
                 "tools": bindings,
@@ -200,7 +131,7 @@ class RunConfiguration:
         )
         if knowledge:
             snapshot["knowledge"] = knowledge
-            snapshot["tools"].extend(knowledge_bindings())
+            snapshot["tools"].extend(self.descriptors.knowledge_bindings())
             snapshot["allow_partial_output"] = False
         candidates = [item for item in bindings if item["kind"] in {"mcp_http", "mcp_stdio"}]
         if len(candidates) > 128:
@@ -266,7 +197,9 @@ class RunConfiguration:
         ):
             raise InvalidInputError("tool_candidate_bytes_exceeded")
         if candidates:
-            projected.extend((result_reader_binding(), search_binding()))
+            projected.extend(
+                (self.descriptors.result_reader_binding(), self.descriptors.search_binding())
+            )
         snapshot["tools"] = projected
         snapshot["tool_catalog"] = {
             "version": TOOL_CATALOG_VERSION,
@@ -283,42 +216,6 @@ class RunConfiguration:
         )
         snapshot["memory_reset"] = False
         return snapshot, size
-
-    @staticmethod
-    def invalidates_memory(previous: dict, current: dict) -> bool:
-        """新增能力可保留记忆；既有资源删除或变化时使其失效。"""
-        if any(
-            previous.get(key) != current.get(key)
-            for key in ("memory_scope", "system_prompt", "connection_id", "protocol", "model_id")
-        ):
-            return True
-
-        def resources(snapshot: dict) -> dict[str, str]:
-            result = {
-                "skill:" + skill["skill_id"]: digest(skill) for skill in snapshot.get("skills", [])
-            }
-            for binding in snapshot.get("tools", []):
-                if binding["kind"] == "knowledge":
-                    continue
-                # 新增工具也会改变目录或许可修订，不能仅凭全局修订使旧资源失效。
-                result["tool:" + binding["binding_id"]] = digest(
-                    {
-                        key: binding.get(key)
-                        for key in (
-                            "descriptor_hash",
-                            "instructions_hash",
-                            "scope_policy",
-                            "connection_id",
-                            "config_revision",
-                            "credential_revision",
-                            "auth_required",
-                        )
-                    }
-                )
-            return result
-
-        before, after = resources(previous), resources(current)
-        return any(after.get(key) != value for key, value in before.items())
 
     def bind_history(self, db: Session, row: Any) -> None:
         self.knowledge.bind_history(db, row)

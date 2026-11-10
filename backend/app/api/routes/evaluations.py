@@ -5,7 +5,8 @@ from fastapi import APIRouter, Depends, Query, Response
 
 from app.api.dependencies import (
     ActorDependency,
-    EvaluationDependency,
+    EvaluationCommandsDependency,
+    EvaluationQueriesDependency,
     ExecutionQueriesDependency,
     require_capability,
 )
@@ -23,7 +24,7 @@ def suites() -> list[dict]:
 
 @router.post("", status_code=202)
 def create(
-    data: EvaluationCreate, actor: ActorDependency, evaluations: EvaluationDependency
+    data: EvaluationCreate, actor: ActorDependency, evaluations: EvaluationCommandsDependency
 ) -> dict:
     return evaluations.create(
         actor, str(data.agent_id), data.suite_id, data.sample_count, str(data.client_request_id)
@@ -33,7 +34,7 @@ def create(
 @router.get("")
 def listing(
     actor: ActorDependency,
-    evaluations: EvaluationDependency,
+    evaluations: EvaluationQueriesDependency,
     agent_id: UUID,
     offset: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
@@ -45,7 +46,7 @@ def listing(
 def read(
     batch_id: RecordID,
     actor: ActorDependency,
-    evaluations: EvaluationDependency,
+    evaluations: EvaluationQueriesDependency,
     offset: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> dict:
@@ -53,7 +54,9 @@ def read(
 
 
 @router.post("/{batch_id}/cancel")
-def cancel(batch_id: RecordID, actor: ActorDependency, evaluations: EvaluationDependency) -> dict:
+def cancel(
+    batch_id: RecordID, actor: ActorDependency, evaluations: EvaluationCommandsDependency
+) -> dict:
     return evaluations.cancel(actor, batch_id)
 
 
@@ -62,7 +65,7 @@ def execution_trace(
     batch_id: RecordID,
     case_id: UUID,
     actor: ActorDependency,
-    evaluations: EvaluationDependency,
+    evaluations: EvaluationQueriesDependency,
     traces: ExecutionQueriesDependency,
     response: Response,
     offset: Annotated[int, Query(ge=0)] = 0,
@@ -81,7 +84,7 @@ def execution_evidence(
     batch_id: RecordID,
     case_id: UUID,
     actor: ActorDependency,
-    evaluations: EvaluationDependency,
+    evaluations: EvaluationQueriesDependency,
     traces: ExecutionQueriesDependency,
     action_id: UUID,
     direction: str,

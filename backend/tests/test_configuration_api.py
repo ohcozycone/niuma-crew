@@ -6,7 +6,7 @@ import pytest
 from configuration_helpers import patch_current
 from fastapi.testclient import TestClient
 
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.bootstrap.services import check_employee_history
 from app.employees.models import AgentSkill
 from app.infrastructure.database.session import Database

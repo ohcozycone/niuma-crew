@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from app.auth.permissions import require_permission
 from app.auth.work_authorizations import authorize_work
 from app.employees.knowledge import capture_knowledge
-from app.employees.models import Agent
+from app.employees.references import employee_active
 from app.errors import (
     AuthenticationError,
     ConflictError,
@@ -21,10 +21,12 @@ from app.errors import (
     ServiceError,
 )
 from app.execution.evidence_models import RunKnowledgeEvidence
+from app.execution.knowledge_evidence import KnowledgeEvidence
 from app.execution.models import Run
+from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
 from app.knowledge.contracts import TOOL_BINDINGS
-from app.knowledge.libraries import library_fact
+from app.knowledge.libraries import KnowledgeLibraries, library_fact
 from app.knowledge.retrieval import fuse_rankings
 from app.knowledge.schemas import (
     KnowledgeReadInput,
@@ -32,6 +34,7 @@ from app.knowledge.schemas import (
     SearchHit,
     SearchRequest,
 )
+from app.knowledge.search import KnowledgeSearch
 from app.knowledge.sources import assert_evidence
 from app.runtime.contracts.content import KnowledgeResult
 from app.runtime.contracts.tools import ToolInvocation
@@ -39,7 +42,7 @@ from app.values import digest, utc_now
 
 
 class KnowledgeAccess:
-    def __init__(self, database) -> None:
+    def __init__(self, database: Database) -> None:
         self.database = database
 
     def assert_current(
@@ -49,26 +52,25 @@ class KnowledgeAccess:
         if not captured:
             return
         if "user_id" in captured:
-            raise ConflictError("knowledge_access_revoked", "知识装配已升级，请重新发送任务。")
+            raise ConflictError("knowledge_access_revoked")
         current = capture_knowledge(db, captured["agent_id"])
-        agent = db.get(Agent, captured["agent_id"])
+        active = employee_active(db, captured["agent_id"])
         ids = {item["id"] for item in captured["libraries"]}
         if (
             snapshot.get("agent_id") != captured["agent_id"]
             or not current
-            or not agent
-            or not agent.is_active
+            or not active
             or any(current[key] != captured.get(key) for key in ("revision", "mode", "top_k"))
             or {item["id"] for item in current["libraries"]} != ids
         ):
-            raise ConflictError("knowledge_access_revoked", "员工知识配置已变化，请重新发送任务。")
+            raise ConflictError("knowledge_access_revoked")
         for id in ids:
             if library_fact(db, id) is None:
-                raise ConflictError("knowledge_access_revoked", "知识库已删除或不可用。")
+                raise ConflictError("knowledge_access_revoked")
         if run_id:
             row = db.get(Run, run_id)
             if row is None or row.agent_id != captured["agent_id"]:
-                raise ConflictError("knowledge_access_revoked", "本轮员工与知识配置不匹配。")
+                raise ConflictError("knowledge_access_revoked")
             for evidence in db.scalars(
                 select(RunKnowledgeEvidence).where(RunKnowledgeEvidence.run_id == run_id)
             ):
@@ -89,12 +91,12 @@ class KnowledgeAccess:
                 for item in snapshot.get("tools", [])
             )
         ):
-            raise ConflictError("tool_not_allowed", "本轮没有该知识工具许可。")
+            raise ConflictError("tool_not_allowed")
         args = self.arguments(invocation.name, invocation.arguments)
         if isinstance(args, KnowledgeSearchInput) and args.library_ids:
             allowed = {item["id"] for item in snapshot["knowledge"]["libraries"]}
             if {str(id) for id in args.library_ids} - allowed:
-                raise InvalidInputError("tool_not_allowed", "检索范围只能收窄已挂载的知识库。")
+                raise InvalidInputError("tool_not_allowed")
         return {
             "kind": "knowledge",
             "tool_name": invocation.name,
@@ -110,45 +112,49 @@ class KnowledgeAccess:
             if name == "read_knowledge_source":
                 return KnowledgeReadInput.model_validate(args)
         except ValidationError:
-            raise InvalidInputError(
-                "tool_arguments_invalid", "知识工具参数无效，请检查问题、范围或证据编号。"
-            ) from None
-        raise ConflictError("tool_not_allowed", "没有该知识工具许可。")
+            raise InvalidInputError("tool_arguments_invalid") from None
+        raise ConflictError("tool_not_allowed")
 
     def run_scope(self, db: Session, run_id: str) -> tuple[Run, dict]:
         row = db.get(Run, run_id)
         if row is None or not row.config_snapshot.get("knowledge"):
-            raise ConflictError("tool_not_allowed", "本轮没有挂载知识库。")
+            raise ConflictError("tool_not_allowed")
         self.assert_current(db, row.config_snapshot, run_id)
         if row.status != "running":
             raise ConflictError(
-                "user_cancelled" if row.status == "cancelling" else "runtime_interrupted",
-                "本轮已停止。",
+                "user_cancelled" if row.status == "cancelling" else "runtime_interrupted"
             )
         try:
             current = authorize_work(db, row.initiated_by_user_id, row.initiated_by_session_id)
             require_permission(current, "knowledge:use")
         except (AuthenticationError, PermissionDeniedError) as error:
-            raise ConflictError("actor_session_invalid", "发起工作授权已失效。") from error
+            raise ConflictError("actor_session_invalid") from error
         seconds = row.config_snapshot.get("run_timeout", 120)
         if row.started_at and utc_now() - row.started_at > timedelta(seconds=seconds):
-            raise ConflictError("run_timeout", "知识检索超过本轮时限。")
+            raise ConflictError("run_timeout")
         return row, row.config_snapshot["knowledge"]
 
     def guard_library(self, db: Session, run_id: str, kb: str) -> None:
         """真实Run授权与员工范围共同限定内部查询，不伪造库所有者身份。"""
         _, captured = self.run_scope(db, run_id)
         if kb not in {item["id"] for item in captured["libraries"]}:
-            raise ConflictError("tool_not_allowed", "只能检索本轮员工已挂载的知识库。")
+            raise ConflictError("tool_not_allowed")
         if library_fact(db, kb) is None:
-            raise ConflictError("knowledge_access_revoked", "知识库已删除或不可用。")
+            raise ConflictError("knowledge_access_revoked")
 
 
 EVIDENCE_BUDGET = 18000
 
 
 class RunKnowledgeSearch:
-    def __init__(self, database, access, libraries, search, evidence):
+    def __init__(
+        self,
+        database: Database,
+        access: KnowledgeAccess,
+        libraries: KnowledgeLibraries,
+        search: KnowledgeSearch,
+        evidence: KnowledgeEvidence,
+    ) -> None:
         self.database, self.access, self.libraries = database, access, libraries
         self.search, self.evidence = search, evidence
 
@@ -166,7 +172,7 @@ class RunKnowledgeSearch:
             sorted(str(id) for id in data.library_ids) if data.library_ids else sorted(allowed)
         )
         if len(set(selected)) != len(selected) or set(selected) - allowed:
-            raise InvalidInputError("tool_not_allowed", "检索范围只能收窄本轮挂载的知识库。")
+            raise InvalidInputError("tool_not_allowed")
         states: list[dict] = []
         rankings: list[list[SearchHit]] = []
         libraries: dict[str, str] = {}

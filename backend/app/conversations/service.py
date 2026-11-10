@@ -6,14 +6,14 @@ from app.conversations.acceptance import ConversationAcceptance
 from app.conversations.access import require_binding, require_conversation, require_response
 from app.conversations.context import accepted_run_id
 from app.conversations.models import Conversation, ConversationRun, Message, MessageFile
-from app.conversations.queries import read_response_snapshot, read_submission
+from app.conversations.projections import read_response_snapshot, read_submission
 from app.conversations.schemas import AcceptedSubmission, ResponseSnapshot
 from app.conversations.writes import bind_run, create_conversation, prepare_input, require_idle
 from app.employees.access import configured_agent
 from app.errors import ConflictError, InvalidInputError
 from app.execution.config import RuntimeConfig
+from app.execution.queries import read_run
 from app.execution.service import RunService, find_request, request_digest
-from app.execution.store import require_run
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
 from app.runtime.contracts.runs import run_thread_id
@@ -90,7 +90,7 @@ class ConversationService:
             previous = None
             previous_binding = None
             if retry_id:
-                previous = require_run(db, retry_id, actor)
+                previous = read_run(db, retry_id, actor)
                 previous_binding = require_binding(db, previous)
                 latest = db.scalar(
                     select(ConversationRun.run_id)
@@ -175,4 +175,4 @@ class ConversationService:
             run_id = row.id
         self.acceptance.process(run_id)
         with self.database.transaction() as db:
-            return read_response_snapshot(db, require_run(db, run_id, actor))
+            return read_response_snapshot(db, read_run(db, run_id, actor))

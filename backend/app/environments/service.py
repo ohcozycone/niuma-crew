@@ -6,7 +6,11 @@ from datetime import timedelta
 from sqlalchemy import select
 
 from app.environments.models import SandboxResource
-from app.environments.open_sandbox import OpenSandboxProvider, load_verification
+from app.environments.open_sandbox import (
+    OpenSandboxOperations,
+    OpenSandboxProvider,
+    load_verification,
+)
 from app.errors import ConflictError, ServiceUnavailableError
 from app.infrastructure.database.transactions import reserve_writer
 from app.values import digest, utc_now
@@ -28,6 +32,9 @@ class RunSandbox:
             if self.handle is None:
                 self.handle = self.service.acquire(self.run_id, self.inputs, self.read_file)
             return self.handle
+
+    def operations(self):
+        return OpenSandboxOperations(self.acquire())
 
     def release(self):
         with self.lock:

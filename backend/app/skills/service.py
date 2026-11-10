@@ -44,9 +44,17 @@ def require_skill(session: Session, skill_id: str) -> Skill:
 
 
 class SkillService:
-    def __init__(self, database: Database, config: SkillConfig | None = None, *, assignment_facts):
+    def __init__(
+        self,
+        database: Database,
+        config: SkillConfig | None = None,
+        *,
+        assignment_facts,
+        assignment_counts,
+    ):
         self.database = database
         self.assignment_facts = assignment_facts
+        self.assignment_counts = assignment_counts
         self.config = config or SkillConfig()
         self.blobs = SkillBlobStore(
             self.config.directory or Path(database.engine.url.database).parent / "skill-assets"
@@ -258,7 +266,7 @@ class SkillService:
     def _get(self, skill_id: str) -> SkillRead:
         with self.database.transaction() as session:
             skill = require_skill(session, skill_id)
-            count = len(self.assignment_facts(session, [skill_id]))
+            count = self.assignment_counts(session, [skill_id]).get(skill_id, 0)
             return self._response(skill, count)
 
     def read_file(self, skill_id: str, path: str, actor: Actor) -> dict:
@@ -344,7 +352,7 @@ class SkillService:
             )
             if skill is None:
                 raise NotFoundError("skill_not_found", "技能不存在。")
-            count = len(self.assignment_facts(session, [skill_id]))
+            count = self.assignment_counts(session, [skill_id]).get(skill_id, 0)
             return PublicSkill.model_validate(skill).model_copy(
                 update={"assignment_count": count or 0}
             )
@@ -393,10 +401,7 @@ class SkillService:
                 .limit(limit)
             )
             skills = list(skills)
-            counts = {}
-            for assignment in self.assignment_facts(session, [skill.id for skill in skills]):
-                key = assignment["skill_id"]
-                counts[key] = counts.get(key, 0) + 1
+            counts = self.assignment_counts(session, [skill.id for skill in skills])
             return Page(
                 items=[
                     SkillSummary.model_validate(skill).model_copy(
@@ -527,7 +532,7 @@ class SkillService:
         for key, value in changes.items():
             setattr(skill, key, value)
         session.flush()
-        count = len(self.assignment_facts(session, [skill_id]))
+        count = self.assignment_counts(session, [skill_id]).get(skill_id, 0)
         return self._response(skill, count)
 
     def delete(self, skill_id: str, actor: Actor) -> None:
@@ -544,7 +549,7 @@ class SkillService:
             with self.database.transaction() as session:
                 reserve_writer(session, Skill.__table__)
                 skill = require_skill(session, skill_id)
-                if self.assignment_facts(session, [skill_id]):
+                if self.assignment_counts(session, [skill_id]).get(skill_id, 0):
                     raise ConflictError("skill_in_use", "技能仍被员工装配，请先解除关联。")
                 session.delete(skill)
                 session.flush()

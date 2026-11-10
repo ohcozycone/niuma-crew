@@ -1,21 +1,15 @@
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.conversations.models import ConversationRun, Message
-from app.execution.models import Run
+from app.conversations.projections import context_candidates
 
 
 def accepted_run_id(db: Session, conversation_id: str) -> str | None:
-    return db.scalar(
-        select(Run.id)
-        .join(ConversationRun, ConversationRun.run_id == Run.id)
-        .join(Message, Message.id == ConversationRun.run_id)
-        .where(
-            ConversationRun.conversation_id == conversation_id,
-            Run.status == "succeeded",
-            ConversationRun.handled_at.is_not(None),
-            ConversationRun.acceptance_error.is_(None),
-        )
-        .order_by(Message.sequence.desc())
-        .limit(1)
+    """只有已正式接纳的成功回复才能成为后续记忆依据。"""
+    return next(
+        (
+            id
+            for id, status, accepted, error in context_candidates(db, conversation_id)
+            if status == "succeeded" and accepted is not None and error is None
+        ),
+        None,
     )

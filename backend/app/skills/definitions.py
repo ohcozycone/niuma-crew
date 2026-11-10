@@ -3,8 +3,9 @@ from dataclasses import dataclass
 from hashlib import sha256
 from typing import Protocol
 
-from sqlalchemy import select
+from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.selectable import Subquery
 
 from app.skills.contracts import SkillFileManifest
 from app.skills.models import Skill
@@ -40,6 +41,11 @@ class SkillDefinition:
     skill_revision: int
     is_active: bool
     has_method_body: bool
+    configuration_schema: dict
+
+    @property
+    def id(self) -> str:
+        return self.skill_id
 
 
 def definition_from_record(record: Skill) -> SkillDefinition:
@@ -47,6 +53,7 @@ def definition_from_record(record: Skill) -> SkillDefinition:
     source = source_for(record)
     metadata = parse_skill_md(source)
     return SkillDefinition(
+        configuration_schema=record.configuration_schema.copy(),
         skill_id=record.id,
         protocol_name=metadata["name"],
         name=record.name,
@@ -80,3 +87,17 @@ def readiness_reason(definition: SkillDefinition) -> str | None:
     if not definition.is_active:
         return "技能已停用"
     return None if definition.has_method_body else "技能正文为空"
+
+
+def published_skill(db: Session, id: str) -> SkillDefinition | None:
+    row = db.get(Skill, id)
+    return definition_from_record(row) if row else None
+
+
+def matching_skill_ids(query: str) -> Select[str]:
+    return select(Skill.id).where(Skill.name.icontains(query, autoescape=True))
+
+
+def skill_name_projection() -> Subquery:
+    """具名只读列投影，不向消费者提供可变模型。"""
+    return select(Skill.id, Skill.name).subquery()

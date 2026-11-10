@@ -23,7 +23,7 @@ from sqlalchemy.exc import IntegrityError
 from app.agent.prompts import compose_system_prompt
 from app.auth.models import AuthSession
 from app.auth.permissions import ROLE_PERMISSIONS
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.execution.errors import ExecutionFailure
 from app.execution.models import Run
 from app.infrastructure.database.transactions import reserve_writer
@@ -749,7 +749,7 @@ def test_retry_is_one_question_with_all_outputs_in_both_directions(api_client, m
 def test_question_preview_reads_the_latest_attempt_without_a_message_window(
     api_client, monkeypatch
 ):
-    from app.conversations import queries as projections
+    from app.conversations import projections
 
     _, _, conversation = setup_agent(api_client)
     run = send(api_client, conversation, "# 固定问题\n**用户原文**").json()["response"]

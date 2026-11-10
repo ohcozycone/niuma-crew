@@ -6,7 +6,7 @@ from test_capability_runtime import ScriptedModel, execute, response, setup, sub
 from test_tool_discovery import discovery_response
 from test_tool_readers import search_setup
 
-from app.agent.errors import RuntimeFailure
+from app.execution.errors import ExecutionFailure
 from app.execution.tool_results import ToolResults, _legacy_result_text
 from app.mcp.contracts import exposed_name
 
@@ -28,7 +28,7 @@ def result_fixture(text="extracted text"):
 
 def test_result_reader_rejects_cross_run_or_arbitrary_file_ids():
     results, _ = result_fixture()
-    with pytest.raises(RuntimeFailure, match="tool_not_allowed"):
+    with pytest.raises(ExecutionFailure, match="tool_not_allowed"):
         results.load("other-run")
     page = json.loads(results.read_page("result", offset=4, limit=20))
     assert page["offset"] == 4 and page["end"] == 24
@@ -175,9 +175,9 @@ def test_result_reader_rechecks_originating_permission(api_client):
 
     from sqlalchemy import select
 
-    from app.employees.access import authorize_tool
     from app.employees.models import AgentToolGrant
     from app.errors import ConflictError
+    from app.execution.authorization import authorize_tool
     from app.execution.models import Run
     from app.runtime.contracts.tools import ToolInvocation
 

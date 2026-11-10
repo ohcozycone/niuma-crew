@@ -13,7 +13,7 @@ def scenario_database(client):
 
 def empty_conversation(client, agent_id):
     """为读取/运行场景建立空对话夹具；首次发送契约另经真实 HTTP 验证。"""
-    from app.conversations.queries import read_conversation
+    from app.conversations.projections import read_conversation
     from app.conversations.writes import create_conversation
 
     actor = client.app.state.auth.resolve(client.cookies.get("app_session"))

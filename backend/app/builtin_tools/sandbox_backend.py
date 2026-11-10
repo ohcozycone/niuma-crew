@@ -3,13 +3,13 @@ from deepagents.backends.protocol import (
 )
 from langchain_opensandbox import OpenSandboxBackend
 
-from app.environments.open_sandbox import OpenSandboxOperations
+from app.environments.contracts import SandboxFileOperations
 
 
 class SandboxFileBackend(OpenSandboxBackend):
-    def __init__(self, *, sandbox, timeout=60):
+    def __init__(self, *, sandbox, operations: SandboxFileOperations, timeout=60):
         super().__init__(sandbox=sandbox, timeout=timeout)
-        self.operations = OpenSandboxOperations(sandbox, timeout)
+        self.operations = operations
 
     def execute(self, command, *, timeout=None):
         result = self.operations.execute(command, timeout=timeout)

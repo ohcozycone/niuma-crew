@@ -1,26 +1,5 @@
-from __future__ import annotations
-
-import posixpath
-
+from app.environments.contracts import WRITE_TOOLS, checked_path, under
 from app.errors import InvalidInputError, PermissionDeniedError
-
-WRITE_TOOLS = frozenset({"write_file", "edit_file", "delete", "execute"})
-
-
-def checked_path(path: str) -> str:
-    if (
-        not isinstance(path, str)
-        or not path.startswith("/")
-        or "\\" in path
-        or ("\x00" in path)
-        or (".." in path.split("/"))
-    ):
-        raise PermissionDeniedError("file_path_denied", "文件路径不在本轮许可范围内。")
-    return posixpath.normpath(path)
-
-
-def under(path: str, root: str) -> bool:
-    return path == root.rstrip("/") or path.startswith(root.rstrip("/") + "/")
 
 
 def authorize_workspace_arguments(binding: dict, arguments: dict) -> None:

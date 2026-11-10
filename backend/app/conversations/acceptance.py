@@ -3,15 +3,15 @@ import logging
 from datetime import timedelta
 from typing import Any
 
-from sqlalchemy import or_, select
-
 from app.conversations.models import Conversation, ConversationRun, MessageFile
+from app.conversations.projections import acceptance_candidates
 from app.conversations.writes import publish_conversation
 from app.errors import RateLimitError, ServiceError, ServiceUnavailableError
 from app.execution.errors import ExecutionFailure
-from app.execution.models import TERMINAL, Run
+from app.execution.queries import optional_run
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
+from app.runtime.contracts.runs import TERMINAL
 from app.values import utc_now
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class ConversationAcceptance:
             with self.database.transaction() as db:
                 reserve_writer(db, ConversationRun.__table__)
                 binding = db.get(ConversationRun, run_id)
-                row = db.get(Run, run_id)
+                row = optional_run(db, run_id)
                 if (
                     binding is None
                     or binding.handled_at is not None
@@ -81,22 +81,7 @@ class ConversationAcceptance:
 
     def sweep(self) -> None:
         with self.database.transaction() as db:
-            ids = list(
-                db.scalars(
-                    select(ConversationRun.run_id)
-                    .join(Run, Run.id == ConversationRun.run_id)
-                    .where(
-                        Run.status.in_(TERMINAL),
-                        ConversationRun.handled_at.is_(None),
-                        or_(
-                            ConversationRun.next_acceptance_at.is_(None),
-                            ConversationRun.next_acceptance_at <= utc_now(),
-                        ),
-                    )
-                    .order_by(Run.finished_at, Run.id)
-                    .limit(64)
-                )
-            )
+            ids = acceptance_candidates(db)
         for id in ids:
             self.process(id)
 

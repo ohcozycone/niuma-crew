@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 
 URL = "/api/organization-rules"
 

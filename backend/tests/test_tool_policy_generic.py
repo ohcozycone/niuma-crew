@@ -5,6 +5,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.errors import InvalidInputError
+from app.execution.errors import ExecutionFailure
 from app.execution.tool_results import ToolResults
 from app.mcp.policy import authorize_arguments, validate_scope
 from app.runtime.contracts.tools import ToolInvocation
@@ -41,14 +42,13 @@ def test_current_snapshot_rejects_invalid_engine_inputs_before_preparation(
 ):
     from test_capability_runtime import setup, submit
 
-    from app.agent.errors import RuntimeFailure
-    from app.execution.snapshot import validate_snapshot
+    from app.execution.snapshot_rules import validate_snapshot
 
     _, _, _, conversation = setup(api_client)
     accepted = submit(api_client, conversation).json()["response"]
     row, _ = api_client.app.state.run_worker.store.load(accepted["id"])
     snapshot = {**row.config_snapshot, field: value}
-    with pytest.raises(RuntimeFailure, match="checkpoint_unavailable"):
+    with pytest.raises(ExecutionFailure, match="checkpoint_unavailable"):
         validate_snapshot(snapshot)
 
 

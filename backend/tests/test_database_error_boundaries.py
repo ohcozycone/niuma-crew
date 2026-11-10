@@ -6,7 +6,7 @@ from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.employees.models import Agent
 from app.model_connections.models import ModelConnection
 from app.skills.models import Skill

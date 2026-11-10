@@ -14,7 +14,7 @@ from test_response_contract import employee
 from app.conversations.models import Conversation, Message
 from app.evaluations.benchmark import DATA, SUITE_ID, grade, load_suite
 from app.evaluations.models import EvaluationBatch, EvaluationCase
-from app.evaluations.service import EvaluationService
+from app.evaluations.progression import EvaluationProgression
 from app.execution.models import Run
 from app.runtime.contracts.runs import Completion
 
@@ -139,7 +139,7 @@ def test_real_sdk_execution_and_score_are_independent_without_tools_or_messages(
         )
         assert normal["skills"]
     batch = create(api_client, agent).json()
-    service = api_client.app.state.evaluations
+    service = api_client.app.state.evaluation_progression
     service.advance(batch["id"])
     service.advance(batch["id"])
     with api_client.app.state.database.transaction() as db:
@@ -167,11 +167,11 @@ def test_real_sdk_execution_and_score_are_independent_without_tools_or_messages(
 
 def test_wrong_answer_does_not_fail_the_successful_run_and_restart_does_not_resubmit(api_client):
     batch = create(api_client, employee(api_client), 2).json()
-    service = api_client.app.state.evaluations
+    service = api_client.app.state.evaluation_progression
     service.advance(batch["id"])
     run_id = result(api_client, batch)["cases"]["items"][0]["run_id"]
     api_client.app.state.runs.complete(Completion(run_id, "错误答卷", "succeeded"))
-    restarted = EvaluationService(service.database, service.runs)
+    restarted = EvaluationProgression(service.database, service.runs)
     restarted.advance(batch["id"])
     report = result(api_client, batch)
     assert report["batch"]["failed"] == 1
@@ -183,7 +183,7 @@ def test_wrong_answer_does_not_fail_the_successful_run_and_restart_does_not_resu
 
 def test_cancel_keeps_records_and_never_submits_remaining_questions(api_client):
     batch = create(api_client, employee(api_client), 3).json()
-    service = api_client.app.state.evaluations
+    service = api_client.app.state.evaluation_progression
     service.advance(batch["id"])
     assert api_client.post(f"/api/evaluations/{batch['id']}/cancel").status_code == 200
     for _ in range(3):
@@ -198,7 +198,7 @@ def test_cancel_keeps_records_and_never_submits_remaining_questions(api_client):
 
 def test_cancel_scores_already_completed_answer_before_cancelling_remaining_work(api_client):
     batch = create(api_client, employee(api_client), 3).json()
-    service = api_client.app.state.evaluations
+    service = api_client.app.state.evaluation_progression
     service.advance(batch["id"])
     run_id = result(api_client, batch)["cases"]["items"][0]["run_id"]
     with service.database.transaction() as db:
@@ -218,7 +218,7 @@ def test_cancel_scores_already_completed_answer_before_cancelling_remaining_work
 
 def test_scoring_failure_preserves_answer_and_does_not_change_run_success(api_client, monkeypatch):
     batch = create(api_client, employee(api_client)).json()
-    service = api_client.app.state.evaluations
+    service = api_client.app.state.evaluation_progression
     service.advance(batch["id"])
     run_id = result(api_client, batch)["cases"]["items"][0]["run_id"]
     api_client.app.state.runs.complete(Completion(run_id, "原始答卷", "succeeded"))
@@ -226,7 +226,7 @@ def test_scoring_failure_preserves_answer_and_does_not_change_run_success(api_cl
     def broken(*args):
         raise RuntimeError("Injected scoring failure")
 
-    monkeypatch.setattr("app.evaluations.service.grade", broken)
+    monkeypatch.setattr("app.evaluations.acceptance.grade", broken)
     service.advance(batch["id"])
     report = result(api_client, batch)
     assert report["batch"]["errors"] == 1 and report["batch"]["scored"] == 0
@@ -239,11 +239,11 @@ def test_scoring_failure_preserves_answer_and_does_not_change_run_success(api_cl
 def test_concurrent_creation_and_scanners_submit_each_question_once(api_client):
     agent = employee(api_client)
     actor = api_client.app.state.auth.resolve(api_client.cookies.get("app_session"))
-    service = api_client.app.state.evaluations
+    service = api_client.app.state.evaluation_progression
     key = str(uuid4())
 
     def submit(_):
-        return service.create(actor, agent["id"], SUITE_ID, 2, key)
+        return api_client.app.state.evaluation_commands.create(actor, agent["id"], SUITE_ID, 2, key)
 
     with ThreadPoolExecutor(max_workers=4) as pool:
         batches = list(pool.map(submit, range(4)))
@@ -266,7 +266,7 @@ def test_config_change_stops_exam_before_running_new_questions(api_client):
         },
     )
     assert changed.status_code == 200
-    api_client.app.state.evaluations.advance(batch["id"])
+    api_client.app.state.evaluation_progression.advance(batch["id"])
     report = result(api_client, batch)
     assert report["batch"]["status"] == "failed"
     assert report["batch"]["error_code"] == "evaluation_config_changed"
@@ -283,7 +283,7 @@ def test_revoked_session_stops_new_exam_work(api_client):
 
     with api_client.app.state.database.transaction() as db:
         db.get(AuthSession, actor.session_id).revoked_at = utc_now()
-    api_client.app.state.evaluations.advance(batch["id"])
+    api_client.app.state.evaluation_progression.advance(batch["id"])
     with api_client.app.state.database.transaction() as db:
         assert db.get(EvaluationBatch, batch["id"]).error_code == "actor_session_invalid"
         assert db.scalar(select(func.count()).select_from(Run)) == 0

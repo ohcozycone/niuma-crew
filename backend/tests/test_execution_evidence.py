@@ -230,7 +230,7 @@ def test_evidence_transaction_rollback_retention_and_isolated_quota(api_client, 
         held = action.request_file_id
         for file in db.scalars(select(StoredFile)):
             file.created_at = utc_now() - timedelta(days=2)
-    from app.execution.store import retained_file_ids
+    from app.execution.references import retained_file_ids
 
     for file in files.directory.iterdir():
         os.utime(file, (0, 0))

@@ -17,7 +17,7 @@ from test_capability_runtime import ScriptedModel, response
 from test_response_contract import employee
 
 from app.agent.tool_calls import validate_tool_names
-from app.bootstrap import create_app
+from app.bootstrap.app import create_app
 from app.conversations.acceptance import ConversationAcceptance
 from app.conversations.models import Conversation, ConversationRun, Message
 from app.errors import NotFoundError, PermissionDeniedError

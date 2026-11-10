@@ -171,7 +171,7 @@ def test_unknown_scope_extra_arguments_and_unmounted_run_are_refused(api_client)
     assemble(api_client, employee, [kb])
     run_id, snapshot = run(api_client, employee)
     service = api_client.app.state
-    with pytest.raises(InvalidInputError, match="检索范围"):
+    with pytest.raises(InvalidInputError, match="tool_not_allowed"):
         service.run_knowledge.call(
             run_id, "search_knowledge", {"query": "住宿", "library_ids": [kb, kb]}
         )
@@ -197,7 +197,7 @@ def test_unknown_scope_extra_arguments_and_unmounted_run_are_refused(api_client)
             )
     assemble(api_client, employee, [])
     no_run, _ = run(api_client, employee)
-    with pytest.raises(ConflictError, match="本轮没有挂载"):
+    with pytest.raises(ConflictError, match="tool_not_allowed"):
         service.run_knowledge.call(no_run, "search_knowledge", {"query": "住宿"})
 
 

@@ -1,5 +1,6 @@
 import asyncio
 import ipaddress
+import re
 import socket
 from urllib.parse import urlsplit
 
@@ -99,3 +100,26 @@ class PinnedTransport(httpx.AsyncBaseTransport):
 
     async def aclose(self):
         await self.inner.aclose()
+
+
+def valid_header(name):
+    return (
+        isinstance(name, str)
+        and re.fullmatch(r"[A-Za-z][A-Za-z0-9-]{0,63}", name)
+        and name.lower()
+        not in {
+            "host",
+            "cookie",
+            "content-length",
+            "content-type",
+            "proxy-authorization",
+            "connection",
+            "transfer-encoding",
+            "authorization",
+            "accept",
+            "accept-encoding",
+            "origin",
+            "referer",
+        }
+        and not name.lower().startswith(("proxy-", "sec-"))
+    )

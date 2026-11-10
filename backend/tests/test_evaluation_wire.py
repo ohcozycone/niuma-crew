@@ -40,7 +40,7 @@ def test_real_wire_preserves_employee_instruction_and_scores_original_answer(
         json={"expected_revision": agent["revision"], "system_prompt": instruction},
     ).json()
     batch = create(api_client, agent, key="00000000-0000-0000-0000-0000000000e4").json()
-    service = api_client.app.state.evaluations
+    service = api_client.app.state.evaluation_progression
     service.advance(batch["id"])
     with service.database.transaction() as db:
         case = db.scalar(select(EvaluationCase).where(EvaluationCase.batch_id == batch["id"]))
