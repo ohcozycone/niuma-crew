@@ -94,10 +94,10 @@ Agent 与 Execution 上报 code 和技术 kind，执行层决定终态、取消�
 
 | 位置                                                         | 职责                                                                    |
 | ------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| [app/errors.py](../../backend/app/errors.py)                 | CodedFailure 与 FailureKind；业务拒绝的具体异常类型；不包含运行文案目录 |
-| [agent/errors.py](../../backend/app/agent/errors.py)         | 模型、工具循环及存档失败的稳定码与技术类型                              |
-| [execution/errors.py](../../backend/app/execution/errors.py) | 执行错误定义、可信异常归一及终态处理；不依赖展示文案                    |
-| [public_errors.py](../../backend/app/public_errors.py)       | 应用默认公开文案；HTTP 和对话在输出时选用，考核可使用自己的说明         |
+| [app/common/errors.py](../../backend/app/common/errors.py)                 | CodedFailure 与 FailureKind；业务拒绝的具体异常类型；不包含运行文案目录 |
+| [agent/errors.py](../../backend/app/runtime/agent/errors.py)         | 模型、工具循环及存档失败的稳定码与技术类型                              |
+| [execution/errors.py](../../backend/app/runtime/execution/errors.py) | 执行错误定义、可信异常归一及终态处理；不依赖展示文案                    |
+| [public_errors.py](../../backend/app/common/public_errors.py)       | 应用默认公开文案；HTTP 和对话在输出时选用，考核可使用自己的说明         |
 
 技术 kind 包括校验、授权、配置、冲突、未找到、限额、依赖、操作、存储、中断、取消及内部故障。错误码和类型的含义须保持稳定；新增文案不使一个错误码获得执行资格，删除文案也不改变执行处理。未知原始异常保留安全的 `execution_failed`，不信任上游异常任意 `.code` 属性或异常正文。
 
@@ -109,7 +109,7 @@ Agent 与 Execution 上报 code 和技术 kind，执行层决定终态、取消�
 
 ## 应用错误分类与 HTTP 转换
 
-业务抛出 [app.errors](../../backend/app/errors.py) 的具体错误，只表达失败含义；[errors.py](../../backend/app/api/errors.py) 映射 HTTP 状态、生成安全响应并保留 Retry-After。已登记分类的子类按 MRO 继承最近分类，未分类的 ServiceError 不映射为业务拒绝。已知业务错误返回 `{detail:{code,message}}`；参数校验的 422 返回脱敏条目列表，只保留 type、loc、msg。数据库 busy/locked 转为可重试的 503，未知故障保留服务器错误，不统一吞成业务拒绝。来源、体积和媒体类型拒绝由 security 处理。
+业务抛出 [app.common.errors](../../backend/app/common/errors.py) 的具体错误，只表达失败含义；[errors.py](../../backend/app/api/errors.py) 映射 HTTP 状态、生成安全响应并保留 Retry-After。已登记分类的子类按 MRO 继承最近分类，未分类的 ServiceError 不映射为业务拒绝。已知业务错误返回 `{detail:{code,message}}`；参数校验的 422 返回脱敏条目列表，只保留 type、loc、msg。数据库 busy/locked 转为可重试的 503，未知故障保留服务器错误，不统一吞成业务拒绝。来源、体积和媒体类型拒绝由 security 处理。
 
 [failure_boundary.py](../../backend/app/api/failure_boundary.py) 只处理 HTTP，位于浏览器安全中间件外层；成功、已知错误、字段校验和来源等提前拒绝都返回 `X-Request-ID`。请求提供的 ID 必须符合 ASCII `[A-Za-z0-9._-]{1,64}`；缺失、重复、非法或超长值重新生成。ID 仅用于诊断，不参与认证、Run 身份或业务幂等。
 

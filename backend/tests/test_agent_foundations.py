@@ -13,20 +13,20 @@ from sqlalchemy import select
 from sqlalchemy.exc import OperationalError
 from test_capability_runtime import ScriptedModel, discovery_response, execute, response, setup
 
-from app.builtin_tools.sandbox_backend import SandboxFileBackend
-from app.employees.models import AgentToolGrant
-from app.environments.models import SandboxResource
-from app.environments.open_sandbox import OpenSandboxOperations
-from app.environments.service import SandboxService
-from app.errors import ConflictError, InvalidInputError
-from app.execution.models import Run, RunAction
-from app.files.models import StoredFile
-from app.mcp.adapters.http import MCPClient
-from app.mcp.config import ToolConfig
-from app.mcp.contracts import exposed_name
-from app.mcp.network import BoundedStream, PinnedTransport
+from app.common.errors import ConflictError, InvalidInputError
+from app.common.values import digest
+from app.resources.employees.models import AgentToolGrant
+from app.resources.environments.models import SandboxResource
+from app.resources.environments.open_sandbox import OpenSandboxOperations
+from app.resources.environments.service import SandboxService
+from app.resources.files.models import StoredFile
+from app.resources.mcp.adapters.http import MCPClient
+from app.resources.mcp.config import ToolConfig
+from app.resources.mcp.contracts import exposed_name
+from app.resources.mcp.network import BoundedStream, PinnedTransport
 from app.runtime.contracts.tools import ToolInvocation
-from app.values import digest
+from app.runtime.execution.models import Run, RunAction
+from app.runtime.tools.sandbox_backend import SandboxFileBackend
 
 
 def send(client, conversation, *, files=None):
@@ -289,8 +289,8 @@ def test_mcp_explicit_and_default_limits_survive_shared_budget_cleanup(
 ):
     from configuration_helpers import set_submission_limits
 
-    from app.execution.errors import ExecutionFailure
     from app.runtime.contracts.tools import ToolOutcome
+    from app.runtime.execution.errors import ExecutionFailure
 
     _, _, agent, conversation = setup(api_client)
     connection = search_grant(api_client, agent)
@@ -379,7 +379,7 @@ def test_search_model_call_records_sources_and_long_result(api_client, monkeypat
 
 
 def test_current_tools_reach_http_model_with_old_unavailable_history(api_client, monkeypatch):
-    from app.llm.factory import create_chat_model
+    from app.infrastructure.llm.factory import create_chat_model
 
     _, _, agent, conversation = setup(api_client)
     previous = send(api_client, conversation)
@@ -447,7 +447,7 @@ def test_current_tools_reach_http_model_with_old_unavailable_history(api_client,
         async with httpx.AsyncClient(transport=httpx.MockTransport(upstream)) as transport:
             yield create_chat_model(config, transport=transport, max_tokens=max_tokens)
 
-    monkeypatch.setattr("app.agent.engine.model_session", model_session)
+    monkeypatch.setattr("app.runtime.agent.engine.model_session", model_session)
     accepted = send(api_client, conversation)
     id = accepted["id"]
     asyncio.run(execute_run(api_client, id))
@@ -566,7 +566,7 @@ def test_sandbox_create_unknown_keeps_debt_and_late_resource_is_collected(api_cl
         lambda: [],
         provider=provider,
     )
-    monkeypatch.setattr("app.environments.service.load_verification", lambda _: {})
+    monkeypatch.setattr("app.resources.environments.service.load_verification", lambda _: {})
     with pytest.raises(TimeoutError):
         service.acquire(id, [], lambda _: b"")
     with api_client.app.state.database.transaction() as db:
@@ -645,8 +645,8 @@ def test_default_https_port_dns_pin_and_tls_name_are_preserved(monkeypatch):
 
 
 def test_reference_retention_keeps_published_outputs_and_cleans_orphans(api_client, monkeypatch):
-    from app.conversations.files import retained_file_ids
-    from app.values import utc_now
+    from app.applications.conversations.files import retained_file_ids
+    from app.common.values import utc_now
 
     _, _, agent, conversation = setup(api_client)
     accepted = send(api_client, conversation)
@@ -677,7 +677,7 @@ def test_reference_retention_keeps_published_outputs_and_cleans_orphans(api_clie
     with api_client.app.state.database.transaction() as db:
         for row in db.scalars(select(StoredFile)):
             row.created_at = utc_now() - timedelta(days=2)
-    from app.execution.references import retained_file_ids as retained_execution_files
+    from app.runtime.execution.references import retained_file_ids as retained_execution_files
 
     api_client.app.state.file_cleanup.sweep(
         lambda db, candidates: (
@@ -725,7 +725,7 @@ def test_agent_execute_uses_owned_sandbox_collects_then_destroys(api_client, mon
 
     provider = Provider()
     api_client.app.state.sandboxes.provider = provider
-    monkeypatch.setattr("app.environments.service.load_verification", lambda _: {})
+    monkeypatch.setattr("app.resources.environments.service.load_verification", lambda _: {})
     accepted = send(api_client, conversation)
     id = accepted["id"]
     model = ScriptedModel(
@@ -813,8 +813,8 @@ def test_parallel_tools_cannot_spend_the_same_last_budget(api_client):
 def test_long_source_line_has_bounded_read_windows_without_changing_original():
     from deepagents.backends.utils import file_data_to_string
 
-    from app.agent.skills import prepare_skills
-    from app.builtin_tools.workspace import WorkspaceBackend
+    from app.runtime.agent.skills import prepare_skills
+    from app.runtime.tools.workspace import WorkspaceBackend
 
     raw = "资料" * 10000
     reads = []

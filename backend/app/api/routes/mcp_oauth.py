@@ -6,8 +6,8 @@ from fastapi.responses import RedirectResponse
 from pydantic import Field, StrictInt
 
 from app.api.dependencies import ActorDependency, AuthDependency, OAuthDependency
-from app.errors import ServiceError
-from app.schemas import RequestModel
+from app.common.errors import ServiceError
+from app.common.schemas import RequestModel
 
 router = APIRouter(tags=["tools"])
 

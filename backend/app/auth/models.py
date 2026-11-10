@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Index, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.common.values import new_uuid
 from app.infrastructure.database.base import Base
 from app.infrastructure.database.fields import (
     UTC_TIMESTAMP_DEFAULT,
@@ -10,7 +11,6 @@ from app.infrastructure.database.fields import (
     UTCDateTime,
     UUIDText,
 )
-from app.values import new_uuid
 
 
 class User(IdentityTimestamps, Base):

@@ -8,10 +8,10 @@ from uvicorn.importer import import_from_string
 
 from app import __version__
 from app.bootstrap.app import create_app
-from app.files.cleanup import FileCleanup
 from app.infrastructure.database.session import Database
-from app.knowledge.worker import KnowledgeWorker
-from app.mcp.invocation import ToolInvocationService
+from app.resources.files.cleanup import FileCleanup
+from app.resources.knowledge.worker import KnowledgeWorker
+from app.resources.mcp.invocation import ToolInvocationService
 
 
 def test_asgi_entrypoint_starts_without_model_configuration(monkeypatch, migrated_config):
@@ -153,8 +153,8 @@ def test_app_owns_database_lifecycle_without_running_migrations(app_config):
     "failure", ["tool_close", "construction", "run_worker_start", "file_start", "multiple_closes"]
 )
 def test_lifespan_releases_created_resources_despite_failures(app_config, monkeypatch, failure):
-    from app.environments.service import SandboxService
-    from app.execution.scheduler import RunWorker
+    from app.resources.environments.service import SandboxService
+    from app.runtime.execution.scheduler import RunWorker
 
     events = []
     original_close = Database.close

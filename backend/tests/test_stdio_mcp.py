@@ -7,16 +7,16 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.mcp.adapters.stdio import StdioMCPClient
-from app.mcp.config import ToolConfig
+from app.common.values import digest
+from app.resources.mcp.adapters.stdio import StdioMCPClient
+from app.resources.mcp.config import ToolConfig
 from app.runtime.contracts.runs import RUN_SNAPSHOT_VERSION
-from app.values import digest
 
 
 @pytest.mark.anyio
 async def test_sandbox_release_failure_still_closes_run_mcp_caller():
-    from app.execution.runner import RunTask
     from app.runtime.contracts.agent import AgentOutput
+    from app.runtime.execution.runner import RunTask
 
     closed = []
 
@@ -348,7 +348,7 @@ def test_stdio_account_catalog_snapshot_and_run_caller_are_integrated(
 ):
     from test_capability_runtime import setup
 
-    from app.employees.assembly import capture_tools
+    from app.resources.employees.assembly import capture_tools
 
     enable_stdio(api_client)
     _, _, agent, _ = setup(api_client)

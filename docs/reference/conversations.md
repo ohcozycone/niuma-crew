@@ -43,7 +43,7 @@
 
 AcceptedSubmission 包含 client_request_id、当前 conversation、原 input_message 和 response。ResponseSnapshot 包含同一次读取的 conversation 与 response。首屏、历史、接受、核对、GET 和 SSE 的助手部分使用同一 AssistantMessageView。
 
-助手字段 content 已选好可见正文；content_state 为 empty/draft/complete/partial。status 表示处理状态，两者各司其职。steps 为有界实际动作；can_retry 由服务器表示当前是否可重试，前端还需检查末条回复和交互状态。回复不再包含 ci 或 work_kind。完整字段由 [schemas](../../backend/app/conversations/schemas.py) 和运行 OpenAPI 维护，不在本文复制全部 DTO。
+助手字段 content 已选好可见正文；content_state 为 empty/draft/complete/partial。status 表示处理状态，两者各司其职。steps 为有界实际动作；can_retry 由服务器表示当前是否可重试，前端还需检查末条回复和交互状态。回复不再包含 ci 或 work_kind。完整字段由 [schemas](../../backend/app/applications/conversations/schemas.py) 和运行 OpenAPI 维护，不在本文复制全部 DTO。
 
 SSE 业务事件为 response.snapshot、response.finished、access.revoked；事件 ID 为回复版本，data 为公开快照 JSON，撤权时只发空对象后结束。恢复是读取当前快照，不承诺 token 回放。只有 Run 达到终态且业务接纳不再 pending，才发送 response.finished。
 
@@ -65,7 +65,7 @@ ConversationRead 增加有界 latest_response（id、status、acceptance），�
 
 员工个人页通过 `GET /api/conversations/stats?agent_id=UUID` 读取 `completed_rounds`，响应禁止缓存。操作要求 `conversations:read` 与 `runs:read`，资源范围与对话列表相同：管理员可读取全部，普通成员限定本人。不存在的员工返回 404，非法员工 ID 返回 422。
 
-计数要求 Run 成功且 ConversationRun 已完成接纳、没有接纳错误，并按原用户输入 ID 去重。重试仍属于同一轮；运行中、失败、取消、中断、等待接纳及接纳失败不计，考核等没有对话绑定的执行也不计。直接在数据库聚合全部可读历史，不以分页列表条数或助手消息数替代，不新增持久计数字段。字段与实现见[schemas](../../backend/app/conversations/schemas.py)和[queries](../../backend/app/conversations/queries.py)。
+计数要求 Run 成功且 ConversationRun 已完成接纳、没有接纳错误，并按原用户输入 ID 去重。重试仍属于同一轮；运行中、失败、取消、中断、等待接纳及接纳失败不计，考核等没有对话绑定的执行也不计。直接在数据库聚合全部可读历史，不以分页列表条数或助手消息数替代，不新增持久计数字段。字段与实现见[schemas](../../backend/app/applications/conversations/schemas.py)和[queries](../../backend/app/applications/conversations/queries.py)。
 
 ## 前端交互
 

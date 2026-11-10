@@ -40,9 +40,10 @@
     {
       "source": "agent/config.py",
       "sha256": "9ed626d13f4b34f156140bf4d701fd95fcd33489d06039c40878bb3e3fcdd34b",
-      "action": "move",
+      "action": "split",
       "targets": [
-        "runtime/agent/config.py"
+        "runtime/agent/config.py",
+        "runtime/contracts/agent.py"
       ],
       "symbols": [
         "AgentConfig",
@@ -85,9 +86,10 @@
     {
       "source": "agent/errors.py",
       "sha256": "be8818f0c2c14b0e031aa8bf1083fad1ad92a072eefe43643080f8272200593a",
-      "action": "move",
+      "action": "split",
       "targets": [
-        "runtime/agent/errors.py"
+        "runtime/agent/errors.py",
+        "common/errors.py"
       ],
       "symbols": [
         "RuntimeFailure"
@@ -752,6 +754,11 @@
       ],
       "symbols": [
         "create_app"
+      ],
+      "replacement_owners": [
+        "create_app",
+        "build_services",
+        "application_lifespan"
       ]
     },
     {
@@ -941,9 +948,10 @@
     {
       "source": "conversations/context.py",
       "sha256": "763cbe650e54763e20c19fa0d5f0f761d2d7b33a18fba52af3a076bd5cf17bf7",
-      "action": "move",
+      "action": "split",
       "targets": [
-        "applications/conversations/context.py"
+        "applications/conversations/context.py",
+        "applications/conversations/projections.py"
       ],
       "symbols": [
         "accepted_run_id"
@@ -1236,9 +1244,10 @@
     {
       "source": "environments/open_sandbox.py",
       "sha256": "0bec50dcc879860130df797599bb97d4aae1ef8ddcf37e664028fd2a10ebe23f",
-      "action": "move",
+      "action": "split",
       "targets": [
-        "resources/environments/open_sandbox.py"
+        "resources/environments/open_sandbox.py",
+        "resources/environments/contracts.py"
       ],
       "symbols": [
         "BoundedSyncStream",
@@ -1252,9 +1261,10 @@
     {
       "source": "environments/policy.py",
       "sha256": "9bbf28bb61d20060765ff69c7befb76ef4f2af69634ce5c9be377de648939ad9",
-      "action": "move",
+      "action": "split",
       "targets": [
-        "resources/environments/policy.py"
+        "resources/environments/policy.py",
+        "resources/environments/contracts.py"
       ],
       "symbols": [
         "checked_path",
@@ -1386,6 +1396,13 @@
       ],
       "symbols": [
         "EvaluationService"
+      ],
+      "replacement_owners": [
+        "EvaluationCommands",
+        "EvaluationQueries",
+        "EvaluationProgression",
+        "record_result",
+        "finish_batch"
       ]
     },
     {
@@ -1573,9 +1590,10 @@
     {
       "source": "execution/store.py",
       "sha256": "bf568eae1ba0d0fa3d873fe21f1e283c928e979a45153d5ca56f4d198b56b9e5",
-      "action": "move",
+      "action": "split",
       "targets": [
-        "runtime/execution/store.py"
+        "runtime/execution/store.py",
+        "runtime/execution/references.py"
       ],
       "symbols": [
         "RunStore",
@@ -2010,7 +2028,8 @@
       "action": "split",
       "targets": [
         "resources/knowledge/search.py",
-        "runtime/execution/knowledge.py"
+        "runtime/execution/knowledge.py",
+        "resources/knowledge/lexical.py"
       ],
       "symbols": [
         "KnowledgeSearch"
@@ -2023,11 +2042,19 @@
       "targets": [
         "resources/knowledge/libraries.py",
         "resources/knowledge/documents.py",
-        "resources/knowledge/references.py"
+        "resources/knowledge/references.py",
+        "resources/knowledge/search.py",
+        "resources/knowledge/processing.py",
+        "resources/knowledge/vectors.py",
+        "bootstrap/services.py"
       ],
       "symbols": [
         "retained_file_ids",
         "KnowledgeService"
+      ],
+      "replacement_owners": [
+        "KnowledgeLibraries",
+        "KnowledgeDocuments"
       ]
     },
     {
@@ -2044,9 +2071,10 @@
     {
       "source": "knowledge/vectors.py",
       "sha256": "76d68ab80e5506d3a9d93ca7a97a2c72bfd0b8a447d0cfaa16872ed2f47a0344",
-      "action": "move",
+      "action": "split",
       "targets": [
-        "resources/knowledge/vectors.py"
+        "resources/knowledge/vectors.py",
+        "resources/knowledge/sources.py"
       ],
       "symbols": [
         "source_digest",
@@ -2253,9 +2281,10 @@
     {
       "source": "mcp/connections.py",
       "sha256": "c31c3340bd6f5eecc2032fe943da905448555505ec0cfa81e608de0869244094",
-      "action": "move",
+      "action": "split",
       "targets": [
-        "resources/mcp/connections.py"
+        "resources/mcp/connections.py",
+        "resources/mcp/network.py"
       ],
       "symbols": [
         "valid_header",
@@ -2935,6 +2964,540 @@
   "legacy_metadata": {
     "resources/environments/legacy_models.py": [
       "resources.mcp.models"
+    ]
+  },
+  "state_owners": {
+    "conversation_acceptance": "applications/conversations/acceptance.py",
+    "conversation_commands": "applications/conversations/commands.py",
+    "evaluation_progression": "applications/evaluations/progression.py",
+    "evaluation_acceptance": "applications/evaluations/acceptance.py",
+    "queue_and_inflight": "runtime/execution/scheduler.py",
+    "run_lifecycle": "runtime/execution/runner.py",
+    "run_actions_budget_evidence": "runtime/execution/store.py",
+    "agent_sdk_loop": "runtime/agent/engine.py",
+    "resource_lifecycle": "bootstrap/lifecycle.py"
+  },
+  "callback_contracts": [
+    {
+      "operation": "check_employee_history(Session, str) -> None",
+      "binding": "bootstrap/services.py",
+      "transaction": "调用方员工删除写事务",
+      "timing": "取得写锁后、删除前；仅读，不提交"
+    },
+    {
+      "operation": "assignment_facts(Session, ids) -> list[dict]",
+      "binding": "bootstrap/services.py",
+      "transaction": "调用方技能修改写事务",
+      "timing": "仅校验配置兼容性；不提交，不操作文件"
+    },
+    {
+      "operation": "assignment_counts(Session, ids) -> dict[str, int]",
+      "binding": "bootstrap/services.py",
+      "transaction": "调用方资源操作事务",
+      "timing": "仅读聚合列；不载入装配参数"
+    },
+    {
+      "operation": "check_model_references(Session, str) -> None",
+      "binding": "bootstrap/services.py",
+      "transaction": "调用方模型连接删除写事务",
+      "timing": "按知识索引、活动 Run、员工顺序检查；不提交"
+    },
+    {
+      "operation": "guard(Session) -> None",
+      "binding": "runtime/execution/knowledge.py",
+      "transaction": "检索读取/最终证据登记当前事务",
+      "timing": "每次读取与发布前复核 Run、发起会话及员工范围；不写、不提交"
+    },
+    {
+      "operation": "prepare_content(Session, Run, str) -> str",
+      "binding": "runtime/assembly.py",
+      "transaction": "执行成果提交事务",
+      "timing": "提交成果前核验引用；不发布业务回复"
+    },
+    {
+      "operation": "completion_notifier() -> None",
+      "binding": "bootstrap/services.py",
+      "transaction": "事务外",
+      "timing": "执行成果提交后仅唤醒接纳扫描"
+    },
+    {
+      "operation": "retained_files(Session, list[FileRetentionCandidate]) -> set[str]",
+      "binding": "bootstrap/services.py",
+      "transaction": "文件清理当前事务",
+      "timing": "删除候选前仅读各所有者引用，不提交"
+    },
+    {
+      "operation": "active_run_ids() -> list[str]",
+      "binding": "bootstrap/services.py",
+      "transaction": "独立短只读事务",
+      "timing": "环境维护查询活动引用，不调度 Run"
+    },
+    {
+      "operation": "prune_vectors(str) -> None",
+      "binding": "bootstrap/services.py",
+      "transaction": "资料处理或删除提交后",
+      "timing": "仅清理派生向量，不重入资料受理"
+    }
+  ],
+  "supporting_python_files": [
+    {
+      "source": "backend/migrations/env.py",
+      "target": "backend/migrations/env.py",
+      "action": "retain_and_rewire",
+      "sha256": "62a6eac87037a3ebc0e98ad04f8b74d23586699a14f342966cc26b6a7f6745b8"
+    },
+    {
+      "source": "backend/migrations/retire_ci_source.py",
+      "target": "backend/migrations/retire_ci_source.py",
+      "action": "retain_and_rewire",
+      "sha256": "0d0958344d405d5f377fda3e1843ef06626befebf66647615be4eed8135dab23"
+    },
+    {
+      "source": "backend/migrations/versions/0001_initial_schema.py",
+      "target": "backend/migrations/versions/0001_initial_schema.py",
+      "action": "retain_and_rewire",
+      "sha256": "a002c9fe1e3299ab4007eccf3030a9a91b0a6e9fd7054902f9936c5f84ccb872"
+    },
+    {
+      "source": "backend/migrations/versions/0002_remove_run_base_checkpoint.py",
+      "target": "backend/migrations/versions/0002_remove_run_base_checkpoint.py",
+      "action": "retain_and_rewire",
+      "sha256": "17fed6bbb51b2c56691ad62030db0e15d5c538be5bf3ac2666288768dc3fadab"
+    },
+    {
+      "source": "backend/migrations/versions/0003_unique_agent_name.py",
+      "target": "backend/migrations/versions/0003_unique_agent_name.py",
+      "action": "retain_and_rewire",
+      "sha256": "ac34cb10d65fe5498d04954898a6ea869dd61eac3d771d09c2cf58e26a73d963"
+    },
+    {
+      "source": "backend/migrations/versions/0004_execution_and_messages.py",
+      "target": "backend/migrations/versions/0004_execution_and_messages.py",
+      "action": "retain_and_rewire",
+      "sha256": "887e5828757bafe85f303d06b7d804e2ab8a6435c8280bd801f63d3d38b11550"
+    },
+    {
+      "source": "backend/migrations/versions/0005_message_delivery.py",
+      "target": "backend/migrations/versions/0005_message_delivery.py",
+      "action": "retain_and_rewire",
+      "sha256": "b420682661b8076e62dd8534b3cc2a8dae96dcb3d2addd168e4a7e653554e6f7"
+    },
+    {
+      "source": "backend/migrations/versions/0006_agent_foundations.py",
+      "target": "backend/migrations/versions/0006_agent_foundations.py",
+      "action": "retain_and_rewire",
+      "sha256": "3921ead3a2800b6c384f46ec92f553e3a9c68f7202ce86dd0db11604839d4923"
+    },
+    {
+      "source": "backend/migrations/versions/0007_mcp_accounts.py",
+      "target": "backend/migrations/versions/0007_mcp_accounts.py",
+      "action": "retain_and_rewire",
+      "sha256": "5d6aff315a5f6f90503cf48b3ad7c29375679e0ab8c1f16b1cd367e98b68537b"
+    },
+    {
+      "source": "backend/migrations/versions/0008_stdio_mcp.py",
+      "target": "backend/migrations/versions/0008_stdio_mcp.py",
+      "action": "retain_and_rewire",
+      "sha256": "b2014ab94badc0a3d8785bc71a679ab00185b1718e4f8ca40b1f8616856828a3"
+    },
+    {
+      "source": "backend/migrations/versions/0009_skill_packages.py",
+      "target": "backend/migrations/versions/0009_skill_packages.py",
+      "action": "retain_and_rewire",
+      "sha256": "89dc3ca385b32c80ea01a37b018b917b47f4d5e882965e98a1c15a41bf7e5cd9"
+    },
+    {
+      "source": "backend/migrations/versions/0010_skill_library.py",
+      "target": "backend/migrations/versions/0010_skill_library.py",
+      "action": "retain_and_rewire",
+      "sha256": "3c16aa52fe23de8d64afcdc61985755802a3f7531c60d3ffa2aabe1f1b55b9b3"
+    },
+    {
+      "source": "backend/migrations/versions/0011_mcp_input_fields.py",
+      "target": "backend/migrations/versions/0011_mcp_input_fields.py",
+      "action": "retain_and_rewire",
+      "sha256": "b485c97c057407d626a99f80ad24bd173e232981aa779e2ed0c72fc6ec68c6ac"
+    },
+    {
+      "source": "backend/migrations/versions/0012_retire_ci_diagnosis.py",
+      "target": "backend/migrations/versions/0012_retire_ci_diagnosis.py",
+      "action": "retain_and_rewire",
+      "sha256": "92ae452229c6c6792972ef45be139c3ed0f63d980e7bf0f57eaecde6c6b7a095"
+    },
+    {
+      "source": "backend/migrations/versions/0013_knowledge_libraries.py",
+      "target": "backend/migrations/versions/0013_knowledge_libraries.py",
+      "action": "retain_and_rewire",
+      "sha256": "f0560de8075617e29f7a835fb3e84111c8ee0a4df3fc98de48bcc4230154b58d"
+    },
+    {
+      "source": "backend/migrations/versions/0014_knowledge_vectors.py",
+      "target": "backend/migrations/versions/0014_knowledge_vectors.py",
+      "action": "retain_and_rewire",
+      "sha256": "94711748fc512b80a996b0ff588690f49912781d905b7bb11241f0f670dbd669"
+    },
+    {
+      "source": "backend/migrations/versions/0015_knowledge_processing.py",
+      "target": "backend/migrations/versions/0015_knowledge_processing.py",
+      "action": "retain_and_rewire",
+      "sha256": "f21156b7ef633d29c50ef112d30f4f6bbf8cc936183cb8503947df4db4dcb7f6"
+    },
+    {
+      "source": "backend/migrations/versions/0016_knowledge_chunk_preview.py",
+      "target": "backend/migrations/versions/0016_knowledge_chunk_preview.py",
+      "action": "retain_and_rewire",
+      "sha256": "3df8099ddd584e0c547c5830cfa2e28a9f73d96a2ce7b6ab936f003d0b86d2d5"
+    },
+    {
+      "source": "backend/migrations/versions/0017_employee_knowledge.py",
+      "target": "backend/migrations/versions/0017_employee_knowledge.py",
+      "action": "retain_and_rewire",
+      "sha256": "6928bbf9bb78ff40e1a14365fd3fa6d2a145eaf596877f9c457a852429e61a90"
+    },
+    {
+      "source": "backend/migrations/versions/0018_mcp_oauth.py",
+      "target": "backend/migrations/versions/0018_mcp_oauth.py",
+      "action": "retain_and_rewire",
+      "sha256": "3eaad288c2b31c152e350e1663695259cf1813913c9c57b6b2938badd402dca9"
+    },
+    {
+      "source": "backend/migrations/versions/0019_independent_run_results.py",
+      "target": "backend/migrations/versions/0019_independent_run_results.py",
+      "action": "retain_and_rewire",
+      "sha256": "1a1743d35ff231eaf58227db3b958197aef48862e7569a301cb5965012b7c09b"
+    },
+    {
+      "source": "backend/migrations/versions/0020_execution_threads.py",
+      "target": "backend/migrations/versions/0020_execution_threads.py",
+      "action": "retain_and_rewire",
+      "sha256": "b66e1a161b0ff164c82850b9253d7b50d0ff1d5160505f15412347dce276baf6"
+    },
+    {
+      "source": "backend/migrations/versions/0021_numeric_execution.py",
+      "target": "backend/migrations/versions/0021_numeric_execution.py",
+      "action": "retain_and_rewire",
+      "sha256": "7869eeffa08a554fa961b8b37365b5bc066f8d9cb419cafbd102c7f96c9e6182"
+    },
+    {
+      "source": "backend/migrations/versions/0022_employee_evaluations.py",
+      "target": "backend/migrations/versions/0022_employee_evaluations.py",
+      "action": "retain_and_rewire",
+      "sha256": "bb74873ab77d251ad788ca86f167f8d9d434796848c3d79c20f46ca1c458774b"
+    },
+    {
+      "source": "backend/migrations/versions/0023_knowledge_chroma.py",
+      "target": "backend/migrations/versions/0023_knowledge_chroma.py",
+      "action": "retain_and_rewire",
+      "sha256": "f43fde401f693b366e2753654e9a514a4ad8a4804fabdd4c61f8b7df4eb5fceb"
+    },
+    {
+      "source": "backend/migrations/versions/0024_action_evidence.py",
+      "target": "backend/migrations/versions/0024_action_evidence.py",
+      "action": "retain_and_rewire",
+      "sha256": "9ce9e544a9e0ba33a862925e21d40e9789ca7964ca1bac5354f04b2b4ab11771"
+    },
+    {
+      "source": "backend/migrations/versions/0025_builtin_workspaces.py",
+      "target": "backend/migrations/versions/0025_builtin_workspaces.py",
+      "action": "retain_and_rewire",
+      "sha256": "8d36c8b81c743f848b19d413dc186b21df9cd4c0309ee6e2009c2de1534a6adb"
+    },
+    {
+      "source": "backend/migrations/versions/0026_agent_workspace.py",
+      "target": "backend/migrations/versions/0026_agent_workspace.py",
+      "action": "retain_and_rewire",
+      "sha256": "3f16a12f0d97f3864d2d1e673e7b18427aac2fb4ef5eb096accbcbe28111da11"
+    },
+    {
+      "source": "backend/migrations/versions/0027_automatic_employee_knowledge.py",
+      "target": "backend/migrations/versions/0027_automatic_employee_knowledge.py",
+      "action": "retain_and_rewire",
+      "sha256": "6a1f4a5464bcb53cb169083fc91535d7964db97e0ddd722dc2d9d551514b1b54"
+    },
+    {
+      "source": "backend/migrations/versions/0028_organization_employee_resources.py",
+      "target": "backend/migrations/versions/0028_organization_employee_resources.py",
+      "action": "retain_and_rewire",
+      "sha256": "8d8391ef76477160536f2b85d5bf14b7add6202f8cfa9e462a6bf70607f71de1"
+    },
+    {
+      "source": "scripts/benchmark_evidence_boundary.py",
+      "target": "scripts/benchmark_evidence_boundary.py",
+      "action": "retain_and_rewire",
+      "sha256": "c6943951649117340f8b8da8a85f24995233c9e4210e2dec489682dc5ffc1b29"
+    },
+    {
+      "source": "scripts/benchmark_result_delivery.py",
+      "target": "scripts/benchmark_result_delivery.py",
+      "action": "retain_and_rewire",
+      "sha256": "1f458264a0231570fbf6803d83bacf6665e70424f4ad0091947721f08582018a"
+    },
+    {
+      "source": "scripts/check_docs.py",
+      "target": "scripts/check_docs.py",
+      "action": "retain_and_rewire",
+      "sha256": "74e49e74a46e14979a523c85218a0ae9b7152bca366c86162b81d2d34cdcd868"
+    },
+    {
+      "source": "scripts/dev.py",
+      "target": "scripts/dev.py",
+      "action": "retain_and_rewire",
+      "sha256": "3f3a0a8fc474547897c4fd81b59fddf1bb0f368dee001f8eb6e9d6bb0de6bd74"
+    },
+    {
+      "source": "scripts/init_sandbox.py",
+      "target": "scripts/init_sandbox.py",
+      "action": "retain_and_rewire",
+      "sha256": "86aea4156a2cde24cf161a08ee23d83c2c4918b09a4cb75d89d85fb48c62a2e2"
+    },
+    {
+      "source": "scripts/tests/fake_services.py",
+      "target": "scripts/tests/fake_services.py",
+      "action": "retain_and_rewire",
+      "sha256": "03a3e84bdd6df67fb5b58de89b3a9f5f81cb329b6d656a20f44425f24c806c7b"
+    },
+    {
+      "source": "scripts/tests/test_check_docs.py",
+      "target": "scripts/tests/test_check_docs.py",
+      "action": "retain_and_rewire",
+      "sha256": "34e50bc09fd053115954141a903412fc9ccd51bbeb53dc6c52bd3dcbe7ae91f0"
+    },
+    {
+      "source": "scripts/tests/test_dev.py",
+      "target": "scripts/tests/test_dev.py",
+      "action": "retain_and_rewire",
+      "sha256": "c20e8899d71678f18e368892d8cc0c56686d7ceaa5f6a30d5fc5125b89980d96"
+    },
+    {
+      "source": "scripts/tests/test_evidence_boundary.py",
+      "target": "scripts/tests/test_evidence_boundary.py",
+      "action": "retain_and_rewire",
+      "sha256": "fd984bf2b67162b86a6b5ddeb3ba46eed154c10e9fd360ecee42f4511710fdaa"
+    }
+  ],
+  "preserved_data": [
+    {
+      "source": "backend/app/evaluations/data/answers.jsonl",
+      "target": "backend/app/applications/evaluations/data/answers.jsonl",
+      "sha256": "90cd5bc653690ee8e459b5b3f3fc9458606f7f3fcbf795bb51b7dc581f8c86dc"
+    },
+    {
+      "source": "backend/app/evaluations/data/manifest.json",
+      "target": "backend/app/applications/evaluations/data/manifest.json",
+      "sha256": "3b432ab99edd520382d80bf75a138e96a6c961aacd590493b72961508d4eabaf"
+    },
+    {
+      "source": "backend/app/evaluations/data/questions.jsonl",
+      "target": "backend/app/applications/evaluations/data/questions.jsonl",
+      "sha256": "82dd63ba502eb2520c6b5d1d9a5c4b590e03ff261565175561f6228a367d1991"
+    },
+    {
+      "source": "backend/app/evaluations/data/upstream_ast_checker.py.txt",
+      "target": "backend/app/applications/evaluations/data/upstream_ast_checker.py.txt",
+      "sha256": "2aae7a68461a8f76c0be3894c8901b66b56967a1989d3ab066051e3fb97f1538"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/manifest.json",
+      "target": "backend/datasets/fictional-enterprise-zh/manifest.json",
+      "sha256": "86fcd56c812fcfedede5958584dad54204ca23ae0631d941c9b7964ee283a931"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/questions.json",
+      "target": "backend/datasets/fictional-enterprise-zh/questions.json",
+      "sha256": "4fb5ffa90d36395bd6f104ce51a2db1c8750c52ca359faa620bddd58feda32ee"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/LICENSE.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/LICENSE.txt",
+      "sha256": "a26b734b745824638693943485d6b11d5fc755b1205b5ed0e35b0b03c3de87b9"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/attendance-leave-policy.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/attendance-leave-policy.md.txt",
+      "sha256": "a31b29b14dac8984071cc1754ea9bd2a41f91cd17607182c24a7126662c5392c"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/company-overview.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/company-overview.md.txt",
+      "sha256": "777a46fe9ace80853aaf3f3f603b386d6c9ac435466351cf397a6869d069dccb"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/compliance-code-of-conduct.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/compliance-code-of-conduct.md.txt",
+      "sha256": "06074b78e642251386e4e0d3153f084973e733e9065a519cf01adfb25e58eae2"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/data-security-handling.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/data-security-handling.md.txt",
+      "sha256": "5295506d8370aece6737219c289906425f3a4dc2d102cecd88bce6579636b029"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/employee-benefits.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/employee-benefits.md.txt",
+      "sha256": "f4554d91615d29ea427681417a6166020fe61c91216a052a5bbc459b62d7f83f"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/employee-handbook.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/employee-handbook.md.txt",
+      "sha256": "124b4d4f4e3d3d0af9184f02b9ef26f0597e74020366eb8dca0b85b9b90e4f52"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/expense-reimbursement.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/expense-reimbursement.md.txt",
+      "sha256": "80e54cae4e627bc7da611815224dcc01ab3b128fc94c01a6a395457e42ff83e6"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/info-security-policy.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/info-security-policy.md.txt",
+      "sha256": "91fda4dbc2219ff852d000443d4335f0f1178512cba77ca4189b9414a92ca220"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/it-account-network.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/it-account-network.md.txt",
+      "sha256": "c7feb30cd561cfcdf4c7477ab56a422481a437869f387970147187423b6a31a6"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/it-equipment-request.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/it-equipment-request.md.txt",
+      "sha256": "f8da0e2e462e68862451c34892c287a2091448b4bf220cab83350fa96f63dd31"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/meeting-room-policy.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/meeting-room-policy.md.txt",
+      "sha256": "769640c1e876f6932aacc5f634f9bb0430aaeb46b522bc1d33251cd2a54f9fb5"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/onboarding-guide.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/onboarding-guide.md.txt",
+      "sha256": "d5ca7a10d8a027e4f82a8dc8639988f0f3d7dadc2a639663e4b75863afd15664"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/org-structure.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/org-structure.md.txt",
+      "sha256": "fdb0e6e59c8ff28f55b7e1f54c624c5e503bffae280009ff724672a672f1acbd"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/performance-promotion.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/performance-promotion.md.txt",
+      "sha256": "fca83c853938b34c267598d118af2c9928c5a2dbe389d8459bf26aeb4eb674c1"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/product-faq-advanced.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/product-faq-advanced.md.txt",
+      "sha256": "b5d216aba7b302514591e74dcf3a0a5d58a23a1f164c6250bb7bbc3d99cb1aae"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/product-faq-basic.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/product-faq-basic.md.txt",
+      "sha256": "378c83d57ea6f699ee6ec121429dab4064357628972ecadc6dfd689b31ff82a3"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/recruitment-guide.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/recruitment-guide.md.txt",
+      "sha256": "3510f0998bde20b0a303d808a12297c8591aa8431a6887fac6f2fde156d0d05b"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunfan/originals/travel-policy.md.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunfan/originals/travel-policy.md.txt",
+      "sha256": "06d74c80d2433e58940765ece1ffc33f2a55ba764423355ba2fde4df5f76346e"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunzhou/LICENSE.txt",
+      "target": "backend/datasets/fictional-enterprise-zh/yunzhou/LICENSE.txt",
+      "sha256": "bddeefa802ee2993a79d81051d895d92480bd9e3acf80e61b3ae07f841315111"
+    },
+    {
+      "source": "backend/datasets/fictional-enterprise-zh/yunzhou/evaluation/golden_qa.jsonl",
+      "target": "backend/datasets/fictional-enterprise-zh/yunzhou/evaluation/golden_qa.jsonl",
+      "sha256": "5e763fa9487a17de218d8636ecc3ddbae40493ca74602febb0063ec77dbdf93c"
+    },
+    {
+      "source": "backend/datasets/public-knowledge/fastapi/LICENSE.txt",
+      "target": "backend/datasets/public-knowledge/fastapi/LICENSE.txt",
+      "sha256": "4ec89ffc81485b97fec584b2d4a961032eeffe834453894fd9c1274906cc744e"
+    },
+    {
+      "source": "backend/datasets/public-knowledge/kubernetes/ConfigMap.txt",
+      "target": "backend/datasets/public-knowledge/kubernetes/ConfigMap.txt",
+      "sha256": "571f3311fb13cf7ea52e295db8dc5daf7f221330ea0101bcc67135207be336c9"
+    },
+    {
+      "source": "backend/datasets/public-knowledge/kubernetes/LICENSE.txt",
+      "target": "backend/datasets/public-knowledge/kubernetes/LICENSE.txt",
+      "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411"
+    },
+    {
+      "source": "backend/datasets/public-knowledge/kubernetes/originals/ConfigMap.txt",
+      "target": "backend/datasets/public-knowledge/kubernetes/originals/ConfigMap.txt",
+      "sha256": "f0fc1ee79a8517af31e372e0a3dc025a85ea51f95d3a75edb2c0fb86bbc1de9d"
+    },
+    {
+      "source": "backend/datasets/public-knowledge/machine-learning/LICENSE.txt",
+      "target": "backend/datasets/public-knowledge/machine-learning/LICENSE.txt",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+    },
+    {
+      "source": "backend/datasets/public-knowledge/manifest.json",
+      "target": "backend/datasets/public-knowledge/manifest.json",
+      "sha256": "32e98583b3d013e9e1588136cbfae4b5f177ee40b21e549fca96b925fb773d06"
+    },
+    {
+      "source": "backend/datasets/public-knowledge/questions.json",
+      "target": "backend/datasets/public-knowledge/questions.json",
+      "sha256": "eb2b242e0384c1cd9062cc6a2bcb93faa0592183e4cee822f8c7299a54461720"
+    },
+    {
+      "source": "backend/datasets/travel-expense/evaluation/questions.jsonl",
+      "target": "backend/datasets/travel-expense/evaluation/questions.jsonl",
+      "sha256": "b2d584f3e1eed382049e1973f761ed92756b7ecf152936b5c545a02f28ceda49"
+    },
+    {
+      "source": "backend/datasets/travel-expense/evaluation/reference_answers.jsonl",
+      "target": "backend/datasets/travel-expense/evaluation/reference_answers.jsonl",
+      "sha256": "17834ae814e425922950984417986045ca9b3bacafb3335bb5b869e46d159d23"
+    },
+    {
+      "source": "backend/datasets/travel-expense/evaluation/review-results.jsonl",
+      "target": "backend/datasets/travel-expense/evaluation/review-results.jsonl",
+      "sha256": "c1e5bfeba216512a5de263385b72f9a8bf8a34e341b168d17fde78130c1874ef"
+    },
+    {
+      "source": "backend/datasets/travel-expense/evaluation/rules.json",
+      "target": "backend/datasets/travel-expense/evaluation/rules.json",
+      "sha256": "88dff9e4adca96ddf8b9db143b48f1a8b54bc0f0656a14badaa53c5a95197c45"
+    },
+    {
+      "source": "backend/datasets/travel-expense/manifest.json",
+      "target": "backend/datasets/travel-expense/manifest.json",
+      "sha256": "118f178b5588ef896b6f3257fdc087f8c8442cd21f98015f9d076a1449d45ae7"
+    }
+  ],
+  "symbol_replacements": {
+    "api/dependencies.py:get_knowledge": [
+      "get_knowledge_libraries",
+      "get_knowledge_documents",
+      "get_knowledge_processing",
+      "get_knowledge_vectors",
+      "get_knowledge_search",
+      "get_knowledge_evidence"
+    ],
+    "api/dependencies.py:get_evaluations": [
+      "get_evaluation_commands",
+      "get_evaluation_queries"
+    ],
+    "builtin_tools/workspace.py:_SandboxFileBackend": [
+      "SandboxFileBackend"
+    ],
+    "evaluations/service.py:EvaluationService": [
+      "EvaluationCommands",
+      "EvaluationQueries",
+      "EvaluationProgression",
+      "record_result",
+      "finish_batch"
+    ],
+    "knowledge/service.py:KnowledgeService": [
+      "KnowledgeLibraries",
+      "KnowledgeDocuments"
     ]
   }
 }

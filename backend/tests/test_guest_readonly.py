@@ -4,8 +4,8 @@ import pytest
 from fastapi.testclient import TestClient
 from test_knowledge_library import create, process, upload
 
-from app.errors import PermissionDeniedError
-from app.knowledge.schemas import LibraryUpdate, ProcessingRequest
+from app.common.errors import PermissionDeniedError
+from app.resources.knowledge.schemas import LibraryUpdate, ProcessingRequest
 
 
 def test_guest_reads_configuration_but_cannot_mutate_or_call_models(api_client):

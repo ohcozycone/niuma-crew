@@ -6,9 +6,9 @@ import pytest
 from test_agent_foundations import SearchClient, search_grant
 from test_capability_runtime import setup
 
-from app.employees.access import assert_binding
-from app.employees.assembly import capture_tools
-from app.errors import ConflictError
+from app.common.errors import ConflictError
+from app.resources.employees.access import assert_binding
+from app.resources.employees.assembly import capture_tools
 
 
 def member(client):
@@ -173,9 +173,9 @@ def test_config_import_is_inert_and_never_echoes_secrets(api_client):
 def test_protocol_auth_rejection_is_sanitized_and_does_not_start_oauth():
     import httpx
 
-    from app.errors import InvalidInputError
-    from app.mcp.adapters.http import MCPClient
-    from app.mcp.config import ToolConfig
+    from app.common.errors import InvalidInputError
+    from app.resources.mcp.adapters.http import MCPClient
+    from app.resources.mcp.config import ToolConfig
 
     calls = []
 
@@ -211,10 +211,10 @@ def test_protocol_preserves_local_network_failures_without_sending_credentials(
 
     import httpx
 
-    from app.errors import InvalidInputError, ServiceUnavailableError
-    from app.mcp.adapters.http import MCPClient
-    from app.mcp.config import ToolConfig
-    from app.mcp.network import PinnedTransport
+    from app.common.errors import InvalidInputError, ServiceUnavailableError
+    from app.resources.mcp.adapters.http import MCPClient
+    from app.resources.mcp.config import ToolConfig
+    from app.resources.mcp.network import PinnedTransport
 
     calls = []
 
@@ -273,9 +273,9 @@ def test_unlisted_host_accepts_private_dns_and_preserves_tls_and_special_address
 ):
     import httpx
 
-    from app.errors import InvalidInputError
-    from app.mcp.config import ToolConfig
-    from app.mcp.network import PinnedTransport
+    from app.common.errors import InvalidInputError
+    from app.resources.mcp.config import ToolConfig
+    from app.resources.mcp.network import PinnedTransport
 
     calls = []
 

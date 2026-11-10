@@ -92,7 +92,7 @@ def make_task(run_id, store, authorize):
     """使用真实动作账本的 Context，仅替换授权服务。"""
     from types import SimpleNamespace
 
-    from app.execution.context import RunContext
+    from app.runtime.execution.context import RunContext
 
     row, _ = store.load(run_id)
     return RunContext(

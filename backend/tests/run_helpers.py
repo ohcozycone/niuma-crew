@@ -13,8 +13,8 @@ def scenario_database(client):
 
 def empty_conversation(client, agent_id):
     """为读取/运行场景建立空对话夹具；首次发送契约另经真实 HTTP 验证。"""
-    from app.conversations.projections import read_conversation
-    from app.conversations.writes import create_conversation
+    from app.applications.conversations.projections import read_conversation
+    from app.applications.conversations.writes import create_conversation
 
     actor = client.app.state.auth.resolve(client.cookies.get("app_session"))
     with scenario_database(client).transaction() as db:
@@ -29,7 +29,7 @@ def checkpoint_store(client):
 def reply_path(client, reply_id):
     from sqlalchemy import select
 
-    from app.conversations.models import ConversationRun
+    from app.applications.conversations.models import ConversationRun
 
     with scenario_database(client).transaction() as db:
         conversation = db.scalar(
@@ -58,7 +58,7 @@ def active_step(reply):
 
 
 def load_run(client, id):
-    from app.execution.models import Run
+    from app.runtime.execution.models import Run
 
     with scenario_database(client).transaction() as db:
         return db.get(Run, id)
@@ -66,7 +66,7 @@ def load_run(client, id):
 
 def cancel_run(client, id):
     """供无对话宿主测试在自己的事务里请求取消。"""
-    from app.execution.store import require_run
+    from app.runtime.execution.store import require_run
 
     with scenario_database(client).transaction() as db:
         client.app.state.runs.cancel(db, require_run(db, id))

@@ -2,8 +2,13 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-from app.knowledge.contracts import Chunk, KnowledgeDocument, RetrievalStrategy, TokenCount
-from app.knowledge.loading import normalize
+from app.resources.knowledge.contracts import (
+    Chunk,
+    KnowledgeDocument,
+    RetrievalStrategy,
+    TokenCount,
+)
+from app.resources.knowledge.loading import normalize
 from experiments.knowledge_poc.contracts import RetrievalPreset
 from experiments.knowledge_poc.indexing import Release
 from experiments.knowledge_poc.loading import load_document

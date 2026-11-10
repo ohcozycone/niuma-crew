@@ -6,12 +6,12 @@ from sqlalchemy import func, select
 from test_knowledge_library import create, process, upload
 
 from app.auth.actor import Actor
-from app.errors import PermissionDeniedError
-from app.knowledge.chunking import ChunkLimitExceeded, split_document
-from app.knowledge.loading import text_document
-from app.knowledge.models import KnowledgeBase, LibraryChunk, ProcessingBatch
-from app.knowledge.schemas import ChunkPreviewRequest
-from app.values import utc_now
+from app.common.errors import PermissionDeniedError
+from app.common.values import utc_now
+from app.resources.knowledge.chunking import ChunkLimitExceeded, split_document
+from app.resources.knowledge.loading import text_document
+from app.resources.knowledge.models import KnowledgeBase, LibraryChunk, ProcessingBatch
+from app.resources.knowledge.schemas import ChunkPreviewRequest
 from experiments.knowledge_poc.contracts import RetrievalPreset
 
 BODY = "# 报销流程\n总则\n\n## 提交申请\n先提交出差申请。\n\n## 准备凭证\n准备发票和住宿明细。\n\n## 审批\n交给主管审批。\n"

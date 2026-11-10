@@ -71,7 +71,7 @@ knowledge 包含知识库ID集合、mode（on_demand/always）与top_k；省略�
 
 导入请求使用 `archive_base64`，另可传平台展示 name 与 category。详情增加 `skill_md`、`protocol_name` 和 files 清单；旧记录读取时编译完整主文，包含输入、输出和示例。POST/PATCH 可提供 `skill_md` 和 `package_files`；后者为完整文件集合，每项为 `{path,content}` 或 `{path,content_base64}`，二选一，必须包含 SKILL.md；同时提交的主文须一致。文件与平台字段一次保存，不能把部分加载的清单提交为整包替换。
 
-标准包主文是唯一内容来源，更新解析描述和 instructions；旧说明字段保留兼容，标准包不能单独修改旧指令字段。分类、启停和参数规范独立于标准。中文展示名不替代包协议名。二进制文件读取返回 content_base64，文本返回 content；导出保持原字节。Skill JSON 写请求单独限 32 MiB，仍受包展开 20 MiB、128 文件、单文件 10 MiB、ZIP 12 MiB 和主文 128 KiB 的限制；其他普通 JSON 上限不变。存储、校验和生命周期见[技能模块](../../backend/app/skills/README.md)。
+标准包主文是唯一内容来源，更新解析描述和 instructions；旧说明字段保留兼容，标准包不能单独修改旧指令字段。分类、启停和参数规范独立于标准。中文展示名不替代包协议名。二进制文件读取返回 content_base64，文本返回 content；导出保持原字节。Skill JSON 写请求单独限 32 MiB，仍受包展开 20 MiB、128 文件、单文件 10 MiB、ZIP 12 MiB 和主文 128 KiB 的限制；其他普通 JSON 上限不变。存储、校验和生命周期见[技能模块](../../backend/app/resources/skills/README.md)。
 
 configuration_schema 默认 {}；非空时必须是 `type=object`、`additionalProperties=false` 的有效 JSON Schema。规范不超过 16 KiB、嵌套不超过 20 层，不支持 $ref/$dynamicRef/$id 或远程解析。修改规范时预检所有启用关系；不兼容先停用、迁移参数再启用，不静默删除参数。
 
@@ -156,4 +156,4 @@ PUT 必须包含严格字符串 `instructions` 和非负整数 `revision`，不�
 
 员工主页的技能、工具和知识数量来自同一公开配置；对话轮数按当前可见范围统计成功接纳的问答，重试不重复计数。资源计数不因访问者变化；对话统计继续遵守各自阅读范围。
 
-完整字段从schema/OpenAPI读取；实现入口为[员工服务](../../backend/app/employees/service.py)及[装配](../../backend/app/employees/assembly.py)。摘要不能作为完整表单回写。
+完整字段从schema/OpenAPI读取；实现入口为[员工服务](../../backend/app/resources/employees/service.py)及[装配](../../backend/app/resources/employees/assembly.py)。摘要不能作为完整表单回写。

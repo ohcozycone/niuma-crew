@@ -9,9 +9,9 @@ from app.api.dependencies import (
     SkillDependency,
     require_capability,
 )
-from app.employees.schemas import PublicAgent
-from app.schemas import Page
-from app.skills.schemas import PublicSkill
+from app.common.schemas import Page
+from app.resources.employees.schemas import PublicAgent
+from app.resources.skills.schemas import PublicSkill
 
 router = APIRouter(prefix="/api/public", tags=["public display"])
 

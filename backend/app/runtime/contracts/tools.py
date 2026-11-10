@@ -4,8 +4,8 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from typing import Literal, Protocol, TypedDict
 
-from app.environments.contracts import SandboxFileOperations
-from app.values import digest
+from app.common.values import digest
+from app.resources.environments.contracts import SandboxFileOperations
 
 RESULT_READER = "read_tool_result"
 

@@ -60,7 +60,7 @@ test('技术正文进入契约后保持技术分类，操作与部署另有归�
     'docs/reference/runtime.md',
     'docs/reference/knowledge.md',
     'docs/design/README.md',
-    'backend/app/execution/README.md',
+    'backend/app/runtime/execution/README.md',
     'docs/guides/local-development.md',
   ]) {
     assert.equal(getDocSection(`/docs/library/${file}`, file).id, 'development');

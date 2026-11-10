@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 920" role="img" aria-labelledby="title desc">
+<title id="title">知识资料、来源与检索：模块结构与协作</title>
+<desc id="desc">实线表示文本入库、SQLite 关键词索引与正式 Chroma 向量检索的数据流。</desc>
+<defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern><marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0 0L9 3.5L0 7" fill="#94a3b8"/></marker></defs>
+<style>text{font-family:"PingFang SC","Noto Sans SC",sans-serif;fill:#e2e8f0}.muted{fill:#94a3b8}.label{fill:#cbd5e1}.title{font-weight:600}.edge{fill:none;stroke:#94a3b8;stroke-width:1.7;marker-end:url(#arrow)}</style>
+<rect width="1280" height="920" fill="#0f172a"/><rect width="1280" height="920" fill="url(#grid)"/>
+<path class="edge" d="M360 265H480"/>
+<path class="edge" d="M800 265H920"/>
+<path class="edge" d="M1080 350V385H200V560"/>
+<path class="edge" d="M360 645H480"/>
+<path class="edge" d="M1080 350V560"/>
+<path class="edge" d="M920 645H800"/>
+<path class="edge" d="M200 730V790H1080V730"/>
+<text x="640" y="778" text-anchor="middle" font-size="14" class="label">同一 query：关键词与向量两路候选，官方排名融合</text>
+<rect x="40" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="40" y="180" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="200" y="215" text-anchor="middle" font-size="21" class="title">库与原件暂存</text>
+<text x="200" y="249" text-anchor="middle" font-size="15" class="muted">API / documents.upload</text>
+<text x="200" y="278" text-anchor="middle" font-size="15" class="">归属校验、字节保存与待处理状态</text>
+<rect x="480" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="480" y="180" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="640" y="215" text-anchor="middle" font-size="21" class="title">切分预览与手动任务</text>
+<text x="640" y="249" text-anchor="middle" font-size="15" class="muted">worker / processing / loading</text>
+<text x="640" y="272" text-anchor="middle" font-size="15" class="muted">lexical</text>
+<text x="640" y="301" text-anchor="middle" font-size="15" class="">共用切分、只读预览与持久排队</text>
+<rect x="920" y="180" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="920" y="180" width="320" height="170" rx="10" fill="#a78bfa" fill-opacity="0.08" stroke="#a78bfa" stroke-width="1.6"/>
+<text x="1080" y="215" text-anchor="middle" font-size="21" class="title">逐文件原子发布</text>
+<text x="1080" y="249" text-anchor="middle" font-size="15" class="muted">models.py + SQLite FTS5</text>
+<text x="1080" y="278" text-anchor="middle" font-size="15" class="">正文、Chunk、FTS与任务结果</text>
+<rect x="40" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="40" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="200" y="595" text-anchor="middle" font-size="21" class="title">问题与库范围</text>
+<text x="200" y="629" text-anchor="middle" font-size="15" class="muted">search.query</text>
+<text x="200" y="658" text-anchor="middle" font-size="15" class="">归属、分词版本及当前库过滤</text>
+<rect x="480" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="480" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="640" y="595" text-anchor="middle" font-size="21" class="title">真实命中与来源</text>
+<text x="640" y="629" text-anchor="middle" font-size="15" class="muted">schemas.py / DocumentDetail</text>
+<text x="640" y="658" text-anchor="middle" font-size="15" class="">排名、向量距离、片段及原件</text>
+<rect x="920" y="560" width="320" height="170" rx="10" fill="#0f172a"/>
+<rect x="920" y="560" width="320" height="170" rx="10" fill="#34d399" fill-opacity="0.08" stroke="#34d399" stroke-width="1.6"/>
+<text x="1080" y="595" text-anchor="middle" font-size="21" class="title">正式 Chroma 向量索引</text>
+<text x="1080" y="629" text-anchor="middle" font-size="15" class="muted">vectors / vector_store / retrieval</text>
+<text x="1080" y="658" text-anchor="middle" font-size="15" class="">先构建后发布，官方 Top-K 与 RRF</text>
+<rect x="385.0" y="233" width="70" height="24" rx="3" fill="#0f172a"/>
+<text x="420.0" y="250" text-anchor="middle" font-size="14" class="label">手动入队</text>
+<rect x="804.0" y="210" width="112" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="227" text-anchor="middle" font-size="14" class="label">任务与原件</text>
+<rect x="832.0" y="233" width="56" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="250" text-anchor="middle" font-size="14" class="label">复核后发布</text>
+<rect x="591.0" y="356" width="98" height="24" rx="3" fill="#0f172a"/>
+<text x="640.0" y="373" text-anchor="middle" font-size="14" class="label">词法/片段索引</text>
+<rect x="385.0" y="613" width="70" height="24" rx="3" fill="#0f172a"/>
+<text x="420.0" y="630" text-anchor="middle" font-size="14" class="label">实际片段</text>
+<rect x="811.0" y="390" width="98" height="24" rx="3" fill="#0f172a"/>
+<text x="860.0" y="407" text-anchor="middle" font-size="14" class="label">受管 Embedding</text>
+<text x="40" y="52" text-anchor="start" font-size="26" class="title">知识资料、来源与检索：内部结构与协作</text>
+<text x="40" y="88" font-size="16" class="muted">节点对应实际实现；箭头标明调用或数据交付，具体事务和授权边界见正文。</text>
+<text x="40" y="875" font-size="15" class="muted">当前实现的模块协作图；目录结构和图中职责不表示已经独立部署为多个服务。</text>
+</svg>

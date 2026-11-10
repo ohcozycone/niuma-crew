@@ -5,7 +5,7 @@ from sqlalchemy import func, select
 
 from app.api.errors import SERVICE_ERROR_RESPONSES, InputErrorResponse, register_error_handlers
 from app.auth.models import AuthSession
-from app.errors import (
+from app.common.errors import (
     AuthenticationError,
     ConflictError,
     InvalidInputError,
@@ -15,8 +15,8 @@ from app.errors import (
     ServiceError,
     ServiceUnavailableError,
 )
-from app.execution.errors import ExecutionFailure
-from app.schemas import NonBlankText, RequestModel
+from app.common.schemas import NonBlankText, RequestModel
+from app.runtime.execution.errors import ExecutionFailure
 
 
 @pytest.mark.parametrize("specialized", [False, True])
@@ -125,14 +125,14 @@ def test_identity_rechecks_only_convert_lost_authorization(
 
     from test_capability_runtime import setup, submit
 
-    from app.execution.queries import read_run
+    from app.runtime.execution.queries import read_run
 
     _, _, _, conversation = setup(api_client)
     run_id = submit(api_client, conversation).json()["response"]["id"]
     with state.database.transaction() as db:
         row = read_run(db, run_id)
 
-    monkeypatch.setattr("app.execution.authorization.authorize_work", resolve)
+    monkeypatch.setattr("app.runtime.execution.authorization.authorize_work", resolve)
 
     def recheck():
         if consumer == "execution":

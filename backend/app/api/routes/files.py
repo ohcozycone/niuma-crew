@@ -12,9 +12,9 @@ from app.api.dependencies import (
     LimiterDependency,
 )
 from app.auth.permissions import require_permission
-from app.errors import InvalidInputError
-from app.files.schemas import FileRead
-from app.schemas import RecordID
+from app.common.errors import InvalidInputError
+from app.common.schemas import RecordID
+from app.resources.files.schemas import FileRead
 
 router = APIRouter(tags=["files"])
 

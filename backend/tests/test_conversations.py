@@ -20,17 +20,17 @@ from run_helpers import (
 from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 
-from app.agent.prompts import compose_system_prompt
 from app.auth.models import AuthSession
 from app.auth.permissions import ROLE_PERMISSIONS
 from app.bootstrap.app import create_app
-from app.execution.errors import ExecutionFailure
-from app.execution.models import Run
+from app.common.values import utc_now
 from app.infrastructure.database.transactions import reserve_writer
+from app.runtime.agent.prompts import compose_system_prompt
 from app.runtime.contracts.agent import AgentOutput, AgentRequest
 from app.runtime.contracts.content import ContentUpdate
 from app.runtime.contracts.runs import RUN_SNAPSHOT_VERSION, Completion
-from app.values import utc_now
+from app.runtime.execution.errors import ExecutionFailure
+from app.runtime.execution.models import Run
 
 
 def set_executor(client, execute):
@@ -421,11 +421,11 @@ def test_session_revocation_stops_execution_without_touching_activity(live_clien
 def test_startup_recovery_and_single_process_lock(api_client, migrated_config, monkeypatch):
     from test_capability_runtime import ScriptedModel, response
 
-    from app.errors import FailureKind
-    from app.execution.errors import ExecutionFailure
+    from app.common.errors import FailureKind
+    from app.runtime.execution.errors import ExecutionFailure
 
     monkeypatch.setattr(
-        "app.llm.factory.create_chat_model",
+        "app.infrastructure.llm.factory.create_chat_model",
         lambda *a, **k: ScriptedModel(responses=[response("恢复完成")]),
     )
     _, _, conversation = setup_agent(api_client)
@@ -578,7 +578,7 @@ def test_output_limit_and_persistence_failure_stop_generation(live_client, monke
 def test_owner_scope_is_independent_of_role_mapping(api_client):
     from dataclasses import replace
 
-    from app.errors import NotFoundError
+    from app.common.errors import NotFoundError
 
     _, _, conversation = setup_agent(api_client)
     auth = api_client.app.state.auth
@@ -749,7 +749,7 @@ def test_retry_is_one_question_with_all_outputs_in_both_directions(api_client, m
 def test_question_preview_reads_the_latest_attempt_without_a_message_window(
     api_client, monkeypatch
 ):
-    from app.conversations import projections
+    from app.applications.conversations import projections
 
     _, _, conversation = setup_agent(api_client)
     run = send(api_client, conversation, "# 固定问题\n**用户原文**").json()["response"]
@@ -804,7 +804,7 @@ def test_question_preview_reads_the_latest_attempt_without_a_message_window(
 
 
 def test_question_preview_cannot_cross_conversations_and_needs_run_read_permission(api_client):
-    from app.errors import NotFoundError, PermissionDeniedError
+    from app.common.errors import NotFoundError, PermissionDeniedError
 
     _, _, first = setup_agent(api_client)
     _, _, second = setup_agent(api_client)
@@ -835,9 +835,9 @@ def test_http_model_adapter_uses_fixed_config_and_normalizes_finish_and_usage(
 
     import httpx
 
-    from app.agent.checkpoints import CheckpointStore
-    from app.agent.engine import execute_agent
-    from app.llm.config import LLMConfig
+    from app.infrastructure.llm.config import LLMConfig
+    from app.runtime.agent.checkpoints import CheckpointStore
+    from app.runtime.agent.engine import execute_agent
 
     real, calls = httpx.AsyncClient, []
 
@@ -879,7 +879,7 @@ def test_http_model_adapter_uses_fixed_config_and_normalizes_finish_and_usage(
             assert kwargs["follow_redirects"] is False and kwargs["trust_env"] is False
             super().__init__(transport=httpx.MockTransport(handle), **kwargs)
 
-    monkeypatch.setattr("app.llm.factory.httpx.AsyncClient", factory)
+    monkeypatch.setattr("app.infrastructure.llm.factory.httpx.AsyncClient", factory)
 
     from runtime_helpers import MemoryContext
 
@@ -917,7 +917,7 @@ def test_http_model_adapter_uses_fixed_config_and_normalizes_finish_and_usage(
 
 
 def test_runtime_configuration_validates_limits():
-    from app.execution.config import load_runtime_config
+    from app.runtime.execution.config import load_runtime_config
 
     config = load_runtime_config({"RUN_RUN_TIMEOUT": "0.5"})
     assert config.run_timeout == 0.5

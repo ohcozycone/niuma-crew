@@ -160,19 +160,19 @@ db-revision: ## 生成待审核迁移；需 MIGRATION_MESSAGE="描述"
 	cd backend && uv run alembic revision --autogenerate -m "$$MIGRATION_MESSAGE"
 
 admin-create: ## 初始化管理员，ADMIN_USER 默认 admin；终端输入密码
-	cd backend && uv run python -m app.auth.cli create-admin -- "$$ADMIN_USER"
+	cd backend && uv run python -m app.cli.auth create-admin -- "$$ADMIN_USER"
 
 admin-reset-password: ## 重置管理员密码并撤销旧会话
-	cd backend && uv run python -m app.auth.cli reset-password -- "$$ADMIN_USER"
+	cd backend && uv run python -m app.cli.auth reset-password -- "$$ADMIN_USER"
 
 admin-disable: ## 停用管理员并撤销旧会话
-	cd backend && uv run python -m app.auth.cli disable-user -- "$$ADMIN_USER"
+	cd backend && uv run python -m app.cli.auth disable-user -- "$$ADMIN_USER"
 
 admin-enable: ## 启用管理员并撤销旧会话
-	cd backend && uv run python -m app.auth.cli enable-user -- "$$ADMIN_USER"
+	cd backend && uv run python -m app.cli.auth enable-user -- "$$ADMIN_USER"
 
 admin-revoke-sessions: ## 撤销指定管理员的会话
-	cd backend && uv run python -m app.auth.cli revoke-sessions -- "$$ADMIN_USER"
+	cd backend && uv run python -m app.cli.auth revoke-sessions -- "$$ADMIN_USER"
 
 admin-cleanup-sessions: ## 清理失效会话，不依赖 ADMIN_USER
-	cd backend && uv run python -m app.auth.cli cleanup-sessions
+	cd backend && uv run python -m app.cli.auth cleanup-sessions

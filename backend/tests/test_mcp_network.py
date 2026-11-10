@@ -4,9 +4,9 @@ import json
 import httpx
 import pytest
 
-from app.errors import InvalidInputError
-from app.mcp.config import ToolConfig
-from app.mcp.network import PinnedTransport
+from app.common.errors import InvalidInputError
+from app.resources.mcp.config import ToolConfig
+from app.resources.mcp.network import PinnedTransport
 
 
 @pytest.mark.parametrize(

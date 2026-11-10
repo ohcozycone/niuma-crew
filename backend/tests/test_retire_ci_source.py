@@ -12,9 +12,9 @@ from alembic import command
 from test_ci_retirement import insert
 from test_ci_retirement import retirement_database as retirement_database
 
-from app.errors import ServiceError
-from app.skills.library import SkillLibrary, fingerprint
-from app.skills.packages import file_manifest
+from app.common.errors import ServiceError
+from app.resources.skills.library import SkillLibrary, fingerprint
+from app.resources.skills.packages import file_manifest
 from migrations import retire_ci_source as retirement
 
 

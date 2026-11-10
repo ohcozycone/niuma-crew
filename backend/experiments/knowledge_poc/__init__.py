@@ -15,16 +15,16 @@ from langchain_openai import OpenAIEmbeddings
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 from app.bootstrap.services import check_model_references
+from app.common.values import digest
 from app.config import load_config
-from app.employees.references import model_employees
 from app.infrastructure.credentials import CredentialVault
 from app.infrastructure.database.session import Database
-from app.knowledge.chunking import split_document
-from app.knowledge.contracts import ChunkingRules, TokenCount
-from app.llm.config import LLMConfig
-from app.llm.factory import model_session
-from app.model_connections.service import ModelConnectionService
-from app.values import digest
+from app.infrastructure.llm.config import LLMConfig
+from app.infrastructure.llm.factory import model_session
+from app.resources.employees.references import model_employees
+from app.resources.knowledge.chunking import split_document
+from app.resources.knowledge.contracts import ChunkingRules, TokenCount
+from app.resources.model_connections.service import ModelConnectionService
 from experiments.knowledge_poc.answering import InvalidAnswerError, answer_question
 from experiments.knowledge_poc.contracts import RetrievalPreset, RetrievalResult
 from experiments.knowledge_poc.evaluation import evaluate_retrieval, load_dataset

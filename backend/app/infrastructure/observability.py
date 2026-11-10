@@ -56,7 +56,7 @@ class ExecutionLogs:
             def emit(self, record):
                 run_id = run_id_context.get()
                 if not re.fullmatch(r"\d{12}", run_id) or not record.name.startswith(
-                    "app.execution."
+                    "app.runtime.execution."
                 ):
                     return
                 # 仅复制白名单字段，不记录正文、异常文本或任意扩展值。

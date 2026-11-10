@@ -9,14 +9,14 @@ from app.api.dependencies import (
     require_capability,
 )
 from app.api.errors import SERVICE_ERROR_RESPONSES
-from app.employees.schemas import (
+from app.common.schemas import Page
+from app.resources.employees.schemas import (
     AgentCreate,
     AgentPatch,
     AgentRead,
     AgentSummary,
     AgentUsage,
 )
-from app.schemas import Page
 
 router = APIRouter(prefix="/api/agents", tags=["agents"], responses=SERVICE_ERROR_RESPONSES)
 

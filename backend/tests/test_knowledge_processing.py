@@ -8,10 +8,10 @@ from sqlalchemy import select, text
 from test_knowledge_library import create, library_creator, process, upload
 
 from app.auth.actor import Actor
-from app.errors import PermissionDeniedError
-from app.knowledge.models import LibraryDocument, ProcessingItem
-from app.knowledge.worker import KnowledgeWorker
-from app.values import utc_now
+from app.common.errors import PermissionDeniedError
+from app.common.values import utc_now
+from app.resources.knowledge.models import LibraryDocument, ProcessingItem
+from app.resources.knowledge.worker import KnowledgeWorker
 
 
 def detail(client, kb, doc):
@@ -81,7 +81,7 @@ def test_effective_rule_validation_revision_guard_and_frozen_job(api_client):
 
 
 def test_each_successful_file_is_queryable_without_waiting_for_batch(api_client, monkeypatch):
-    import app.knowledge.processing as processing
+    import app.resources.knowledge.processing as processing
 
     kb = create(api_client)["id"]
     docs = [
@@ -115,7 +115,7 @@ def test_each_successful_file_is_queryable_without_waiting_for_batch(api_client,
 
 
 def test_failed_reprocess_keeps_active_text_and_fts(api_client, monkeypatch):
-    import app.knowledge.processing as processing
+    import app.resources.knowledge.processing as processing
 
     kb = create(api_client)["id"]
     doc = upload(api_client, kb).json()
@@ -141,7 +141,7 @@ def test_failed_reprocess_keeps_active_text_and_fts(api_client, monkeypatch):
 
 
 def test_delete_during_work_prevents_late_republication(api_client, monkeypatch):
-    import app.knowledge.processing as processing
+    import app.resources.knowledge.processing as processing
 
     kb = create(api_client)["id"]
     keep = upload(api_client, kb, "# 住宿\n住宿保留", "keep.md").json()
@@ -232,7 +232,7 @@ def test_worker_restart_interrupts_uncertain_item_and_continues_queued(api_clien
 def test_upgrade_preserves_existing_keyword_snapshot(app_config, monkeypatch):
     from legacy_knowledge_helpers import seed_text_library
 
-    from app.knowledge.search import KnowledgeSearch
+    from app.resources.knowledge.search import KnowledgeSearch
 
     database, files, config, actor, kb, doc, chunks = seed_text_library(
         app_config, monkeypatch, "0014"
@@ -264,7 +264,7 @@ def test_upgrade_preserves_existing_keyword_snapshot(app_config, monkeypatch):
     ],
 )
 def test_only_intact_current_results_are_reused(api_client, damage):
-    from app.knowledge.models import LibraryChunk
+    from app.resources.knowledge.models import LibraryChunk
 
     kb = create(api_client)["id"]
     doc = upload(api_client, kb, "# 规则\n" + "高铁特别批准。" * 150).json()
@@ -310,9 +310,9 @@ def test_new_request_reuses_identical_results_without_parsing_or_splitting(api_c
     def forbidden(*args, **kwargs):
         raise AssertionError("同条件不应重新计算")
 
-    monkeypatch.setattr("app.knowledge.processing.text_document", forbidden)
-    monkeypatch.setattr("app.knowledge.processing.split_document", forbidden)
-    monkeypatch.setattr("app.knowledge.processing.lexical_terms", forbidden)
+    monkeypatch.setattr("app.resources.knowledge.processing.text_document", forbidden)
+    monkeypatch.setattr("app.resources.knowledge.processing.split_document", forbidden)
+    monkeypatch.setattr("app.resources.knowledge.processing.lexical_terms", forbidden)
     batch = process(api_client, kb, [doc["id"]]).json()
     assert batch["status"] == "succeeded" and batch["items"][0]["status"] == "reused"
     assert detail(api_client, kb, doc["id"]) == before
@@ -323,7 +323,7 @@ def test_new_request_reuses_identical_results_without_parsing_or_splitting(api_c
 def test_missing_original_reports_recovery_action_and_keeps_published_content(
     api_client, already_processed
 ):
-    from app.files.models import StoredFile
+    from app.resources.files.models import StoredFile
 
     kb = create(api_client)["id"]
     doc = upload(api_client, kb).json()

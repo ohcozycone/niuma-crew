@@ -3,11 +3,11 @@ from pathlib import Path
 
 import pytest
 
-from app.agent.config import AgentConfig, load_agent_config
 from app.auth.config import AuthConfig
 from app.config import load_config
-from app.execution.config import RuntimeConfig, load_runtime_config
-from app.mcp.config import ToolConfig
+from app.resources.mcp.config import ToolConfig
+from app.runtime.agent.config import AgentConfig, load_agent_config
+from app.runtime.execution.config import RuntimeConfig, load_runtime_config
 
 
 @pytest.fixture(autouse=True)

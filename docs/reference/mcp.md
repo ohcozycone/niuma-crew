@@ -1,6 +1,6 @@
 # MCP 服务、账号与员工装配
 
-当前实现为 Python 模块化单体中的 HTTP 与可信 stdio MCP 接入。身份校验、凭据、目录和员工许可都由后端强制执行；前端只负责输入与展示。实现入口为 [tools](../../backend/app/mcp/README.md)、[员工装配](configuration.md)、工具页面，针对性测试见 [账号边界](../../backend/tests/test_mcp_accounts.py)和[真实子进程生命周期](../../backend/tests/test_stdio_mcp.py)。
+当前实现为 Python 模块化单体中的 HTTP 与可信 stdio MCP 接入。身份校验、凭据、目录和员工许可都由后端强制执行；前端只负责输入与展示。实现入口为 [tools](../../backend/app/resources/mcp/README.md)、[员工装配](configuration.md)、工具页面，针对性测试见 [账号边界](../../backend/tests/test_mcp_accounts.py)和[真实子进程生命周期](../../backend/tests/test_stdio_mcp.py)。
 
 ## 支持范围与职责
 
@@ -103,7 +103,7 @@ OAuth 的 metadata、注册、交换、刷新可能使用不同 origin，逐目�
 
 ## 实现与接入
 
-服务、账号、远端目录与客户端生命周期见[MCP实现](../../backend/app/mcp/README.md)；员工固定资源装配见[配置契约](configuration.md)。前端编辑页面维护草稿，真实调用仍由后端按当前许可、账号和操作定义检查；远程MCP调用不自动创建平台沙箱。
+服务、账号、远端目录与客户端生命周期见[MCP实现](../../backend/app/resources/mcp/README.md)；员工固定资源装配见[配置契约](configuration.md)。前端编辑页面维护草稿，真实调用仍由后端按当前许可、账号和操作定义检查；远程MCP调用不自动创建平台沙箱。
 
 ## 本地、线上与迁移
 

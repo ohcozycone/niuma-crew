@@ -12,10 +12,10 @@ from sqlalchemy import func, select
 from test_capability_runtime import ScriptedModel, execute, response, setup, submit
 from test_conversations import send
 
-from app.agent.checkpoints import CheckpointStore, checkpoint_config
-from app.conversations.models import ConversationRun, Message
-from app.execution.models import Run
+from app.applications.conversations.models import ConversationRun, Message
+from app.runtime.agent.checkpoints import CheckpointStore, checkpoint_config
 from app.runtime.contracts.runs import Completion
+from app.runtime.execution.models import Run
 
 
 def test_product_history_and_next_context_do_not_read_sdk_state(api_client, monkeypatch):
@@ -188,8 +188,8 @@ def test_tool_actions_link_to_requesting_model_and_do_not_duplicate_public_messa
 
 
 def test_execution_does_not_import_product_or_http_implementations():
-    root = Path(__file__).resolve().parents[1] / "app/execution"
-    forbidden = ("app.conversations", "app.api", "fastapi")
+    root = Path(__file__).resolve().parents[1] / "app/runtime/execution"
+    forbidden = ("app.applications.conversations", "app.api", "fastapi")
     for path in root.rglob("*.py"):
         for node in ast.walk(ast.parse(path.read_text())):
             names = (
@@ -260,7 +260,7 @@ def test_wake_during_scan_is_not_lost_and_does_not_bypass_persisted_backoff(
     acceptance = api_client.app.state.conversation_acceptance
     from datetime import timedelta
 
-    from app.values import utc_now
+    from app.common.values import utc_now
 
     with api_client.app.state.database.transaction() as db:
         db.get(ConversationRun, reply["id"]).next_acceptance_at = utc_now() + timedelta(hours=1)

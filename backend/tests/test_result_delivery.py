@@ -8,13 +8,13 @@ from test_agent_foundations import SearchClient
 from test_capability_runtime import ScriptedModel, discovery_response, execute, response, submit
 from test_tool_readers import search_setup
 
-from app.agent.model_calls import model_input_bytes
-from app.builtin_tools.result_files import ToolResultBackend
-from app.builtin_tools.results import feedback_outcome
-from app.employees.models import AgentToolGrant
-from app.execution.context import RunContext
-from app.execution.models import RunAction
-from app.mcp.contracts import exposed_name
+from app.resources.employees.models import AgentToolGrant
+from app.resources.mcp.contracts import exposed_name
+from app.runtime.agent.model_calls import model_input_bytes
+from app.runtime.execution.context import RunContext
+from app.runtime.execution.models import RunAction
+from app.runtime.tools.result_files import ToolResultBackend
+from app.runtime.tools.results import feedback_outcome
 
 
 def provider(monkeypatch, text):
@@ -162,9 +162,9 @@ def test_last_budget_request_reaches_chat_api_without_tools(api_client, monkeypa
     import httpx
     from test_capability_runtime import setup
 
-    from app.execution.models import Run
-    from app.llm.config import LLMConfig
-    from app.llm.factory import create_chat_model
+    from app.infrastructure.llm.config import LLMConfig
+    from app.infrastructure.llm.factory import create_chat_model
+    from app.runtime.execution.models import Run
 
     _, _, _, conversation = setup(api_client)
     accepted = submit(api_client, conversation, content="统计文章数量").json()["response"]
@@ -329,8 +329,8 @@ def test_oversized_summary_stops_before_request_without_replacing_task():
     from langchain_core.messages import AIMessage, HumanMessage
     from runtime_helpers import MemoryContext
 
-    from app.agent.errors import RuntimeFailure
-    from app.agent.model_calls import RunUsage, create_summarization_middleware
+    from app.runtime.agent.errors import RuntimeFailure
+    from app.runtime.agent.model_calls import RunUsage, create_summarization_middleware
 
     messages = [HumanMessage(content="CURRENT_TASK")]
     for index, text in enumerate(["data" * 3000, "recent"]):
@@ -364,9 +364,9 @@ def test_oversized_summary_stops_before_request_without_replacing_task():
     "kind,reader_present", [("workspace", True), ("knowledge", True), ("mcp_http", False)]
 )
 def test_character_read_hint_does_not_advertise_unavailable_capability(kind, reader_present):
-    from app.builtin_tools.result_files import ResultScope, result_read_hint
-    from app.builtin_tools.results import result_reader_binding
     from app.runtime.contracts.tools import ToolInvocation
+    from app.runtime.tools.result_files import ResultScope, result_read_hint
+    from app.runtime.tools.results import result_reader_binding
 
     binding = {"kind": kind, "binding_id": "origin", "exposed_name": "source"}
     scope = ResultScope(
@@ -497,7 +497,7 @@ def test_sdk_offload_failure_is_checked_before_model(api_client, monkeypatch):
     _, conversation, connection = search_setup(api_client)
     provider(monkeypatch, "正文" * 40000)
     accepted = submit(api_client, conversation).json()["response"]
-    from app.execution.models import Run
+    from app.runtime.execution.models import Run
 
     with api_client.app.state.database.transaction() as db:
         row = db.get(Run, accepted["id"])
@@ -608,7 +608,7 @@ def test_cancel_during_offload_does_not_dispatch_next_model(api_client, monkeypa
     async def cancelled(self, path, content):
         result = await original(self, path, content)
         with api_client.app.state.database.transaction() as db:
-            from app.execution.models import Run
+            from app.runtime.execution.models import Run
 
             api_client.app.state.runs.cancel(db, db.get(Run, accepted["id"]))
         return result
@@ -657,8 +657,8 @@ def test_image_only_mcp_result_does_not_serialize_image_into_text():
 def test_failed_result_status_is_visible_beyond_application_metadata():
     from types import SimpleNamespace
 
-    from app.execution.tool_results import ToolResults
     from app.runtime.contracts.tools import ToolInvocation
+    from app.runtime.execution.tool_results import ToolResults
 
     bodies = []
 
@@ -681,9 +681,9 @@ def test_failed_result_status_is_visible_beyond_application_metadata():
 def test_sandbox_materializes_native_result_path_as_frozen_text():
     from types import SimpleNamespace
 
-    from app.agent.skills import prepare_skills
-    from app.builtin_tools.workspace import WorkspaceBackend
-    from app.values import digest
+    from app.common.values import digest
+    from app.runtime.agent.skills import prepare_skills
+    from app.runtime.tools.workspace import WorkspaceBackend
 
     text = '{"rows":[1,2,3]}'
     entry = {"content_ref": "raw", "origin_binding_id": "origin", "content_hash": digest(text)}

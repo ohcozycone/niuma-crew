@@ -9,11 +9,11 @@ from test_knowledge_vectors import build, connection, upload
 from test_knowledge_vectors import upstream as upstream
 
 from app.auth.actor import Actor
-from app.errors import ConflictError
-from app.knowledge.models import LibraryVectorIndex, LibraryVectorMembership
-from app.knowledge.schemas import SearchRequest
-from app.knowledge.vector_store import KnowledgeVectorStore
-from app.values import utc_now
+from app.common.errors import ConflictError
+from app.common.values import utc_now
+from app.resources.knowledge.models import LibraryVectorIndex, LibraryVectorMembership
+from app.resources.knowledge.schemas import SearchRequest
+from app.resources.knowledge.vector_store import KnowledgeVectorStore
 
 
 @pytest.fixture
@@ -53,7 +53,7 @@ def test_restart_reopens_persisted_vectors_without_reembedding(indexed, upstream
     script = """
 import json, sys
 from pathlib import Path
-from app.knowledge.vector_store import KnowledgeVectorStore
+from app.resources.knowledge.vector_store import KnowledgeVectorStore
 store = KnowledgeVectorStore(Path(sys.argv[1]))
 try:
     result = store.query(sys.argv[2], [1.0] + [0.0] * 1023, json.loads(sys.argv[3]), 2)
@@ -279,8 +279,8 @@ def test_0023_discards_vectors_and_preserves_original_and_keyword_data(app_confi
     from legacy_knowledge_helpers import seed_text_library
     from sqlalchemy import text
 
-    from app.model_connections.models import ModelConnection
-    from app.values import new_uuid
+    from app.common.values import new_uuid
+    from app.resources.model_connections.models import ModelConnection
 
     database, files, config, _, kb, doc, chunks = seed_text_library(app_config, monkeypatch, "0022")
     try:

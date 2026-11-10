@@ -8,8 +8,8 @@ from sqlalchemy import select
 from test_evaluations import create, result
 from test_response_contract import employee
 
-from app.evaluations.models import EvaluationCase
-from app.execution.models import Run
+from app.applications.evaluations.models import EvaluationCase
+from app.runtime.execution.models import Run
 from experiments.evaluation_probe import scoring_controls
 
 
@@ -90,7 +90,7 @@ def test_real_wire_preserves_employee_instruction_and_scores_original_answer(
         def __init__(self, **kwargs):
             super().__init__(transport=httpx.MockTransport(upstream), **kwargs)
 
-    monkeypatch.setattr("app.llm.factory.httpx.AsyncClient", LocalClient)
+    monkeypatch.setattr("app.infrastructure.llm.factory.httpx.AsyncClient", LocalClient)
     asyncio.run(execute_run(api_client, run_id))
     service.advance(batch["id"])
     report = result(api_client, batch)

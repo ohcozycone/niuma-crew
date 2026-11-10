@@ -5,7 +5,7 @@ from sqlalchemy import BigInteger, Text, inspect, text
 from sqlalchemy.orm import Mapped, mapped_column, validates
 from sqlalchemy.types import TypeDecorator
 
-from app.values import new_uuid, normalize_uuid, utc_now
+from app.common.values import new_uuid, normalize_uuid, utc_now
 
 
 class UUIDText(TypeDecorator[str]):

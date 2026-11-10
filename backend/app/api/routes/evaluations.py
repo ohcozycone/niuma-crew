@@ -10,9 +10,9 @@ from app.api.dependencies import (
     ExecutionQueriesDependency,
     require_capability,
 )
-from app.evaluations.benchmark import catalog
-from app.evaluations.schemas import EvaluationCreate
-from app.schemas import RecordID
+from app.applications.evaluations.benchmark import catalog
+from app.applications.evaluations.schemas import EvaluationCreate
+from app.common.schemas import RecordID
 
 router = APIRouter(prefix="/api/evaluations", tags=["evaluations"])
 

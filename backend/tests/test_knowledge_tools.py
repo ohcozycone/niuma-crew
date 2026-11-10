@@ -7,12 +7,12 @@ from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
 from runtime_helpers import MemoryContext, agent_runtime
 
-from app.agent.skills import prepare_skills
-from app.agent.tool_calls import ToolExecutionMiddleware, prepare_agent_tools
-from app.builtin_tools.knowledge import tool_bindings
-from app.execution.knowledge import KnowledgeAccess
+from app.runtime.agent.skills import prepare_skills
+from app.runtime.agent.tool_calls import ToolExecutionMiddleware, prepare_agent_tools
 from app.runtime.contracts.agent import AgentRuntimeContext
 from app.runtime.contracts.tools import ToolOutcome
+from app.runtime.execution.knowledge import KnowledgeAccess
+from app.runtime.tools.knowledge import tool_bindings
 
 LIBRARY_ID = "00000000-0000-4000-8000-000000000001"
 EVIDENCE_ID = "K-0123456789abcdef"

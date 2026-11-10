@@ -7,12 +7,12 @@ from fastapi import Depends, Request, Response
 from fastapi.sse import ServerSentEvent
 
 from app.api.dependencies import ActorDependency, ConversationQueriesDependency
+from app.applications.conversations.schemas import ResponseSnapshot
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
-from app.conversations.schemas import ResponseSnapshot
-from app.errors import AuthenticationError, PermissionDeniedError, RateLimitError
+from app.common.errors import AuthenticationError, PermissionDeniedError, RateLimitError
+from app.common.schemas import RecordID
 from app.runtime.contracts.runs import TERMINAL
-from app.schemas import RecordID
 
 
 async def subscribe(

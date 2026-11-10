@@ -7,20 +7,20 @@ import pytest
 from test_capability_runtime import setup, submit
 from test_run_task import queued_task
 
-from app.agent.errors import RuntimeFailure
 from app.api.errors import service_error_response
-from app.errors import CodedFailure, FailureKind, InvalidInputError
-from app.execution.errors import (
+from app.common.errors import CodedFailure, FailureKind, InvalidInputError
+from app.common.public_errors import public_error_message
+from app.infrastructure.llm.errors import classify_error
+from app.runtime.agent.errors import RuntimeFailure
+from app.runtime.contracts.tools import ToolInvocation, ToolOutcome
+from app.runtime.execution.errors import (
     ExecutionFailure,
     PersistenceFailure,
     execution_failure,
     failure_kind,
     terminal_status,
 )
-from app.execution.models import RunAction
-from app.llm.errors import classify_error
-from app.public_errors import public_error_message
-from app.runtime.contracts.tools import ToolInvocation, ToolOutcome
+from app.runtime.execution.models import RunAction
 
 
 def test_core_failures_have_types_and_no_public_message():
@@ -61,7 +61,7 @@ def test_total_run_deadline_and_model_timeout_are_different_facts():
 def test_public_copy_does_not_control_runner_status(api_client, monkeypatch):
     from run_helpers import read_reply
 
-    from app import public_errors
+    from app.common import public_errors
 
     task = queued_task(api_client)
 
@@ -179,7 +179,7 @@ def test_core_service_rejections_do_not_embed_public_copy():
         "ServiceUnavailableError",
         "AuthenticationError",
     }
-    for directory in ("agent", "execution"):
+    for directory in ("runtime/agent", "runtime/execution"):
         for path in (root / directory).glob("*.py"):
             for node in ast.walk(ast.parse(path.read_text())):
                 if (

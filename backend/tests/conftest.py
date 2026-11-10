@@ -11,9 +11,9 @@ from sqlalchemy import URL
 from app.auth.service import AuthService
 from app.bootstrap.app import create_app
 from app.config import AppConfig, DatabaseConfig
-from app.execution.config import RuntimeConfig
 from app.infrastructure.database.session import Database
-from app.skills.config import SkillConfig
+from app.resources.skills.config import SkillConfig
+from app.runtime.execution.config import RuntimeConfig
 
 
 @pytest.fixture

@@ -8,13 +8,13 @@ from sqlalchemy import event
 from starlette.responses import Response
 from test_conversations import send, setup_agent
 
-from app.agent.streaming import ContentUpdate
 from app.api.routes.conversations import events
 from app.api.streaming import subscribe
 from app.auth.permissions import ROLE_PERMISSIONS
-from app.execution.models import RunAction
+from app.common.values import utc_now
+from app.runtime.agent.streaming import ContentUpdate
 from app.runtime.contracts.runs import Completion
-from app.values import utc_now
+from app.runtime.execution.models import RunAction
 
 
 def test_history_batches_all_steps_for_only_the_selected_message_page(api_client, monkeypatch):

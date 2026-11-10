@@ -18,8 +18,8 @@ from app.auth.models import AuthSession, ExternalIdentity, User
 from app.auth.permissions import ROLE_PERMISSIONS
 from app.auth.service import token_digest
 from app.bootstrap.app import create_app
-from app.errors import InvalidInputError, RateLimitError, ServiceUnavailableError
-from app.values import utc_now
+from app.common.errors import InvalidInputError, RateLimitError, ServiceUnavailableError
+from app.common.values import utc_now
 
 HEADERS = {"Origin": "http://localhost:3000", "Content-Type": "application/json"}
 GITHUB_CONFIG = GitHubOAuthConfig(

@@ -15,12 +15,12 @@ from run_helpers import execute_run, read_reply, reply_path
 from sqlalchemy import func, select
 from test_capability_runtime import setup, submit
 
-from app.errors import NotFoundError, PermissionDeniedError
-from app.execution.evidence import document
-from app.execution.models import Run, RunAction
-from app.files.models import StoredFile
+from app.common.errors import NotFoundError, PermissionDeniedError
+from app.common.values import utc_now
 from app.infrastructure.observability import ExecutionLogs, run_id_context
-from app.values import utc_now
+from app.resources.files.models import StoredFile
+from app.runtime.execution.evidence import document
+from app.runtime.execution.models import Run, RunAction
 
 
 def local_transport(monkeypatch, upstream):
@@ -30,7 +30,7 @@ def local_transport(monkeypatch, upstream):
         def __init__(self, **kwargs):
             super().__init__(transport=httpx.MockTransport(upstream), **kwargs)
 
-    monkeypatch.setattr("app.llm.factory.httpx.AsyncClient", LocalClient)
+    monkeypatch.setattr("app.infrastructure.llm.factory.httpx.AsyncClient", LocalClient)
 
 
 def stream(delta, reason="stop"):
@@ -181,7 +181,7 @@ def test_evidence_failure_leaves_conversation_success_and_original_tool_cache(
     from test_capability_runtime import ScriptedModel, response
 
     model = ScriptedModel(responses=[response("完成")])
-    monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *a, **k: model)
+    monkeypatch.setattr("app.infrastructure.llm.factory.create_chat_model", lambda *a, **k: model)
     monkeypatch.setattr(
         api_client.app.state.run_worker.store,
         "save_evidence",
@@ -230,7 +230,7 @@ def test_evidence_transaction_rollback_retention_and_isolated_quota(api_client, 
         held = action.request_file_id
         for file in db.scalars(select(StoredFile)):
             file.created_at = utc_now() - timedelta(days=2)
-    from app.execution.references import retained_file_ids
+    from app.runtime.execution.references import retained_file_ids
 
     for file in files.directory.iterdir():
         os.utime(file, (0, 0))
@@ -255,7 +255,7 @@ def test_evidence_transaction_rollback_retention_and_isolated_quota(api_client, 
 def test_technical_logs_rotate_and_do_not_store_messages_or_exception_values(tmp_path):
     logs = ExecutionLogs(tmp_path)
     close = logs.install()
-    logger = logging.getLogger("app.execution.runner")
+    logger = logging.getLogger("app.runtime.execution.runner")
     token = run_id_context.set("100000000123")
     try:
         logger.warning(
@@ -363,7 +363,7 @@ def test_readonly_retry_evidence_targets_new_attempt_and_cached_result_stays_com
 
 
 def test_request_observers_are_task_local_and_reset_after_scope():
-    from app.llm.factory import _capture_request, observe_model_request
+    from app.infrastructure.llm.factory import _capture_request, observe_model_request
 
     received = {"first": [], "second": []}
 
@@ -414,7 +414,7 @@ def test_log_directory_failure_is_independent_of_application_startup(tmp_path):
 def test_visible_provider_reasoning_obeys_existing_budget():
     from langchain_core.messages import AIMessage
 
-    from app.agent.streaming import RunProgress
+    from app.runtime.agent.streaming import RunProgress
 
     progress = RunProgress(100, 6)
     result = progress.record(
@@ -433,7 +433,7 @@ def test_rotated_logs_are_still_found_by_same_run(tmp_path):
 
     logs = ExecutionLogs(tmp_path)
     close = logs.install()
-    logger = logging.getLogger("app.execution.runner")
+    logger = logging.getLogger("app.runtime.execution.runner")
     handler = next(
         handler
         for handler in logging.getLogger("app").handlers

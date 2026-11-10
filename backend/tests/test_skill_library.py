@@ -5,10 +5,10 @@ import pytest
 from sqlalchemy import select
 from test_skill_packages import SOURCE, assigned, encoded_archive, imported
 
-from app.employees.references import skill_assignment_counts, skill_assignments
-from app.skills.config import SkillConfig
-from app.skills.models import Skill
-from app.skills.service import SkillService
+from app.resources.employees.references import skill_assignment_counts, skill_assignments
+from app.resources.skills.config import SkillConfig
+from app.resources.skills.models import Skill
+from app.resources.skills.service import SkillService
 
 
 def sync(client):

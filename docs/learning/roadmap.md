@@ -88,7 +88,7 @@ L1 前置轻量脚本和人工评分，L2 深化实验、题集和模型比较�
 
 | 阶段  | 优先入口                                                                                                                                                                              | 阅读问题                                                                |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| L0    | [项目阅读路线](observing-runtime.md)、[运行器](../../backend/app/execution/README.md)、[模型接入](../../backend/app/llm/README.md)                                                    | 一次输入怎样变成可保存、可观察的执行结果？                              |
+| L0    | [项目阅读路线](observing-runtime.md)、[运行器](../../backend/app/runtime/execution/README.md)、[模型接入](../../backend/app/infrastructure/llm/README.md)                                                    | 一次输入怎样变成可保存、可观察的执行结果？                              |
 | L1—L3 | [知识助手设计](../proposals/README.md)、[教学资料](../../backend/datasets/travel-expense/README.md)、[LangChain Retrieval](https://docs.langchain.com/oss/python/langchain/retrieval) | 哪些资料实际进入上下文？错误出在哪个环节？                              |
 | L2    | [LangSmith Evaluation](https://docs.langchain.com/langsmith/evaluation)                                                                                                               | 如何固定、评分和比较实验？学习方法不要求接入该服务。                    |
 | L4    | 本项目 Skill/MCP 设计、[Agent Skills](https://agentskills.io/specification)、[MCP 架构](https://modelcontextprotocol.io/docs/learn/architecture)                                      | 标准负责什么？权限、状态和交付由谁保证？                                |

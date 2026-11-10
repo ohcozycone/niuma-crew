@@ -12,7 +12,7 @@ pytest.importorskip("langchain_text_splitters", reason="install --group knowledg
 
 from langchain_core.language_models.fake_chat_models import FakeListChatModel
 
-from app.knowledge.chunking import split_document
+from app.resources.knowledge.chunking import split_document
 from experiments.knowledge_poc import DATASET, FixtureEmbeddings
 from experiments.knowledge_poc.answering import answer_question, validate_answer
 from experiments.knowledge_poc.contracts import Candidate, RetrievalPreset

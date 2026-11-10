@@ -50,9 +50,9 @@
 
 | 范围               | 实现入口                                                                                                                                                    |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 技能发布与工具接入 | [技能](../backend/app/skills/README.md)、[工具](../backend/app/mcp/README.md)                                                                               |
-| 检索与模型         | [知识](../backend/app/knowledge/README.md)、[模型客户端](../backend/app/llm/README.md)                                                                      |
-| 执行与资源         | [执行](../backend/app/execution/README.md)、[文件](../backend/app/files/README.md)、[环境](../backend/app/environments/README.md)                           |
+| 技能发布与工具接入 | [技能](../backend/app/resources/skills/README.md)、[工具](../backend/app/resources/mcp/README.md)                                                                               |
+| 检索与模型         | [知识](../backend/app/resources/knowledge/README.md)、[模型客户端](../backend/app/infrastructure/llm/README.md)                                                                      |
+| 执行与资源         | [执行](../backend/app/runtime/execution/README.md)、[文件](../backend/app/resources/files/README.md)、[环境](../backend/app/resources/environments/README.md)                           |
 | 事务与前端数据     | [基础设施](../backend/app/infrastructure/README.md)、[共享数据](../frontend/src/state/README.md)、[对话交互](../frontend/src/pages/conversations/README.md) |
 
 ## 方案、记录与学习

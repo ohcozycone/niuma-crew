@@ -2,7 +2,7 @@ import math
 import time
 from threading import Lock
 
-from app.errors import RateLimitError
+from app.common.errors import RateLimitError
 
 
 class RateLimiter:

@@ -1,8 +1,8 @@
 from app.auth.actor import Actor
 from app.auth.models import AuthSession, User
 from app.auth.permissions import require_permission
-from app.errors import AuthenticationError
-from app.values import utc_now
+from app.common.errors import AuthenticationError
+from app.common.values import utc_now
 
 
 def authorize_work(

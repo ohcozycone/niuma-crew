@@ -14,9 +14,9 @@ from chromadb.config import Settings
 from langchain_chroma import Chroma
 from langchain_core.embeddings import Embeddings
 
-from app.knowledge.contracts import Chunk, Guard, KnowledgeDocument
-from app.knowledge.lexical import lexical_terms, lexical_version
-from app.values import digest
+from app.common.values import digest
+from app.resources.knowledge.contracts import Chunk, Guard, KnowledgeDocument
+from app.resources.knowledge.lexical import lexical_terms, lexical_version
 from experiments.knowledge_poc.contracts import RetrievalPreset
 
 

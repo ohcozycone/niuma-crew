@@ -12,9 +12,9 @@ from langgraph.prebuilt import ToolNode
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from runtime_helpers import MemoryContext, agent_runtime, tool_runtime
 
-from app.agent.errors import RuntimeFailure
-from app.agent.skills import prepare_skills
-from app.agent.tool_calls import ToolExecutionMiddleware, prepare_agent_tools
+from app.runtime.agent.errors import RuntimeFailure
+from app.runtime.agent.skills import prepare_skills
+from app.runtime.agent.tool_calls import ToolExecutionMiddleware, prepare_agent_tools
 from app.runtime.contracts.agent import AgentRuntimeContext
 from app.runtime.contracts.tools import ToolOutcome
 
@@ -44,7 +44,7 @@ def call(identifier, query, name="lookup", **extra):
 
 
 def tool_graph(bindings, run_id="run", *, tools=None, saver=None, interrupt_before=None, host=None):
-    from app.builtin_tools.results import result_reader_binding
+    from app.runtime.tools.results import result_reader_binding
 
     snapshot = {"tools": [*bindings, result_reader_binding()]}
     prepared, adapters = prepare_agent_tools(snapshot, [], host or MemoryContext(), None)
@@ -470,7 +470,7 @@ def durable_tool_graph(api_client, monkeypatch, *, failure=None):
     from test_capability_runtime import setup
     from test_conversations import send
 
-    from app.execution.models import Run, RunAction
+    from app.runtime.execution.models import Run, RunAction
 
     _, _, agent, conversation = setup(api_client)
     run_id = send(api_client, conversation).json()["response"]["id"]
@@ -571,7 +571,7 @@ def test_real_action_transaction_authorizes_before_budget_and_reauthorizes_cache
 ):
     from sqlalchemy import select
 
-    from app.execution.models import Run, RunAction
+    from app.runtime.execution.models import Run, RunAction
 
     case = durable_tool_graph(api_client, monkeypatch)
 
@@ -613,7 +613,7 @@ def test_database_failure_blocks_execution_or_feedback_at_the_correct_boundary(
 ):
     from sqlalchemy import select
 
-    from app.execution.models import Run, RunAction
+    from app.runtime.execution.models import Run, RunAction
 
     case = durable_tool_graph(api_client, monkeypatch, failure=failure)
     with pytest.raises(RuntimeError, match="write failed"):

@@ -8,9 +8,9 @@ from langchain_core.messages import HumanMessage, ToolMessage, messages_from_dic
 from langchain_core.runnables import Runnable
 from openai import APITimeoutError
 
-from app.llm.config import LLMConfig
-from app.llm.factory import create_chat_model, model_session
-from app.llm.usage import parse_token_usage
+from app.infrastructure.llm.config import LLMConfig
+from app.infrastructure.llm.factory import create_chat_model, model_session
+from app.infrastructure.llm.usage import parse_token_usage
 from app.runtime.usage import aggregate_usage
 
 
@@ -183,7 +183,7 @@ def test_model_session_applies_configured_timeout_to_actual_request(monkeypatch,
             super().__init__(transport=httpx.MockTransport(handle), **kwargs)
             clients.append(self)
 
-    monkeypatch.setattr("app.llm.factory.httpx.AsyncClient", RecordingClient)
+    monkeypatch.setattr("app.infrastructure.llm.factory.httpx.AsyncClient", RecordingClient)
 
     async def exercise():
         config = LLMConfig(
@@ -219,7 +219,7 @@ def test_cancelling_model_session_closes_transport(monkeypatch):
                 super().__init__(transport=httpx.MockTransport(handle), **kwargs)
                 clients.append(self)
 
-        monkeypatch.setattr("app.llm.factory.httpx.AsyncClient", RecordingClient)
+        monkeypatch.setattr("app.infrastructure.llm.factory.httpx.AsyncClient", RecordingClient)
 
         async def invoke():
             config = LLMConfig(

@@ -2,7 +2,7 @@ from test_agent_foundations import SearchClient, search_grant, send
 from test_capability_runtime import ScriptedModel, execute, response, setup
 from test_tool_discovery import discovery_response
 
-from app.mcp.contracts import exposed_name
+from app.resources.mcp.contracts import exposed_name
 
 
 def search_setup(client, *, skills=False):

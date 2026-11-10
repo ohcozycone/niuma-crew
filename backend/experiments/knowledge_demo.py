@@ -3,7 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from app.knowledge.samples import TECHNICAL
+from app.resources.knowledge.samples import TECHNICAL
 
 DATASET = Path(__file__).resolve().parents[1] / "datasets/travel-expense"
 

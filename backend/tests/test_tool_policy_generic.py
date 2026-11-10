@@ -4,11 +4,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.errors import InvalidInputError
-from app.execution.errors import ExecutionFailure
-from app.execution.tool_results import ToolResults
-from app.mcp.policy import authorize_arguments, validate_scope
+from app.common.errors import InvalidInputError
+from app.resources.mcp.policy import authorize_arguments, validate_scope
 from app.runtime.contracts.tools import ToolInvocation
+from app.runtime.execution.errors import ExecutionFailure
+from app.runtime.execution.tool_results import ToolResults
 
 
 def test_url_named_parameters_are_generic():
@@ -42,7 +42,7 @@ def test_current_snapshot_rejects_invalid_engine_inputs_before_preparation(
 ):
     from test_capability_runtime import setup, submit
 
-    from app.execution.snapshot_rules import validate_snapshot
+    from app.runtime.execution.snapshot_rules import validate_snapshot
 
     _, _, _, conversation = setup(api_client)
     accepted = submit(api_client, conversation).json()["response"]
@@ -61,7 +61,7 @@ def test_unmapped_domain_scope_is_rejected_at_save_and_execution():
 
 
 def test_official_file_tools_define_real_parameter_schemas():
-    from app.builtin_tools.workspace import workspace_tools
+    from app.runtime.tools.workspace import workspace_tools
 
     tools = workspace_tools(
         {"mode": "virtual", "read_roots": ["/workspace"], "write_roots": ["/workspace"]}

@@ -10,9 +10,9 @@ from pathlib import Path
 from langchain_core.document_loaders import BaseLoader
 from langchain_core.documents import Document
 
-from app.knowledge.contracts import KnowledgeDocument, SourceBlock
-from app.knowledge.loading import PARSER_VERSION, markdown_sections, normalize
-from app.values import digest
+from app.common.values import digest
+from app.resources.knowledge.contracts import KnowledgeDocument, SourceBlock
+from app.resources.knowledge.loading import PARSER_VERSION, markdown_sections, normalize
 
 
 class KnowledgeLoader(BaseLoader):

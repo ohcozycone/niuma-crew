@@ -6,7 +6,7 @@
 | 实施状态 | execution/agent 分工、官方基础文件与沙箱接入、builtin_tools、工具按需发现及组织资源执行接线已进入当前正文，不再作为待实施方案维护                                                      |
 | 更新日期 | 2026-11-10                                                                                                                                                                             |
 | 剩余范围 | 工具结果真实模型验收、联网标准体验、只读 SQL，以及有实际场景后再启动的专项能力                                                                                                         |
-| 当前入口 | [执行说明](../../backend/app/execution/README.md)、[运行契约](../reference/runtime.md)、[基础工具](../reference/files-and-environments.md)、[发现验收](../records/工具按需发现验收.md) |
+| 当前入口 | [执行说明](../../backend/app/runtime/execution/README.md)、[运行契约](../reference/runtime.md)、[基础工具](../reference/files-and-environments.md)、[发现验收](../records/工具按需发现验收.md) |
 
 **继续复用现有 Agent 循环和受管工具调用，只为实际缺失的产品能力增加入口。** 文件、执行、知识、结果读取和工具发现已有明确归属；后续不再以能力增长为理由，增加一层插件注册或重建执行目录。
 

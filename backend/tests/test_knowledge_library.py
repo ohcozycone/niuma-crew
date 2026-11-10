@@ -6,13 +6,13 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select, text
 
 from app.auth.actor import Actor
-from app.files.models import StoredFile
-from app.knowledge.libraries import KnowledgeLibraries
-from app.knowledge.models import KnowledgeBase, LibraryDocument
-from app.knowledge.references import retained_file_ids
-from app.knowledge.schemas import SearchRequest
-from app.knowledge.search import KnowledgeSearch
-from app.values import utc_now
+from app.common.values import utc_now
+from app.resources.files.models import StoredFile
+from app.resources.knowledge.libraries import KnowledgeLibraries
+from app.resources.knowledge.models import KnowledgeBase, LibraryDocument
+from app.resources.knowledge.references import retained_file_ids
+from app.resources.knowledge.schemas import SearchRequest
+from app.resources.knowledge.search import KnowledgeSearch
 
 
 def create(client, name="测试资料"):
@@ -221,7 +221,7 @@ def test_guest_can_read_libraries_but_cannot_remove_documents(api_client):
     kb = create(api_client)["id"]
     doc = upload(api_client, kb).json()["id"]
     actor = Actor("guest", "", None, None, "guest", utc_now() + timedelta(hours=1))
-    from app.errors import PermissionDeniedError
+    from app.common.errors import PermissionDeniedError
 
     knowledge = api_client.app.state
     assert knowledge.knowledge_libraries.libraries(actor)[0].id == kb

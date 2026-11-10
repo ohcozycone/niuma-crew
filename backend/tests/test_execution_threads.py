@@ -8,14 +8,16 @@ from test_response_contract import employee, submit
 from test_response_contract import wire as wire
 
 from app.bootstrap.app import create_app
-from app.execution.models import Run
+from app.runtime.execution.models import Run
 
 
 def execute(client, monkeypatch, model, accepted):
     value = accepted.json()
     assert accepted.status_code == 202, value
     id = value["response"]["id"]
-    monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *args, **kwargs: model)
+    monkeypatch.setattr(
+        "app.infrastructure.llm.factory.create_chat_model", lambda *args, **kwargs: model
+    )
     asyncio.run(execute_run(client, id))
     client.app.state.conversation_acceptance.sweep()
     with client.app.state.database.transaction() as db:

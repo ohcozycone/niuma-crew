@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, Query, Response, status
 
 from app.api.dependencies import ActorDependency, SkillDependency, require_capability
 from app.api.errors import SERVICE_ERROR_RESPONSES
-from app.schemas import Page
-from app.skills.schemas import (
+from app.common.schemas import Page
+from app.resources.skills.schemas import (
     SkillCreate,
     SkillFileContent,
     SkillImport,

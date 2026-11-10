@@ -12,11 +12,11 @@ from test_capability_runtime import setup
 from test_conversations import send, wait_run
 from test_sqlite_checkpoints import server
 
-from app.agent.checkpoints import checkpoint_config
+from app.applications.conversations.models import Message
 from app.auth.models import AuthSession
-from app.conversations.models import Message
-from app.execution.models import Run, RunAction
-from app.values import utc_now
+from app.common.values import utc_now
+from app.runtime.agent.checkpoints import checkpoint_config
+from app.runtime.execution.models import Run, RunAction
 
 WORKER = Path(__file__).with_name("checkpoint_worker.py")
 

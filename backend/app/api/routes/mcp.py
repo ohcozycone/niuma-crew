@@ -11,7 +11,7 @@ from app.api.dependencies import (
     ToolConnectionDependency,
     require_capability,
 )
-from app.mcp.schemas import (
+from app.resources.mcp.schemas import (
     CatalogAnnotations,
     CatalogApprove,
     McpConfigImport,

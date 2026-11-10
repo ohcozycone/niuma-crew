@@ -28,14 +28,14 @@
 
 | 位置                                                                           | 职责                                                                   |
 | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| [agent/filesystem.py](../../backend/app/builtin_tools/workspace.py)            | 取得官方工具定义并配置文件中间件，不创建插件或远端环境                 |
-| [agent/workspace.py](../../backend/app/builtin_tools/workspace.py)             | 将文件工具路由到虚拟状态、冻结只读资料或本轮唯一沙箱，收集待保存输出   |
-| [execution/snapshot.py](../../backend/app/execution/snapshot.py)               | 固定工具、路径、后端、环境配置和输入，不启动沙箱                       |
-| [execution/runner.py](../../backend/app/execution/runner.py)                   | 组合本轮上下文与资源，在失败、取消和结束时等待释放                     |
-| [execution/store.py](../../backend/app/execution/store.py)                     | 原子授权、预算与动作记录；虚拟文件首次修改前标记不可自动恢复           |
-| [environments/service.py](../../backend/app/environments/service.py)           | 就绪检查、延迟申请、容量、未知状态和持续回收；拒绝排队后变化的环境配置 |
-| [environments/open_sandbox.py](../../backend/app/environments/open_sandbox.py) | 管理 OpenSandbox，约束身份、命令、真实路径、只读投递和输出收集         |
-| [files](../../backend/app/files/README.md)                                     | 持久字节、文件元数据、完整性与保留；正式消息关联仍由对话接纳负责       |
+| [agent/filesystem.py](../../backend/app/runtime/tools/workspace.py)            | 取得官方工具定义并配置文件中间件，不创建插件或远端环境                 |
+| [agent/workspace.py](../../backend/app/runtime/tools/workspace.py)             | 将文件工具路由到虚拟状态、冻结只读资料或本轮唯一沙箱，收集待保存输出   |
+| [execution/snapshot.py](../../backend/app/runtime/execution/snapshot.py)               | 固定工具、路径、后端、环境配置和输入，不启动沙箱                       |
+| [execution/runner.py](../../backend/app/runtime/execution/runner.py)                   | 组合本轮上下文与资源，在失败、取消和结束时等待释放                     |
+| [execution/store.py](../../backend/app/runtime/execution/store.py)                     | 原子授权、预算与动作记录；虚拟文件首次修改前标记不可自动恢复           |
+| [environments/service.py](../../backend/app/resources/environments/service.py)           | 就绪检查、延迟申请、容量、未知状态和持续回收；拒绝排队后变化的环境配置 |
+| [environments/open_sandbox.py](../../backend/app/resources/environments/open_sandbox.py) | 管理 OpenSandbox，约束身份、命令、真实路径、只读投递和输出收集         |
+| [files](../../backend/app/resources/files/README.md)                                     | 持久字节、文件元数据、完整性与保留；正式消息关联仍由对话接纳负责       |
 
 ## 迁移与恢复
 

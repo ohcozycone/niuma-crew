@@ -7,11 +7,11 @@ from deepagents.middleware.filesystem import FilesystemMiddleware
 from test_agent_foundations import FakeProvider, send
 from test_capability_runtime import ScriptedModel, execute, response, setup
 
-from app.agent.skills import prepare_skills
-from app.builtin_tools.workspace import WorkspaceBackend
-from app.environments.service import RunSandbox
-from app.errors import ConflictError, PermissionDeniedError
-from app.execution.models import Run
+from app.common.errors import ConflictError, PermissionDeniedError
+from app.resources.environments.service import RunSandbox
+from app.runtime.agent.skills import prepare_skills
+from app.runtime.execution.models import Run
+from app.runtime.tools.workspace import WorkspaceBackend
 
 
 def test_default_workspace_matches_official_tools_and_schemas_without_grants(api_client):
@@ -37,7 +37,7 @@ def test_default_workspace_matches_official_tools_and_schemas_without_grants(api
 
 def test_tool_disabled_work_has_no_file_or_execution_capabilities(api_client, monkeypatch):
     _, _, employee, _ = setup(api_client)
-    monkeypatch.setattr("app.environments.service.load_verification", lambda _: {})
+    monkeypatch.setattr("app.resources.environments.service.load_verification", lambda _: {})
     with api_client.app.state.database.transaction() as db:
         snapshot, _ = api_client.app.state.runs.configuration.prepare(
             db, employee["id"], "仅回答问题", [], tools_enabled=False
@@ -50,7 +50,7 @@ def test_ready_sandbox_is_lazy_for_plain_chat(api_client, monkeypatch):
     _, _, _, conversation = setup(api_client)
     provider = FakeProvider()
     api_client.app.state.sandboxes.provider = provider
-    monkeypatch.setattr("app.environments.service.load_verification", lambda _: {})
+    monkeypatch.setattr("app.resources.environments.service.load_verification", lambda _: {})
     accepted = send(api_client, conversation)
     model = ScriptedModel(responses=[response("直接回答即可。")])
     result = execute(api_client, monkeypatch, model, accepted)
@@ -61,7 +61,7 @@ def test_ready_sandbox_is_lazy_for_plain_chat(api_client, monkeypatch):
 
 def test_frozen_sandbox_configuration_cannot_change_before_start(api_client, monkeypatch):
     _, _, _, conversation = setup(api_client)
-    monkeypatch.setattr("app.environments.service.load_verification", lambda _: {})
+    monkeypatch.setattr("app.resources.environments.service.load_verification", lambda _: {})
     accepted = send(api_client, conversation)
     with api_client.app.state.database.transaction() as db:
         row = db.get(Run, accepted["id"])
@@ -170,7 +170,7 @@ def test_file_operations_and_execute_share_one_remote_and_raw_source_bytes():
 
 
 def test_released_run_sandbox_cannot_create_another_environment(api_client, monkeypatch):
-    monkeypatch.setattr("app.environments.service.load_verification", lambda _: {})
+    monkeypatch.setattr("app.resources.environments.service.load_verification", lambda _: {})
     sandbox = api_client.app.state.sandboxes.for_run("100000000000", [], lambda _: b"")
     sandbox.release()
     with pytest.raises(ConflictError) as caught:

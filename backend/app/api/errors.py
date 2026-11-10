@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.exc import OperationalError
 
-from app.errors import (
+from app.common.errors import (
     AuthenticationError,
     ConflictError,
     InvalidInputError,
@@ -14,8 +14,8 @@ from app.errors import (
     ServiceError,
     ServiceUnavailableError,
 )
+from app.common.public_errors import public_error_message
 from app.infrastructure.database.errors import is_database_busy
-from app.public_errors import public_error_message
 
 
 class ErrorDetail(BaseModel):
