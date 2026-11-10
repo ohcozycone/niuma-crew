@@ -8,9 +8,10 @@ from app.execution.errors import (
     ExecutionFailure,
     PersistenceFailure,
 )
+from app.execution.knowledge_evidence import KnowledgeEvidence
 from app.execution.tool_results import ToolResults
 from app.infrastructure.concurrency import run_sync
-from app.runtime.contracts.content import ContentUpdate
+from app.runtime.contracts.content import ContentUpdate, KnowledgeResult
 from app.runtime.contracts.tools import (
     ModelExposure,
     SandboxAccess,
@@ -21,11 +22,11 @@ from app.runtime.contracts.tools import (
 )
 
 if TYPE_CHECKING:
+    from app.execution.knowledge import RunKnowledgeSearch
     from app.execution.models import Run
     from app.execution.service import RunService
     from app.execution.store import RunStore
     from app.files.service import FileService
-    from app.knowledge.service import KnowledgeService
     from app.skills.service import SkillService
 
 logger = logging.getLogger(__name__)
@@ -58,7 +59,7 @@ class RunContext:
         runs: RunService,
         files: FileService,
         skills: SkillService,
-        knowledge: KnowledgeService,
+        knowledge: RunKnowledgeSearch,
         tools: ToolCaller | None,
         sandbox: SandboxAccess | None,
     ) -> None:
@@ -126,8 +127,8 @@ class RunContext:
     def read_skill_blob(self, content_hash: str) -> bytes:
         return cast(bytes, self._skills.read_blob(content_hash))
 
-    def knowledge_call(self, name: str, arguments: dict) -> ToolOutcome:
-        return cast(ToolOutcome, self._knowledge.retrieval.call(self.run_id, name, arguments))
+    def knowledge_call(self, name: str, arguments: dict) -> KnowledgeResult:
+        return cast(KnowledgeResult, self._knowledge.call(self.run_id, name, arguments))
 
     async def preserve_tool_result(
         self, invocation: ToolInvocation, data: dict, status: str
@@ -149,7 +150,7 @@ class RunContext:
         assert self.row is not None
         return cast(
             str,
-            self._knowledge.evidence.clean_history(
+            KnowledgeEvidence.clean_history(
                 content, self.row.config_snapshot.get("knowledge", {}).get("history_evidence", [])
             ),
         )

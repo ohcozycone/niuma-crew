@@ -36,7 +36,7 @@ def test_citation_preview_is_bounded_and_matches_exact_source(api_client):
         == f"/knowledge/{base['id']}/documents/{document['id']}?chunk={chunk['id']}"
     )
     assert "chunks" not in result and "document" not in result
-    with api_client.app.state.knowledge.database.transaction() as db:
+    with api_client.app.state.database.transaction() as db:
         row = db.get(LibraryChunk, chunk["id"])
         row.snapshot = {**row.snapshot, "title": "标题" * 300, "locator": "章节" * 600}
     bounded = api_client.get(
@@ -67,7 +67,7 @@ def test_citation_preview_rejects_mismatched_document_and_library(api_client):
 
 def test_citation_preview_checks_management_permission_and_current_fragment(api_client):
     base, document, chunk = fixture(api_client)
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     with service.database.transaction() as db:
         owner = db.get(KnowledgeBase, base["id"]).created_by_user_id
     other = Actor(
@@ -79,7 +79,7 @@ def test_citation_preview_checks_management_permission_and_current_fragment(api_
         utc_now() + timedelta(hours=1),
     )
     with pytest.raises(PermissionDeniedError):
-        service.citation_preview(other, base["id"], document["id"], chunk["id"])
+        service.knowledge_documents.citation_preview(other, base["id"], document["id"], chunk["id"])
     with service.database.transaction() as db:
         row = db.get(LibraryChunk, chunk["id"])
         row.snapshot = {**row.snapshot, "document_version": "changed"}
@@ -90,7 +90,7 @@ def test_citation_preview_checks_management_permission_and_current_fragment(api_
         == 404
     )
     actor = Actor("user", "", owner, "owner", "admin", utc_now() + timedelta(hours=1))
-    service.remove(actor, base["id"], document["id"])
+    service.knowledge_documents.remove(actor, base["id"], document["id"])
     assert (
         api_client.get(
             f"/api/knowledge-bases/{base['id']}/documents/{document['id']}/chunks/{chunk['id']}"

@@ -274,15 +274,15 @@ def test_pending_library_never_sends_unprocessed_original_to_the_model(api_clien
 
 def test_always_bounds_a_long_user_message_before_querying_knowledge(api_client, monkeypatch):
     _, conversation, _, _, _ = configure(api_client, mode="always")
-    service = api_client.app.state.knowledge
-    native = service.retrieval.call
+    service = api_client.app.state
+    native = service.run_knowledge.call
     arguments_seen = []
 
     def call(run_id, name, arguments):
         arguments_seen.append(arguments)
         return native(run_id, name, arguments)
 
-    monkeypatch.setattr(service.retrieval, "call", call)
+    monkeypatch.setattr(service.run_knowledge, "call", call)
     accepted = send(api_client, conversation, "住宿标准" * 350).json()["response"]
     result = execute(api_client, monkeypatch, KnowledgeModel(mode="always"), accepted)
     assert result["status"] == "succeeded", result
@@ -403,7 +403,7 @@ def test_always_reuses_a_durable_action_but_reauthorizes_before_returning_cached
 
     def lookup(name, arguments):
         calls.append(name)
-        return api_client.app.state.knowledge.retrieval.call(row.id, name, arguments)
+        return api_client.app.state.run_knowledge.call(row.id, name, arguments)
 
     context = make_task(row.id, store, authorize)
     monkeypatch.setattr(context, "knowledge_call", lookup)
@@ -449,9 +449,9 @@ def test_publication_finalizes_exact_evidence_links_when_sdk_is_bypassed(api_cli
     _, conversation, _, _, _ = configure(api_client)
     accepted = send(api_client, conversation, "住宿标准是多少？").json()["response"]
     assert api_client.app.state.run_worker.store.claim(accepted["id"])
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     hit = json.loads(
-        service.retrieval.call(accepted["id"], "search_knowledge", {"query": "住宿"}).content
+        service.run_knowledge.call(accepted["id"], "search_knowledge", {"query": "住宿"}).content
     )["hits"][0]
     raw = f"住宿每晚最高400元。[{hit['evidence_id']}]({hit['source_url'].lstrip('/')})"
     complete_run(api_client)(Completion(accepted["id"], raw, "succeeded"))

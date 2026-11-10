@@ -12,7 +12,7 @@ from app.errors import ConflictError, NotFoundError, PermissionDeniedError
 from app.execution.errors import ExecutionFailure
 from app.execution.evidence import document
 from app.execution.models import ACTIVE, TERMINAL, Run, RunAction
-from app.files.models import StoredFile
+from app.files.contracts import FileRetentionCandidate
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
 from app.runtime.contracts.content import ContentUpdate, InputMessage
@@ -609,7 +609,7 @@ def require_run(db: Session, id: str, actor: Actor | None = None) -> Run:
     return row
 
 
-def retained_file_ids(db: Session, candidates: list[StoredFile]) -> set[str]:
+def retained_file_ids(db: Session, candidates: list[FileRetentionCandidate]) -> set[str]:
     """按执行引用保留输入与成果，不依赖消息关系。"""
     ids = {row.id for row in candidates}
     origins = {row.origin_run_id for row in candidates if row.origin_run_id}

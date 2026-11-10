@@ -1,6 +1,7 @@
 import logging
 from contextlib import AsyncExitStack, asynccontextmanager
 from functools import partial
+from pathlib import Path
 
 from fastapi import FastAPI
 
@@ -28,6 +29,8 @@ from app.environments.service import SandboxService
 from app.evaluations.service import EvaluationService
 from app.evaluations.worker import EvaluationWorker
 from app.execution.assembly import build_execution
+from app.execution.knowledge import KnowledgeAccess, RunKnowledgeSearch
+from app.execution.knowledge_evidence import KnowledgeEvidence
 from app.execution.queries import ExecutionQueries
 from app.execution.service import active_run_ids
 from app.execution.store import retained_file_ids as retained_run_files
@@ -36,8 +39,12 @@ from app.files.service import FileService
 from app.infrastructure.credentials import CredentialVault
 from app.infrastructure.database.session import Database
 from app.infrastructure.observability import CorrelationFilter, ExecutionLogs
-from app.knowledge.service import KnowledgeService
-from app.knowledge.service import retained_file_ids as retained_knowledge_files
+from app.knowledge.documents import KnowledgeDocuments
+from app.knowledge.libraries import KnowledgeLibraries
+from app.knowledge.processing import KnowledgeProcessingService
+from app.knowledge.references import retained_file_ids as retained_knowledge_files
+from app.knowledge.search import KnowledgeSearch
+from app.knowledge.vectors import KnowledgeVectorService
 from app.knowledge.worker import KnowledgeWorker
 from app.mcp.catalogs import ToolCatalogService
 from app.mcp.connections import ToolConnectionService
@@ -118,16 +125,49 @@ def create_app(config: AppConfig | None = None) -> FastAPI:
                 database, app.state.files, execution_logs
             )
             app.state.file_cleanup = FileCleanup(database, app.state.files.storage, settings.files)
-            app.state.knowledge = KnowledgeService(
+            app.state.knowledge_libraries = KnowledgeLibraries(database)
+            app.state.knowledge_vectors = KnowledgeVectorService(
+                database,
+                app.state.knowledge_libraries,
+                app.state.model_connections,
+                settings.knowledge_vector_dir
+                or Path(str(database.engine.url.database)).parent / "knowledge-vectors",
+            )
+            cleanup.callback(app.state.knowledge_vectors.store.close)
+            app.state.knowledge_documents = KnowledgeDocuments(
                 database,
                 app.state.files,
-                app.state.model_connections,
-                settings.knowledge_vector_dir,
+                app.state.knowledge_libraries,
+                prune_vectors=app.state.knowledge_vectors.prune,
             )
-            cleanup.callback(app.state.knowledge.close)
+            app.state.knowledge_processing = KnowledgeProcessingService(
+                database,
+                app.state.knowledge_libraries,
+                app.state.files,
+                document_read=app.state.knowledge_documents.document_read,
+                prune_vectors=app.state.knowledge_vectors.prune,
+            )
+            app.state.knowledge_search = KnowledgeSearch(
+                database,
+                app.state.knowledge_libraries,
+                app.state.knowledge_vectors,
+            )
+            app.state.knowledge_access = KnowledgeAccess(database)
+            app.state.knowledge_evidence = KnowledgeEvidence(
+                database,
+                run_scope=app.state.knowledge_access.run_scope,
+            )
+            app.state.run_knowledge = RunKnowledgeSearch(
+                database,
+                app.state.knowledge_access,
+                app.state.knowledge_libraries,
+                app.state.knowledge_search,
+                app.state.knowledge_evidence,
+            )
             app.state.knowledge_worker = KnowledgeWorker(
-                app.state.knowledge.processing,
+                app.state.knowledge_processing,
                 settings.runner_lock_file.with_name(settings.runner_lock_file.name + ".knowledge"),
+                reconcile=app.state.knowledge_vectors.reconcile,
             )
 
             def retained_files(session, candidates):
@@ -149,7 +189,9 @@ def create_app(config: AppConfig | None = None) -> FastAPI:
                 model_connections=app.state.model_connections,
                 files=app.state.files,
                 skills=app.state.skills,
-                knowledge=app.state.knowledge,
+                knowledge_access=app.state.knowledge_access,
+                knowledge_evidence=app.state.knowledge_evidence,
+                knowledge_search=app.state.run_knowledge,
                 tools=app.state.tool_invocation,
                 sandboxes=app.state.sandboxes,
             )

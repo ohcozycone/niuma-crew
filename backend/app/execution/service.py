@@ -41,7 +41,7 @@ from app.runtime.contracts.tools import ModelExposure, ToolInvocation
 from app.values import utc_now
 
 if TYPE_CHECKING:
-    from app.knowledge.service import KnowledgeService
+    from app.execution.knowledge import KnowledgeAccess
     from app.model_connections.service import ModelConnectionService
 
 
@@ -85,7 +85,7 @@ class RunService:
         connections: ModelConnectionService,
         *,
         check_outputs: Callable,
-        knowledge: KnowledgeService | None = None,
+        knowledge: KnowledgeAccess | None = None,
         prepare_content: Callable | None = None,
     ) -> None:
         self.database, self.settings, self.status = database, settings, status

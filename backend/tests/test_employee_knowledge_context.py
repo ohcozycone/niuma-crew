@@ -10,8 +10,9 @@ from test_employee_knowledge_runtime import MARKER, KnowledgeModel, actions, con
 
 from app.auth.actor import Actor
 from app.conversations.context import accepted_run_id
+from app.execution.evidence_models import RunKnowledgeEvidence
 from app.execution.models import Run
-from app.knowledge.models import LibraryChunk, RunKnowledgeEvidence
+from app.knowledge.models import LibraryChunk
 from app.values import utc_now
 
 
@@ -28,7 +29,7 @@ def remove_document(client, first, base, document):
     with client.app.state.database.transaction() as db:
         owner = db.get(Run, first["id"]).owner_user_id
     actor = Actor("user", "", owner, "admin", "admin", utc_now() + timedelta(hours=1))
-    client.app.state.knowledge.remove(actor, base["id"], document["id"])
+    client.app.state.knowledge_documents.remove(actor, base["id"], document["id"])
 
 
 def test_repeated_followups_reuse_current_evidence_without_new_search(api_client, monkeypatch):
@@ -113,7 +114,7 @@ def test_stale_or_omitted_history_loses_citation_authority_in_model_input(
         assert assemble(api_client, agent["id"], []).status_code == 200
     else:
         monkeypatch.setattr(
-            api_client.app.state.knowledge.evidence, "capture_history", lambda *_, **__: []
+            api_client.app.state.knowledge_evidence, "capture_history", lambda *_, **__: []
         )
     accepted = send(api_client, conversation, "刚才的标准还能适用吗？").json()["response"]
     model = ScriptedModel(responses=[response("当前依据不足，需要重新检索确认。")])
@@ -135,12 +136,12 @@ def test_stale_or_omitted_history_loses_citation_authority_in_model_input(
 
 def test_capture_is_bounded_and_rejects_wrong_origin_identity_or_link(api_client, monkeypatch):
     _, _, _, _, _, first, citation = initial(api_client, monkeypatch)
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     with api_client.app.state.database.transaction() as db:
         row = db.get(Run, first["id"])
         captured = row.config_snapshot["knowledge"]
         scope = {"owner_user_id": row.owner_user_id, "thread_id": row.thread_id}
-        capture = service.evidence.capture_history
+        capture = service.knowledge_evidence.capture_history
         assert capture(db, captured, [(row.id, citation)], 0, **scope) == []
         for invalid in (citation[:-1] + "#fake)", citation.replace("/sources/", "/fake/")):
             assert capture(db, captured, [(row.id, invalid)], 18000, **scope) == []

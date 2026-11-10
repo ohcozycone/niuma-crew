@@ -2,7 +2,7 @@ from sqlalchemy import JSON, CheckConstraint, ForeignKey, Integer, Text, UniqueC
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database.base import Base
-from app.infrastructure.database.fields import IdentityTimestamps, NumericID, UUIDText
+from app.infrastructure.database.fields import IdentityTimestamps, UUIDText
 
 
 class KnowledgeBase(IdentityTimestamps, Base):
@@ -19,20 +19,6 @@ class KnowledgeBase(IdentityTimestamps, Base):
     chunk_size: Mapped[int | None] = mapped_column(Integer)
     chunk_overlap: Mapped[int | None] = mapped_column(Integer)
     min_section_chars: Mapped[int | None] = mapped_column(Integer)
-
-
-class RunKnowledgeEvidence(Base):
-    __tablename__ = "knowledge_run_evidence"
-    run_id: Mapped[str] = mapped_column(
-        NumericID(), ForeignKey("runs.id", ondelete="CASCADE"), primary_key=True
-    )
-    evidence_id: Mapped[str] = mapped_column(Text, primary_key=True)
-    knowledge_base_id: Mapped[str] = mapped_column(UUIDText())
-    document_id: Mapped[str] = mapped_column(UUIDText())
-    document_version: Mapped[str] = mapped_column(Text)
-    chunk_id: Mapped[str] = mapped_column(Text)
-    # 不建实时文档外键以保留历史；使用时仍检查当前来源。
-    snapshot: Mapped[dict] = mapped_column(JSON)
 
 
 class LibraryDocument(IdentityTimestamps, Base):

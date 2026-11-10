@@ -18,10 +18,15 @@ from app.employees.service import AgentService
 from app.environments.service import SandboxService
 from app.errors import PermissionDeniedError
 from app.evaluations.service import EvaluationService
+from app.execution.knowledge_evidence import KnowledgeEvidence
 from app.execution.queries import ExecutionQueries
 from app.files.service import FileService
 from app.infrastructure.database.session import Database
-from app.knowledge.service import KnowledgeService
+from app.knowledge.documents import KnowledgeDocuments
+from app.knowledge.libraries import KnowledgeLibraries
+from app.knowledge.processing import KnowledgeProcessingService
+from app.knowledge.search import KnowledgeSearch
+from app.knowledge.vectors import KnowledgeVectorService
 from app.mcp.catalogs import ToolCatalogService
 from app.mcp.connections import ToolConnectionService
 from app.mcp.definitions import McpDefinitionService
@@ -129,11 +134,48 @@ def get_files(request: Request) -> FileService:
 FileDependency = Annotated[FileService, Depends(get_files)]
 
 
-def get_knowledge(request: Request) -> KnowledgeService:
-    return request.app.state.knowledge
+def get_knowledge_libraries(request: Request) -> KnowledgeLibraries:
+    return request.app.state.knowledge_libraries
 
 
-KnowledgeDependency = Annotated[KnowledgeService, Depends(get_knowledge)]
+KnowledgeLibrariesDependency = Annotated[KnowledgeLibraries, Depends(get_knowledge_libraries)]
+
+
+def get_knowledge_documents(request: Request) -> KnowledgeDocuments:
+    return request.app.state.knowledge_documents
+
+
+KnowledgeDocumentsDependency = Annotated[KnowledgeDocuments, Depends(get_knowledge_documents)]
+
+
+def get_knowledge_processing(request: Request) -> KnowledgeProcessingService:
+    return request.app.state.knowledge_processing
+
+
+KnowledgeProcessingDependency = Annotated[
+    KnowledgeProcessingService, Depends(get_knowledge_processing)
+]
+
+
+def get_knowledge_vectors(request: Request) -> KnowledgeVectorService:
+    return request.app.state.knowledge_vectors
+
+
+KnowledgeVectorsDependency = Annotated[KnowledgeVectorService, Depends(get_knowledge_vectors)]
+
+
+def get_knowledge_search(request: Request) -> KnowledgeSearch:
+    return request.app.state.knowledge_search
+
+
+KnowledgeSearchDependency = Annotated[KnowledgeSearch, Depends(get_knowledge_search)]
+
+
+def get_knowledge_evidence(request: Request) -> KnowledgeEvidence:
+    return request.app.state.knowledge_evidence
+
+
+KnowledgeEvidenceDependency = Annotated[KnowledgeEvidence, Depends(get_knowledge_evidence)]
 
 
 def get_rate_limiter(request: Request) -> RateLimiter:

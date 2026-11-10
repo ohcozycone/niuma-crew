@@ -23,7 +23,7 @@ def indexed(api_client, upstream):
     hotel = upload(api_client, kb, "# 住宿\n住宿每晚四百元。", "hotel.md").json()
     train = upload(api_client, kb, "# 交通\n高铁二等座。", "train.md").json()
     assert build(api_client, kb, model["id"]).status_code == 200
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     actor = Actor(
         "user", "", library_creator(service, kb), "admin", "admin", utc_now() + timedelta(hours=1)
     )
@@ -37,8 +37,10 @@ def current_name(service, kb):
 
 def test_restart_reopens_persisted_vectors_without_reembedding(indexed, upstream):
     service, actor, kb, _, _, _ = indexed
-    vectors = service.vectors
-    expected = service.search(actor, kb, SearchRequest(question="酒店", strategy="vector"))
+    vectors = service.knowledge_vectors
+    expected = service.knowledge_search.search_library(
+        actor, kb, SearchRequest(question="酒店", strategy="vector")
+    )
     count = len(upstream["requests"])
     directory = vectors.store.directory
     name = current_name(service, kb)
@@ -76,14 +78,16 @@ finally:
     assert json.loads(child.stdout) == [hit.chunk.id for hit in expected.hits]
     vectors.store = KnowledgeVectorStore(directory)
     vectors.reconcile()
-    actual = service.search(actor, kb, SearchRequest(question="酒店", strategy="vector"))
+    actual = service.knowledge_search.search_library(
+        actor, kb, SearchRequest(question="酒店", strategy="vector")
+    )
     assert actual == expected
     assert len(upstream["requests"]) == count + 1  # 只生成查询向量，不重算文档。
 
 
 def test_second_store_cannot_write_the_same_local_directory(indexed):
     service, *_ = indexed
-    duplicate = KnowledgeVectorStore(service.vectors.store.directory)
+    duplicate = KnowledgeVectorStore(service.knowledge_vectors.store.directory)
     try:
         with pytest.raises(BlockingIOError):
             duplicate.names()
@@ -93,7 +97,7 @@ def test_second_store_cannot_write_the_same_local_directory(indexed):
 
 def test_incomplete_collection_never_replaces_published_index(indexed, upstream, monkeypatch):
     service, actor, kb, model, *_ = indexed
-    store = service.vectors.store
+    store = service.knowledge_vectors.store
     old = current_name(service, kb)
     original = store.build
 
@@ -103,15 +107,17 @@ def test_incomplete_collection_never_replaces_published_index(indexed, upstream,
 
     monkeypatch.setattr(store, "build", fail)
     with pytest.raises(RuntimeError, match="injected"):
-        service.vectors.build(actor, kb, model)
+        service.knowledge_vectors.build(actor, kb, model)
     assert current_name(service, kb) == old
     assert store.names() == {old}
-    assert service.search(actor, kb, SearchRequest(question="酒店", strategy="vector")).hits
+    assert service.knowledge_search.search_library(
+        actor, kb, SearchRequest(question="酒店", strategy="vector")
+    ).hits
 
 
 def test_commit_failure_removes_unpublished_collection(indexed, monkeypatch):
     service, actor, kb, model, *_ = indexed
-    store = service.vectors.store
+    store = service.knowledge_vectors.store
     old = current_name(service, kb)
     transaction = service.database.transaction
     original = store.build
@@ -134,7 +140,7 @@ def test_commit_failure_removes_unpublished_collection(indexed, monkeypatch):
     monkeypatch.setattr(store, "build", stage)
     monkeypatch.setattr(service.database, "transaction", rejecting_transaction)
     with pytest.raises(RuntimeError, match="commit failure"):
-        service.vectors.build(actor, kb, model)
+        service.knowledge_vectors.build(actor, kb, model)
     assert current_name(service, kb) == old
     assert store.names() == {old}
 
@@ -145,21 +151,23 @@ def test_rebuild_keeps_collection_pinned_until_old_query_finishes(indexed, upstr
 
     def rebuild():
         upstream["after"] = None
-        service.vectors.build(actor, kb, model)
+        service.knowledge_vectors.build(actor, kb, model)
         assert current_name(service, kb) != old
-        assert old in service.vectors.store.names()
+        assert old in service.knowledge_vectors.store.names()
 
     upstream["after"] = rebuild
     with pytest.raises(ConflictError, match="检索期间"):
-        service.search(actor, kb, SearchRequest(question="酒店", strategy="vector"))
-    assert old not in service.vectors.store.names()
+        service.knowledge_search.search_library(
+            actor, kb, SearchRequest(question="酒店", strategy="vector")
+        )
+    assert old not in service.knowledge_vectors.store.names()
 
 
 def test_deleted_members_are_excluded_even_when_physical_cleanup_fails(
     indexed, api_client, monkeypatch
 ):
     service, actor, kb, _, hotel, train = indexed
-    store = service.vectors.store
+    store = service.knowledge_vectors.store
     name = current_name(service, kb)
     original = store.prune
 
@@ -167,12 +175,14 @@ def test_deleted_members_are_excluded_even_when_physical_cleanup_fails(
         raise RuntimeError("physical deletion unavailable")
 
     monkeypatch.setattr(store, "prune", fail)
-    service.remove(actor, kb, hotel["id"])
+    service.knowledge_documents.remove(actor, kb, hotel["id"])
     assert store.client.get_collection(name, embedding_function=None).count() == 2
-    result = service.search(actor, kb, SearchRequest(question="酒店", strategy="vector"))
+    result = service.knowledge_search.search_library(
+        actor, kb, SearchRequest(question="酒店", strategy="vector")
+    )
     assert {hit.chunk.document_id for hit in result.hits} == {train["id"]}
     monkeypatch.setattr(store, "prune", original)
-    service.vectors.reconcile()
+    service.knowledge_vectors.reconcile()
     assert store.client.get_collection(name, embedding_function=None).count() == 1
 
 
@@ -181,11 +191,11 @@ def test_partial_coverage_survives_new_documents_and_reprocessing(indexed, api_c
 
     service, actor, kb, _, hotel, train = indexed
     upload(api_client, kb, "# 餐饮\n餐饮每日一百元。", "meal.md")
-    assert service.get(actor, kb).vector_status == "partial"
-    assert service.get(actor, kb).vector_chunk_count == 2
+    assert service.knowledge_libraries.get(actor, kb).vector_status == "partial"
+    assert service.knowledge_libraries.get(actor, kb).vector_chunk_count == 2
     reused = process(api_client, kb, [hotel["id"]], reprocess=True).json()
     assert reused["items"][0]["status"] == "reused"
-    assert service.get(actor, kb).vector_chunk_count == 2
+    assert service.knowledge_libraries.get(actor, kb).vector_chunk_count == 2
     process(
         api_client,
         kb,
@@ -193,21 +203,23 @@ def test_partial_coverage_survives_new_documents_and_reprocessing(indexed, api_c
         reprocess=True,
         rules={"chunk_size": 900, "chunk_overlap": 120, "min_section_chars": 200},
     )
-    assert service.get(actor, kb).vector_chunk_count == 1
-    result = service.search(actor, kb, SearchRequest(question="酒店", strategy="vector"))
+    assert service.knowledge_libraries.get(actor, kb).vector_chunk_count == 1
+    result = service.knowledge_search.search_library(
+        actor, kb, SearchRequest(question="酒店", strategy="vector")
+    )
     assert {hit.chunk.document_id for hit in result.hits} == {train["id"]}
 
 
 def test_startup_cleans_orphans_and_marks_missing_index_for_rebuild(indexed):
     service, actor, kb, *_ = indexed
-    store = service.vectors.store
+    store = service.knowledge_vectors.store
     orphan = "niuma_kb_unpublished_orphan"
     store.client.create_collection(orphan, embedding_function=None)
-    service.vectors.reconcile()
+    service.knowledge_vectors.reconcile()
     assert orphan not in store.names()
     store.client.delete_collection(current_name(service, kb))
-    service.vectors.reconcile()
-    assert service.get(actor, kb).vector_status == "not_built"
+    service.knowledge_vectors.reconcile()
+    assert service.knowledge_libraries.get(actor, kb).vector_status == "not_built"
     with service.database.transaction() as db:
         assert list(db.scalars(select(LibraryVectorMembership))) == []
 
@@ -233,14 +245,14 @@ def test_parallel_queries_keep_consistent_results(indexed, upstream):
     with ThreadPoolExecutor(max_workers=4) as pool:
         results = list(
             pool.map(
-                lambda _: service.search(
+                lambda _: service.knowledge_search.search_library(
                     actor, kb, SearchRequest(question="酒店", strategy="hybrid")
                 ),
                 range(8),
             )
         )
     assert all(result == results[0] for result in results)
-    assert not service.vectors.store._readers
+    assert not service.knowledge_vectors.store._readers
 
 
 @pytest.mark.parametrize("mode", ["on_demand", "always"])

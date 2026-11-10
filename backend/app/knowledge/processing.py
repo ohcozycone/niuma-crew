@@ -1,17 +1,20 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from collections.abc import Callable
 
 from sqlalchemy import delete, func, select, text
 from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
 from app.errors import ConflictError, InvalidInputError, NotFoundError, ServiceError
+from app.files.service import FileService
+from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
 from app.knowledge.chunking import ChunkLimitExceeded, split_document
 from app.knowledge.contracts import Chunk, ChunkingRules, KnowledgeDocument
 from app.knowledge.lexical import lexical_terms, lexical_version
+from app.knowledge.libraries import KnowledgeLibraries
 from app.knowledge.loading import LIBRARY_PARSER_VERSION, text_document
 from app.knowledge.models import (
     KnowledgeBase,
@@ -24,15 +27,13 @@ from app.knowledge.models import (
 from app.knowledge.schemas import (
     ChunkPreviewRead,
     ChunkPreviewRequest,
+    DocumentRead,
     ProcessingBatchRead,
     ProcessingItemRead,
     ProcessingRequest,
     effective_rules,
 )
 from app.values import digest, new_uuid, utc_now
-
-if TYPE_CHECKING:
-    from app.knowledge.service import KnowledgeService
 
 logger = logging.getLogger(__name__)
 ACTIVE = ("queued", "running")
@@ -85,8 +86,17 @@ def can_reuse(session: Session, doc: LibraryDocument, rules: dict) -> bool:
 
 
 class KnowledgeProcessingService:
-    def __init__(self, knowledge: KnowledgeService):
-        self.knowledge = knowledge
+    def __init__(
+        self,
+        database: Database,
+        libraries: KnowledgeLibraries,
+        files: FileService,
+        *,
+        document_read: Callable[[Session, LibraryDocument], DocumentRead],
+        prune_vectors: Callable[[str], None],
+    ) -> None:
+        self.database, self.libraries, self.files = database, libraries, files
+        self.document_read, self.prune_vectors = document_read, prune_vectors
 
     @staticmethod
     def read(session: Session, batch: ProcessingBatch) -> ProcessingBatchRead:
@@ -128,16 +138,16 @@ class KnowledgeProcessingService:
         )
 
     def submit(self, actor: Actor, kb: str, data: ProcessingRequest) -> ProcessingBatchRead:
-        self.knowledge.manager(actor)
+        self.libraries.manager(actor)
         """Freeze effective rules and an explicit file set before acknowledging enqueue."""
         payload = data.model_dump(mode="json", exclude={"client_request_id"})
         if data.rules is None:
             payload.pop("rules")  # 先查幂等原提交，再做预览。
         if data.document_ids and len(set(data.document_ids)) != len(data.document_ids):
             raise InvalidInputError("knowledge_duplicate_document", "处理文件不能重复。")
-        with self.knowledge.database.transaction() as session:
+        with self.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
-            base = self.knowledge.require_base(session, kb, actor)
+            base = self.libraries.require_base(session, kb, actor)
             old = session.scalar(
                 select(ProcessingBatch).where(
                     ProcessingBatch.knowledge_base_id == kb,
@@ -197,7 +207,7 @@ class KnowledgeProcessingService:
                     id=new_uuid(),
                     batch_id=batch.id,
                     document_id=doc.id,
-                    filename=self.knowledge.document_read(session, doc).filename,
+                    filename=self.document_read(session, doc).filename,
                     source_hash=doc.content_hash,
                     status="reused" if can_reuse(session, doc, batch.rules) else "queued",
                 )
@@ -212,8 +222,8 @@ class KnowledgeProcessingService:
             return self.read(session, batch)
 
     def batches(self, actor: Actor, kb: str) -> list[ProcessingBatchRead]:
-        with self.knowledge.database.transaction() as session:
-            self.knowledge.require_base(session, kb, actor)
+        with self.database.transaction() as session:
+            self.libraries.require_base(session, kb, actor)
             return [
                 self.read(session, row)
                 for row in session.scalars(
@@ -225,19 +235,19 @@ class KnowledgeProcessingService:
             ]
 
     def get(self, actor: Actor, kb: str, id: str) -> ProcessingBatchRead:
-        with self.knowledge.database.transaction() as session:
-            self.knowledge.require_base(session, kb, actor)
+        with self.database.transaction() as session:
+            self.libraries.require_base(session, kb, actor)
             row = session.get(ProcessingBatch, id)
             if row is None or row.knowledge_base_id != kb:
                 raise NotFoundError("knowledge_job_not_found", "处理任务不存在。")
             return self.read(session, row)
 
     def cancel(self, actor: Actor, kb: str, id: str) -> ProcessingBatchRead:
-        self.knowledge.manager(actor)
+        self.libraries.manager(actor)
         """Invalidate commit permits; never discard previously published files."""
-        with self.knowledge.database.transaction() as session:
+        with self.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
-            self.knowledge.require_base(session, kb, actor)
+            self.libraries.require_base(session, kb, actor)
             batch = session.get(ProcessingBatch, id)
             if batch is None or batch.knowledge_base_id != kb:
                 raise NotFoundError("knowledge_job_not_found", "处理任务不存在。")
@@ -257,7 +267,7 @@ class KnowledgeProcessingService:
 
     def recover(self) -> None:
         """排队任务可重启续跑，执行结果未知的任务需显式重试。"""
-        with self.knowledge.database.transaction() as session:
+        with self.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
             for item in session.scalars(
                 select(ProcessingItem).where(ProcessingItem.status == "running")
@@ -276,7 +286,7 @@ class KnowledgeProcessingService:
 
     def run_next(self) -> bool:
         """每次最多领取一项；解析和文件 I/O 在事务外执行。"""
-        with self.knowledge.database.transaction() as session:
+        with self.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
             item = session.scalar(
                 select(ProcessingItem)
@@ -317,7 +327,7 @@ class KnowledgeProcessingService:
         self, file_id: str, document_id: str, filename: str, rules: dict
     ) -> tuple[KnowledgeDocument, tuple[Chunk, ...]]:
         """预览与正式处理共用计算过程，不发布部分内容。"""
-        document = text_document(self.knowledge.files.read(file_id), document_id, filename)
+        document = text_document(self.files.read(file_id), document_id, filename)
         args = (
             {"min_section_chars": rules["min_section_chars"]}
             if rules.get("split_version") == 2
@@ -344,8 +354,8 @@ class KnowledgeProcessingService:
         self, actor: Actor, kb: str, id: str, data: ChunkPreviewRequest
     ) -> ChunkPreviewRead:
         """读取原件并返回预览页，不修改入库状态。"""
-        with self.knowledge.database.transaction() as session:
-            base = self.knowledge.require_base(session, kb, actor)
+        with self.database.transaction() as session:
+            base = self.libraries.require_base(session, kb, actor)
             doc = session.get(LibraryDocument, id)
             if doc is None or doc.knowledge_base_id != kb:
                 raise NotFoundError("knowledge_document_not_found", "文件不存在。")
@@ -353,10 +363,10 @@ class KnowledgeProcessingService:
                 base.chunk_size, base.chunk_overlap, base.min_section_chars
             )
             file_id, source_hash = doc.file_id, doc.content_hash
-            filename = self.knowledge.document_read(session, doc).filename
+            filename = self.document_read(session, doc).filename
         _, chunks = self.prepare(file_id, id, filename, {**rules.model_dump(), "split_version": 2})
-        with self.knowledge.database.transaction() as session:
-            self.knowledge.require_base(session, kb, actor)
+        with self.database.transaction() as session:
+            self.libraries.require_base(session, kb, actor)
             doc = session.get(LibraryDocument, id)
             if doc is None or doc.knowledge_base_id != kb:
                 raise NotFoundError("knowledge_document_not_found", "文件已删除，请刷新列表。")
@@ -378,7 +388,7 @@ class KnowledgeProcessingService:
         )
 
     def fail(self, id: str, message: str) -> None:
-        with self.knowledge.database.transaction() as session:
+        with self.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
             item = session.get(ProcessingItem, id)
             if item is None or item.status != "running":
@@ -401,7 +411,7 @@ class KnowledgeProcessingService:
         rules: dict,
     ) -> None:
         """复核当前许可后，原子替换单份文档。"""
-        with self.knowledge.database.transaction() as session:
+        with self.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
             item = session.get(ProcessingItem, id)
             doc = session.get(LibraryDocument, document.id)
@@ -465,5 +475,4 @@ class KnowledgeProcessingService:
             assert base is not None
             base.updated_at = utc_now()
             kb = doc.knowledge_base_id
-        if self.knowledge._vectors is not None:
-            self.knowledge.vectors.prune(kb)
+        self.prune_vectors(kb)

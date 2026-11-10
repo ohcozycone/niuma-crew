@@ -21,7 +21,9 @@ def build_execution(
     model_connections: Any,
     files: Any,
     skills: Any,
-    knowledge: Any,
+    knowledge_access: Any,
+    knowledge_evidence: Any,
+    knowledge_search: Any,
     tools: Any,
     sandboxes: Any,
 ) -> tuple[RunService, RunWorker]:
@@ -29,12 +31,16 @@ def build_execution(
     store = RunStore(database, files=files)
     checkpoints = CheckpointStore(database.engine.url.database)
     configuration = RunConfiguration(
-        runtime, agent=agent_settings, files=files, sandboxes=sandboxes, knowledge=knowledge
+        runtime,
+        agent=agent_settings,
+        files=files,
+        sandboxes=sandboxes,
+        knowledge=knowledge_evidence,
     )
 
     def finalize_content(db: Any, row: Any, text: Any) -> Any:
         return (
-            knowledge.evidence.finalize_answer(row.id, text, db=db)
+            knowledge_evidence.finalize_answer(row.id, text, db=db)
             if row.config_snapshot.get("knowledge")
             else text
         )
@@ -45,7 +51,7 @@ def build_execution(
         status,
         configuration,
         model_connections,
-        knowledge=knowledge,
+        knowledge=knowledge_access,
         check_outputs=files.check_outputs,
         prepare_content=finalize_content,
     )
@@ -61,7 +67,7 @@ def build_execution(
         files=files,
         sandboxes=sandboxes,
         skills=skills,
-        knowledge=knowledge,
+        knowledge=knowledge_search,
     )
     worker = RunWorker(
         store,
