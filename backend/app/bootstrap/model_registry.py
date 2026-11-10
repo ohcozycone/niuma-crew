@@ -1,4 +1,4 @@
-"""为迁移注册业务模型；业务代码仍从所属模块导入模型。"""
+"""应用与迁移共享的模型注册；业务代码仍从所属模块导入模型。"""
 
 from app.applications.conversations.models import (
     Conversation,
@@ -31,6 +31,7 @@ from app.runtime.execution.evidence_models import RunKnowledgeEvidence
 from app.runtime.execution.models import Run, RunAction
 
 __all__ = [
+    "register_models",
     "WorkspaceProfile",
     "EvaluationBatch",
     "EvaluationCase",
@@ -65,3 +66,8 @@ __all__ = [
     "MessageFile",
     "SandboxResource",
 ]
+
+
+def register_models() -> None:
+    """每个应用进程独立完成映射注册，包括历史多态记录。"""
+    Base.registry.configure()
