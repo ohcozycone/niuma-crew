@@ -12,7 +12,6 @@ from app.agent.skills import prepare_skills
 from app.agent.tool_calls import ToolExecutionMiddleware, prepare_agent_tools
 from app.builtin_tools.contracts import ToolOutcome
 from app.builtin_tools.knowledge import tool_bindings
-from app.errors import InvalidInputError
 from app.knowledge.access import KnowledgeAccess
 
 LIBRARY_ID = "00000000-0000-4000-8000-000000000001"
@@ -136,8 +135,16 @@ def test_registered_tools_preserve_defaults_and_valid_arguments(name, arguments,
 )
 def test_model_validation_keeps_constraints_not_enforced_by_json_schema(arguments):
     graph, context, calls = knowledge_graph()
-    with pytest.raises(InvalidInputError) as error:
-        invoke(graph, context, "search_knowledge", arguments)
-    assert error.value.code == "tool_arguments_invalid"
+    outcomes = []
+    complete = context.complete_tool
+
+    async def capture(permit, outcome):
+        outcomes.append(outcome)
+        await complete(permit, outcome)
+
+    context.complete_tool = capture
+    result = invoke(graph, context, "search_knowledge", arguments)
+    assert result.status == "error"
+    assert len(outcomes) == 1 and outcomes[0].error_code == "tool_arguments_invalid"
     assert calls == []
     assert context.actions["tool:knowledge"]["status"] == "failed"

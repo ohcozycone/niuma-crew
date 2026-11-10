@@ -15,6 +15,7 @@ from app.bootstrap import create_app
 from app.config import AppConfig, DatabaseConfig
 from app.execution.config import RuntimeConfig
 from app.llm import factory
+from app.skills.config import SkillConfig
 
 
 class CheckpointModel(BaseChatModel):
@@ -83,6 +84,7 @@ def main():
             database=DatabaseConfig(url=URL.create("sqlite+pysqlite", database=str(args.db))),
             model_encryption_key_file=args.key,
             runner_lock_file=args.lock,
+            skills=SkillConfig(library_directory=args.db.parent / ".agents" / "skills"),
             runtime=RuntimeConfig(poll_interval=0.01, flush_interval=0.01, auth_interval=0.03),
         )
     )
