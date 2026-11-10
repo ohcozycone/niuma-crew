@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
 from app.auth.permissions import can_read_all_resources, require_permission
+from app.common.usage import TokenUsage
 from app.conversations.access import require_binding, require_conversation, require_response
 from app.conversations.models import Conversation, ConversationRun, Message, MessageFile
 from app.conversations.schemas import (
@@ -34,7 +35,6 @@ from app.execution.models import ACTIVE, Run, RunAction
 from app.files.models import StoredFile
 from app.files.service import file_ref
 from app.infrastructure.database.session import Database
-from app.llm.usage import TokenUsage
 from app.public_errors import public_error_message
 from app.schemas import Page
 

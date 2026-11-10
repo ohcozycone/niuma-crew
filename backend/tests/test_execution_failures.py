@@ -9,7 +9,6 @@ from test_run_task import queued_task
 
 from app.agent.errors import RuntimeFailure
 from app.api.errors import service_error_response
-from app.builtin_tools.contracts import ToolInvocation, ToolOutcome
 from app.errors import CodedFailure, FailureKind, InvalidInputError
 from app.execution.errors import (
     ExecutionFailure,
@@ -21,6 +20,7 @@ from app.execution.errors import (
 from app.execution.models import RunAction
 from app.llm.errors import classify_error
 from app.public_errors import public_error_message
+from app.runtime.contracts.tools import ToolInvocation, ToolOutcome
 
 
 def test_core_failures_have_types_and_no_public_message():
@@ -86,7 +86,7 @@ def test_public_copy_does_not_control_runner_status(api_client, monkeypatch):
 
 
 def test_persistence_failure_is_not_converted_to_a_business_rejection(api_client, monkeypatch):
-    from app.execution.contracts import Completion
+    from app.runtime.contracts.runs import Completion
 
     _, _, _, conversation = setup(api_client)
     accepted = submit(api_client, conversation).json()["response"]

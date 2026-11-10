@@ -195,10 +195,10 @@ def test_cancelled_output_collection_finishes_before_task_closes(api_client, mon
 
 @pytest.mark.parametrize("fails", [False, True], ids=["success", "failure"])
 def test_task_claims_runs_and_closes_resources_before_committing(api_client, monkeypatch, fails):
-    from app.agent.contracts import AgentOutput
     from app.execution.errors import ExecutionFailure
     from app.execution.models import Run
     from app.infrastructure.observability import run_id_context
+    from app.runtime.contracts.agent import AgentOutput
 
     work = queued_task(api_client)
     order = []

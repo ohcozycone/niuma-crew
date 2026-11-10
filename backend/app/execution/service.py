@@ -12,7 +12,6 @@ from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
-from app.builtin_tools.contracts import ModelExposure, ToolInvocation
 from app.errors import (
     CodedFailure,
     ConflictError,
@@ -23,7 +22,6 @@ from app.errors import (
 )
 from app.execution.authorization import authorize_run
 from app.execution.config import RuntimeConfig
-from app.execution.contracts import RUN_SNAPSHOT_VERSION, Completion, ExecutionStatus, run_thread_id
 from app.execution.errors import (
     PersistenceFailure,
     terminal_status,
@@ -33,6 +31,13 @@ from app.execution.store import RunStore, require_run
 from app.infrastructure.database.identifiers import allocate_id
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
+from app.runtime.contracts.runs import (
+    RUN_SNAPSHOT_VERSION,
+    Completion,
+    ExecutionStatus,
+    run_thread_id,
+)
+from app.runtime.contracts.tools import ModelExposure, ToolInvocation
 from app.values import utc_now
 
 if TYPE_CHECKING:

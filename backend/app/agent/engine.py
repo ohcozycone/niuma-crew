@@ -10,7 +10,6 @@ from langgraph.types import Overwrite, StateSnapshot
 from app.agent.checkpoints import (
     checkpoint_config,
 )
-from app.agent.contracts import AgentContext, AgentOutput, AgentRequest, AgentRuntimeContext
 from app.agent.errors import RuntimeFailure
 from app.agent.model_calls import (
     ModelExecutionMiddleware,
@@ -36,6 +35,7 @@ from app.builtin_tools.workspace import WorkspaceBackend, filesystem_middleware
 from app.infrastructure.concurrency import run_sync
 from app.llm.errors import classify_error
 from app.llm.factory import model_session
+from app.runtime.contracts.agent import AgentContext, AgentOutput, AgentRequest, AgentRuntimeContext
 
 
 async def execute_agent(input: AgentRequest, context: AgentContext, *, checkpoints) -> AgentOutput:

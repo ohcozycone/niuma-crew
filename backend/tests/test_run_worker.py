@@ -3,8 +3,8 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from app.execution.config import load_runtime_config
-from app.execution.contracts import Completion, ExecutionStatus
 from app.execution.scheduler import RunWorker
+from app.runtime.contracts.runs import Completion, ExecutionStatus
 
 
 def test_worker_starts_all_accepted_runs_and_stops_them_cleanly(tmp_path: Path) -> None:

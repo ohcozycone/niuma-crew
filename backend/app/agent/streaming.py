@@ -2,8 +2,9 @@ from contextlib import aclosing
 
 from langchain_core.messages import AIMessage, AIMessageChunk
 
-from app.agent.contracts import AgentContext, ContentUpdate
 from app.agent.errors import RuntimeFailure
+from app.runtime.contracts.agent import AgentContext
+from app.runtime.contracts.content import ContentUpdate
 
 
 def truncate(text: str, limit: int) -> str:

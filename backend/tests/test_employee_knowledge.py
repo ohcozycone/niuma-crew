@@ -10,7 +10,6 @@ from test_knowledge_vectors import upstream as upstream
 
 from app.auth.actor import Actor
 from app.auth.models import AuthSession, User
-from app.builtin_tools.contracts import ToolInvocation
 from app.employees.knowledge import capture_knowledge
 from app.errors import (
     ConflictError,
@@ -23,6 +22,7 @@ from app.execution.models import Run
 from app.infrastructure.database.identifiers import allocate_id
 from app.knowledge.models import LibraryChunk, RunKnowledgeEvidence
 from app.knowledge.schemas import LibraryCreate
+from app.runtime.contracts.tools import ToolInvocation
 from app.values import new_uuid, utc_now
 
 

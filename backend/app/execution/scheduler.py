@@ -11,12 +11,12 @@ from typing import IO, Any
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.execution.config import RuntimeConfig
-from app.execution.contracts import Completion, ExecutionStatus
 from app.execution.errors import ExecutionFailure, PersistenceFailure
 from app.execution.runner import RunTask
 from app.execution.service import RunService
 from app.execution.store import RunStore
 from app.infrastructure.concurrency import run_sync
+from app.runtime.contracts.runs import Completion, ExecutionStatus
 from app.values import utc_now
 
 logger = logging.getLogger(__name__)

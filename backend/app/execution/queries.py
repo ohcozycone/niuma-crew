@@ -6,10 +6,10 @@ from app.auth.permissions import permissions_for, require_permission
 from app.errors import InvalidInputError, NotFoundError
 from app.execution.errors import failure_kind
 from app.execution.evidence import redact
+from app.execution.metrics import diagnostic_metrics
 from app.execution.models import RunAction
 from app.execution.store import require_run
 from app.files.models import StoredFile
-from app.llm.usage import diagnostic_metrics
 
 PREVIEW_BYTES = 256 * 1024
 

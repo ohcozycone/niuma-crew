@@ -9,8 +9,8 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 from pydantic import Field, PrivateAttr
 from run_helpers import complete_run, empty_conversation, execute_run, read_reply, reply_path
 
-from app.execution.contracts import RUN_SNAPSHOT_VERSION
 from app.execution.models import Run
+from app.runtime.contracts.runs import RUN_SNAPSHOT_VERSION
 
 
 class ScriptedModel(BaseChatModel):

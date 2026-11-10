@@ -8,7 +8,6 @@ from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
 from runtime_helpers import MemoryContext, agent_runtime
 
-from app.agent.contracts import AgentRuntimeContext
 from app.agent.errors import RuntimeFailure
 from app.agent.skills import prepare_skills
 from app.agent.tool_calls import (
@@ -16,7 +15,8 @@ from app.agent.tool_calls import (
     _execute_tool,
     prepare_agent_tools,
 )
-from app.builtin_tools.contracts import ToolInvocation, ToolOutcome, ToolPermit
+from app.runtime.contracts.agent import AgentRuntimeContext
+from app.runtime.contracts.tools import ToolInvocation, ToolOutcome, ToolPermit
 
 
 def test_preparation_checks_external_and_middleware_names_without_registering_twice():

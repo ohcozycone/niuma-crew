@@ -4,11 +4,12 @@ from dataclasses import asdict
 
 from langchain_core.tools import StructuredTool
 
-from app.builtin_tools.contracts import ToolBinding, ToolOutcome
+from app.builtin_tools.bindings import ToolBinding
 from app.builtin_tools.results import normalize_builtin
 from app.infrastructure.concurrency import run_sync
 from app.knowledge.contracts import TOOL_BINDINGS
 from app.knowledge.schemas import KnowledgeReadInput, KnowledgeSearchInput
+from app.runtime.contracts.tools import ToolOutcome
 
 
 def tool_bindings() -> list[dict]:

@@ -1,10 +1,11 @@
 from langchain.agents.middleware import ToolCallRequest
 from langchain_core.tools import StructuredTool
 
-from app.agent.contracts import AgentContext
-from app.builtin_tools.contracts import ToolBinding, ToolInvocation, ToolOutcome, ToolResultHost
+from app.builtin_tools.bindings import ToolBinding
 from app.builtin_tools.result_files import result_scope
 from app.builtin_tools.results import feedback_outcome, tool_message
+from app.runtime.contracts.agent import AgentContext
+from app.runtime.contracts.tools import ToolInvocation, ToolOutcome, ToolResultHost
 
 
 def mcp_tool(binding: dict) -> ToolBinding:

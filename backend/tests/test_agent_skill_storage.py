@@ -8,8 +8,8 @@ from alembic.config import Config
 from sqlalchemy import URL, delete, select, text
 from sqlalchemy.exc import IntegrityError, StatementError
 
+from app.bootstrap.model_registry import Agent, AgentSkill, Skill
 from app.config import DatabaseConfig
-from app.infrastructure.database.models import Agent, AgentSkill, Skill
 from app.infrastructure.database.session import Database
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]

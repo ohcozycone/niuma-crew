@@ -13,10 +13,9 @@ from langchain.tools import ToolRuntime
 from langchain_core.messages import AIMessage
 from langchain_core.tools import BaseTool
 
-from app.agent.contracts import AgentContext
 from app.agent.errors import RuntimeFailure
 from app.agent.mcp_tools import bind_mcp_call, mcp_tool
-from app.builtin_tools.contracts import RESULT_READER, ToolBinding, ToolInvocation, ToolOutcome
+from app.builtin_tools.bindings import ToolBinding
 from app.builtin_tools.knowledge import knowledge_tool
 from app.builtin_tools.result_files import ResultScope, result_read_hint, result_scope
 from app.builtin_tools.results import (
@@ -30,6 +29,8 @@ from app.builtin_tools.workspace import normalize_workspace
 from app.environments.policy import under
 from app.errors import failure_code
 from app.infrastructure.concurrency import run_sync
+from app.runtime.contracts.agent import AgentContext
+from app.runtime.contracts.tools import RESULT_READER, ToolInvocation, ToolOutcome
 
 
 async def _execute_tool(

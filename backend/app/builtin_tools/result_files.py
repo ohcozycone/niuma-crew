@@ -8,11 +8,11 @@ from dataclasses import dataclass, field
 from deepagents.backends.protocol import BackendProtocol, FileDownloadResponse, WriteResult
 from deepagents.backends.utils import create_file_data
 
-from app.builtin_tools.contracts import RESULT_READER, ToolInvocation
 from app.builtin_tools.workspace import SnapshotBackend
 from app.environments.policy import checked_path
 from app.errors import PermissionDeniedError
 from app.infrastructure.concurrency import run_sync
+from app.runtime.contracts.tools import RESULT_READER, ToolInvocation
 from app.values import digest
 
 RESULT_FILES_ROOT = "/sources/large_tool_results"

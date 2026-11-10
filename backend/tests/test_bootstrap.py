@@ -175,7 +175,7 @@ def test_lifespan_releases_created_resources_despite_failures(app_config, monkey
         def broken_files(*args):
             raise RuntimeError("construction")
 
-        monkeypatch.setattr("app.bootstrap.FileService", broken_files)
+        monkeypatch.setattr("app.bootstrap.app.FileService", broken_files)
     else:
         for cls, name in (
             (RunWorker, "run_worker"),

@@ -15,7 +15,12 @@ from uuid import uuid4
 import benchmark_result_delivery as delivery
 from fastapi.testclient import TestClient
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, ToolMessage, messages_from_dict, messages_to_dict
+from langchain_core.messages import (
+    AIMessage,
+    ToolMessage,
+    messages_from_dict,
+    messages_to_dict,
+)
 from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from pydantic import Field, PrivateAttr

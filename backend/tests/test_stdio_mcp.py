@@ -7,16 +7,16 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.execution.contracts import RUN_SNAPSHOT_VERSION
 from app.mcp.adapters.stdio import StdioMCPClient
 from app.mcp.config import ToolConfig
+from app.runtime.contracts.runs import RUN_SNAPSHOT_VERSION
 from app.values import digest
 
 
 @pytest.mark.anyio
 async def test_sandbox_release_failure_still_closes_run_mcp_caller():
-    from app.agent.contracts import AgentOutput
     from app.execution.runner import RunTask
+    from app.runtime.contracts.agent import AgentOutput
 
     closed = []
 

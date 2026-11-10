@@ -11,7 +11,7 @@ from sqlalchemy import inspect, select
 from app.bootstrap import create_app
 from app.conversations import queries
 from app.conversations.models import ConversationRun, Message
-from app.execution.contracts import Completion
+from app.runtime.contracts.runs import Completion
 
 
 @pytest.fixture

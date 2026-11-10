@@ -9,12 +9,9 @@ from typing import TYPE_CHECKING, Any, cast
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.agent.contracts import AgentContext, AgentOutput, AgentRequest, AgentSnapshot
-from app.builtin_tools.contracts import SandboxAccess, ToolCaller
 from app.errors import CodedFailure
 from app.execution.config import RuntimeConfig
 from app.execution.context import RunContext
-from app.execution.contracts import SUPPORTED_SNAPSHOT_VERSIONS, Completion
 from app.execution.errors import (
     ExecutionFailure,
     PersistenceFailure,
@@ -24,6 +21,9 @@ from app.execution.errors import (
 from app.execution.snapshot import validate_snapshot
 from app.infrastructure.concurrency import run_sync, settle
 from app.infrastructure.observability import correlate_run, failure_frames
+from app.runtime.contracts.agent import AgentContext, AgentOutput, AgentRequest, AgentSnapshot
+from app.runtime.contracts.runs import SUPPORTED_SNAPSHOT_VERSIONS, Completion
+from app.runtime.contracts.tools import SandboxAccess, ToolCaller
 from app.values import utc_now
 
 if TYPE_CHECKING:

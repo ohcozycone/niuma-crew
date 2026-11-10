@@ -12,8 +12,8 @@ from app.agent.streaming import ContentUpdate
 from app.api.routes.conversations import events
 from app.api.streaming import subscribe
 from app.auth.permissions import ROLE_PERMISSIONS
-from app.execution.contracts import Completion
 from app.execution.models import RunAction
+from app.runtime.contracts.runs import Completion
 from app.values import utc_now
 
 

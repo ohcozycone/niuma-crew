@@ -12,11 +12,11 @@ from app.conversations.writes import bind_run, create_conversation, prepare_inpu
 from app.employees.access import configured_agent
 from app.errors import ConflictError, InvalidInputError
 from app.execution.config import RuntimeConfig
-from app.execution.contracts import run_thread_id
 from app.execution.service import RunService, find_request, request_digest
 from app.execution.store import require_run
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
+from app.runtime.contracts.runs import run_thread_id
 
 
 class ConversationService:

@@ -15,8 +15,8 @@ from app.conversations.models import Conversation, Message
 from app.evaluations.benchmark import DATA, SUITE_ID, grade, load_suite
 from app.evaluations.models import EvaluationBatch, EvaluationCase
 from app.evaluations.service import EvaluationService
-from app.execution.contracts import Completion
 from app.execution.models import Run
+from app.runtime.contracts.runs import Completion
 
 
 def create(client, agent, count=1, key=None):

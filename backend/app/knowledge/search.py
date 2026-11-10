@@ -8,7 +8,6 @@ from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
-from app.builtin_tools.contracts import ToolOutcome
 from app.errors import ConflictError, InvalidInputError, ServiceError
 from app.infrastructure.database.transactions import reserve_writer
 from app.knowledge.contracts import Chunk
@@ -26,6 +25,7 @@ from app.knowledge.schemas import (
     SearchRequest,
     SearchResult,
 )
+from app.runtime.contracts.tools import ToolOutcome
 from app.values import digest
 
 if TYPE_CHECKING:

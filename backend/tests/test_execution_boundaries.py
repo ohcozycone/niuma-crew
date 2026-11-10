@@ -14,8 +14,8 @@ from test_conversations import send
 
 from app.agent.checkpoints import CheckpointStore, checkpoint_config
 from app.conversations.models import ConversationRun, Message
-from app.execution.contracts import Completion
 from app.execution.models import Run
+from app.runtime.contracts.runs import Completion
 
 
 def test_product_history_and_next_context_do_not_read_sdk_state(api_client, monkeypatch):

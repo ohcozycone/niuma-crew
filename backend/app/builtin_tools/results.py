@@ -6,8 +6,9 @@ from langchain_core.tools import StructuredTool
 from langgraph.types import Command
 from pydantic import Field
 
-from app.builtin_tools.contracts import RESULT_READER, ToolBinding, ToolInvocation, ToolOutcome
+from app.builtin_tools.bindings import ToolBinding
 from app.errors import CodedFailure, FailureKind
+from app.runtime.contracts.tools import RESULT_READER, ToolInvocation, ToolOutcome
 
 
 def result_reader_tool(read: Callable[[str, int, int], str]) -> ToolBinding:

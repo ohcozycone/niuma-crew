@@ -19,8 +19,8 @@ from test_knowledge_library import create, process, upload
 from app.agent.tool_calls import presearch
 from app.auth.models import User
 from app.conversations.models import Conversation, Message
-from app.execution.contracts import Completion
 from app.execution.models import Run, RunAction
+from app.runtime.contracts.runs import Completion
 
 MARKER = "合成验证：住宿每晚最高400元，发票和审批记录齐全后提交。"
 

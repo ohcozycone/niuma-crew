@@ -11,7 +11,7 @@ from app.auth.permissions import ROLE_PERMISSIONS
 from app.bootstrap import create_app
 from app.conversations.queries import ConversationQueries
 from app.errors import PermissionDeniedError
-from app.execution.contracts import Completion
+from app.runtime.contracts.runs import Completion
 
 
 def stats(client, agent_id):

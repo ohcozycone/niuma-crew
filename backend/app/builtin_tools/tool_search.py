@@ -5,8 +5,9 @@ from langchain_core.messages import ToolMessage
 from langchain_core.tools import StructuredTool
 from langgraph.types import Command
 
-from app.builtin_tools.contracts import ToolBinding, ToolOutcome
+from app.builtin_tools.bindings import ToolBinding
 from app.builtin_tools.results import normalize_builtin
+from app.runtime.contracts.tools import ToolOutcome
 
 SEARCH_TOOLS = "search_tools"
 SEARCH_BINDING_ID = "builtin:search_tools"
