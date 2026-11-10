@@ -1,18 +1,10 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
-from sqlalchemy import func, select
 
 from app.api.dependencies import DatabaseDependency, require_capability
-from app.employees.models import Agent
-from app.skills.models import Skill
+from app.applications.configuration_summary import ConfigurationSummary
+from app.applications.configuration_summary import summary as configuration_summary
 
 router = APIRouter(tags=["configuration"])
-
-
-class ConfigurationSummary(BaseModel):
-    agents: int
-    skills: int
-    favorites: int
 
 
 @router.get(
@@ -32,15 +24,4 @@ class ConfigurationSummary(BaseModel):
     ],
 )
 def summary(database: DatabaseDependency) -> ConfigurationSummary:
-    with database.transaction() as db:
-        values = db.execute(
-            select(
-                select(func.count()).select_from(Agent).scalar_subquery(),
-                select(func.count()).select_from(Skill).scalar_subquery(),
-                select(func.count())
-                .select_from(Agent)
-                .where(Agent.is_favorite.is_(True))
-                .scalar_subquery(),
-            )
-        ).one()
-        return ConfigurationSummary(agents=values[0], skills=values[1], favorites=values[2])
+    return configuration_summary(database)
