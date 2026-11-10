@@ -1,0 +1,78 @@
+# 云帆协作平台高级功能与管理 FAQ
+
+## 版本与商业化
+
+**Q1：平台有哪些版本和价格？**
+A：共四个版本：免费版（≤30 人，基础功能）；标准版 25 元/人/月（含 100 人会议、审批流）；
+专业版 45 元/人/月（含 300 人会议、OKR、数据看板、API）；旗舰版按需报价（500 人会议、
+私有化部署、专属客户成功经理）。年付享 85 折。
+
+**Q2：如何升级或扩容？**
+A：管理后台 → "订阅管理"自助升级，当日生效；也可联系客户成功经理，大客户可申请
+30 天免费试用高级版本。
+
+**Q3：数据存储在哪里，是否安全？**
+A：数据存储于上海、北京双活数据中心，传输 TLS 1.3 加密，静态数据 AES-256 加密，
+每日增量备份、每周全量备份，已通过 ISO 27001 与等保三级认证。
+
+## 管理后台
+
+**Q4：管理员如何批量导入成员？**
+A：管理后台 → 成员管理 → "批量导入"，下载模板填写姓名、邮箱、部门后上传，
+单次最多 5,000 人；支持与企业微信、钉钉、飞书通讯录一键同步。
+
+**Q5：如何设置审批流？**
+A："审批中心 → 审批设计器"拖拽配置，支持条件分支（按金额、部门、职级）、
+会签/或签、自动抄送；平台内置请假、报销、出差、用印、采购 5 套模板可直接启用。
+
+**Q6：可以对接我们自己的系统吗？**
+A：专业版以上提供开放 API 与 Webhook，支持单点登录（SSO，兼容 SAML 2.0 与 OIDC）、
+消息推送、组织架构同步；API 调用限额：专业版 10 万次/日，旗舰版不限。
+
+## 高级能力
+
+**Q7：扬帆 AI 能做什么？**
+A：2024 年 5 月发布的智能助手，能力包括：会议纪要自动生成、长文档摘要与问答、
+智能日报周报、会议纪要待办提取。管理员可在后台按部门开启，AI 不会使用客户数据训练模型。
+
+**Q8：OKR 模块怎么用？**
+A：每季度初由管理员发起 OKR 周期，员工在"目标"模块填写 O 与 KR 并关联上级目标，
+支持进度更新、周度 check-in 与期末评分（0-1 分制）。
+
+**Q9：如何进行数据合规审计？**
+A：旗舰版提供审计日志：登录、下载、分享、导出等行为全量留痕，保留 3 年；
+支持按时间、人员、操作类型导出报表。
+
+**Q10：支持私有化部署吗？**
+A：旗舰版支持全私有化（客户机房/专有云）与混合云部署，最低 500 账号起售，
+实施周期约 4-6 周，详情联系大客户销售团队（sales@yunfantech.com）。
+
+> 本 FAQ 由产品部与客户成功部维护，版本 V2.2，最近更新：2026 年 7 月。
+
+## 资料来源与许可
+
+本文为源项目提供的虚构企业中文演示资料，不代表真实公司制度。本次保留原始业务正文，仅转换为 UTF-8 TXT 并添加本节。
+原文来源：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/product-faq-advanced.md
+许可：MIT；完整许可及版权声明：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/LICENSE
+
+MIT License
+
+Copyright (c) 2026 zhenyong97
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

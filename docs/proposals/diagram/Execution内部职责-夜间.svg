@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1040" role="img" aria-labelledby="title desc">
+<title id="title">Execution 与 Agent · 内部职责</title><desc id="desc">局部图 · 执行侧运行协作 · Run 是持久记录，执行由 Worker / Task 推进。沿用平台主题令牌，所有关系均采用三次贝塞尔曲线。2026-11-08。</desc>
+<metadata>样式来源：frontend/src/design-system/theme.css。主图为目标组件架构，局部图分别表达执行内部协作与对话结果接纳。</metadata>
+<defs>
+<marker id="call" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0 0L8 3.5L0 7Z" fill="#eea379"/></marker>
+<marker id="data" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0 0L8 3.5L0 7" fill="none" stroke="#b9b4a8" stroke-width="1.4"/></marker>
+<style>
+text{font-family:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;fill:#f2eee5}
+.title{font-size:34px;font-weight:600}.section{font-size:23px;font-weight:600}.name{font-size:21px;font-weight:600}.body{font-size:18px;fill:#b9b4a8}.note{font-size:16px;fill:#b9b4a8}.tiny{font-size:14px;fill:#b9b4a8}.brand{fill:#eea379}.warn{fill:#d9bc7f}
+.host{fill:#242321;stroke:#464239;stroke-width:1.2}.region{fill:#302d28;stroke:none}.card{fill:#2a2824;stroke:#464239;stroke-width:1.3}.planned{fill:#2a2824;stroke:#d9bc7f;stroke-width:1.4;stroke-dasharray:6 5}
+.edge{fill:none;stroke:#eea379;stroke-width:2;stroke-linecap:round;marker-end:url(#call)}.edge.data{stroke:#b9b4a8;stroke-dasharray:6 5;marker-end:url(#data)}
+</style></defs><rect width="1440" height="1040" fill="#1b1a18"/>
+<text class="title" x="48" y="61">Execution 与 Agent · 内部职责</text>
+<text class="note" x="48" y="100">局部图 · 执行侧运行协作 · Run 是持久记录，执行由 Worker / Task 推进</text>
+<rect class="host" x="40" y="300" width="1360" height="580" rx="24"/>
+<path id="public-command" class="edge" d="M300 230C300 276 270 310 270 380"/>
+<path id="drive-agent" class="edge" d="M910 450C936 426 954 474 980 450"/>
+<path id="service-records" class="edge data" d="M270 530C270 586 310 620 310 690"/>
+<path id="worker-records" class="edge data" d="M700 530C700 598 740 620 740 690"/>
+<path id="agent-action" class="edge" d="M1170 530C1170 600 1210 620 1210 690"/>
+<path id="action-ledger" class="edge data" d="M980 760C950 738 930 782 900 760"/>
+<rect class="card" x="80" y="154" width="1280" height="76" rx="16"/>
+<text class="name" x="102" y="187">业务应用</text>
+<text class="note" x="102" y="219">通过执行契约提交、取消及查询 Run；接纳结果另见流程图</text>
+<circle cx="1338" cy="181" r="3.5" fill="#a2c3a7"/>
+<rect class="card" x="80" y="380" width="380" height="150" rx="16"/>
+<text class="name" x="102" y="413">执行生命周期控制</text>
+<text class="body" x="102" y="445">RunService</text>
+<text class="note" x="102" y="472">受理、授权复核与取消</text>
+<text class="note" x="102" y="499">核验完整成果并提交终态</text>
+<circle cx="438" cy="407" r="3.5" fill="#a2c3a7"/>
+<rect class="card" x="530" y="380" width="380" height="150" rx="16"/>
+<text class="name" x="552" y="413">执行协调</text>
+<text class="body" x="552" y="445">RunWorker / RunTask</text>
+<text class="note" x="552" y="472">扫描、领取、准备、看护与释放</text>
+<text class="note" x="552" y="499">驱动 Agent，协调成果提交重试</text>
+<circle cx="888" cy="407" r="3.5" fill="#a2c3a7"/>
+<rect class="card" x="980" y="380" width="380" height="150" rx="16"/>
+<text class="name" x="1002" y="413">Agent 运行时</text>
+<text class="body" x="1002" y="445">模型与工具循环</text>
+<text class="note" x="1002" y="472">框架消息、摘要与 checkpoint</text>
+<text class="note" x="1002" y="499">返回候选正文及成果文件引用</text>
+<circle cx="1338" cy="407" r="3.5" fill="#a2c3a7"/>
+<rect class="card" x="80" y="690" width="820" height="136" rx="16"/>
+<text class="name" x="102" y="723">执行状态与动作账本 · Run / RunAction</text>
+<text class="body" x="102" y="755">保存输入依据、预算、进度、动作及执行成果</text>
+<text class="note" x="102" y="782">关键状态与预算通过短事务提交；记录本身不驱动执行</text>
+<circle cx="878" cy="717" r="3.5" fill="#a2c3a7"/>
+<rect class="card" x="980" y="690" width="380" height="136" rx="16"/>
+<text class="name" x="1002" y="723">逐动作控制 · RunContext</text>
+<text class="body" x="1002" y="755">复核许可，预占预算并登记动作</text>
+<text class="note" x="1002" y="782">反馈可靠保存后再交回 Agent</text>
+<circle cx="1338" cy="717" r="3.5" fill="#a2c3a7"/>
+<text class="note" x="980" y="337">执行子系统 · execution + agent</text>
+<text class="tiny brand" x="924" y="405">驱动</text>
+<text class="note" x="106" y="605">受理 / 取消 / 完成提交</text>
+<text class="note" x="751" y="605">领取 / 状态更新</text>
+<text class="note brand" x="1228" y="601">申请动作</text>
+<text class="tiny" x="917" y="711">记账</text>
+<text class="tiny" x="80" y="858">RunTask 得到候选成果后，经完成回调调用 RunService.complete；可靠保存后才交由应用接纳。</text>
+<text class="note" x="48" y="927">实线：执行驱动或动作申请。虚线：持久状态与动作记账。省略普通返回值和具体资源适配。</text>
+<text class="note" x="48" y="965">业务库保存 Run 与动作事实；SDK checkpoint 保存框架恢复状态，两者职责不同。</text>
+<text class="note" x="48" y="1003">此图为运行协作，不表示源码导入关系；执行子系统不直接推进对话、考核或任务的业务状态。</text>
+</svg>

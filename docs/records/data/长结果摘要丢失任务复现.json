@@ -1,0 +1,97 @@
+{
+  "date": "2026-11-10",
+  "source": "read-only local Run/action/evidence inspection",
+  "run_id": "100000000170",
+  "model_calls": 6,
+  "tool_calls": 5,
+  "tokens": {
+    "input_tokens": 80281,
+    "output_tokens": 1515,
+    "total_tokens": 81796,
+    "cached_input_tokens": null,
+    "reasoning_tokens": 791
+  },
+  "started_at": "2026-11-10T13:18:16.933535Z",
+  "finished_at": "2026-11-10T13:19:19.534010Z",
+  "models": [
+    {
+      "action": "model:1",
+      "message_count": 2,
+      "original_question_present": true,
+      "purpose": "answer",
+      "tokens": 5295
+    },
+    {
+      "action": "model:2",
+      "message_count": 4,
+      "original_question_present": true,
+      "purpose": "answer",
+      "tokens": 11803
+    },
+    {
+      "action": "model:3",
+      "message_count": 6,
+      "original_question_present": true,
+      "purpose": "answer",
+      "tokens": 12624
+    },
+    {
+      "action": "model:4",
+      "message_count": 8,
+      "original_question_present": true,
+      "purpose": "answer",
+      "tokens": 12911
+    },
+    {
+      "action": "model:5",
+      "message_count": 10,
+      "original_question_present": true,
+      "purpose": "answer",
+      "tokens": 20472
+    },
+    {
+      "action": "model:6",
+      "message_count": 4,
+      "original_question_present": false,
+      "purpose": "answer",
+      "tokens": 18691
+    }
+  ],
+  "last_request": {
+    "evidence_file_id": "4eb7983b-f929-4d70-8ba4-e2964781ab4b",
+    "sha256": "61f5e2be4fc0519170bcbcd09fb938e545ba2fbe05449736cbde6d7250f9335a",
+    "roles": [
+      "system",
+      "user",
+      "assistant",
+      "tool"
+    ],
+    "replacement": "Here is a summary of the conversation to date:\n\nPrevious conversation was too long to summarize."
+  },
+  "repeated_read": {
+    "same_feedback": true,
+    "characters_each": [
+      16384,
+      16384
+    ],
+    "header": "@@ lines 1-1 of 1 | truncated mid-line | 15948 of 22884 chars @@"
+  },
+  "regression_tests": [
+    "test_summary_after_repeated_long_line_reads_keeps_current_task",
+    "test_long_single_line_feedback_exposes_working_character_reader",
+    "test_oversized_summary_stops_before_request_without_replacing_task"
+  ],
+  "limitations": [
+    "No original Notion result content copied into this record",
+    "No real model or remote MCP replay",
+    "Boundary replay uses synthetic data and an 8000-token trigger to exercise the same trimming path; not a claim to reproduce the production trigger estimate exactly"
+  ],
+  "offline_summary_replay_after_fix": {
+    "source_checkpoint_id": "1f1dd095-0061-68ee-800f-566810207d94",
+    "selected_messages": 9,
+    "original_question_received": true,
+    "summary_calls": 1,
+    "summary_returned": "任务：统计 Notion 文章数量，不能把关键词匹配数当作总量。",
+    "method": "Replay exact selected history into a local fake summary model; does not reproduce production trigger estimate or real model quality"
+  }
+}

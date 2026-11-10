@@ -1,0 +1,42 @@
+{
+  "dataset": "travel-expense-review-v1",
+  "synthetic": true,
+  "review_status": "pending_user_review",
+  "documents": [
+    {
+      "doc_id": "KB-101",
+      "path": "documents/01-scope-and-transport.md",
+      "title": "差旅适用范围与交通规则",
+      "synthetic": true,
+      "sha256": "91a6dfde81828717a8c83545471a2188e5ebc67adf7cec270ca31a4e3c9b97b1"
+    },
+    {
+      "doc_id": "KB-102",
+      "path": "documents/02-accommodation-policy.md",
+      "title": "住宿报销制度与调整前标准",
+      "synthetic": true,
+      "sha256": "fb6a4cf152faa48e2f2130928e5d729bf1f75241623c0bc3701cf0d578773a9e"
+    },
+    {
+      "doc_id": "KB-103",
+      "path": "documents/03-accommodation-update.md",
+      "title": "住宿标准调整通知",
+      "synthetic": true,
+      "sha256": "f2809dc2142e96100803f2748050c944c0945ac2c1ddac46034bc9d5ab1c1305"
+    },
+    {
+      "doc_id": "KB-104",
+      "path": "documents/04-expense-process.md",
+      "title": "报销材料与提交流程",
+      "synthetic": true,
+      "sha256": "962c7d1125831ca04a452a02e4abcb5cf1bc54da8378db1c7f31fa4cdabdfc23"
+    },
+    {
+      "doc_id": "KB-105",
+      "path": "documents/05-knowledge-boundaries.md",
+      "title": "制度咨询范围与信息边界",
+      "synthetic": true,
+      "sha256": "6ab6c3d1b113109646ee7a392045bf803dfe29d303a3b33ff91acd1b63f5ea74"
+    }
+  ]
+}

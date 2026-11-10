@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1828" role="img" aria-labelledby="title desc">
+<title id="title">对话处理流程</title>
+<desc id="desc">当前实现的一次新对话完整主线。六条泳道表示客户端、对话服务、业务数据库、受控执行、Agent运行时、模型与工具。HTTP与SSE适配折叠到请求线上。受理事务仅共同提交消息、Run、文件关联与业务关联，文件字节独立保存。执行侧在动作短事务内复核授权，预占预算并记录动作，成功后向Agent返回许可，再调用模型或工具。并行框完整包含后台执行及业务接纳，与持续至Run终态且接纳不再等待的SSE观察循环。成果与终态先落库，完成提示仅唤醒扫描，对话服务另行读取成果、复核接纳资格并保存正式回复。检查点独立持久化，底部说明关键分支。</desc>
+<metadata>配色来源：frontend/src/design-system/theme.css。泳道按职责合并，不表示独立进程。</metadata>
+<defs>
+<marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" class="arrow"/></marker>
+<marker id="key-arrow" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" class="key-arrow"/></marker>
+<style>
+text{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif}
+.title{font-size:30px;font-weight:600;letter-spacing:-.4px}
+.name{font-size:22px;font-weight:600}
+.section{font-size:20px;font-weight:600}
+.label{font-size:20px}
+.caption{font-size:18px}
+.english{font-size:16px}
+.branch{font-size:17px}
+.card,.note,.phase,.frame,.activation{stroke-width:1.2}
+.frame{fill:none}
+.lifeline{stroke-width:1.2;stroke-dasharray:4 7}
+.call,.return{fill:none;stroke-width:1.5;stroke-linecap:butt;marker-end:url(#arrow)}
+.return{stroke-dasharray:6 4}
+.key{marker-end:url(#key-arrow)}
+.divider{stroke-width:1.2;stroke-dasharray:5 5}
+
+.canvas{fill:#1b1a18}
+text{fill:#f2eee5}
+.caption,.english{fill:#b9b4a8}
+.brand{fill:#eea379}
+.card{fill:#2a2824;stroke:#464239}
+.phase,.note{fill:#242321;stroke:#464239}
+.frame{stroke:#b9b4a8;stroke-opacity:.4}
+.lifeline,.divider{stroke:#b9b4a8;stroke-opacity:.35}
+.activation{fill:#302d28;stroke:#464239}
+.call,.return{stroke:#b9b4a8}
+.arrow{fill:#b9b4a8}
+.key{stroke:#eea379}
+.key-arrow{fill:#eea379}
+
+</style></defs>
+<rect class="canvas" width="1440" height="1828"/>
+<text class="title" x="36" y="47">对话处理 · 从输入到正式回复</text>
+<text class="caption" x="36" y="77">当前实现 · 时间自上而下</text>
+<line class="call" x1="1020" y1="72" x2="1060" y2="72"/>
+<text class="english" x="1070" y="78">调用</text>
+<line class="return" x1="1170" y1="72" x2="1210" y2="72"/>
+<text class="english" x="1220" y="78">返回 / 快照</text>
+<line class="lifeline" x1="120" y1="164" x2="120" y2="1624"/>
+<line class="lifeline" x1="360" y1="164" x2="360" y2="1624"/>
+<line class="lifeline" x1="600" y1="164" x2="600" y2="1624"/>
+<line class="lifeline" x1="840" y1="164" x2="840" y2="1624"/>
+<line class="lifeline" x1="1080" y1="164" x2="1080" y2="1624"/>
+<line class="lifeline" x1="1320" y1="164" x2="1320" y2="1624"/>
+<rect class="activation" x="356" y="244" width="8" height="230" rx="2"/>
+<rect class="activation" x="836" y="320" width="8" height="76" rx="2"/>
+<rect class="activation" x="836" y="650" width="8" height="610" rx="2"/>
+<rect class="activation" x="1076" y="688" width="8" height="490" rx="2"/>
+<rect class="activation" x="356" y="1250" width="8" height="10" rx="2"/>
+<rect class="activation" x="356" y="1286" width="8" height="120" rx="2"/>
+<rect class="card" x="16" y="100" width="208" height="64" rx="10"/>
+<text class="name" x="120" y="126" text-anchor="middle">对话客户端</text>
+<text class="english" x="120" y="151" text-anchor="middle">Web · HTTP / SSE</text>
+<rect class="card" x="256" y="100" width="208" height="64" rx="10"/>
+<text class="name" x="360" y="126" text-anchor="middle">对话服务</text>
+<text class="english" x="360" y="151" text-anchor="middle">Conversation</text>
+<rect class="card" x="496" y="100" width="208" height="64" rx="10"/>
+<text class="name" x="600" y="126" text-anchor="middle">业务数据库</text>
+<text class="english" x="600" y="151" text-anchor="middle">消息 · Run · 动作</text>
+<rect class="card" x="736" y="100" width="208" height="64" rx="10"/>
+<text class="name" x="840" y="126" text-anchor="middle">受控执行</text>
+<text class="english" x="840" y="151" text-anchor="middle">Execution</text>
+<rect class="card" x="976" y="100" width="208" height="64" rx="10"/>
+<text class="name" x="1080" y="126" text-anchor="middle">Agent 运行时</text>
+<text class="english" x="1080" y="151" text-anchor="middle">Agent Runtime</text>
+<rect class="card" x="1216" y="100" width="208" height="64" rx="10"/>
+<text class="name" x="1320" y="126" text-anchor="middle">模型与工具</text>
+<text class="english" x="1320" y="151" text-anchor="middle">模型 API · 获准工具</text>
+<rect class="phase" x="28" y="180" width="1384" height="34" rx="7"/>
+<text class="section brand" x="44" y="204">01 受理并保存</text>
+<text class="caption" x="1396" y="204" text-anchor="end">权限与幂等检查；同一事务提交</text>
+<path class="call key" d="M120 244H360"/>
+<text class="label brand" x="240.0" y="233" text-anchor="middle">提交输入与幂等键</text>
+<path class="call" d="M360 282H600"/>
+<text class="label" x="480.0" y="271" text-anchor="middle">创建会话与输入</text>
+<path class="call key" d="M360 320H840"/>
+<text class="label brand" x="600.0" y="309" text-anchor="middle">提交 Run，共用受理事务</text>
+<rect class="note" x="944" y="322" width="440" height="28" rx="6"/>
+<text class="caption" x="1164.0" y="342" text-anchor="middle">执行侧冻结输入与配置</text>
+<path class="call" d="M840 358H600"/>
+<text class="label" x="720.0" y="347" text-anchor="middle">保存 Run 与输入快照</text>
+<path class="call" d="M360 396H600"/>
+<text class="label" x="480.0" y="385" text-anchor="middle">关联空回复与 Run</text>
+<rect class="note" x="282" y="416" width="660" height="28" rx="6"/>
+<text class="caption" x="612.0" y="436" text-anchor="middle">消息、Run、文件关联与业务关联同事务提交</text>
+<path class="return" d="M360 474H120"/>
+<text class="label" x="240.0" y="463" text-anchor="middle">202 · 已受理</text>
+<rect class="phase" x="28" y="506" width="1384" height="34" rx="7"/>
+<text class="section brand" x="44" y="530">02 观察与后台启动</text>
+<text class="caption" x="1396" y="530" text-anchor="end">启动前复核授权；执行不等待页面订阅</text>
+<path class="call" d="M120 568H360"/>
+<text class="label" x="240.0" y="557" text-anchor="middle">SSE 订阅当前快照</text>
+<rect class="frame" x="40" y="592" width="1360" height="972" rx="8"/>
+<rect class="phase" x="40" y="592" width="66" height="30" rx="5"/>
+<text class="english" x="73" y="614" text-anchor="middle">par</text>
+<text class="caption" x="120" y="614">执行与接纳、SSE 观察并行；上下分支不表示先后</text>
+<path class="call" d="M840 650H600"/>
+<text class="label" x="720.0" y="639" text-anchor="middle">领取 Run → running</text>
+<path class="call key" d="M840 688H1080"/>
+<text class="label brand" x="960.0" y="677" text-anchor="middle">准备资源，启动 Agent</text>
+<rect class="phase" x="56" y="714" width="1328" height="34" rx="7"/>
+<text class="section brand" x="72" y="738">03 受控动作循环</text>
+<text class="caption" x="1368" y="738" text-anchor="end">授权由执行侧判断，数据库保存动作事实</text>
+<rect class="frame" x="522" y="762" width="854" height="330" rx="7"/>
+<rect class="phase" x="522" y="762" width="66" height="28" rx="5"/>
+<text class="english" x="555" y="783" text-anchor="middle">loop</text>
+<text class="caption" x="602" y="783">模型 / 工具按需调用</text>
+<text class="caption" x="1360" y="783" text-anchor="end">执行侧：事务内复核授权</text>
+<path class="call" d="M1080 814H840"/>
+<text class="label" x="960.0" y="803" text-anchor="middle">申请本次动作</text>
+<path class="call" d="M840 850H600"/>
+<text class="label" x="720.0" y="839" text-anchor="middle">预占预算并登记动作</text>
+<path class="return key" d="M840 886H1080"/>
+<text class="label brand" x="960.0" y="875" text-anchor="middle">允许执行</text>
+<path class="call" d="M1080 922H1320"/>
+<text class="label" x="1200.0" y="911" text-anchor="middle">调用模型或获准工具</text>
+<path class="return" d="M1320 958H1080"/>
+<text class="label" x="1200.0" y="947" text-anchor="middle">片段 / 工具结果</text>
+<path class="call" d="M1080 994H840"/>
+<text class="label" x="960.0" y="983" text-anchor="middle">报告内容与动作结果</text>
+<path class="call" d="M840 1030H600"/>
+<text class="label" x="720.0" y="1019" text-anchor="middle">保存动作、用量与进度</text>
+<rect class="note" x="770" y="1048" width="600" height="28" rx="6"/>
+<text class="caption" x="1070.0" y="1068" text-anchor="middle">SDK 检查点独立持久化，不代替业务历史</text>
+<rect class="phase" x="56" y="1110" width="1328" height="34" rx="7"/>
+<text class="section brand" x="72" y="1134">04 保存成果与业务接纳</text>
+<text class="caption" x="1368" y="1134" text-anchor="end">执行侧收尾与核验；成果和终态同事务保存</text>
+<path class="return" d="M1080 1178H840"/>
+<text class="label" x="960.0" y="1167" text-anchor="middle">完整正文与文件引用</text>
+<path class="call key" d="M840 1214H600"/>
+<text class="label brand" x="720.0" y="1203" text-anchor="middle">保存成果与 Run 终态</text>
+<path class="call" d="M840 1250H360"/>
+<text class="label" x="600.0" y="1239" text-anchor="middle">唤醒扫描（仅提示）</text>
+<path class="call" d="M360 1286H600"/>
+<text class="label" x="480.0" y="1275" text-anchor="middle">读取待接纳成果</text>
+<path class="call" d="M360 1304C398 1304 398 1328 360 1328"/>
+<text class="label" x="410" y="1322">复核接纳资格</text>
+<path class="call key" d="M360 1360H600"/>
+<text class="label brand" x="480.0" y="1349" text-anchor="middle">保存正文与文件关联</text>
+<rect class="note" x="282" y="1378" width="660" height="28" rx="6"/>
+<text class="caption" x="612.0" y="1398" text-anchor="middle">独立接纳事务：读取成果、复核资格、发布并释放占用</text>
+<line class="divider" x1="40" y1="1418" x2="1400" y2="1418"/>
+<rect class="frame" x="56" y="1440" width="1328" height="108" rx="7"/>
+<rect class="phase" x="56" y="1440" width="66" height="28" rx="5"/>
+<text class="english" x="89" y="1461" text-anchor="middle">loop</text>
+<text class="caption" x="136" y="1461">持续至 Run 终态且接纳不再等待</text>
+<path class="call" d="M360 1494H600"/>
+<text class="label" x="480.0" y="1483" text-anchor="middle">读取已提交快照</text>
+<path class="return" d="M360 1528H120"/>
+<text class="label" x="240.0" y="1517" text-anchor="middle">新版本快照（SSE）</text>
+<path class="return" d="M360 1586H120"/>
+<text class="label" x="240.0" y="1575" text-anchor="middle">正式回复（SSE）</text>
+<rect class="note" x="28" y="1602" width="280" height="28" rx="6"/>
+<text class="caption" x="168.0" y="1622" text-anchor="middle">正式回复与成果可见</text>
+<rect class="note" x="754" y="1602" width="622" height="28" rx="6"/>
+<text class="caption" x="1065.0" y="1622" text-anchor="middle">本轮资源先收尾再提交终态；接纳以持久记录为准</text>
+<rect class="note" x="40" y="1648" width="328" height="156" rx="10"/>
+<text class="section" x="56" y="1677">提交与重放</text>
+<text class="branch" x="56" y="1704">回执未知：原键核对或重发</text>
+<text class="branch" x="56" y="1728">同键重放返回原记录（200）</text>
+<text class="branch" x="56" y="1752">准入拒绝不创建新 Run</text>
+<text class="branch" x="56" y="1776">续聊保留会话，每轮新 Run</text>
+<rect class="note" x="384" y="1648" width="328" height="156" rx="10"/>
+<text class="section" x="400" y="1677">断线与停止</text>
+<text class="branch" x="400" y="1704">断线只停观察，执行继续</text>
+<text class="branch" x="400" y="1728">重连只读当前快照</text>
+<text class="branch" x="400" y="1752">显式停止才登记取消</text>
+<text class="branch" x="400" y="1776">排队取消可直接结束</text>
+<rect class="note" x="728" y="1648" width="328" height="156" rx="10"/>
+<text class="section" x="744" y="1677">失败与恢复</text>
+<text class="branch" x="744" y="1704">失败、超时、撤权保留终态</text>
+<text class="branch" x="744" y="1728">可信检查点按恢复资格续跑</text>
+<text class="branch" x="744" y="1752">副作用与未知结果不重放</text>
+<text class="branch" x="744" y="1776">失败回复的明确重试建新 Run</text>
+<rect class="note" x="1072" y="1648" width="328" height="156" rx="10"/>
+<text class="section" x="1088" y="1677">接纳与续聊</text>
+<text class="branch" x="1088" y="1704">临时失败只重试接纳</text>
+<text class="branch" x="1088" y="1728">明确拒绝记录业务失败</text>
+<text class="branch" x="1088" y="1752">不改写已成功 Run</text>
+<text class="branch" x="1088" y="1776">续聊使用最近已接纳基点</text>
+</svg>

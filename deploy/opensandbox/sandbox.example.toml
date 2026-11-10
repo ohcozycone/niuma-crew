@@ -1,0 +1,32 @@
+# Copy into a private file and replace API key and release-matched image digests.
+[server]
+host = "127.0.0.1"
+port = 8080
+api_key = "REPLACE_WITH_PRIVATE_RANDOM_KEY"
+max_sandbox_timeout_seconds = 240
+
+[runtime]
+type = "docker"
+execd_image = "opensandbox/execd:release-1.1.1"
+
+[docker]
+network_mode = "bridge"
+publish_host = "127.0.0.1"
+pids_limit = 128
+no_new_privileges = true
+sandbox_binds = []
+
+[egress]
+image = "opensandbox/egress:release-1.1.1"
+mode = "dns+nft"
+disable_ipv6 = true
+
+[secure_runtime]
+type = "gvisor"
+docker_runtime = "runsc"
+
+[storage]
+allowed_host_paths = []
+
+[renew_intent]
+enabled = false

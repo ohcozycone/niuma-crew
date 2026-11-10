@@ -1,0 +1,116 @@
+{
+  "retrieved_at": "2026-11-05",
+  "libraries": [
+    {
+      "id": "fastapi",
+      "name": "FastAPI 中文开发指南",
+      "repository": "fastapi/fastapi",
+      "revision": "69c67a1672eb7f8e5b3f9019a096f4993338c689",
+      "license": "MIT",
+      "license_url": "https://github.com/fastapi/fastapi/blob/69c67a1672eb7f8e5b3f9019a096f4993338c689/LICENSE",
+      "documents": [
+        {
+          "title": "路径参数",
+          "path": "fastapi/路径参数.txt",
+          "original_path": "fastapi/originals/路径参数.txt",
+          "source_url": "https://github.com/fastapi/fastapi/blob/69c67a1672eb7f8e5b3f9019a096f4993338c689/docs/zh/docs/tutorial/path-params.md",
+          "sha256": "4581e8cc87a0bbf89f0f01a52c1e607c7c7866c40a2e12388604035ff77476b0",
+          "source_sha256": "a008badf3fd5a50e5cf621072ad1e7f3b90e3819e23dc65201985be73ca52ab9",
+          "bytes": 9587
+        },
+        {
+          "title": "查询参数",
+          "path": "fastapi/查询参数.txt",
+          "original_path": "fastapi/originals/查询参数.txt",
+          "source_url": "https://github.com/fastapi/fastapi/blob/69c67a1672eb7f8e5b3f9019a096f4993338c689/docs/zh/docs/tutorial/query-params.md",
+          "sha256": "21a1db0296b561526ada7290ce6182446618468a86580c43904932bc874667fd",
+          "source_sha256": "b1a1a3b58e300ad0902322993f53708ee299122525f0360c83e57cc65a34f1e7",
+          "bytes": 6067
+        },
+        {
+          "title": "请求体",
+          "path": "fastapi/请求体.txt",
+          "original_path": "fastapi/originals/请求体.txt",
+          "source_url": "https://github.com/fastapi/fastapi/blob/69c67a1672eb7f8e5b3f9019a096f4993338c689/docs/zh/docs/tutorial/body.md",
+          "sha256": "18b047f4d2efb84238c91aa2f2da43b3f1a1adf437124f39533dc514173a1db0",
+          "source_sha256": "849918c18b76c61cc335b92d389ada397655c471d213f3767b2b55120fab2ba9",
+          "bytes": 7586
+        }
+      ]
+    },
+    {
+      "id": "kubernetes",
+      "name": "Kubernetes 中文运维文档",
+      "repository": "kubernetes/website",
+      "revision": "f99b6afdfd42f38937b8f17b3015551a33dede40",
+      "license": "CC-BY-4.0",
+      "license_url": "https://github.com/kubernetes/website/blob/f99b6afdfd42f38937b8f17b3015551a33dede40/LICENSE",
+      "documents": [
+        {
+          "title": "命名空间",
+          "path": "kubernetes/命名空间.txt",
+          "original_path": "kubernetes/originals/命名空间.txt",
+          "source_url": "https://github.com/kubernetes/website/blob/f99b6afdfd42f38937b8f17b3015551a33dede40/content/zh-cn/docs/concepts/overview/working-with-objects/namespaces.md",
+          "sha256": "51a32367e0b69c66414446cba66d4298433a2cab513742a840bcd7bbe8c7271a",
+          "source_sha256": "bb635ba471b9ed3ceeab05efbd89fe62aa2b6ba1fa7f0252c28476f7f14fbb46",
+          "bytes": 6715
+        },
+        {
+          "title": "ConfigMap",
+          "path": "kubernetes/ConfigMap.txt",
+          "original_path": "kubernetes/originals/ConfigMap.txt",
+          "source_url": "https://github.com/kubernetes/website/blob/f99b6afdfd42f38937b8f17b3015551a33dede40/content/zh-cn/docs/concepts/configuration/configmap.md",
+          "sha256": "571f3311fb13cf7ea52e295db8dc5daf7f221330ea0101bcc67135207be336c9",
+          "source_sha256": "f0fc1ee79a8517af31e372e0a3dc025a85ea51f95d3a75edb2c0fb86bbc1de9d",
+          "bytes": 12035
+        },
+        {
+          "title": "Pod 生命周期",
+          "path": "kubernetes/Pod-生命周期.txt",
+          "original_path": "kubernetes/originals/Pod-生命周期.txt",
+          "source_url": "https://github.com/kubernetes/website/blob/f99b6afdfd42f38937b8f17b3015551a33dede40/content/zh-cn/docs/concepts/workloads/pods/pod-lifecycle.md",
+          "sha256": "d4058a116d6356e50db3496a874dd8c355718c55d4b8f86234482df9ebaa8aa7",
+          "source_sha256": "20ea8f0a33e93e112c9377393d2753c5d3f67bd53019d3887aaba7de7fd3e47f",
+          "bytes": 50846
+        }
+      ]
+    },
+    {
+      "id": "machine-learning",
+      "name": "微软机器学习中文入门",
+      "repository": "microsoft/ML-For-Beginners",
+      "revision": "de2d4e12236445198213a0711855e348e7253cd4",
+      "license": "MIT",
+      "license_url": "https://github.com/microsoft/ML-For-Beginners/blob/de2d4e12236445198213a0711855e348e7253cd4/LICENSE",
+      "documents": [
+        {
+          "title": "回归简介",
+          "path": "machine-learning/回归简介.txt",
+          "original_path": "machine-learning/originals/回归简介.txt",
+          "source_url": "https://github.com/microsoft/ML-For-Beginners/blob/de2d4e12236445198213a0711855e348e7253cd4/translations/zh-CN/2-Regression/README.md",
+          "sha256": "2388c7f459c83a26c790ee8fcaa1dcc365bc94fbf8bebc2e9e9325ceddf3bc02",
+          "source_sha256": "5cc3fa6f55cec150d5fb7564e0de25b246069e693fb58be97cbff5339099c5a1",
+          "bytes": 4863
+        },
+        {
+          "title": "回归工具",
+          "path": "machine-learning/回归工具.txt",
+          "original_path": "machine-learning/originals/回归工具.txt",
+          "source_url": "https://github.com/microsoft/ML-For-Beginners/blob/de2d4e12236445198213a0711855e348e7253cd4/translations/zh-CN/2-Regression/1-Tools/README.md",
+          "sha256": "4128635fb432c6b8902a282a5c5ef469ad2a7b957556c3d92b890d1d372f532a",
+          "source_sha256": "87a1f1ee68bf1b3098beee5d601abf68c08a6c8efe60b54826157d958fc1988a",
+          "bytes": 14786
+        },
+        {
+          "title": "分类简介",
+          "path": "machine-learning/分类简介.txt",
+          "original_path": "machine-learning/originals/分类简介.txt",
+          "source_url": "https://github.com/microsoft/ML-For-Beginners/blob/de2d4e12236445198213a0711855e348e7253cd4/translations/zh-CN/4-Classification/1-Introduction/README.md",
+          "sha256": "eb4b0bec66add91d833a541f423ebff09a450985e8efc9e70491238cbb5e22ae",
+          "source_sha256": "d210905e55fd9d6b5389edabeabdeab33ec058b88cc93157aa59d6561ec317e6",
+          "bytes": 14999
+        }
+      ]
+    }
+  ]
+}

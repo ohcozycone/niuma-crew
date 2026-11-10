@@ -1,0 +1,673 @@
+{
+  "disposition": "两版规则均未采纳，生产提示文件已完整恢复",
+  "rounds": [
+    {
+      "file": "回答证据边界-未采纳版本对照.json",
+      "attempted": 70,
+      "responded": 70,
+      "rate_limited": 0,
+      "wire_control_pairs": 35,
+      "groups": [
+        {
+          "case": "recent_limit",
+          "variant": "before",
+          "attempted": 10,
+          "responded": 10,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 7.23111925041303,
+          "input_tokens": {
+            "known_count": 10,
+            "mean": 12240
+          },
+          "output_tokens": {
+            "known_count": 10,
+            "mean": 236.9
+          },
+          "total_tokens": {
+            "known_count": 10,
+            "mean": 12476.9
+          },
+          "conditional_cost_known_count": 10,
+          "conditional_cost_known_mean": 2828.94
+        },
+        {
+          "case": "recent_limit",
+          "variant": "after",
+          "attempted": 10,
+          "responded": 10,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 8.95271679200232,
+          "input_tokens": {
+            "known_count": 10,
+            "mean": 12307
+          },
+          "output_tokens": {
+            "known_count": 10,
+            "mean": 277.3
+          },
+          "total_tokens": {
+            "known_count": 10,
+            "mean": 12584.3
+          },
+          "conditional_cost_known_count": 10,
+          "conditional_cost_known_mean": 2432.949999999999
+        },
+        {
+          "case": "more",
+          "variant": "before",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 1,
+          "generation_seconds_median": 11.645110417040996,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 10114
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 297
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 10411
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1971.8799999999997
+        },
+        {
+          "case": "more",
+          "variant": "after",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 4,
+          "generation_seconds_median": 5.653654250083491,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 10181
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 217.4
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 10398.4
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1751.8400000000001
+        },
+        {
+          "case": "query_ended",
+          "variant": "before",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 3.7870904590236023,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 10111
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 134.2
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 10245.2
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1436.5600000000002
+        },
+        {
+          "case": "query_ended",
+          "variant": "after",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 5.840322874952108,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 10178
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 176.4
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 10354.4
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1581.9199999999994
+        },
+        {
+          "case": "complete",
+          "variant": "before",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 1,
+          "generation_seconds_median": 3.552538000047207,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 10100
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 99.2
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 10199.2
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1328.48
+        },
+        {
+          "case": "complete",
+          "variant": "after",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 4.8027449999935925,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 10167
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 150.8
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 10317.8
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1502.039999999999
+        },
+        {
+          "case": "explicit_total",
+          "variant": "before",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 4.764322041999549,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 10135
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 161
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 10296
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1523.6799999999998
+        },
+        {
+          "case": "explicit_total",
+          "variant": "after",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 5.375054916017689,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 10202
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 159
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 10361
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1536.4399999999991
+        },
+        {
+          "case": "explicit_zero",
+          "variant": "before",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 4.29709616699256,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 9742
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 162.2
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 9904.2
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1509.399999999999
+        },
+        {
+          "case": "explicit_zero",
+          "variant": "after",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 5.897148624993861,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 9809
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 188.4
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 9997.4
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1560.6799999999996
+        }
+      ],
+      "primary_later_pairs_cost": [
+        {
+          "variant": "before",
+          "n": 9,
+          "mean": 1878.6666666666667,
+          "note": "仅第2至10对的实际usage加权，不声称人为控制热缓存。"
+        },
+        {
+          "variant": "after",
+          "n": 9,
+          "mean": 2047.0333333333322,
+          "note": "仅第2至10对的实际usage加权，不声称人为控制热缓存。"
+        }
+      ]
+    },
+    {
+      "file": "回答证据边界-末轮复验.json",
+      "attempted": 70,
+      "responded": 32,
+      "rate_limited": 38,
+      "wire_control_pairs": 35,
+      "groups": [
+        {
+          "case": "recent_limit",
+          "variant": "before",
+          "attempted": 10,
+          "responded": 10,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 7.160318833542988,
+          "input_tokens": {
+            "known_count": 10,
+            "mean": 12210
+          },
+          "output_tokens": {
+            "known_count": 10,
+            "mean": 229.5
+          },
+          "total_tokens": {
+            "known_count": 10,
+            "mean": 12439.5
+          },
+          "conditional_cost_known_count": 10,
+          "conditional_cost_known_mean": 2801.04
+        },
+        {
+          "case": "recent_limit",
+          "variant": "after",
+          "attempted": 10,
+          "responded": 10,
+          "rate_limited": 0,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 6.663599625520874,
+          "input_tokens": {
+            "known_count": 10,
+            "mean": 12328
+          },
+          "output_tokens": {
+            "known_count": 10,
+            "mean": 205.9
+          },
+          "total_tokens": {
+            "known_count": 10,
+            "mean": 12533.9
+          },
+          "conditional_cost_known_count": 10,
+          "conditional_cost_known_mean": 2199.6999999999994
+        },
+        {
+          "case": "more",
+          "variant": "before",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 3,
+          "generation_seconds_median": 7.705735667026602,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 10084
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 259.6
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 10343.6
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1897.3599999999994
+        },
+        {
+          "case": "more",
+          "variant": "after",
+          "attempted": 5,
+          "responded": 5,
+          "rate_limited": 0,
+          "proposed_tool_actions": 1,
+          "generation_seconds_median": 8.837830416043289,
+          "input_tokens": {
+            "known_count": 5,
+            "mean": 10202
+          },
+          "output_tokens": {
+            "known_count": 5,
+            "mean": 252.6
+          },
+          "total_tokens": {
+            "known_count": 5,
+            "mean": 10454.6
+          },
+          "conditional_cost_known_count": 5,
+          "conditional_cost_known_mean": 1863.319999999999
+        },
+        {
+          "case": "query_ended",
+          "variant": "before",
+          "attempted": 5,
+          "responded": 1,
+          "rate_limited": 4,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 12.19084420800209,
+          "input_tokens": {
+            "known_count": 1,
+            "mean": 10081
+          },
+          "output_tokens": {
+            "known_count": 1,
+            "mean": 319
+          },
+          "total_tokens": {
+            "known_count": 1,
+            "mean": 10400
+          },
+          "conditional_cost_known_count": 1,
+          "conditional_cost_known_mean": 2052.3999999999996
+        },
+        {
+          "case": "query_ended",
+          "variant": "after",
+          "attempted": 5,
+          "responded": 1,
+          "rate_limited": 4,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": 9.112559415982105,
+          "input_tokens": {
+            "known_count": 1,
+            "mean": 10199
+          },
+          "output_tokens": {
+            "known_count": 1,
+            "mean": 241
+          },
+          "total_tokens": {
+            "known_count": 1,
+            "mean": 10440
+          },
+          "conditional_cost_known_count": 1,
+          "conditional_cost_known_mean": 1936.3999999999996
+        },
+        {
+          "case": "complete",
+          "variant": "before",
+          "attempted": 5,
+          "responded": 0,
+          "rate_limited": 5,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": null,
+          "input_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "output_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "total_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "conditional_cost_known_count": 0,
+          "conditional_cost_known_mean": null
+        },
+        {
+          "case": "complete",
+          "variant": "after",
+          "attempted": 5,
+          "responded": 0,
+          "rate_limited": 5,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": null,
+          "input_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "output_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "total_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "conditional_cost_known_count": 0,
+          "conditional_cost_known_mean": null
+        },
+        {
+          "case": "explicit_total",
+          "variant": "before",
+          "attempted": 5,
+          "responded": 0,
+          "rate_limited": 5,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": null,
+          "input_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "output_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "total_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "conditional_cost_known_count": 0,
+          "conditional_cost_known_mean": null
+        },
+        {
+          "case": "explicit_total",
+          "variant": "after",
+          "attempted": 5,
+          "responded": 0,
+          "rate_limited": 5,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": null,
+          "input_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "output_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "total_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "conditional_cost_known_count": 0,
+          "conditional_cost_known_mean": null
+        },
+        {
+          "case": "explicit_zero",
+          "variant": "before",
+          "attempted": 5,
+          "responded": 0,
+          "rate_limited": 5,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": null,
+          "input_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "output_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "total_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "conditional_cost_known_count": 0,
+          "conditional_cost_known_mean": null
+        },
+        {
+          "case": "explicit_zero",
+          "variant": "after",
+          "attempted": 5,
+          "responded": 0,
+          "rate_limited": 5,
+          "proposed_tool_actions": 0,
+          "generation_seconds_median": null,
+          "input_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "output_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "total_tokens": {
+            "known_count": 0,
+            "mean": null
+          },
+          "conditional_cost_known_count": 0,
+          "conditional_cost_known_mean": null
+        }
+      ],
+      "primary_later_pairs_cost": [
+        {
+          "variant": "before",
+          "n": 9,
+          "mean": 1901.0,
+          "note": "仅第2至10对的实际usage加权，不声称人为控制热缓存。"
+        },
+        {
+          "variant": "after",
+          "n": 9,
+          "mean": 1840.1333333333325,
+          "note": "仅第2至10对的实际usage加权，不声称人为控制热缓存。"
+        }
+      ]
+    }
+  ],
+  "counterexamples": [
+    {
+      "round": 1,
+      "case": "recent_limit",
+      "block": 7,
+      "variant": "after",
+      "issue": "page被称为50篇文章",
+      "severity": "critical"
+    },
+    {
+      "round": 1,
+      "case": "recent_limit",
+      "block": 9,
+      "variant": "after",
+      "issue": "先说50页面，随后说最近浏览范围可检索到50篇文章",
+      "severity": "critical"
+    },
+    {
+      "round": 1,
+      "case": "query_ended",
+      "block": 1,
+      "variant": "after",
+      "issue": "实际8条说成7篇；完整原文已交付",
+      "severity": "critical"
+    },
+    {
+      "round": 1,
+      "case": "complete",
+      "block": 1,
+      "variant": "after",
+      "issue": "明确完整的8篇列表说成7篇",
+      "severity": "critical"
+    },
+    {
+      "round": 1,
+      "case": "more",
+      "block": 1,
+      "variant": "after",
+      "issue": "把fixture-next-page业务游标传给本地read_tool_result.result_id",
+      "severity": "critical"
+    },
+    {
+      "round": 2,
+      "case": "recent_limit",
+      "block": 8,
+      "variant": "after",
+      "issue": "将缺少文章分类证据写成0篇可确认的文章；总量未知的补充不消除这个结论",
+      "severity": "critical"
+    },
+    {
+      "round": 2,
+      "case": "more",
+      "block": 3,
+      "variant": "after",
+      "issue": "尝试使用当前工具定义未声明的cursor参数，没有执行该操作",
+      "severity": "critical"
+    },
+    {
+      "round": 2,
+      "case": "more",
+      "block": 5,
+      "variant": "after",
+      "issue": "承诺继续分页读取后续结果，但定义中未提供对应游标参数",
+      "severity": "critical"
+    }
+  ],
+  "frozen_runtime_sources_unchanged": true,
+  "prompt_file_restored": true,
+  "cost_note": "只统计已返回用量的末轮请求，采用缓存输入权重0.1与输出权重3的假设；失败用量未知，不计作0，不代表完整Run或Kimi Code实际额度。首轮冷缓存与后续命中未人为控制。",
+  "review_note": "反例由人工核对实际答复、工具参数、原始8条数组和固定上下文；这里只列足以否决的实例，不把未列出的响应宣称全部正确。工具调用提议不等于已执行，也不自动判为事实错误。"
+}

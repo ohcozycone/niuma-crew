@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 1120" role="img" aria-labelledby="title desc">
+<title id="title">执行成果怎样变成正式回复</title><desc id="desc">运行流程 · 以当前对话链路为例 · 编号表示处理顺序，不表示模块依赖层级。沿用平台主题令牌，所有关系均采用三次贝塞尔曲线。2026-11-08。</desc>
+<metadata>样式来源：frontend/src/design-system/theme.css。主图为目标组件架构，局部图分别表达执行内部协作与对话结果接纳。</metadata>
+<defs>
+<marker id="call" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0 0L8 3.5L0 7Z" fill="#eea379"/></marker>
+<marker id="data" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0 0L8 3.5L0 7" fill="none" stroke="#b9b4a8" stroke-width="1.4"/></marker>
+<style>
+text{font-family:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;fill:#f2eee5}
+.title{font-size:34px;font-weight:600}.section{font-size:23px;font-weight:600}.name{font-size:21px;font-weight:600}.body{font-size:18px;fill:#b9b4a8}.note{font-size:16px;fill:#b9b4a8}.tiny{font-size:14px;fill:#b9b4a8}.brand{fill:#eea379}.warn{fill:#d9bc7f}
+.host{fill:#242321;stroke:#464239;stroke-width:1.2}.region{fill:#302d28;stroke:none}.card{fill:#2a2824;stroke:#464239;stroke-width:1.3}.planned{fill:#2a2824;stroke:#d9bc7f;stroke-width:1.4;stroke-dasharray:6 5}
+.edge{fill:none;stroke:#eea379;stroke-width:2;stroke-linecap:round;marker-end:url(#call)}.edge.data{stroke:#b9b4a8;stroke-dasharray:6 5;marker-end:url(#data)}
+</style></defs><rect width="1560" height="1120" fill="#1b1a18"/>
+<text class="title" x="48" y="61">执行成果怎样变成正式回复</text>
+<text class="note" x="48" y="100">运行流程 · 以当前对话链路为例 · 编号表示处理顺序，不表示模块依赖层级</text>
+<rect class="region" x="48" y="160" width="420" height="820" rx="16"/>
+<rect class="region" x="548" y="160" width="420" height="820" rx="16"/>
+<rect class="region" x="1048" y="160" width="464" height="820" rx="16"/>
+<path id="accept-submit" class="edge" d="M444 303C485 275 529 331 570 303"/>
+<path id="queued-execute" class="edge" d="M770 354C770 394 710 404 710 444"/>
+<path id="execute-complete" class="edge" d="M710 550C710 590 770 600 770 640"/>
+<path id="adopt-saved-result" class="edge data" d="M944 693C989 667 1027 719 1072 693"/>
+<path id="publish-result" class="edge" d="M1280 746C1280 788 1220 800 1220 840"/>
+<rect class="card" x="72" y="250" width="372" height="104" rx="16"/>
+<text class="name" x="94" y="283">1 受理业务输入</text>
+<text class="note" x="94" y="315">校验身份、员工及输入</text>
+<text class="note" x="94" y="342">准备本次业务输入和回复占位</text>
+<circle cx="422" cy="277" r="3.5" fill="#a2c3a7"/>
+<rect class="card" x="570" y="250" width="374" height="104" rx="16"/>
+<text class="name" x="592" y="283">2 创建排队 Run</text>
+<text class="note" x="592" y="315">冻结本次输入与资源依据</text>
+<text class="note" x="592" y="342">创建 Run 并返回执行标识</text>
+<circle cx="922" cy="277" r="3.5" fill="#a2c3a7"/>
+<rect class="card" x="570" y="444" width="374" height="106" rx="16"/>
+<text class="name" x="592" y="477">3 执行模型与工具</text>
+<text class="note" x="592" y="509">Worker / Task 领取并驱动 Agent</text>
+<text class="note" x="592" y="536">逐动作授权、预算与记录</text>
+<circle cx="922" cy="471" r="3.5" fill="#a2c3a7"/>
+<rect class="card" x="570" y="640" width="374" height="106" rx="16"/>
+<text class="name" x="592" y="673">4 保存成果与 Run 终态</text>
+<text class="note" x="592" y="705">核验正文、文件与当前资格</text>
+<text class="note" x="592" y="732">独立完成事务可靠提交</text>
+<circle cx="922" cy="667" r="3.5" fill="#a2c3a7"/>
+<rect class="card" x="1072" y="640" width="416" height="106" rx="16"/>
+<text class="name" x="1094" y="673">5 应用独立接纳</text>
+<text class="note" x="1094" y="705">读取已保存的 Run 成果</text>
+<text class="note" x="1094" y="732">复核资格，关联正文与成果文件</text>
+<circle cx="1466" cy="667" r="3.5" fill="#a2c3a7"/>
+<rect class="card" x="1072" y="840" width="416" height="106" rx="16"/>
+<text class="name" x="1094" y="873">6 发布正式回复</text>
+<text class="note" x="1094" y="905">提交接纳事务，形成正式回复</text>
+<text class="note" x="1094" y="932">用户读取回复并下载关联成果</text>
+<circle cx="1466" cy="867" r="3.5" fill="#a2c3a7"/>
+<text class="section" x="72" y="201">业务受理 · 对话应用</text>
+<text class="section" x="570" y="201">公共执行 · Execution</text>
+<text class="section" x="1072" y="201">结果接纳 · 对话应用</text>
+<text class="note" x="72" y="390">步骤 1—2 属于同一受理事务。</text>
+<text class="note" x="72" y="426">Run 与业务的关联由应用保存。</text>
+<text class="note" x="72" y="462">接纳在执行成果提交后独立进行。</text>
+<text class="note" x="72" y="498">步骤 5—6 属于同一接纳事务。</text>
+<text class="name" x="72" y="550">暂时接纳失败时</text>
+<text class="body" x="72" y="588">按持久记录重试接纳，</text>
+<text class="body" x="72" y="621">保留已成功的 Run，</text>
+<text class="body" x="72" y="654">不重新调用模型。</text>
+<text class="name" x="72" y="768">Run 成功 ≠ 业务已完成</text>
+<text class="body" x="72" y="807">消息与文件成功接纳后，</text>
+<text class="body" x="72" y="840">才成为用户可用的正式交付。</text>
+<text class="tiny" x="970" y="613">已保存的成果</text>
+<text class="note" x="48" y="1030">结果箭头表示应用读取持久成果；可重复扫描，完成通知只用于唤醒，不是唯一可靠交接。</text>
+<text class="note" x="48" y="1071">同一边界也适用于考核评分，以及拟议任务中的后续步骤、等待和交付判断。</text>
+</svg>

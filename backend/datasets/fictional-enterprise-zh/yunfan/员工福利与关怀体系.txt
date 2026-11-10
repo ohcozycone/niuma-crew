@@ -1,0 +1,71 @@
+# 员工福利与关怀体系
+
+## 社会保险与公积金
+
+1. 公司按员工实际工资基数足额缴纳五险一金（养老、医疗、失业、工伤、生育保险及住房公积金）。
+2. 住房公积金公司与个人各缴纳 **12%**（上海地区政策上限）。
+3. 新员工入职当月即开始缴纳；跨城市调动员工的社保转移由 HRBP 协助办理。
+
+## 补充商业保险
+
+- 公司为全体转正员工购买补充医疗保险（门诊报销 80%，年度上限 2 万元；住院报销 90%）。
+- 员工可为配偶与子女以团体折扣价（约为市价 7 折）自愿加保，每年 3 月开放一次投保窗口。
+- 年度体检：每年 6-8 月组织，标准 1,200 元/人，入职满 10 年员工升级为 2,000 元/人深度套餐。
+
+## 补贴与津贴
+
+| 项目 | 标准 | 发放方式 |
+| --- | --- | --- |
+| 午餐补贴 | 25 元/工作日 | 随当月工资发放 |
+| 晚间加班餐补 | 30 元/次 | 加班至 20:30 后，凭打卡记录自动发放 |
+| 交通补贴 | 加班至 22:00 后打车全额报销 | 通过"报销中心"提交行程单 |
+| 通讯补贴 | 销售/客户成功岗 200 元/月，其他岗位 100 元/月 | 随工资发放 |
+| 高温补贴 | 6-9 月 300 元/月 | 随工资发放 |
+
+## 假期外关怀
+
+1. **生日关怀**：生日当月发放 200 元礼品卡。
+2. **入职周年**：满 1/3/5/10 年分别发放纪念徽章与定制礼品，满 5 年额外奖励 5 天司龄假。
+3. **婚育礼金**：结婚礼金 1,000 元；生育礼金 2,000 元。
+4. **心理援助（EAP）**：每人每年 6 次免费心理咨询，预约热线 400-820-9901，信息严格保密。
+
+## 办公环境与活动
+
+- 总部设健身房、母婴室、睡眠舱与免费咖啡吧（工作日 8:30-19:00 开放）。
+- 每月最后一个周五为"云帆日"，下午组织社团活动（篮球、羽毛球、桌游、读书会等 11 个社团）。
+- 年度团建经费：300 元/人/次，每年 2 次，由部门助理在"报销中心"按团建费目报销。
+
+## 申请入口
+
+以上福利除自动发放项外，均在云帆协作平台"人事服务"或"报销中心"模块申请；
+福利政策咨询请联系薪酬福利组 江晚吟（wanyin.jiang@yunfantech.com）。
+
+> 本文档由人力资源部薪酬福利组维护，版本 V1.9，最近更新：2026 年 5 月。
+
+## 资料来源与许可
+
+本文为源项目提供的虚构企业中文演示资料，不代表真实公司制度。本次保留原始业务正文，仅转换为 UTF-8 TXT 并添加本节。
+原文来源：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/employee-benefits.md
+许可：MIT；完整许可及版权声明：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/LICENSE
+
+MIT License
+
+Copyright (c) 2026 zhenyong97
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

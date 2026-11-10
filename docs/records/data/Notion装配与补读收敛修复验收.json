@@ -1,0 +1,93 @@
+{
+  "date": "2026-11-10",
+  "employee": {
+    "id": "fec0fa7d-1bf7-48e7-9a11-0bbfc12bec58",
+    "name": "全栈工程师老赵",
+    "revision": 28
+  },
+  "current_grants": [
+    {
+      "connection": "LE_Tavily",
+      "tools": [
+        "tavily_search",
+        "tavily_extract",
+        "tavily_crawl",
+        "tavily_map",
+        "tavily_research"
+      ],
+      "scope_policy": {
+        "mode": "provider",
+        "max_calls": 30,
+        "arguments": {},
+        "allowed_domains": []
+      },
+      "revision": 3
+    },
+    {
+      "connection": "Notion · 我的访问设置",
+      "tools": [
+        "notion-search",
+        "notion-memory-search",
+        "notion-get-tool-access",
+        "notion-fetch",
+        "notion-create-attachment",
+        "notion-query-data-sources",
+        "notion-list-private-pages",
+        "notion-list-shared-pages"
+      ],
+      "scope_policy": {
+        "mode": "provider",
+        "max_calls": 5,
+        "arguments": {},
+        "allowed_domains": []
+      },
+      "revision": 6
+    }
+  ],
+  "assembly_method": "Saved through the authenticated employee configuration page; confirmed persisted grants read-only",
+  "added_notion_tools": [
+    "notion-query-data-sources",
+    "notion-list-private-pages",
+    "notion-list-shared-pages"
+  ],
+  "reader_contract": {
+    "offset_unit": "unicode_character",
+    "requested_limit_minimum": 1,
+    "removed_requested_limit_maximum": 12000,
+    "retained_text_byte_limit": 8000,
+    "cursor": "next_offset follows actual returned text"
+  },
+  "budget_closing": {
+    "authority": "durable Run model_calls",
+    "extra_requests": 0,
+    "skip_summary_with_last_call": true,
+    "last_call_exposed_tools": [],
+    "tool_calls_ignored_by_provider": "fail before dispatch"
+  },
+  "checks": {
+    "delivery_memory_and_boundaries": 55,
+    "runtime_and_tool_regressions": 111,
+    "process_recovery": 18,
+    "capability_runtime": 24,
+    "actual_chat_completions_wire_shape": 1,
+    "total_distinct_tests": 209,
+    "ruff_and_mypy": "passed; 48 typed files"
+  },
+  "source_hashes": {
+    "backend/app/agent/contracts.py": "5d6a2d54beef547717a6e4fe1f95a3391b6a117d3f76bb89eb35298e34e27bbf",
+    "backend/app/agent/model_calls.py": "b71f57cf4a1f52f7e87294da30424f2ecae3934c1ad53a03bf23ff588885708b",
+    "backend/app/agent/prompts.py": "1e7bb2066d1093d644c2905d559b9807f23c019cd850869c7810c85c862c4fd5",
+    "backend/app/agent/tool_calls.py": "801ec9f3bb3f3c16876f5ae3dcbf0f79ca7b435c0fe4de1164504858658321e8",
+    "backend/app/builtin_tools/results.py": "9cf017ee8f3dc12cc639b18a894f90eb09152a6948fe362c3111e2f13bcaf91b",
+    "backend/app/execution/context.py": "2ca4972c97433624b57cc7976e6d3dc979a0f6dbc63f116abd2522925c32963b",
+    "backend/app/execution/store.py": "bf568eae1ba0d0fa3d873fe21f1e283c928e979a45153d5ca56f4d198b56b9e5",
+    "backend/app/execution/tool_results.py": "a970b9a3b3233f8712d49104056e91b3ae0bf9ff5c296e55e0fcda6eec421cd5",
+    "backend/app/agent/tool_discovery.py": "53f3a22f35911fd3d7ff096a3dc6a4ffafaadf3dcd11f21ed56f4c8b452d4ba8"
+  },
+  "limitations": [
+    "No paid model calls or remote Notion content queries in this implementation turn",
+    "Native API behavior checked with actual SDK and MockTransport, not real provider generation",
+    "No claim that workspace-wide article count or token-cost targets are now proven",
+    "Single-data-source SQL quota still applies"
+  ]
+}

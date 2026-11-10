@@ -1,0 +1,709 @@
+{
+  "source": "niuma-result-delivery-final.json",
+  "scope": "所有已完成轨迹均纳入；失败不剔除。缺用量保持未知。P90 使用最近秩。",
+  "cost_scope": "无已确认 Kimi Code 额度权重；敏感性数值不是实际账单。输出已包含推理，不重复相加。",
+  "groups": [
+    {
+      "case": "complete",
+      "variant": "A",
+      "n": 5,
+      "succeeded": 5,
+      "seconds_median": 13.355901208007708,
+      "seconds_p90": 25.320746749988757,
+      "model_calls_median": 3,
+      "reads_median": 0,
+      "tokens": {
+        "input_tokens": {
+          "known_count": 5,
+          "mean": 25504.2
+        },
+        "cached_input_tokens": {
+          "known_count": 5,
+          "mean": 23953.4
+        },
+        "output_tokens": {
+          "known_count": 5,
+          "mean": 550
+        },
+        "total_tokens": {
+          "known_count": 5,
+          "mean": 26054.2
+        }
+      },
+      "conditional_cost": [
+        {
+          "cached_weight": 0,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 2100.8
+        },
+        {
+          "cached_weight": 0,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 3200.8
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 4496.14
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 5596.14
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 14077.5
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 15177.5
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 26054.2
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 27154.2
+        }
+      ]
+    },
+    {
+      "case": "complete",
+      "variant": "B",
+      "n": 5,
+      "succeeded": 5,
+      "seconds_median": 11.202727957977913,
+      "seconds_p90": 14.357617874979042,
+      "model_calls_median": 3,
+      "reads_median": 0,
+      "tokens": {
+        "input_tokens": {
+          "known_count": 5,
+          "mean": 21160.6
+        },
+        "cached_input_tokens": {
+          "known_count": 5,
+          "mean": 19859.2
+        },
+        "output_tokens": {
+          "known_count": 5,
+          "mean": 410.6
+        },
+        "total_tokens": {
+          "known_count": 5,
+          "mean": 21571.2
+        }
+      },
+      "conditional_cost": [
+        {
+          "cached_weight": 0,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 1712
+        },
+        {
+          "cached_weight": 0,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 2533.2
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 3697.92
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 4519.12
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 11641.6
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 12462.8
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 21571.2
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 22392.4
+        }
+      ]
+    },
+    {
+      "case": "complete",
+      "variant": "C",
+      "n": 5,
+      "succeeded": 5,
+      "seconds_median": 11.516630250029266,
+      "seconds_p90": 14.420064416946843,
+      "model_calls_median": 3,
+      "reads_median": 0,
+      "tokens": {
+        "input_tokens": {
+          "known_count": 5,
+          "mean": 21521.2
+        },
+        "cached_input_tokens": {
+          "known_count": 5,
+          "mean": 20258.6
+        },
+        "output_tokens": {
+          "known_count": 5,
+          "mean": 413.4
+        },
+        "total_tokens": {
+          "known_count": 5,
+          "mean": 21934.6
+        }
+      },
+      "conditional_cost": [
+        {
+          "cached_weight": 0,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 1676
+        },
+        {
+          "cached_weight": 0,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 2502.8
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 3701.86
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 4528.66
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 11805.3
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 12632.1
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 21934.6
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 22761.4
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "variant": "A",
+      "n": 10,
+      "succeeded": 10,
+      "seconds_median": 21.45002241648035,
+      "seconds_p90": 26.18362333404366,
+      "model_calls_median": 5.0,
+      "reads_median": 1.0,
+      "tokens": {
+        "input_tokens": {
+          "known_count": 10,
+          "mean": 45069.5
+        },
+        "cached_input_tokens": {
+          "known_count": 10,
+          "mean": 37819.9
+        },
+        "output_tokens": {
+          "known_count": 10,
+          "mean": 836.2
+        },
+        "total_tokens": {
+          "known_count": 10,
+          "mean": 45905.7
+        }
+      },
+      "conditional_cost": [
+        {
+          "cached_weight": 0,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 8085.8
+        },
+        {
+          "cached_weight": 0,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 9758.2
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 11867.79
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 13540.19
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 26995.75
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 28668.15
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 45905.7
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 47578.1
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "variant": "B",
+      "n": 10,
+      "succeeded": 9,
+      "seconds_median": 19.386936187453102,
+      "seconds_p90": 29.052813624963164,
+      "model_calls_median": 4.0,
+      "reads_median": 0.0,
+      "tokens": {
+        "input_tokens": {
+          "known_count": 10,
+          "mean": 41030.9
+        },
+        "cached_input_tokens": {
+          "known_count": 10,
+          "mean": 34297.6
+        },
+        "output_tokens": {
+          "known_count": 10,
+          "mean": 760.4
+        },
+        "total_tokens": {
+          "known_count": 10,
+          "mean": 41791.3
+        }
+      },
+      "conditional_cost": [
+        {
+          "cached_weight": 0,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 7493.7
+        },
+        {
+          "cached_weight": 0,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 9014.5
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 10923.46
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 12444.26
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 24642.5
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 26163.3
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 41791.3
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 43312.1
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "variant": "C",
+      "n": 10,
+      "succeeded": 10,
+      "seconds_median": 20.009872020571493,
+      "seconds_p90": 27.504326749942265,
+      "model_calls_median": 3.0,
+      "reads_median": 0.0,
+      "tokens": {
+        "input_tokens": {
+          "known_count": 10,
+          "mean": 32789.8
+        },
+        "cached_input_tokens": {
+          "known_count": 10,
+          "mean": 27587.3
+        },
+        "output_tokens": {
+          "known_count": 10,
+          "mean": 721.4
+        },
+        "total_tokens": {
+          "known_count": 10,
+          "mean": 33511.2
+        }
+      },
+      "conditional_cost": [
+        {
+          "cached_weight": 0,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 5923.9
+        },
+        {
+          "cached_weight": 0,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 7366.7
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 8682.630000000001
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 10125.43
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 19717.55
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 21160.35
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 1,
+          "known_count": 10,
+          "mean": 33511.2
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 3,
+          "known_count": 10,
+          "mean": 34954
+        }
+      ]
+    },
+    {
+      "case": "tail",
+      "variant": "A",
+      "n": 5,
+      "succeeded": 4,
+      "seconds_median": 13.652469916967675,
+      "seconds_p90": 27.151658999966457,
+      "model_calls_median": 5,
+      "reads_median": 2,
+      "tokens": {
+        "input_tokens": {
+          "known_count": 5,
+          "mean": 46231.6
+        },
+        "cached_input_tokens": {
+          "known_count": 5,
+          "mean": 41496.6
+        },
+        "output_tokens": {
+          "known_count": 5,
+          "mean": 677
+        },
+        "total_tokens": {
+          "known_count": 5,
+          "mean": 46908.6
+        }
+      },
+      "conditional_cost": [
+        {
+          "cached_weight": 0,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 5412
+        },
+        {
+          "cached_weight": 0,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 6766
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 9561.66
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 10915.66
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 26160.3
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 27514.3
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 46908.6
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 48262.6
+        }
+      ]
+    },
+    {
+      "case": "tail",
+      "variant": "B",
+      "n": 5,
+      "succeeded": 5,
+      "seconds_median": 8.593478999915533,
+      "seconds_p90": 9.595578790991567,
+      "model_calls_median": 3,
+      "reads_median": 0,
+      "tokens": {
+        "input_tokens": {
+          "known_count": 5,
+          "mean": 22251.4
+        },
+        "cached_input_tokens": {
+          "known_count": 5,
+          "mean": 20639.2
+        },
+        "output_tokens": {
+          "known_count": 5,
+          "mean": 342.6
+        },
+        "total_tokens": {
+          "known_count": 5,
+          "mean": 22594
+        }
+      },
+      "conditional_cost": [
+        {
+          "cached_weight": 0,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 1954.8
+        },
+        {
+          "cached_weight": 0,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 2640
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 4018.7200000000003
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 4703.92
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 12274.4
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 12959.6
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 22594
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 23279.2
+        }
+      ]
+    },
+    {
+      "case": "tail",
+      "variant": "C",
+      "n": 5,
+      "succeeded": 5,
+      "seconds_median": 10.460964833968319,
+      "seconds_p90": 14.719586708932184,
+      "model_calls_median": 3,
+      "reads_median": 0,
+      "tokens": {
+        "input_tokens": {
+          "known_count": 5,
+          "mean": 24531
+        },
+        "cached_input_tokens": {
+          "known_count": 5,
+          "mean": 22813.6
+        },
+        "output_tokens": {
+          "known_count": 5,
+          "mean": 367.6
+        },
+        "total_tokens": {
+          "known_count": 5,
+          "mean": 24898.6
+        }
+      },
+      "conditional_cost": [
+        {
+          "cached_weight": 0,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 2085
+        },
+        {
+          "cached_weight": 0,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 2820.2
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 4366.36
+        },
+        {
+          "cached_weight": 0.1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 5101.56
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 13491.8
+        },
+        {
+          "cached_weight": 0.5,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 14227.0
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 1,
+          "known_count": 5,
+          "mean": 24898.6
+        },
+        {
+          "cached_weight": 1,
+          "output_weight": 3,
+          "known_count": 5,
+          "mean": 25633.8
+        }
+      ]
+    }
+  ]
+}

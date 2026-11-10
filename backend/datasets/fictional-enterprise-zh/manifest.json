@@ -1,0 +1,302 @@
+{
+  "retrieved_at": "2026-11-05",
+  "language": "zh-CN",
+  "purpose": "现成中文虚构企业业务资料；不宣称可证明未进入模型训练",
+  "libraries": [
+    {
+      "id": "yunfan",
+      "name": "中文虚构企业·云帆科技制度",
+      "repository": "zhenyong97/rag-knowledge-base",
+      "revision": "80c3df3a415ccf78e733b71fc069b1c4d922f80a",
+      "license": "MIT",
+      "license_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/LICENSE",
+      "documents": [
+        {
+          "title": "考勤与休假管理制度",
+          "path": "yunfan/考勤与休假管理制度.txt",
+          "source_path": "mock_data/documents/attendance-leave-policy.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/attendance-leave-policy.md",
+          "original_path": "yunfan/originals/attendance-leave-policy.md.txt",
+          "sha256": "3b1e929eb50ec428c05caa9408905de2fa590d28ac0ac7b87ce344befcaa15d7",
+          "source_sha256": "a31b29b14dac8984071cc1754ea9bd2a41f91cd17607182c24a7126662c5392c",
+          "bytes": 4225
+        },
+        {
+          "title": "云帆科技有限公司简介",
+          "path": "yunfan/云帆科技有限公司简介.txt",
+          "source_path": "mock_data/documents/company-overview.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/company-overview.md",
+          "original_path": "yunfan/originals/company-overview.md.txt",
+          "sha256": "6d21e09a56f16492a06b842001937f175b36398ee322c299be1394af86180f5e",
+          "source_sha256": "777a46fe9ace80853aaf3f3f603b386d6c9ac435466351cf397a6869d069dccb",
+          "bytes": 4377
+        },
+        {
+          "title": "合规管理与员工行为准则",
+          "path": "yunfan/合规管理与员工行为准则.txt",
+          "source_path": "mock_data/documents/compliance-code-of-conduct.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/compliance-code-of-conduct.md",
+          "original_path": "yunfan/originals/compliance-code-of-conduct.md.txt",
+          "sha256": "79aeef972fcfdf43acdea1e94a0f1441fe98dac2be4b389984aaff4536df1adc",
+          "source_sha256": "06074b78e642251386e4e0d3153f084973e733e9065a519cf01adfb25e58eae2",
+          "bytes": 4574
+        },
+        {
+          "title": "数据分类与安全处理指南",
+          "path": "yunfan/数据分类与安全处理指南.txt",
+          "source_path": "mock_data/documents/data-security-handling.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/data-security-handling.md",
+          "original_path": "yunfan/originals/data-security-handling.md.txt",
+          "sha256": "228426e46848200bcedfa2bdcf39355784e9a4099b30f55ff56ab18504369f0b",
+          "source_sha256": "5295506d8370aece6737219c289906425f3a4dc2d102cecd88bce6579636b029",
+          "bytes": 4719
+        },
+        {
+          "title": "员工福利与关怀体系",
+          "path": "yunfan/员工福利与关怀体系.txt",
+          "source_path": "mock_data/documents/employee-benefits.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/employee-benefits.md",
+          "original_path": "yunfan/originals/employee-benefits.md.txt",
+          "sha256": "c477fcb9f58972d70fcb75c964e9024a9ac3ff15ae45ad2b7dea84cb66c5eec8",
+          "source_sha256": "f4554d91615d29ea427681417a6166020fe61c91216a052a5bbc459b62d7f83f",
+          "bytes": 3894
+        },
+        {
+          "title": "员工手册：行为准则与总则",
+          "path": "yunfan/员工手册：行为准则与总则.txt",
+          "source_path": "mock_data/documents/employee-handbook.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/employee-handbook.md",
+          "original_path": "yunfan/originals/employee-handbook.md.txt",
+          "sha256": "7488a07d95e04631218024f6bb986fe682ed2c301ca7162dea8f798e28611528",
+          "source_sha256": "124b4d4f4e3d3d0af9184f02b9ef26f0597e74020366eb8dca0b85b9b90e4f52",
+          "bytes": 4285
+        },
+        {
+          "title": "费用报销流程指南",
+          "path": "yunfan/费用报销流程指南.txt",
+          "source_path": "mock_data/documents/expense-reimbursement.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/expense-reimbursement.md",
+          "original_path": "yunfan/originals/expense-reimbursement.md.txt",
+          "sha256": "f336ed74b29d2983a6998d244fb2d34ee95d479eeee692488d7dd75b990e2a60",
+          "source_sha256": "80e54cae4e627bc7da611815224dcc01ab3b128fc94c01a6a395457e42ff83e6",
+          "bytes": 4422
+        },
+        {
+          "title": "信息安全管理规范",
+          "path": "yunfan/信息安全管理规范.txt",
+          "source_path": "mock_data/documents/info-security-policy.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/info-security-policy.md",
+          "original_path": "yunfan/originals/info-security-policy.md.txt",
+          "sha256": "941cb8b33a67d8ec10f598a1dcf306b746de4e2139a95a14145c5bca18476638",
+          "source_sha256": "91fda4dbc2219ff852d000443d4335f0f1178512cba77ca4189b9414a92ca220",
+          "bytes": 4463
+        },
+        {
+          "title": "IT 支持手册：账号与网络",
+          "path": "yunfan/IT 支持手册：账号与网络.txt",
+          "source_path": "mock_data/documents/it-account-network.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/it-account-network.md",
+          "original_path": "yunfan/originals/it-account-network.md.txt",
+          "sha256": "c62423df1b4018f5d75c457d5cc898d8d0b127dc9576d2034979fec0686e520f",
+          "source_sha256": "c7feb30cd561cfcdf4c7477ab56a422481a437869f387970147187423b6a31a6",
+          "bytes": 4292
+        },
+        {
+          "title": "IT 支持手册：设备申领与资产管理",
+          "path": "yunfan/IT 支持手册：设备申领与资产管理.txt",
+          "source_path": "mock_data/documents/it-equipment-request.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/it-equipment-request.md",
+          "original_path": "yunfan/originals/it-equipment-request.md.txt",
+          "sha256": "ea5244eb53fe6fa6d96b593b70da2a94b891a8054e4d5c35368030491e6eed24",
+          "source_sha256": "f8da0e2e462e68862451c34892c287a2091448b4bf220cab83350fa96f63dd31",
+          "bytes": 4129
+        },
+        {
+          "title": "会议室与办公资源使用规范",
+          "path": "yunfan/会议室与办公资源使用规范.txt",
+          "source_path": "mock_data/documents/meeting-room-policy.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/meeting-room-policy.md",
+          "original_path": "yunfan/originals/meeting-room-policy.md.txt",
+          "sha256": "ba9e1c991758ab8138760ad28fe80f04e3cc1ee671e828b19057b61f2518d576",
+          "source_sha256": "769640c1e876f6932aacc5f634f9bb0430aaeb46b522bc1d33251cd2a54f9fb5",
+          "bytes": 4032
+        },
+        {
+          "title": "新员工入职指南",
+          "path": "yunfan/新员工入职指南.txt",
+          "source_path": "mock_data/documents/onboarding-guide.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/onboarding-guide.md",
+          "original_path": "yunfan/originals/onboarding-guide.md.txt",
+          "sha256": "f6d5946e364f8d39f4543b335e30dc8f76eeeb7c72ea592030e8246c87bec36f",
+          "source_sha256": "d5ca7a10d8a027e4f82a8dc8639988f0f3d7dadc2a639663e4b75863afd15664",
+          "bytes": 4169
+        },
+        {
+          "title": "云帆科技组织架构与部门职责",
+          "path": "yunfan/云帆科技组织架构与部门职责.txt",
+          "source_path": "mock_data/documents/org-structure.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/org-structure.md",
+          "original_path": "yunfan/originals/org-structure.md.txt",
+          "sha256": "ebba96149c25adedb5dd357a3268ef14b343cb8be1e3dcb20a9ad6f12c1c1930",
+          "source_sha256": "fdb0e6e59c8ff28f55b7e1f54c624c5e503bffae280009ff724672a672f1acbd",
+          "bytes": 4602
+        },
+        {
+          "title": "绩效考核与晋升制度",
+          "path": "yunfan/绩效考核与晋升制度.txt",
+          "source_path": "mock_data/documents/performance-promotion.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/performance-promotion.md",
+          "original_path": "yunfan/originals/performance-promotion.md.txt",
+          "sha256": "58b308bb6df382b1eda540cb41314c90d87d73713c9aa4ec80b643bf432d0832",
+          "source_sha256": "fca83c853938b34c267598d118af2c9928c5a2dbe389d8459bf26aeb4eb674c1",
+          "bytes": 4314
+        },
+        {
+          "title": "云帆协作平台高级功能与管理 FAQ",
+          "path": "yunfan/云帆协作平台高级功能与管理 FAQ.txt",
+          "source_path": "mock_data/documents/product-faq-advanced.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/product-faq-advanced.md",
+          "original_path": "yunfan/originals/product-faq-advanced.md.txt",
+          "sha256": "32d307ee1d6680a0533f8b8f6e4fa235765d06ec57e868b92af1a5d9be08fba1",
+          "source_sha256": "b5d216aba7b302514591e74dcf3a0a5d58a23a1f164c6250bb7bbc3d99cb1aae",
+          "bytes": 4251
+        },
+        {
+          "title": "云帆协作平台基础功能 FAQ",
+          "path": "yunfan/云帆协作平台基础功能 FAQ.txt",
+          "source_path": "mock_data/documents/product-faq-basic.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/product-faq-basic.md",
+          "original_path": "yunfan/originals/product-faq-basic.md.txt",
+          "sha256": "a042df6f4947a60ab5852bb7680d6cb1a1bfd5b678e2f755d844c38ff75d4da4",
+          "source_sha256": "378c83d57ea6f699ee6ec121429dab4064357628972ecadc6dfd689b31ff82a3",
+          "bytes": 4439
+        },
+        {
+          "title": "招聘流程与面试指南",
+          "path": "yunfan/招聘流程与面试指南.txt",
+          "source_path": "mock_data/documents/recruitment-guide.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/recruitment-guide.md",
+          "original_path": "yunfan/originals/recruitment-guide.md.txt",
+          "sha256": "97b15bdfc1a1b7387de1872e4e8fd605d4513402a92928c4b284b6d2c8aa9067",
+          "source_sha256": "3510f0998bde20b0a303d808a12297c8591aa8431a6887fac6f2fde156d0d05b",
+          "bytes": 3774
+        },
+        {
+          "title": "差旅管理与费用标准",
+          "path": "yunfan/差旅管理与费用标准.txt",
+          "source_path": "mock_data/documents/travel-policy.md",
+          "source_url": "https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/travel-policy.md",
+          "original_path": "yunfan/originals/travel-policy.md.txt",
+          "sha256": "ede2b4a405ccafa7743c0bd81b3d771468c0b6c5bc9451eeb4f2dbfa4dafe068",
+          "source_sha256": "06d74c80d2433e58940765ece1ffc33f2a55ba764423355ba2fde4df5f76346e",
+          "bytes": 4186
+        }
+      ]
+    },
+    {
+      "id": "yunzhou",
+      "name": "中文虚构企业·云舟科技制度",
+      "repository": "HarryGuanAI/Enterprise-Rag-Assistant",
+      "revision": "0ce0179fd7ec46f32ea1469332a311dae2e39c13",
+      "license": "MIT",
+      "license_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/LICENSE",
+      "documents": [
+        {
+          "title": "云舟科技员工手册与考勤休假制度",
+          "path": "yunzhou/云舟科技员工手册与考勤休假制度.txt",
+          "source_path": "sample_docs/01_员工手册与考勤休假制度.md",
+          "source_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/sample_docs/01_员工手册与考勤休假制度.md",
+          "original_path": "yunzhou/originals/01_员工手册与考勤休假制度.md.txt",
+          "sha256": "35a813b05ccc2027facaa68fd18bbfeed124eb1fa2b14166122d0a8550eda8ce",
+          "source_sha256": "d0ccb27bb7e09bf5b2abbded38ce51392f37cb24ba4d4da630220b246ec97cb2",
+          "bytes": 7565
+        },
+        {
+          "title": "云舟科技费用报销与差旅管理制度",
+          "path": "yunzhou/云舟科技费用报销与差旅管理制度.txt",
+          "source_path": "sample_docs/02_费用报销与差旅管理制度.md",
+          "source_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/sample_docs/02_费用报销与差旅管理制度.md",
+          "original_path": "yunzhou/originals/02_费用报销与差旅管理制度.md.txt",
+          "sha256": "12a6264642136ac2ea78f66de5498595c732f7237f9246962be5ae681395ceab",
+          "source_sha256": "a5b7b4442f64a56f8b8a717c433be50c987cea9565951c2a7faf28176b08a1e1",
+          "bytes": 6362
+        },
+        {
+          "title": "云舟科技信息安全与数据权限规范",
+          "path": "yunzhou/云舟科技信息安全与数据权限规范.txt",
+          "source_path": "sample_docs/03_信息安全与数据权限规范.md",
+          "source_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/sample_docs/03_信息安全与数据权限规范.md",
+          "original_path": "yunzhou/originals/03_信息安全与数据权限规范.md.txt",
+          "sha256": "1664e25899c0e2f106fecb3b6b8bcd9ce190129abd27b25fba70ddc8b485d00a",
+          "source_sha256": "536cca41dbb908c709fe111b91cb8aad59098d94092b66557ca1da4ee367d474",
+          "bytes": 5115
+        },
+        {
+          "title": "云舟科技销售合同与报价审批流程",
+          "path": "yunzhou/云舟科技销售合同与报价审批流程.txt",
+          "source_path": "sample_docs/04_销售合同与报价审批流程.md",
+          "source_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/sample_docs/04_销售合同与报价审批流程.md",
+          "original_path": "yunzhou/originals/04_销售合同与报价审批流程.md.txt",
+          "sha256": "e3690f25943ec6eba44636d46ce08a82805332b50ada35f685cecd0488c9e2b7",
+          "source_sha256": "e12d19473c6f79e0fa6bf0ec36ad77c26d7aea287fc9060dc5abd2bfaf1cbb78",
+          "bytes": 4745
+        },
+        {
+          "title": "云舟科技客户服务与工单 SLA 规范",
+          "path": "yunzhou/云舟科技客户服务与工单 SLA 规范.txt",
+          "source_path": "sample_docs/05_客户服务与工单SLA规范.md",
+          "source_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/sample_docs/05_客户服务与工单SLA规范.md",
+          "original_path": "yunzhou/originals/05_客户服务与工单SLA规范.md.txt",
+          "sha256": "29e262cacc02741cf6678d4111b0d6070fcd9ebb8b0b3e633af3c814d76b7f54",
+          "source_sha256": "78fdff9bf445c2442f52dcca4964012c32108b016ba738b6b561e1aa5be5191e",
+          "bytes": 4031
+        },
+        {
+          "title": "06_采购付款与供应商管理规范",
+          "path": "yunzhou/06_采购付款与供应商管理规范.txt",
+          "source_path": "sample_docs/06_采购付款与供应商管理规范.txt",
+          "source_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/sample_docs/06_采购付款与供应商管理规范.txt",
+          "original_path": "yunzhou/originals/06_采购付款与供应商管理规范.txt.txt",
+          "sha256": "a2700dbb1760675a74093a7a860b9c2c2e36b6beb98881e708ee3de845e08a5a",
+          "source_sha256": "1616e1fe24221372c616139db5c7a795b19e08a1877d931b3a3aa2deb7df4078",
+          "bytes": 3895
+        },
+        {
+          "title": "云舟知识库助手产品 FAQ",
+          "path": "yunzhou/云舟知识库助手产品 FAQ.txt",
+          "source_path": "sample_docs/07_云舟知识库助手产品FAQ.md",
+          "source_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/sample_docs/07_云舟知识库助手产品FAQ.md",
+          "original_path": "yunzhou/originals/07_云舟知识库助手产品FAQ.md.txt",
+          "sha256": "7f35b8ebdbc0846015adbadde3d688a7b11c111838797f5b676e889ccbd173a3",
+          "source_sha256": "81c30ed5ce5bf39a72687d22ad3715d78de6a0ebca257a04e91b3bc75268bfd8",
+          "bytes": 3648
+        },
+        {
+          "title": "云舟科技研发发布与故障复盘规范",
+          "path": "yunzhou/云舟科技研发发布与故障复盘规范.txt",
+          "source_path": "sample_docs/11_研发发布与故障复盘规范.md",
+          "source_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/sample_docs/11_研发发布与故障复盘规范.md",
+          "original_path": "yunzhou/originals/11_研发发布与故障复盘规范.md.txt",
+          "sha256": "cc089af7b228f76c7782aa2d05e6908eee437da483a67330432a8de9b03c2906",
+          "source_sha256": "0fcf435e84759c0276c2788bc8e754cca9d413988e02d9e29d89245b5fd46c01",
+          "bytes": 3310
+        },
+        {
+          "title": "云舟科技综合办公与行政服务指南",
+          "path": "yunzhou/云舟科技综合办公与行政服务指南.txt",
+          "source_path": "sample_docs/12_综合办公与行政服务指南.md",
+          "source_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/sample_docs/12_综合办公与行政服务指南.md",
+          "original_path": "yunzhou/originals/12_综合办公与行政服务指南.md.txt",
+          "sha256": "f6618fff1eae107465dc4e5ca1b643aea6046546bde38c91fe7989a9b4aa7b2b",
+          "source_sha256": "5a54e48a2621b7233dba92d4e385eb1e1148624876679f4a5a27b7c176c95732",
+          "bytes": 9176
+        }
+      ],
+      "evaluation": {
+        "path": "yunzhou/evaluation/golden_qa.jsonl",
+        "source_url": "https://github.com/HarryGuanAI/Enterprise-Rag-Assistant/blob/0ce0179fd7ec46f32ea1469332a311dae2e39c13/evals/golden_qa.jsonl",
+        "note": "原始80题独立保存；未导入部分office/PDF文件，不能将全题集当成本子集评分结果"
+      }
+    }
+  ]
+}

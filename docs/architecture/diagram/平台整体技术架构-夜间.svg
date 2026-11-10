@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1236" role="img" aria-labelledby="title desc">
+<title id="title">NiumaCrew 平台技术架构</title>
+<desc id="desc">按模块职责展示接入、业务应用、受控执行和平台支撑服务，数据存储与运行服务另列为运行依赖。虚线框表示待建设或待接入，包括微信及其他IM、事件接入、任务管理与编排、长期记忆。业务应用内部进行身份与权限校验、业务准入和幂等检查。计划调度归任务管理。两条圆弧连接整层外框，分别表示应用提交或取消Run，以及执行成果回到所属应用。图表示模块职责与执行协作，不表示独立部署或严格源码依赖。</desc>
+<metadata>配色来源：frontend/src/design-system/theme.css。主图随宿主颜色模式适配；夜间导出版固定为夜间配色。</metadata>
+<defs>
+<marker id="request-arrow" markerUnits="userSpaceOnUse" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" class="request-head"/></marker>
+<marker id="result-arrow" markerUnits="userSpaceOnUse" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" class="result-head"/></marker>
+<style>
+text{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif}
+.title{font-size:32px;font-weight:600;letter-spacing:-.5px}
+.section{font-size:22px;font-weight:600}
+.name{font-size:20px;font-weight:600}
+.small-name{font-size:18px;font-weight:600}
+.body{font-size:16px}
+.caption{font-size:14px}
+.english{font-size:13px;letter-spacing:.15px}
+
+.region{stroke-width:1.2}
+.card{stroke-width:1.2}
+.planned{stroke-dasharray:5 5}
+.request{fill:none;stroke-width:1.5;stroke-linecap:butt;marker-end:url(#request-arrow)}
+.result{fill:none;stroke-width:1.5;stroke-linecap:butt;marker-end:url(#result-arrow)}
+
+.canvas{fill:#1b1a18}
+text{fill:#f2eee5}
+.body,.caption,.english{fill:#b9b4a8}
+.brand{fill:#eea379}
+.region{fill:#242321;stroke:#464239}
+.card{fill:#2a2824;stroke:#464239}
+.planned{stroke:#b9b4a8}
+.request{stroke:#eea379}
+.result{stroke:#b9b4a8}
+.request-head{fill:#eea379}
+.result-head{fill:#b9b4a8}
+
+</style></defs>
+<rect class="canvas" width="1440" height="1236"/>
+<text class="title" x="48" y="60">NiumaCrew · 平台技术架构</text>
+<text class="caption" x="48" y="88">模块职责与执行协作</text>
+<rect class="card planned" x="1098" y="67" width="26" height="16" rx="4"/>
+<text class="caption" x="1136" y="80">待建设或待接入</text>
+<rect class="region" x="40" y="116" width="1360" height="144" rx="18"/>
+<text class="section" x="64" y="154">接入层</text>
+<text class="caption" x="64" y="182">协议适配</text>
+<text class="caption" x="64" y="205">来源验证</text>
+<rect class="card" x="240" y="134" width="752" height="108" rx="12"/>
+<text class="name" x="260" y="164">交互接入</text>
+<rect class="region" x="260" y="182" width="330" height="40" rx="8"/>
+<text class="body" x="425" y="208" text-anchor="middle">Web 页面与 HTTP API</text>
+<rect class="card planned" x="606" y="182" width="366" height="40" rx="8"/>
+<text class="body" x="789" y="208" text-anchor="middle">微信与其他 IM</text>
+<rect class="card planned" x="1008" y="134" width="368" height="108" rx="12"/>
+<text class="name" x="1028" y="164">事件接入</text>
+<text class="body" x="1028" y="198">Webhook 业务事件</text>
+<text class="caption" x="1028" y="222">验签与订阅关联</text>
+<rect class="region" x="40" y="280" width="1360" height="238" rx="18"/>
+<text class="section" x="64" y="318">业务应用</text>
+<text class="caption" x="64" y="346">管理业务进度</text>
+<text class="caption" x="64" y="369">接纳执行成果</text>
+<rect class="region" x="240" y="298" width="1136" height="34" rx="8"/>
+<text class="small-name" x="256" y="320">业务受理</text>
+<text class="caption" x="360" y="320">身份与权限校验  ·  业务准入  ·  幂等检查</text>
+<rect class="card" x="240" y="348" width="368" height="148" rx="12"/>
+<text class="name" x="260" y="379">对话服务</text>
+<text class="english" x="260" y="401">Conversation</text>
+<text class="body" x="260" y="438">管理会话、消息与历史</text>
+<text class="body" x="260" y="464">提交对话执行，接纳正式回复</text>
+<rect class="card" x="624" y="348" width="368" height="148" rx="12"/>
+<text class="name" x="644" y="379">评测服务</text>
+<text class="english" x="644" y="401">Evaluation</text>
+<text class="body" x="644" y="438">管理批次、用例与答卷</text>
+<text class="body" x="644" y="464">推进评测、评分并汇总报告</text>
+<rect class="card planned" x="1008" y="348" width="368" height="148" rx="12"/>
+<text class="name" x="1028" y="379">任务管理与编排</text>
+<text class="english" x="1028" y="401">Task Management &amp; Orchestration</text>
+<text class="body" x="1028" y="438">管理任务、定时计划与事件订阅</text>
+<text class="body" x="1028" y="464">推进步骤、等待、重试与交付</text>
+<path id="submit-run" class="request" d="M704 518C688 530 688 550 704 562"/>
+<path id="accept-result" class="result" d="M736 562C752 550 752 530 736 518"/>
+<text class="body brand" x="672" y="545" text-anchor="end">提交 / 取消 Run</text>
+<text class="body" x="768" y="545">执行成果</text>
+<rect class="region" x="40" y="562" width="1360" height="202" rx="18"/>
+<text class="section" x="64" y="600">受控执行</text>
+<text class="caption" x="64" y="628">管理一次 Run</text>
+<text class="caption" x="64" y="651">保存动作与成果</text>
+<rect class="card" x="240" y="580" width="368" height="162" rx="12"/>
+<text class="name" x="260" y="612">Run 生命周期管理</text>
+<text class="english" x="260" y="634">Run Lifecycle</text>
+<text class="body" x="260" y="675">创建、排队、启动、取消与恢复</text>
+<text class="body" x="260" y="701">保存输入快照，维护执行状态</text>
+<rect class="card" x="624" y="580" width="368" height="162" rx="12"/>
+<text class="name" x="644" y="612">Agent 运行时</text>
+<text class="english" x="644" y="634">Agent Runtime</text>
+<text class="body" x="644" y="675">执行模型与工具调用循环</text>
+<text class="body" x="644" y="701">管理上下文、摘要与执行检查点</text>
+<rect class="card" x="1008" y="580" width="368" height="162" rx="12"/>
+<text class="name" x="1028" y="612">动作控制与成果保存</text>
+<text class="english" x="1028" y="634">Action Control &amp; Result Persistence</text>
+<text class="body" x="1028" y="675">授权与预算检查，记录实际动作</text>
+<text class="body" x="1028" y="701">核验成果，一并保存结果与终态</text>
+<rect class="region" x="40" y="784" width="1360" height="236" rx="18"/>
+<text class="section" x="64" y="822">平台支撑服务</text>
+<rect class="card" x="240" y="802" width="368" height="60" rx="10"/>
+<text class="small-name" x="256" y="827">身份与权限</text>
+<text class="caption" x="256" y="848">用户、会话与权限规则</text>
+<rect class="card" x="624" y="802" width="368" height="60" rx="10"/>
+<text class="small-name" x="640" y="827">员工配置</text>
+<text class="caption" x="640" y="848">岗位指令与资源装配</text>
+<rect class="card" x="1008" y="802" width="368" height="60" rx="10"/>
+<text class="small-name" x="1024" y="827">技能管理</text>
+<text class="caption" x="1024" y="848">技能包、版本与发布</text>
+<rect class="card" x="240" y="870" width="368" height="60" rx="10"/>
+<text class="small-name" x="256" y="895">知识管理</text>
+<text class="caption" x="256" y="916">资料入库、检索与来源</text>
+<rect class="card" x="624" y="870" width="368" height="60" rx="10"/>
+<text class="small-name" x="640" y="895">模型连接</text>
+<text class="caption" x="640" y="916">模型配置、凭据与修订</text>
+<rect class="card" x="1008" y="870" width="368" height="60" rx="10"/>
+<text class="small-name" x="1024" y="895">工具接入</text>
+<text class="caption" x="1024" y="916">MCP 服务、账号与工具清单</text>
+<rect class="card" x="240" y="938" width="368" height="60" rx="10"/>
+<text class="small-name" x="256" y="963">文件管理</text>
+<text class="caption" x="256" y="984">附件、成果与保留策略</text>
+<rect class="card" x="624" y="938" width="368" height="60" rx="10"/>
+<text class="small-name" x="640" y="963">执行环境管理</text>
+<text class="caption" x="640" y="984">沙箱申请、使用与回收</text>
+<rect class="card planned" x="1008" y="938" width="368" height="60" rx="10"/>
+<text class="small-name" x="1024" y="963">长期记忆</text>
+<text class="caption" x="1024" y="984">事实确认、纠错与遗忘</text>
+<text class="small-name" x="64" y="1073">数据存储</text>
+<rect class="region" x="240" y="1042" width="368" height="72" rx="10"/>
+<text class="small-name" x="256" y="1070">SQLite</text>
+<text class="caption" x="256" y="1094">业务数据、检查点与全文索引</text>
+<rect class="region" x="624" y="1042" width="368" height="72" rx="10"/>
+<text class="small-name" x="640" y="1070">文件存储</text>
+<text class="caption" x="640" y="1094">附件、技能包与成果文件</text>
+<rect class="region" x="1008" y="1042" width="368" height="72" rx="10"/>
+<text class="small-name" x="1024" y="1070">Chroma</text>
+<text class="caption" x="1024" y="1094">向量索引</text>
+<text class="small-name" x="64" y="1161">运行服务</text>
+<rect class="region" x="240" y="1130" width="368" height="72" rx="10"/>
+<text class="small-name" x="256" y="1158">模型服务</text>
+<text class="caption" x="256" y="1182">聊天与向量模型 API</text>
+<rect class="region" x="624" y="1130" width="368" height="72" rx="10"/>
+<text class="small-name" x="640" y="1158">MCP 服务</text>
+<text class="caption" x="640" y="1182">检索与业务系统工具</text>
+<rect class="region" x="1008" y="1130" width="368" height="72" rx="10"/>
+<text class="small-name" x="1024" y="1158">沙箱服务</text>
+<text class="caption" x="1024" y="1182">隔离的文件与命令执行</text>
+</svg>

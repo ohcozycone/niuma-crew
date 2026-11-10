@@ -1,0 +1,72 @@
+# 新员工入职指南
+
+## 入职前准备（HR 与 IT）
+
+1. 入职前 3 个工作日，HRBP 在"人事服务"发起入职流程，自动触发 IT 开户工单。
+2. IT 部将创建域账号（邮箱格式：名字拼音.姓拼音@yunfantech.com，如林远航为 yuanhang.lin@yunfantech.com）、
+   开通云帆协作平台账号与 VPN，并按《IT 支持手册：设备申领与资产管理》准备电脑。
+3. 直属 Leader 须为新员工指定一名**导师（Buddy）**，负责前 3 个月的融入辅导。
+
+## 入职第一天流程
+
+| 时间 | 事项 | 地点/联系人 |
+| --- | --- | --- |
+| 9:30 | 报到：携带身份证、学历学位证原件、离职证明、银行卡 | 总部前台，行政 小唐 |
+| 10:00 | 签订劳动合同、保密协议，领取工牌与门禁 | HR 服务台（8 号楼 2 层） |
+| 11:00 | 领取电脑与外设，激活域账号与邮箱 | IT 服务台，内线 8000 |
+| 14:00 | 入职培训：公司历史、制度红线、信息安全基础 | 培训教室 A（线上同步直播） |
+| 16:00 | 部门欢迎会与导师见面 | 所在部门工位区 |
+
+入职材料不齐者可先办理临时入职，须在 **10 个工作日**内补齐，否则影响试用期评估。
+
+## 入职 30-60-90 天计划
+
+- **30 天**：完成全部线上必修课（信息安全、合规准则、产品概览共 3 门，每门约 40 分钟）；
+  与 Leader 对齐试用期目标并录入平台"目标（OKR）"模块。
+- **60 天**：导师与 HRBP 进行一次中期访谈，跟踪目标进展与融入情况。
+- **90 天**：提交转正申请（"人事服务"→"转正"），由 Leader、导师、HRBP 三方评估；
+  试用期考核等级为 S/A/B 者按期转正，C 者延长试用期 1 个月或终止试用。
+
+## 常用系统初始化清单
+
+1. 修改域账号初始密码（要求：不少于 12 位，含大小写字母、数字、特殊符号）。
+2. 绑定 MFA 多因素认证（平台"安全中心"扫码绑定手机）。
+3. 连接办公 WiFi：SSID 为 **Yunfan-Office**，使用域账号认证。
+4. 安装 VPN 客户端并测试：vpn.yunfantech.com。
+5. 完善平台个人资料：头像、部门、汇报关系、常用联系方式。
+
+## 常见问题
+
+- **邮箱收不到激活邮件？** 联系 IT 服务台（it-helpdesk@yunfantech.com，内线 8000）。
+- **门禁/工牌失效？** 到前台找行政 小唐 重新写卡。
+- **不清楚制度细节？** 全部制度文档已导入公司内部知识库"制度中心"，支持全文检索。
+
+> 本指南由人力资源部与 IT 部联合维护，版本 V2.1，最近更新：2026 年 6 月。
+
+## 资料来源与许可
+
+本文为源项目提供的虚构企业中文演示资料，不代表真实公司制度。本次保留原始业务正文，仅转换为 UTF-8 TXT 并添加本节。
+原文来源：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/onboarding-guide.md
+许可：MIT；完整许可及版权声明：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/LICENSE
+
+MIT License
+
+Copyright (c) 2026 zhenyong97
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

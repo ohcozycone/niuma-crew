@@ -1,0 +1,80 @@
+{"question": "新员工入职第一周需要完成哪些事项？", "expected_sources": ["员工手册与考勤休假制度"], "expected_sections": ["入职流程"], "expected_keywords": ["账号开通", "设备领取", "信息安全培训", "试用期目标确认"], "expected_refusal": false, "category": "HR"}
+{"question": "临时权限最长可以开多久？", "expected_sources": ["员工手册与考勤休假制度"], "expected_sections": ["入职流程"], "expected_keywords": ["临时权限", "最长不超过 2 个工作日", "生产数据库"], "expected_refusal": false, "category": "HR"}
+{"question": "公司的核心协作时间是什么时候？", "expected_sources": ["员工手册与考勤休假制度"], "expected_sections": ["工作时间与考勤"], "expected_keywords": ["10:00", "17:00", "核心协作时间"], "expected_refusal": false, "category": "考勤"}
+{"question": "每个月可以合理补卡几次？", "expected_sources": ["员工手册与考勤休假制度"], "expected_sections": ["工作时间与考勤"], "expected_keywords": ["每月允许 2 次", "补卡", "直属上级"], "expected_refusal": false, "category": "考勤"}
+{"question": "连续远程办公超过两天需要谁审批？", "expected_sources": ["员工手册与考勤休假制度"], "expected_sections": ["远程办公与外勤"], "expected_keywords": ["连续远程超过 2 天", "部门负责人审批", "VPN"], "expected_refusal": false, "category": "考勤"}
+{"question": "员工转正后年假怎么计算？", "expected_sources": ["员工手册与考勤休假制度"], "expected_sections": ["年假规则"], "expected_keywords": ["转正", "5 天", "10 天", "15 天"], "expected_refusal": false, "category": "休假"}
+{"question": "连续病假超过两天要提交什么？", "expected_sources": ["员工手册与考勤休假制度"], "expected_sections": ["病假、事假与调休"], "expected_keywords": ["连续病假超过 2 个工作日", "医院诊断证明", "门诊记录"], "expected_refusal": false, "category": "休假"}
+{"question": "调休额度多久不用会失效？", "expected_sources": ["员工手册与考勤休假制度"], "expected_sections": ["病假、事假与调休"], "expected_keywords": ["90 天内使用", "逾期未使用", "自动失效"], "expected_refusal": false, "category": "休假"}
+{"question": "婚假需要提前多久申请？", "expected_sources": ["员工手册与考勤休假制度"], "expected_sections": ["婚假、产假、陪产假和丧假"], "expected_keywords": ["婚假", "提前 5 个工作日", "结婚证明"], "expected_refusal": false, "category": "休假"}
+{"question": "内部文档能上传到外部 AI 工具吗？", "expected_sources": ["员工手册与考勤休假制度", "信息安全与数据权限规范"], "expected_sections": ["行为规范与保密", "AI 工具使用边界"], "expected_keywords": ["不得", "外部平台", "未经批准", "AI 工具"], "expected_refusal": false, "category": "安全"}
+{"question": "报销申请一般要在多久内提交？", "expected_sources": ["费用报销与差旅管理制度"], "expected_sections": ["报销总原则"], "expected_keywords": ["7 个工作日", "次月第 5 个工作日", "超过 30 天"], "expected_refusal": false, "category": "财务"}
+{"question": "超过30天没提交报销怎么办？", "expected_sources": ["费用报销与差旅管理制度"], "expected_sections": ["报销总原则"], "expected_keywords": ["超过 30 天", "部门负责人", "财务负责人", "逾期原因"], "expected_refusal": false, "category": "财务"}
+{"question": "连续乘车超过6小时能坐一等座吗？", "expected_sources": ["费用报销与差旅管理制度"], "expected_sections": ["差旅申请与交通标准"], "expected_keywords": ["连续乘车超过 6 小时", "可申请一等座", "备注原因"], "expected_refusal": false, "category": "差旅"}
+{"question": "一线城市住宿报销上限是多少？", "expected_sources": ["费用报销与差旅管理制度"], "expected_sections": ["住宿与餐补"], "expected_keywords": ["一线城市", "650 元", "北京"], "expected_refusal": false, "category": "差旅"}
+{"question": "客户提供了餐食还能报餐补吗？", "expected_sources": ["费用报销与差旅管理制度"], "expected_sections": ["住宿与餐补"], "expected_keywords": ["客户已提供餐食", "不得重复申请餐补"], "expected_refusal": false, "category": "差旅"}
+{"question": "晚上十点后加班打车能报销吗？", "expected_sources": ["费用报销与差旅管理制度"], "expected_sections": ["市内交通、加班餐和通讯费"], "expected_keywords": ["22:00 后", "加班", "打车费", "项目上线记录"], "expected_refusal": false, "category": "报销"}
+{"question": "加班餐每人每餐最多多少钱？", "expected_sources": ["费用报销与差旅管理制度"], "expected_sections": ["市内交通、加班餐和通讯费"], "expected_keywords": ["每人每餐不超过 60 元", "项目名称", "参与人员"], "expected_refusal": false, "category": "报销"}
+{"question": "单次业务招待超过3000元谁审批？", "expected_sources": ["费用报销与差旅管理制度", "Business_Reception"], "expected_sections": ["业务招待与礼品"], "expected_keywords": ["单次招待总额超过 3000 元", "总经理审批"], "expected_refusal": false, "category": "合规"}
+{"question": "礼品单件上限和客户年度累计上限是多少？", "expected_sources": ["费用报销与差旅管理制度", "Business_Reception"], "expected_sections": ["业务招待与礼品"], "expected_keywords": ["单件礼品", "300 元", "年度累计", "1000 元"], "expected_refusal": false, "category": "合规"}
+{"question": "出差报销要提交哪些附件？", "expected_sources": ["费用报销与差旅管理制度"], "expected_sections": ["发票和附件要求"], "expected_keywords": ["发票", "行程单", "出差审批记录", "费用明细"], "expected_refusal": false, "category": "报销"}
+{"question": "公司数据分哪几个级别？", "expected_sources": ["信息安全与数据权限规范"], "expected_sections": ["数据分级"], "expected_keywords": ["公开", "内部", "敏感", "受限"], "expected_refusal": false, "category": "安全"}
+{"question": "离职时账号权限什么时候关闭？", "expected_sources": ["信息安全与数据权限规范", "入职转正离职流程"], "expected_sections": ["账号和密码"], "expected_keywords": ["最后工作日 18:00", "企业邮箱", "VPN"], "expected_refusal": false, "category": "安全"}
+{"question": "API Key 可以写在 README 或工单评论里吗？", "expected_sources": ["信息安全与数据权限规范"], "expected_sections": ["API Key 和密钥管理"], "expected_keywords": ["不得写入代码仓库", "README", "工单评论", "立即废弃旧密钥"], "expected_refusal": false, "category": "安全"}
+{"question": "发现密钥泄露后应该怎么做？", "expected_sources": ["信息安全与数据权限规范"], "expected_sections": ["API Key 和密钥管理"], "expected_keywords": ["立即废弃旧密钥", "重新生成新密钥", "30 天调用日志"], "expected_refusal": false, "category": "安全"}
+{"question": "客户数据导出需要记录哪些信息？", "expected_sources": ["信息安全与数据权限规范"], "expected_sections": ["客户数据处理"], "expected_keywords": ["导出人", "导出时间", "数据范围", "预计删除时间"], "expected_refusal": false, "category": "安全"}
+{"question": "测试截图里手机号和邮箱怎么脱敏？", "expected_sources": ["信息安全与数据权限规范"], "expected_sections": ["脱敏要求"], "expected_keywords": ["手机号", "前三后四", "邮箱", "隐藏"], "expected_refusal": false, "category": "安全"}
+{"question": "敏感数据对外共享需要哪些审批？", "expected_sources": ["信息安全与数据权限规范"], "expected_sections": ["外部共享审批"], "expected_keywords": ["部门负责人", "安全负责人审批", "共享目的", "数据范围"], "expected_refusal": false, "category": "安全"}
+{"question": "销售创建合同前 CRM 要填什么？", "expected_sources": ["销售合同与报价审批流程"], "expected_sections": ["商机确认"], "expected_keywords": ["客户名称", "联系人", "预计金额", "产品版本", "交付范围"], "expected_refusal": false, "category": "销售"}
+{"question": "50万以上商机需要谁共同评估？", "expected_sources": ["销售合同与报价审批流程"], "expected_sections": ["商机确认"], "expected_keywords": ["50 万元以上", "售前", "交付", "财务"], "expected_refusal": false, "category": "销售"}
+{"question": "折扣超过35%要谁审批？", "expected_sources": ["销售合同与报价审批流程"], "expected_sections": ["报价规则"], "expected_keywords": ["超过 35%", "总经理", "战略客户"], "expected_refusal": false, "category": "销售"}
+{"question": "免费试用超过60天需要升级审批吗？", "expected_sources": ["销售合同与报价审批流程"], "expected_sections": ["报价规则"], "expected_keywords": ["免费试用超过 60 天", "总经理审批"], "expected_refusal": false, "category": "销售"}
+{"question": "合同评审中法务关注哪些条款？", "expected_sources": ["销售合同与报价审批流程"], "expected_sections": ["合同评审"], "expected_keywords": ["付款条款", "违约责任", "数据安全条款", "知识产权"], "expected_refusal": false, "category": "合同"}
+{"question": "客户用自己的合同模板可以直接签吗？", "expected_sources": ["销售合同与报价审批流程"], "expected_sections": ["合同评审"], "expected_keywords": ["客户使用自有模板", "不得直接签署", "法务"], "expected_refusal": false, "category": "合同"}
+{"question": "合同用印需要上传哪些材料？", "expected_sources": ["销售合同与报价审批流程"], "expected_sections": ["用印和归档"], "expected_keywords": ["最终版合同", "报价单", "审批记录", "客户开票信息"], "expected_refusal": false, "category": "合同"}
+{"question": "首付款逾期超过30天怎么处理？", "expected_sources": ["销售合同与报价审批流程"], "expected_sections": ["回款和变更"], "expected_keywords": ["逾期超过 30 天", "财务", "催款通知"], "expected_refusal": false, "category": "回款"}
+{"question": "工单分为哪些分类？", "expected_sources": ["客户服务与工单 SLA 规范"], "expected_sections": ["工单分类"], "expected_keywords": ["账号权限", "产品使用", "故障报修", "安全事件"], "expected_refusal": false, "category": "客服"}
+{"question": "P0 工单多久首次响应？", "expected_sources": ["客户服务与工单 SLA 规范"], "expected_sections": ["优先级定义"], "expected_keywords": ["P0", "15 分钟", "1 小时", "4 小时"], "expected_refusal": false, "category": "客服"}
+{"question": "P1 工单的解决目标是多久？", "expected_sources": ["客户服务与工单 SLA 规范"], "expected_sections": ["优先级定义"], "expected_keywords": ["P1", "1 个工作日", "30 分钟"], "expected_refusal": false, "category": "客服"}
+{"question": "升级研发时必须提供哪些信息？", "expected_sources": ["客户服务与工单 SLA 规范"], "expected_sections": ["升级研发"], "expected_keywords": ["客户名称", "复现步骤", "截图或日志", "影响范围"], "expected_refusal": false, "category": "客服"}
+{"question": "日志里有 token 能直接发研发吗？", "expected_sources": ["客户服务与工单 SLA 规范"], "expected_sections": ["升级研发"], "expected_keywords": ["token", "客户密钥", "脱敏"], "expected_refusal": false, "category": "安全"}
+{"question": "P0/P1 工单关闭后必须补什么？", "expected_sources": ["客户服务与工单 SLA 规范"], "expected_sections": ["关闭工单"], "expected_keywords": ["P0/P1", "复盘记录", "原因", "预防措施"], "expected_refusal": false, "category": "客服"}
+{"question": "单次采购超过1万元需要几家报价？", "expected_sources": ["采购付款与供应商管理规范"], "expected_sections": ["询价和比价"], "expected_keywords": ["超过 1 万元", "至少 3 家供应商报价"], "expected_refusal": false, "category": "采购"}
+{"question": "什么情况可以单一来源采购？", "expected_sources": ["采购付款与供应商管理规范"], "expected_sections": ["询价和比价"], "expected_keywords": ["唯一供应商", "原厂续费", "紧急故障替换", "技术兼容性"], "expected_refusal": false, "category": "采购"}
+{"question": "预付款超过合同金额30%需要谁审批？", "expected_sources": ["采购付款与供应商管理规范"], "expected_sections": ["合同和付款"], "expected_keywords": ["预付款超过合同金额 30%", "财务负责人审批"], "expected_refusal": false, "category": "采购"}
+{"question": "供应商准入需要提供哪些材料？", "expected_sources": ["采购付款与供应商管理规范"], "expected_sections": ["供应商准入"], "expected_keywords": ["营业执照", "银行账户", "数据处理说明", "廉洁承诺"], "expected_refusal": false, "category": "采购"}
+{"question": "哪些供应商会进黑名单？", "expected_sources": ["采购付款与供应商管理规范"], "expected_sections": ["供应商黑名单"], "expected_keywords": ["虚假报价", "商业贿赂", "泄露公司资料", "伪造发票"], "expected_refusal": false, "category": "采购"}
+{"question": "系统支持哪些文件格式？", "expected_sources": ["云舟知识库助手产品FAQ"], "expected_sections": ["支持的文档格式"], "expected_keywords": ["PDF", "DOCX", "Markdown", "TXT"], "expected_refusal": false, "category": "产品"}
+{"question": "扫描版 PDF 支持 OCR 吗？", "expected_sources": ["云舟知识库助手产品FAQ"], "expected_sections": ["支持的文档格式"], "expected_keywords": ["PDF", "文本型 PDF", "不支持扫描件 OCR"], "expected_refusal": false, "category": "产品"}
+{"question": "文档重新上传时旧 chunk 怎么办？", "expected_sources": ["云舟知识库助手产品FAQ"], "expected_sections": ["文档入库流程"], "expected_keywords": ["重新上传", "清理旧 chunk", "新的 chunk"], "expected_refusal": false, "category": "产品"}
+{"question": "为什么系统会严格拒答？", "expected_sources": ["云舟知识库助手产品FAQ"], "expected_sections": ["严格拒答"], "expected_keywords": ["Top1 相似度", "阈值", "减少模型幻觉", "调用成本"], "expected_refusal": false, "category": "产品"}
+{"question": "引用来源会展示哪些信息？", "expected_sources": ["云舟知识库助手产品FAQ"], "expected_sections": ["引用来源"], "expected_keywords": ["文档标题", "章节路径", "相似度分数", "检索模式"], "expected_refusal": false, "category": "产品"}
+{"question": "游客能上传文档吗？", "expected_sources": ["云舟知识库助手产品FAQ"], "expected_sections": ["游客和管理员权限"], "expected_keywords": ["游客", "不能上传文档", "管理员"], "expected_refusal": false, "category": "产品"}
+{"question": "试用期转正前多久提交转正评价？", "expected_sources": ["入职转正离职流程"], "expected_sections": ["转正"], "expected_keywords": ["转正日前 7 个工作日", "转正评价"], "expected_refusal": false, "category": "HR"}
+{"question": "研发岗位入职默认开生产数据库权限吗？", "expected_sources": ["入职转正离职流程"], "expected_sections": ["入职"], "expected_keywords": ["默认不开通生产数据库权限", "部门负责人"], "expected_refusal": false, "category": "HR"}
+{"question": "试用期改进计划一般多久？", "expected_sources": ["入职转正离职流程"], "expected_sections": ["试用期"], "expected_keywords": ["试用期改进计划", "2-4 周"], "expected_refusal": false, "category": "HR"}
+{"question": "离职需要提前多久申请？", "expected_sources": ["入职转正离职流程"], "expected_sections": ["离职"], "expected_keywords": ["至少提前 30 天", "离职交接"], "expected_refusal": false, "category": "HR"}
+{"question": "绩效分为哪几个档位？", "expected_sources": ["绩效薪酬福利政策"], "expected_sections": ["绩效"], "expected_keywords": ["S", "A", "B", "C", "D"], "expected_refusal": false, "category": "绩效"}
+{"question": "B档绩效是什么意思？", "expected_sources": ["绩效薪酬福利政策"], "expected_sections": ["绩效"], "expected_keywords": ["B 档", "达到岗位预期"], "expected_refusal": false, "category": "绩效"}
+{"question": "员工薪酬可以在聊天群里传播吗？", "expected_sources": ["绩效薪酬福利政策"], "expected_sections": ["薪酬"], "expected_keywords": ["薪酬属于敏感数据", "禁止", "聊天群"], "expected_refusal": false, "category": "安全"}
+{"question": "培训预算每人每年多少钱？", "expected_sources": ["绩效薪酬福利政策"], "expected_sections": ["福利"], "expected_keywords": ["每人每年 3000 元", "岗位能力提升"], "expected_refusal": false, "category": "福利"}
+{"question": "上线前检查必须包含哪些内容？", "expected_sources": ["研发发布与故障复盘规范"], "expected_sections": ["上线前检查"], "expected_keywords": ["代码评审", "自动化测试", "数据库迁移检查", "回滚方案"], "expected_refusal": false, "category": "研发"}
+{"question": "数据库迁移可以在高峰期锁大表吗？", "expected_sources": ["研发发布与故障复盘规范"], "expected_sections": ["数据库变更"], "expected_keywords": ["禁止", "业务高峰期", "大表锁表"], "expected_refusal": false, "category": "研发"}
+{"question": "灰度期间关注哪些指标？", "expected_sources": ["研发发布与故障复盘规范"], "expected_sections": ["灰度和回滚"], "expected_keywords": ["错误率", "接口耗时", "队列积压", "数据库连接数"], "expected_refusal": false, "category": "研发"}
+{"question": "P0故障复盘要在多久内完成？", "expected_sources": ["研发发布与故障复盘规范"], "expected_sections": ["故障复盘"], "expected_keywords": ["P0/P1", "2 个工作日", "时间线", "根因"], "expected_refusal": false, "category": "研发"}
+{"question": "变更冻结期内能发布普通需求吗？", "expected_sources": ["研发发布与故障复盘规范"], "expected_sections": ["变更冻结"], "expected_keywords": ["冻结期", "只允许修复 P0/P1", "不允许发布普通需求"], "expected_refusal": false, "category": "研发"}
+{"question": "Business reception above RMB 3000 needs whose approval?", "expected_sources": ["Business_Reception_and_Gift_Compliance"], "expected_sections": ["Business Reception"], "expected_keywords": ["above RMB 3000", "general manager approval"], "expected_refusal": false, "category": "Compliance"}
+{"question": "Shopping cards can be given as customer gifts?", "expected_sources": ["Business_Reception_and_Gift_Compliance"], "expected_sections": ["Gift Compliance"], "expected_keywords": ["shopping cards", "prohibited"], "expected_refusal": false, "category": "Compliance"}
+{"question": "公司食堂早餐几点开始？", "expected_sources": [], "expected_sections": [], "expected_keywords": [], "expected_refusal": true, "category": "拒答"}
+{"question": "员工股票期权怎么归属？", "expected_sources": [], "expected_sections": [], "expected_keywords": [], "expected_refusal": true, "category": "拒答"}
+{"question": "CEO 明年计划把总部搬到哪里？", "expected_sources": [], "expected_sections": [], "expected_keywords": [], "expected_refusal": true, "category": "拒答"}
+{"question": "公司下一轮融资估值是多少？", "expected_sources": [], "expected_sections": [], "expected_keywords": [], "expected_refusal": true, "category": "拒答"}
+{"question": "公司年会一等奖是什么？", "expected_sources": ["12_综合办公与行政服务指南.md"], "expected_sections": ["福利活动"], "expected_keywords": ["没有固定奖品", "行政通知"], "expected_refusal": false, "category": "行政"}
+{"question": "老板的私人手机号是多少？", "expected_sources": [], "expected_sections": [], "expected_keywords": [], "expected_refusal": true, "category": "拒答"}
+{"question": "信息安全有什么内容？", "expected_sources": ["12_综合办公与行政服务指南.md"], "expected_sections": ["信息安全基础要求"], "expected_keywords": ["账号密码", "权限申请", "数据分级", "密钥管理", "日志脱敏", "AI 工具"], "expected_refusal": false, "category": "行政"}
+{"question": "公司综合办公制度包括哪些内容？", "expected_sources": ["12_综合办公与行政服务指南.md"], "expected_sections": ["日常办公总览"], "expected_keywords": ["办公场地", "访客接待", "会议室", "办公用品", "资产设备"], "expected_refusal": false, "category": "行政"}
+{"question": "访客可以自己进入办公区吗？", "expected_sources": ["12_综合办公与行政服务指南.md"], "expected_sections": ["访客接待"], "expected_keywords": ["访客", "登记", "陪同"], "expected_refusal": false, "category": "行政"}
+{"question": "电脑丢了应该怎么处理？", "expected_sources": ["12_综合办公与行政服务指南.md"], "expected_sections": ["资产设备管理"], "expected_keywords": ["24 小时", "IT", "安全负责人", "远程锁定"], "expected_refusal": false, "category": "行政"}
+{"question": "营业执照复印件可以直接发给客户吗？", "expected_sources": ["12_综合办公与行政服务指南.md"], "expected_sections": ["印章", "证照"], "expected_keywords": ["审批", "水印", "用途"], "expected_refusal": false, "category": "行政"}
+{"question": "行政报修多久响应？", "expected_sources": ["12_综合办公与行政服务指南.md"], "expected_sections": ["行政报修"], "expected_keywords": ["2 小时", "2 个工作日", "行政工单"], "expected_refusal": false, "category": "行政"}
+{"question": "年会一等奖固定是什么？", "expected_sources": ["12_综合办公与行政服务指南.md"], "expected_sections": ["福利活动"], "expected_keywords": ["没有固定奖品", "行政通知"], "expected_refusal": false, "category": "行政"}

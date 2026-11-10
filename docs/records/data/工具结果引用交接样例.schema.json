@@ -1,0 +1,637 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "工具结果与引用交接验证夹具 v1（非生产API Schema）",
+  "description": "用于四个合成样例；fixture标记及未注册状态不预定正式产品字段。",
+  "type": "object",
+  "required": [
+    "full_inline",
+    "native_preview",
+    "native_read_window",
+    "answer_native_annotation"
+  ],
+  "properties": {
+    "full_inline": {
+      "type": "object",
+      "required": [
+        "contract_version",
+        "fixture_only",
+        "run_id",
+        "model_action_id",
+        "dispatch_status",
+        "source",
+        "delivered_unit",
+        "model_view",
+        "application_metadata",
+        "citation_registration"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": "result-handoff.v1"
+        },
+        "fixture_only": {
+          "const": true
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dispatch_status": {
+          "enum": [
+            "prepared",
+            "dispatched",
+            "responded",
+            "failed",
+            "unknown"
+          ]
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "content_ref",
+            "origin_binding_id",
+            "representation",
+            "content_sha256",
+            "total_characters",
+            "business_completeness"
+          ],
+          "properties": {
+            "content_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "origin_binding_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "representation": {
+              "const": "tool-result-v2.text"
+            },
+            "content_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "total_characters": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "business_completeness": {
+              "const": "unknown"
+            }
+          },
+          "additionalProperties": false
+        },
+        "delivered_unit": {
+          "type": "object",
+          "required": [
+            "unit_id",
+            "tool_call_id",
+            "representation",
+            "coverage",
+            "content_sha256",
+            "content",
+            "source_ranges",
+            "model_visible_reference_ids"
+          ],
+          "properties": {
+            "unit_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tool_call_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "representation": {
+              "enum": [
+                "raw_text",
+                "sdk_rendered_text"
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "full_text",
+                "partial_text"
+              ]
+            },
+            "content_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "content": {
+              "type": "string"
+            },
+            "source_ranges": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "unit",
+                      "start",
+                      "end"
+                    ],
+                    "properties": {
+                      "unit": {
+                        "const": "unicode_character"
+                      },
+                      "start": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "end": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              ]
+            },
+            "model_visible_reference_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "model_view": {
+          "type": "object",
+          "required": [
+            "role",
+            "content",
+            "tool_call_id"
+          ],
+          "properties": {
+            "role": {
+              "const": "tool"
+            },
+            "content": {
+              "type": [
+                "string",
+                "array"
+              ]
+            },
+            "tool_call_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "application_metadata": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "citation_registration": {
+          "const": "not_registered"
+        }
+      },
+      "additionalProperties": false
+    },
+    "native_preview": {
+      "type": "object",
+      "required": [
+        "contract_version",
+        "fixture_only",
+        "run_id",
+        "model_action_id",
+        "dispatch_status",
+        "source",
+        "delivered_unit",
+        "model_view",
+        "application_metadata",
+        "citation_registration"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": "result-handoff.v1"
+        },
+        "fixture_only": {
+          "const": true
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dispatch_status": {
+          "enum": [
+            "prepared",
+            "dispatched",
+            "responded",
+            "failed",
+            "unknown"
+          ]
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "content_ref",
+            "origin_binding_id",
+            "representation",
+            "content_sha256",
+            "total_characters",
+            "business_completeness"
+          ],
+          "properties": {
+            "content_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "origin_binding_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "representation": {
+              "const": "tool-result-v2.text"
+            },
+            "content_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "total_characters": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "business_completeness": {
+              "const": "unknown"
+            }
+          },
+          "additionalProperties": false
+        },
+        "delivered_unit": {
+          "type": "object",
+          "required": [
+            "unit_id",
+            "tool_call_id",
+            "representation",
+            "coverage",
+            "content_sha256",
+            "content",
+            "source_ranges",
+            "model_visible_reference_ids"
+          ],
+          "properties": {
+            "unit_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tool_call_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "representation": {
+              "enum": [
+                "raw_text",
+                "sdk_rendered_text"
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "full_text",
+                "partial_text"
+              ]
+            },
+            "content_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "content": {
+              "type": "string"
+            },
+            "source_ranges": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "unit",
+                      "start",
+                      "end"
+                    ],
+                    "properties": {
+                      "unit": {
+                        "const": "unicode_character"
+                      },
+                      "start": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "end": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              ]
+            },
+            "model_visible_reference_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "model_view": {
+          "type": "object",
+          "required": [
+            "role",
+            "content",
+            "tool_call_id"
+          ],
+          "properties": {
+            "role": {
+              "const": "tool"
+            },
+            "content": {
+              "type": [
+                "string",
+                "array"
+              ]
+            },
+            "tool_call_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "application_metadata": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "citation_registration": {
+          "const": "not_registered"
+        }
+      },
+      "additionalProperties": false
+    },
+    "native_read_window": {
+      "type": "object",
+      "required": [
+        "contract_version",
+        "fixture_only",
+        "run_id",
+        "model_action_id",
+        "dispatch_status",
+        "source",
+        "delivered_unit",
+        "model_view",
+        "application_metadata",
+        "citation_registration"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": "result-handoff.v1"
+        },
+        "fixture_only": {
+          "const": true
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dispatch_status": {
+          "enum": [
+            "prepared",
+            "dispatched",
+            "responded",
+            "failed",
+            "unknown"
+          ]
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "content_ref",
+            "origin_binding_id",
+            "representation",
+            "content_sha256",
+            "total_characters",
+            "business_completeness"
+          ],
+          "properties": {
+            "content_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "origin_binding_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "representation": {
+              "const": "tool-result-v2.text"
+            },
+            "content_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "total_characters": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "business_completeness": {
+              "const": "unknown"
+            }
+          },
+          "additionalProperties": false
+        },
+        "delivered_unit": {
+          "type": "object",
+          "required": [
+            "unit_id",
+            "tool_call_id",
+            "representation",
+            "coverage",
+            "content_sha256",
+            "content",
+            "source_ranges",
+            "model_visible_reference_ids"
+          ],
+          "properties": {
+            "unit_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tool_call_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "representation": {
+              "enum": [
+                "raw_text",
+                "sdk_rendered_text"
+              ]
+            },
+            "coverage": {
+              "enum": [
+                "full_text",
+                "partial_text"
+              ]
+            },
+            "content_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "content": {
+              "type": "string"
+            },
+            "source_ranges": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "unit",
+                      "start",
+                      "end"
+                    ],
+                    "properties": {
+                      "unit": {
+                        "const": "unicode_character"
+                      },
+                      "start": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "end": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              ]
+            },
+            "model_visible_reference_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "model_view": {
+          "type": "object",
+          "required": [
+            "role",
+            "content",
+            "tool_call_id"
+          ],
+          "properties": {
+            "role": {
+              "const": "tool"
+            },
+            "content": {
+              "type": [
+                "string",
+                "array"
+              ]
+            },
+            "tool_call_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "application_metadata": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "citation_registration": {
+          "const": "not_registered"
+        }
+      },
+      "additionalProperties": false
+    },
+    "answer_native_annotation": {
+      "type": "object",
+      "required": [
+        "fixture_only",
+        "text",
+        "content_blocks",
+        "citation_registration",
+        "note"
+      ],
+      "properties": {
+        "fixture_only": {
+          "const": true
+        },
+        "text": {
+          "type": "string"
+        },
+        "content_blocks": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "citation_registration": {
+          "const": "not_registered"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

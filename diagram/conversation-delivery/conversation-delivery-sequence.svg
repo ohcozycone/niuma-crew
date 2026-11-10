@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2160 2580" role="img" aria-labelledby="title desc">
+<title id="title">从用户提问到正式交付：后端三层时序</title>
+<desc id="desc">当前同进程模块化单体。API 接受请求，对话业务原子登记消息和 queued Run，执行宿主授权、领取并转为 running，准备输入后驱动 Agent 的模型与工具循环。模型服务只返回文本或工具调用请求，Agent 向宿主申请工具许可后调用应用侧注入的资源入口，再把结果放回模型上下文。每次动作先经授权、预算及开始记录，前端独立通过 SSE 观察已提交快照。Agent 返回候选，对话业务原子发布正文、附件与 succeeded 终态后，前端获得正式交付。附取消与失败分支。</desc>
+<style>text{font-family:"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}line,path{stroke-linecap:round;stroke-linejoin:round}</style><defs>
+<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern>
+<marker id="m-22d3ee-solid" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#22d3ee"/></marker>
+<marker id="m-22d3ee-open" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#22d3ee" stroke-width="1.4"/></marker>
+<marker id="m-34d399-solid" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#34d399"/></marker>
+<marker id="m-34d399-open" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#34d399" stroke-width="1.4"/></marker>
+<marker id="m-a78bfa-solid" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#a78bfa"/></marker>
+<marker id="m-a78bfa-open" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#a78bfa" stroke-width="1.4"/></marker>
+<marker id="m-fbbf24-solid" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#fbbf24"/></marker>
+<marker id="m-fbbf24-open" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#fbbf24" stroke-width="1.4"/></marker>
+<marker id="m-94a3b8-solid" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#94a3b8"/></marker>
+<marker id="m-94a3b8-open" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#94a3b8" stroke-width="1.4"/></marker>
+<marker id="m-fb923c-solid" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#fb923c"/></marker>
+<marker id="m-fb923c-open" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#fb923c" stroke-width="1.4"/></marker>
+<marker id="m-fb7185-solid" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#fb7185"/></marker>
+<marker id="m-fb7185-open" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#fb7185" stroke-width="1.4"/></marker>
+<marker id="m-60a5fa-solid" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#60a5fa"/></marker>
+<marker id="m-60a5fa-open" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#60a5fa" stroke-width="1.4"/></marker>
+</defs>
+<rect x="0" y="0" width="2160" height="2580" rx="0" fill="#0f172a" stroke="none" />
+<rect x="0" y="0" width="2160" height="2580" rx="0" fill="url(#grid)" stroke="none" />
+<text x="40" y="48" font-size="30" fill="#e2e8f0" text-anchor="start" font-weight="700">从用户提问到正式交付</text>
+<text x="40" y="80" font-size="17" fill="#94a3b8" text-anchor="start" font-weight="400">当前实现 · 后端模块同进程协作，模型服务独立列出 · 时间从上向下；间距不代表耗时</text>
+<rect x="260" y="109" width="250" height="130" rx="8" fill="#08334450" stroke="#22d3ee" stroke-width="1.2"/>
+<rect x="550" y="109" width="940" height="130" rx="8" fill="#064e3b35" stroke="#34d399" stroke-width="1.2"/>
+<rect x="1540" y="109" width="270" height="130" rx="8" fill="#78350f30" stroke="#fbbf24" stroke-width="1.2"/>
+<text x="385" y="133" font-size="17" fill="#22d3ee" text-anchor="middle" font-weight="700">API 接入层</text>
+<text x="1020" y="133" font-size="17" fill="#34d399" text-anchor="middle" font-weight="700">应用与执行宿主层</text>
+<text x="1675" y="133" font-size="17" fill="#fbbf24" text-anchor="middle" font-weight="700">Agent loop 层</text>
+<line x1="125" y1="232" x2="125" y2="2290" stroke="#334155" stroke-width="1.8" stroke-dasharray="6 6"/>
+<rect x="20.0" y="153" width="210" height="72" rx="8" fill="#0f172a" stroke="#22d3ee" />
+<text x="125" y="182" font-size="20" fill="#22d3ee" text-anchor="middle" font-weight="700">用户 / 前端</text>
+<text x="125" y="208" font-size="15" fill="#94a3b8" text-anchor="middle" font-weight="400">发送、观察与停止</text>
+<line x1="385" y1="232" x2="385" y2="2290" stroke="#334155" stroke-width="1.8" stroke-dasharray="6 6"/>
+<rect x="280.0" y="153" width="210" height="72" rx="8" fill="#0f172a" stroke="#22d3ee" />
+<text x="385" y="182" font-size="20" fill="#22d3ee" text-anchor="middle" font-weight="700">API</text>
+<text x="385" y="208" font-size="15" fill="#94a3b8" text-anchor="middle" font-weight="400">HTTP / 身份 / SSE</text>
+<line x1="690" y1="232" x2="690" y2="2290" stroke="#334155" stroke-width="1.8" stroke-dasharray="6 6"/>
+<rect x="572.5" y="153" width="235" height="72" rx="8" fill="#0f172a" stroke="#34d399" />
+<text x="690" y="182" font-size="20" fill="#34d399" text-anchor="middle" font-weight="700">对话业务</text>
+<text x="690" y="208" font-size="15" fill="#94a3b8" text-anchor="middle" font-weight="400">conversations</text>
+<line x1="1035" y1="232" x2="1035" y2="2290" stroke="#334155" stroke-width="1.8" stroke-dasharray="6 6"/>
+<rect x="917.5" y="153" width="235" height="72" rx="8" fill="#0f172a" stroke="#34d399" />
+<text x="1035" y="182" font-size="20" fill="#34d399" text-anchor="middle" font-weight="700">执行宿主</text>
+<text x="1035" y="208" font-size="15" fill="#94a3b8" text-anchor="middle" font-weight="400">execution</text>
+<line x1="1355" y1="232" x2="1355" y2="2290" stroke="#334155" stroke-width="1.8" stroke-dasharray="6 6"/>
+<rect x="1237.5" y="153" width="235" height="72" rx="8" fill="#0f172a" stroke="#34d399" />
+<text x="1355" y="182" font-size="20" fill="#34d399" text-anchor="middle" font-weight="700">工具 / 资源入口</text>
+<text x="1355" y="208" font-size="15" fill="#94a3b8" text-anchor="middle" font-weight="400">MCP / 文件 / 知识 / 沙箱</text>
+<line x1="1675" y1="232" x2="1675" y2="2290" stroke="#334155" stroke-width="1.8" stroke-dasharray="6 6"/>
+<rect x="1557.5" y="153" width="235" height="72" rx="8" fill="#0f172a" stroke="#fbbf24" />
+<text x="1675" y="182" font-size="20" fill="#fbbf24" text-anchor="middle" font-weight="700">Agent loop</text>
+<text x="1675" y="208" font-size="15" fill="#94a3b8" text-anchor="middle" font-weight="400">agent_runtime + llm</text>
+<line x1="1995" y1="232" x2="1995" y2="2290" stroke="#334155" stroke-width="1.8" stroke-dasharray="6 6"/>
+<rect x="1870.0" y="153" width="250" height="72" rx="8" fill="#0f172a" stroke="#94a3b8" />
+<text x="1995" y="182" font-size="20" fill="#94a3b8" text-anchor="middle" font-weight="700">模型服务</text>
+<text x="1995" y="208" font-size="15" fill="#94a3b8" text-anchor="middle" font-weight="400">仅生成文本或工具调用请求</text>
+<rect x="380" y="280" width="10" height="286" rx="2" fill="#22d3ee44" stroke="#22d3ee" />
+<rect x="685" y="340" width="10" height="190" rx="2" fill="#34d39944" stroke="#34d399" />
+<rect x="1030" y="640" width="10" height="1475" rx="2" fill="#34d39944" stroke="#34d399" />
+<rect x="685" y="640" width="10" height="74" rx="2" fill="#34d39944" stroke="#34d399" />
+<rect x="685" y="827" width="10" height="80" rx="2" fill="#34d39944" stroke="#34d399" />
+<rect x="1670" y="945" width="10" height="921" rx="2" fill="#fbbf2444" stroke="#fbbf24" />
+<rect x="1350" y="1505" width="10" height="70" rx="2" fill="#34d39944" stroke="#34d399" />
+<rect x="685" y="1900" width="10" height="211" rx="2" fill="#34d39944" stroke="#34d399" />
+<rect x="380" y="2140" width="10" height="130" rx="2" fill="#22d3ee44" stroke="#22d3ee" />
+<rect x="685" y="2140" width="10" height="88" rx="2" fill="#34d39944" stroke="#34d399" />
+<line x1="125" y1="285" x2="385" y2="285" stroke="#22d3ee" stroke-width="1.8" marker-end="url(#m-22d3ee-solid)"/>
+<rect x="200.32" y="257" width="109.36" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="255.0" y="275" font-size="16" fill="#22d3ee" text-anchor="middle" font-weight="400">1  发送消息</text>
+<line x1="385" y1="345" x2="690" y2="345" stroke="#22d3ee" stroke-width="1.8" marker-end="url(#m-22d3ee-solid)"/>
+<rect x="415.46000000000004" y="317" width="244.07999999999998" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="537.5" y="335" font-size="16" fill="#22d3ee" text-anchor="middle" font-weight="400">2  submit：身份、输入、文件</text>
+<rect x="555" y="380" width="630" height="91" rx="8" fill="#0f172a" stroke="#a78bfa" stroke-width="1.2"/>
+<rect x="555" y="380" width="630" height="91" rx="8" fill="#a78bfa0e" stroke="none" />
+<text x="870.0" y="418.0" font-size="16" fill="#a78bfa" text-anchor="middle" font-weight="600">接受事务：输入消息 + 空回复 + Run + 关联</text>
+<text x="870.0" y="443.0" font-size="16" fill="#cbd5e1" text-anchor="middle" font-weight="400">固定配置、资源与历史依据；Run = queued</text>
+<line x1="690" y1="510" x2="385" y2="510" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-open)" stroke-dasharray="7 5"/>
+<rect x="426.97999999999996" y="482" width="221.04000000000005" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="537.5" y="500" font-size="16" fill="#34d399" text-anchor="middle" font-weight="400">3  已接受 / response_id</text>
+<line x1="385" y1="560" x2="125" y2="560" stroke="#22d3ee" stroke-width="1.8" marker-end="url(#m-22d3ee-open)" stroke-dasharray="7 5"/>
+<rect x="161.52" y="532" width="186.95999999999998" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="255.0" y="550" font-size="16" fill="#22d3ee" text-anchor="middle" font-weight="400">HTTP 202：工作已登记</text>
+<rect x="40" y="590" width="2080" height="30" rx="8" fill="#1e293b" stroke="none" />
+<text x="1080" y="611" font-size="17" fill="#94a3b8" text-anchor="middle" font-weight="400">提交请求已返回；后台独立推进，API 连接不持有任务生命周期</text>
+<line x1="1035" y1="650" x2="690" y2="650" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-solid)"/>
+<rect x="791.8199999999999" y="622" width="141.36" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="862.5" y="640" font-size="16" fill="#34d399" text-anchor="middle" font-weight="400">4  复核当前授权</text>
+<line x1="690" y1="700" x2="1035" y2="700" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-open)" stroke-dasharray="7 5"/>
+<rect x="821.5" y="672" width="82" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="862.5" y="690" font-size="16" fill="#34d399" text-anchor="middle" font-weight="400">允许开始</text>
+<rect x="880" y="737" width="310" height="61" rx="8" fill="#0f172a" stroke="#60a5fa" stroke-width="1.2"/>
+<rect x="880" y="737" width="310" height="61" rx="8" fill="#60a5fa0e" stroke="none" />
+<text x="1035.0" y="760.0" font-size="16" fill="#60a5fa" text-anchor="middle" font-weight="600">5  原子领取 Run</text>
+<text x="1035.0" y="785.0" font-size="16" fill="#cbd5e1" text-anchor="middle" font-weight="400">queued → running</text>
+<line x1="1035" y1="840" x2="690" y2="840" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-solid)"/>
+<rect x="743.8199999999999" y="812" width="237.36" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="862.5" y="830" font-size="16" fill="#34d399" text-anchor="middle" font-weight="400">6  准备输入、资源与当前凭据</text>
+<line x1="690" y1="895" x2="1035" y2="895" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-open)" stroke-dasharray="7 5"/>
+<rect x="789.5" y="867" width="146" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="862.5" y="885" font-size="16" fill="#34d399" text-anchor="middle" font-weight="400">已准备的执行函数</text>
+<line x1="1035" y1="950" x2="1675" y2="950" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-solid)"/>
+<rect x="1288.96" y="922" width="132.08000000000004" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1355.0" y="940" font-size="16" fill="#34d399" text-anchor="middle" font-weight="400">7  执行 Agent</text>
+<rect x="895" y="990" width="1225" height="710" rx="8" fill="none" stroke="#fbbf24" stroke-dasharray="7 5"/>
+<rect x="907" y="976" width="300.64" height="28" rx="5" fill="#0f172a" stroke="#fbbf24" />
+<text x="922" y="996" font-size="17" fill="#fbbf24" text-anchor="start" font-weight="600">loop · 模型与工具往返，按需重复</text>
+<line x1="1675" y1="1045" x2="1035" y2="1045" stroke="#fbbf24" stroke-width="1.8" marker-end="url(#m-fbbf24-solid)"/>
+<rect x="1284.32" y="1017" width="141.36" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1355.0" y="1035" font-size="16" fill="#fbbf24" text-anchor="middle" font-weight="400">8  申请模型动作</text>
+<rect x="905" y="1075" width="260" height="66" rx="8" fill="#0f172a" stroke="#a78bfa" stroke-width="1.2"/>
+<rect x="905" y="1075" width="260" height="66" rx="8" fill="#a78bfa0e" stroke="none" />
+<text x="1035.0" y="1100.5" font-size="15" fill="#a78bfa" text-anchor="middle" font-weight="600">宿主短事务</text>
+<text x="1035.0" y="1125.5" font-size="15" fill="#cbd5e1" text-anchor="middle" font-weight="400">授权 + 预算 + 开始记录</text>
+<line x1="1035" y1="1175" x2="1675" y2="1175" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-open)" stroke-dasharray="7 5"/>
+<rect x="1274.0" y="1147" width="162" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1355.0" y="1165" font-size="16" fill="#34d399" text-anchor="middle" font-weight="400">提交成功，允许调用</text>
+<line x1="1675" y1="1225" x2="1995" y2="1225" stroke="#fbbf24" stroke-width="1.8" marker-end="url(#m-fbbf24-solid)"/>
+<rect x="1738.0" y="1197" width="194" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1835.0" y="1215" font-size="16" fill="#fbbf24" text-anchor="middle" font-weight="400">请求模型（含工具定义）</text>
+<line x1="1995" y1="1275" x2="1675" y2="1275" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#m-94a3b8-open)" stroke-dasharray="7 5"/>
+<rect x="1748.32" y="1247" width="173.35999999999999" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1835.0" y="1265" font-size="16" fill="#94a3b8" text-anchor="middle" font-weight="400">文字 / 工具调用请求</text>
+<line x1="1675" y1="1325" x2="1035" y2="1325" stroke="#fbbf24" stroke-width="1.8" marker-end="url(#m-fbbf24-solid)"/>
+<rect x="1258.0" y="1297" width="194" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1355.0" y="1315" font-size="16" fill="#fbbf24" text-anchor="middle" font-weight="400">记录模型结果、报告草稿</text>
+<rect x="920" y="1360" width="1180" height="283" rx="8" fill="none" stroke="#fb923c" stroke-dasharray="7 5"/>
+<rect x="932" y="1346" width="189.12" height="28" rx="5" fill="#0f172a" stroke="#fb923c" />
+<text x="947" y="1366" font-size="17" fill="#fb923c" text-anchor="start" font-weight="600">opt · 模型请求工具</text>
+<line x1="1675" y1="1415" x2="1035" y2="1415" stroke="#fbbf24" stroke-width="1.8" marker-end="url(#m-fbbf24-solid)"/>
+<rect x="1284.32" y="1387" width="141.36" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1355.0" y="1405" font-size="16" fill="#fbbf24" text-anchor="middle" font-weight="400">9  申请工具动作</text>
+<line x1="1035" y1="1465" x2="1675" y2="1465" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-open)" stroke-dasharray="7 5"/>
+<rect x="1248.5" y="1437" width="213" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1355.0" y="1455" font-size="15" fill="#34d399" text-anchor="middle" font-weight="400">授权、预算及开始记录已提交</text>
+<line x1="1675" y1="1515" x2="1355" y2="1515" stroke="#fbbf24" stroke-width="1.8" marker-end="url(#m-fbbf24-solid)"/>
+<rect x="1434.0" y="1487" width="162" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1515.0" y="1505" font-size="16" fill="#fbbf24" text-anchor="middle" font-weight="400">调用注入的工具接口</text>
+<line x1="1355" y1="1565" x2="1675" y2="1565" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-open)" stroke-dasharray="7 5"/>
+<rect x="1474.0" y="1537" width="82" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1515.0" y="1555" font-size="16" fill="#34d399" text-anchor="middle" font-weight="400">工具结果</text>
+<line x1="1675" y1="1615" x2="1035" y2="1615" stroke="#fbbf24" stroke-width="1.8" marker-end="url(#m-fbbf24-solid)"/>
+<rect x="1298.0" y="1587" width="114" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1355.0" y="1605" font-size="16" fill="#fbbf24" text-anchor="middle" font-weight="400">保存动作结果</text>
+<text x="1505" y="1681" font-size="16" fill="#fbbf24" text-anchor="middle" font-weight="400">工具结果写回上下文；下一轮重新申请模型动作</text>
+<rect x="45" y="1085" width="795" height="468" rx="8" fill="none" stroke="#22d3ee" stroke-dasharray="7 5"/>
+<rect x="57" y="1071" width="223.12" height="28" rx="5" fill="#0f172a" stroke="#22d3ee" />
+<text x="72" y="1091" font-size="17" fill="#22d3ee" text-anchor="start" font-weight="600">par · 执行期间独立观察</text>
+<line x1="125" y1="1155" x2="385" y2="1155" stroke="#22d3ee" stroke-width="1.8" marker-end="url(#m-22d3ee-solid)"/>
+<rect x="195.76" y="1127" width="118.48000000000002" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="255.0" y="1145" font-size="16" fill="#22d3ee" text-anchor="middle" font-weight="400">订阅回复 SSE</text>
+<line x1="385" y1="1215" x2="690" y2="1215" stroke="#22d3ee" stroke-width="1.8" marker-end="url(#m-22d3ee-solid)"/>
+<rect x="480.5" y="1187" width="114" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="537.5" y="1205" font-size="16" fill="#22d3ee" text-anchor="middle" font-weight="400">读取回复快照</text>
+<line x1="690" y1="1275" x2="385" y2="1275" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-open)" stroke-dasharray="7 5"/>
+<rect x="427.85" y="1247" width="219.3" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="537.5" y="1265" font-size="15" fill="#34d399" text-anchor="middle" font-weight="400">已保存的进展 / 动作 / 状态</text>
+<line x1="385" y1="1335" x2="125" y2="1335" stroke="#22d3ee" stroke-width="1.8" marker-end="url(#m-22d3ee-open)" stroke-dasharray="7 5"/>
+<rect x="190.0" y="1307" width="130" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="255.0" y="1325" font-size="16" fill="#22d3ee" text-anchor="middle" font-weight="400">推送草稿与进度</text>
+<rect x="75" y="1380" width="735" height="132" rx="8" fill="#0f172a" stroke="#22d3ee" stroke-width="1.2"/>
+<rect x="75" y="1380" width="735" height="132" rx="8" fill="#22d3ee0e" stroke="none" />
+<text x="442.5" y="1426.0" font-size="17" fill="#22d3ee" text-anchor="middle" font-weight="600">宿主按频率保存进展，API 观察已提交内容</text>
+<text x="442.5" y="1451.0" font-size="17" fill="#cbd5e1" text-anchor="middle" font-weight="400">草稿不等于正式交付</text>
+<text x="442.5" y="1476.0" font-size="17" fill="#cbd5e1" text-anchor="middle" font-weight="400">浏览器断线只释放订阅；后台 Run 继续</text>
+<rect x="1540" y="1735" width="580" height="79" rx="8" fill="#0f172a" stroke="#fbbf24" stroke-width="1.2"/>
+<rect x="1540" y="1735" width="580" height="79" rx="8" fill="#fbbf240e" stroke="none" />
+<text x="1830.0" y="1767.0" font-size="16" fill="#fbbf24" text-anchor="middle" font-weight="600">10  确认完整 SDK 状态、候选正文与成果</text>
+<text x="1830.0" y="1792.0" font-size="16" fill="#cbd5e1" text-anchor="middle" font-weight="400">checkpoint 保存循环状态；正式历史读业务消息</text>
+<line x1="1675" y1="1860" x2="1035" y2="1860" stroke="#fbbf24" stroke-width="1.8" marker-end="url(#m-fbbf24-open)" stroke-dasharray="7 5"/>
+<rect x="1173.725" y="1832" width="362.55" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="1355.0" y="1850" font-size="15" fill="#fbbf24" text-anchor="middle" font-weight="400">11  AgentOutput：候选正文 / 用量 / 文件引用</text>
+<line x1="1035" y1="1915" x2="690" y2="1915" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-solid)"/>
+<rect x="747.34" y="1887" width="230.32" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="862.5" y="1905" font-size="16" fill="#34d399" text-anchor="middle" font-weight="400">12  publish：提交完成意图</text>
+<rect x="550" y="1950" width="635" height="122" rx="8" fill="#0f172a" stroke="#a78bfa" stroke-width="1.2"/>
+<rect x="550" y="1950" width="635" height="122" rx="8" fill="#a78bfa0e" stroke="none" />
+<text x="867.5" y="1991.0" font-size="17" fill="#a78bfa" text-anchor="middle" font-weight="600">发布事务：再次复核权限、取消与成果有效性</text>
+<text x="867.5" y="2016.0" font-size="17" fill="#cbd5e1" text-anchor="middle" font-weight="400">原子提交：正文 + 文件关联 + Run 终态 + 释放占用</text>
+<text x="867.5" y="2041.0" font-size="17" fill="#cbd5e1" text-anchor="middle" font-weight="400">提交成功：running → succeeded；正式回复可读</text>
+<line x1="690" y1="2120" x2="1035" y2="2120" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-open)" stroke-dasharray="7 5"/>
+<rect x="813.5" y="2092" width="98" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="862.5" y="2110" font-size="16" fill="#34d399" text-anchor="middle" font-weight="400">发布已提交</text>
+<line x1="385" y1="2170" x2="690" y2="2170" stroke="#22d3ee" stroke-width="1.8" marker-end="url(#m-22d3ee-solid)"/>
+<rect x="446.26" y="2142" width="182.48" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="537.5" y="2160" font-size="16" fill="#22d3ee" text-anchor="middle" font-weight="400">13  读取最终回复快照</text>
+<line x1="690" y1="2220" x2="385" y2="2220" stroke="#34d399" stroke-width="1.8" marker-end="url(#m-34d399-open)" stroke-dasharray="7 5"/>
+<rect x="419.37499999999994" y="2192" width="236.2500000000001" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="537.5" y="2210" font-size="15" fill="#34d399" text-anchor="middle" font-weight="400">正式正文 / 文件 / succeeded</text>
+<line x1="385" y1="2270" x2="125" y2="2270" stroke="#22d3ee" stroke-width="1.8" marker-end="url(#m-22d3ee-open)" stroke-dasharray="7 5"/>
+<rect x="192.32" y="2242" width="125.36" height="23" rx="4" fill="#0f172a" stroke="none" />
+<text x="255.0" y="2260" font-size="16" fill="#22d3ee" text-anchor="middle" font-weight="400">SSE：正式交付</text>
+<rect x="45" y="2330" width="2075" height="140" rx="8" fill="#0f172a" stroke="#fb7185" stroke-width="1.2"/>
+<rect x="45" y="2330" width="2075" height="140" rx="8" fill="#fb71850e" stroke="none" />
+<text x="1082.5" y="2367.5" font-size="17" fill="#fb7185" text-anchor="middle" font-weight="600">停止与失败分支（主图展示正常成功路径）</text>
+<text x="1082.5" y="2392.5" font-size="17" fill="#cbd5e1" text-anchor="middle" font-weight="400">显式停止：运行中 running → cancelling → cancelled；排队中 queued → cancelled</text>
+<text x="1082.5" y="2417.5" font-size="17" fill="#cbd5e1" text-anchor="middle" font-weight="400">超时、撤权等按错误类型收束；无法安全恢复时 interrupted；发布存储失败时宿主降级并重试收束</text>
+<text x="1082.5" y="2442.5" font-size="17" fill="#cbd5e1" text-anchor="middle" font-weight="400">Agent 正常返回、流结束或出现文字，都不直接代表业务交付成功</text>
+<line x1="55" y1="2515" x2="125" y2="2515" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#m-94a3b8-solid)"/>
+<text x="142" y="2521" font-size="16" fill="#94a3b8" text-anchor="start" font-weight="400">调用 / 提交</text>
+<line x1="330" y1="2515" x2="400" y2="2515" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#m-94a3b8-open)"/>
+<text x="417" y="2521" font-size="16" fill="#94a3b8" text-anchor="start" font-weight="400">返回 / 推送</text>
+<rect x="605" y="2502" width="26" height="26" rx="8" fill="#0f172a" stroke="#a78bfa" />
+<text x="648" y="2521" font-size="16" fill="#94a3b8" text-anchor="start" font-weight="400">紫框：数据库事务</text>
+<text x="2115" y="2521" font-size="16" fill="#94a3b8" text-anchor="end" font-weight="400">依据当前工程实现 · 2026-11-02</text>
+</svg>
