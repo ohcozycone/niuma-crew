@@ -14,12 +14,14 @@ from app.api.router import router
 from app.api.security import BrowserSecurityMiddleware
 from app.auth.github import GitHubOAuth
 from app.auth.service import AuthService
+from app.bootstrap.services import check_employee_history, check_model_references
 from app.config import AppConfig, load_config
 from app.conversations.acceptance import ConversationAcceptance
 from app.conversations.files import ConversationFiles, retained_file_ids
 from app.conversations.queries import ConversationQueries
 from app.conversations.service import ConversationService
 from app.employees.organization_rules import OrganizationRulesService
+from app.employees.references import model_employees, skill_assignments
 from app.employees.service import AgentService
 from app.employees.tool_grants import assert_connections_unused
 from app.environments.service import SandboxService
@@ -76,8 +78,10 @@ def create_app(config: AppConfig | None = None) -> FastAPI:
                     settings.model_encryption_key_file,
                     settings.model_encryption_key,
                 ),
+                employee_references=model_employees,
+                check_references=check_model_references,
             )
-            app.state.agents = AgentService(database)
+            app.state.agents = AgentService(database, check_history=check_employee_history)
             app.state.organization_rules = OrganizationRulesService(database)
             check_references = assert_connections_unused
             app.state.mcp_definitions = McpDefinitionService(
@@ -103,7 +107,9 @@ def create_app(config: AppConfig | None = None) -> FastAPI:
             app.state.tool_catalogs = ToolCatalogService(
                 app.state.tool_connections, app.state.tool_invocation
             )
-            app.state.skills = SkillService(database, settings.skills)
+            app.state.skills = SkillService(
+                database, settings.skills, assignment_facts=skill_assignments
+            )
             app.state.files = FileService(database, settings.files)
             execution_logs = ExecutionLogs(settings.runner_lock_file.parent / "logs")
             if settings.runtime.enabled:

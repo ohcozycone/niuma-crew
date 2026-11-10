@@ -13,7 +13,6 @@ from sqlalchemy.orm import Session, defer
 
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
-from app.employees.models import AgentSkill
 from app.errors import ConflictError, NotFoundError, ServiceError
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
@@ -23,7 +22,6 @@ from app.skills.definitions import definition_from_record, source_for
 from app.skills.library import SkillLibrary, fingerprint
 from app.skills.models import Skill
 from app.skills.packages import (
-    SkillBlobStore,
     archive_files,
     checked_package_path,
     decode_file,
@@ -35,6 +33,7 @@ from app.skills.packages import (
 )
 from app.skills.parameters import validate_parameters
 from app.skills.schemas import PublicSkill, SkillCreate, SkillPatch, SkillRead, SkillSummary
+from app.skills.storage import SkillBlobStore
 
 
 def require_skill(session: Session, skill_id: str) -> Skill:
@@ -45,8 +44,9 @@ def require_skill(session: Session, skill_id: str) -> Skill:
 
 
 class SkillService:
-    def __init__(self, database: Database, config: SkillConfig | None = None):
+    def __init__(self, database: Database, config: SkillConfig | None = None, *, assignment_facts):
         self.database = database
+        self.assignment_facts = assignment_facts
         self.config = config or SkillConfig()
         self.blobs = SkillBlobStore(
             self.config.directory or Path(database.engine.url.database).parent / "skill-assets"
@@ -258,9 +258,7 @@ class SkillService:
     def _get(self, skill_id: str) -> SkillRead:
         with self.database.transaction() as session:
             skill = require_skill(session, skill_id)
-            count = session.scalar(
-                select(func.count()).select_from(AgentSkill).where(AgentSkill.skill_id == skill_id)
-            )
+            count = len(self.assignment_facts(session, [skill_id]))
             return self._response(skill, count)
 
     def read_file(self, skill_id: str, path: str, actor: Actor) -> dict:
@@ -346,9 +344,7 @@ class SkillService:
             )
             if skill is None:
                 raise NotFoundError("skill_not_found", "技能不存在。")
-            count = session.scalar(
-                select(func.count()).select_from(AgentSkill).where(AgentSkill.skill_id == skill_id)
-            )
+            count = len(self.assignment_facts(session, [skill_id]))
             return PublicSkill.model_validate(skill).model_copy(
                 update={"assignment_count": count or 0}
             )
@@ -397,13 +393,10 @@ class SkillService:
                 .limit(limit)
             )
             skills = list(skills)
-            counts = dict(
-                session.execute(
-                    select(AgentSkill.skill_id, func.count())
-                    .where(AgentSkill.skill_id.in_([skill.id for skill in skills]))
-                    .group_by(AgentSkill.skill_id)
-                ).all()
-            )
+            counts = {}
+            for assignment in self.assignment_facts(session, [skill.id for skill in skills]):
+                key = assignment["skill_id"]
+                counts[key] = counts.get(key, 0) + 1
             return Page(
                 items=[
                     SkillSummary.model_validate(skill).model_copy(
@@ -507,12 +500,9 @@ class SkillService:
                 "技能已被修改，请刷新后核对；当前草稿已保留。",
             )
         if "configuration_schema" in data.model_fields_set:
-            for assignment in session.scalars(
-                select(AgentSkill).where(
-                    AgentSkill.skill_id == skill_id, AgentSkill.enabled.is_(True)
-                )
-            ):
-                validate_parameters(data.configuration_schema, assignment.parameters)
+            for assignment in self.assignment_facts(session, [skill_id]):
+                if assignment["enabled"]:
+                    validate_parameters(data.configuration_schema, assignment["parameters"])
         if (
             skill.skill_md
             and any(
@@ -537,9 +527,7 @@ class SkillService:
         for key, value in changes.items():
             setattr(skill, key, value)
         session.flush()
-        count = session.scalar(
-            select(func.count()).select_from(AgentSkill).where(AgentSkill.skill_id == skill_id)
-        )
+        count = len(self.assignment_facts(session, [skill_id]))
         return self._response(skill, count)
 
     def delete(self, skill_id: str, actor: Actor) -> None:
@@ -556,9 +544,7 @@ class SkillService:
             with self.database.transaction() as session:
                 reserve_writer(session, Skill.__table__)
                 skill = require_skill(session, skill_id)
-                if session.scalar(
-                    select(AgentSkill.agent_id).where(AgentSkill.skill_id == skill_id).limit(1)
-                ):
+                if self.assignment_facts(session, [skill_id]):
                     raise ConflictError("skill_in_use", "技能仍被员工装配，请先解除关联。")
                 session.delete(skill)
                 session.flush()
