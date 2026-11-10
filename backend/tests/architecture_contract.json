@@ -1,0 +1,2940 @@
+{
+  "version": 1,
+  "snapshot_commit": "b2cacbd61a02ec7e11e84507a25504ecf42c4b9e",
+  "snapshot_ref": "refs/snapshots/backend-boundary/20261110T173753Z",
+  "baseline_source_count": 195,
+  "source_files": [
+    {
+      "source": "__init__.py",
+      "sha256": "91447944015cec709e8aa7655f7e9d64e1e4508e7023a57fe3746911c0fc6fed",
+      "action": "retain",
+      "targets": [
+        "__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "agent/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "runtime/agent/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "agent/checkpoints.py",
+      "sha256": "448e3aad30172fdb7a290e82896287d0b7b96c9d7648e15ae5e0443a59dbcfb7",
+      "action": "move",
+      "targets": [
+        "runtime/agent/checkpoints.py"
+      ],
+      "symbols": [
+        "merge_discovered",
+        "AgentRunState",
+        "checkpoint_config",
+        "TrackingSqliteSaver",
+        "CheckpointStore"
+      ]
+    },
+    {
+      "source": "agent/config.py",
+      "sha256": "9ed626d13f4b34f156140bf4d701fd95fcd33489d06039c40878bb3e3fcdd34b",
+      "action": "move",
+      "targets": [
+        "runtime/agent/config.py"
+      ],
+      "symbols": [
+        "AgentConfig",
+        "load_agent_config"
+      ]
+    },
+    {
+      "source": "agent/contracts.py",
+      "sha256": "5d6a2d54beef547717a6e4fe1f95a3391b6a117d3f76bb89eb35298e34e27bbf",
+      "action": "split",
+      "targets": [
+        "runtime/contracts/agent.py",
+        "runtime/contracts/content.py"
+      ],
+      "symbols": [
+        "InputMessage",
+        "AgentSnapshot",
+        "OutputFileReference",
+        "AgentResult",
+        "AgentRequest",
+        "AgentOutput",
+        "ContentUpdate",
+        "AgentContext",
+        "AgentRuntimeContext"
+      ]
+    },
+    {
+      "source": "agent/engine.py",
+      "sha256": "613345a10dcf160a7fbdce317b30678801106961152bf1246a7c728dbb509ed2",
+      "action": "move",
+      "targets": [
+        "runtime/agent/engine.py"
+      ],
+      "symbols": [
+        "execute_agent",
+        "_prepare_run_input",
+        "_completed_response"
+      ]
+    },
+    {
+      "source": "agent/errors.py",
+      "sha256": "be8818f0c2c14b0e031aa8bf1083fad1ad92a072eefe43643080f8272200593a",
+      "action": "move",
+      "targets": [
+        "runtime/agent/errors.py"
+      ],
+      "symbols": [
+        "RuntimeFailure"
+      ]
+    },
+    {
+      "source": "agent/mcp_tools.py",
+      "sha256": "efdc50de4c59fcc1949e4705b765bb557b1a61764ee525bf3d0189bea7bac21c",
+      "action": "move",
+      "targets": [
+        "runtime/agent/mcp_tools.py"
+      ],
+      "symbols": [
+        "mcp_tool",
+        "bind_mcp_call"
+      ]
+    },
+    {
+      "source": "agent/model_calls.py",
+      "sha256": "b71f57cf4a1f52f7e87294da30424f2ecae3934c1ad53a03bf23ff588885708b",
+      "action": "move",
+      "targets": [
+        "runtime/agent/model_calls.py"
+      ],
+      "symbols": [
+        "model_input_bytes",
+        "ReferenceContextMiddleware",
+        "ModelExecutionMiddleware",
+        "RunUsage",
+        "RunSummarizationMiddleware",
+        "create_summarization_middleware"
+      ]
+    },
+    {
+      "source": "agent/prompts.py",
+      "sha256": "1e7bb2066d1093d644c2905d559b9807f23c019cd850869c7810c85c862c4fd5",
+      "action": "move",
+      "targets": [
+        "runtime/agent/prompts.py"
+      ],
+      "symbols": [
+        "compose_system_prompt",
+        "tool_instructions",
+        "server_instructions",
+        "skill_instructions"
+      ]
+    },
+    {
+      "source": "agent/skills.py",
+      "sha256": "9fe3ab138a8fd8c36add766005e7ba9fcd2e5565e32984a4c03cd5df0b845433",
+      "action": "move",
+      "targets": [
+        "runtime/agent/skills.py"
+      ],
+      "symbols": [
+        "_SkillFile",
+        "PreparedSkills",
+        "prepare_skills",
+        "build_skill_discovery_middleware",
+        "SkillLoadingMiddleware"
+      ]
+    },
+    {
+      "source": "agent/streaming.py",
+      "sha256": "381ef661fe0299d0ffcc123d05dfd237a24fd4e88a4ad6912bd3554e8e451c3c",
+      "action": "move",
+      "targets": [
+        "runtime/agent/streaming.py"
+      ],
+      "symbols": [
+        "truncate",
+        "RunProgress",
+        "_consume_agent_stream"
+      ]
+    },
+    {
+      "source": "agent/tool_calls.py",
+      "sha256": "801ec9f3bb3f3c16876f5ae3dcbf0f79ca7b435c0fe4de1164504858658321e8",
+      "action": "move",
+      "targets": [
+        "runtime/agent/tool_calls.py"
+      ],
+      "symbols": [
+        "_execute_tool",
+        "ToolExecutionMiddleware",
+        "_runtime_host",
+        "presearch",
+        "prepare_agent_tools",
+        "validate_tool_names",
+        "tool_input_schema"
+      ]
+    },
+    {
+      "source": "agent/tool_discovery.py",
+      "sha256": "53f3a22f35911fd3d7ff096a3dc6a4ffafaadf3dcd11f21ed56f4c8b452d4ba8",
+      "action": "move",
+      "targets": [
+        "runtime/agent/tool_discovery.py"
+      ],
+      "symbols": [
+        "_tokenizer",
+        "search_terms",
+        "parameter_text",
+        "ToolDiscovery"
+      ]
+    },
+    {
+      "source": "api/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "retain",
+      "targets": [
+        "api/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "api/config.py",
+      "sha256": "d3574a8b4a3f223d93309e78b1c55c126695572f153ab17a1a51b40315f26903",
+      "action": "retain",
+      "targets": [
+        "api/config.py"
+      ],
+      "symbols": [
+        "StreamConfig",
+        "load_stream_config"
+      ]
+    },
+    {
+      "source": "api/dependencies.py",
+      "sha256": "b5ff53f8900132f50ab3774facf12d27077c9b5d3b996cf92936def4946593db",
+      "action": "retain",
+      "targets": [
+        "api/dependencies.py"
+      ],
+      "symbols": [
+        "get_database",
+        "get_auth",
+        "get_agents",
+        "get_skills",
+        "get_tool_connections",
+        "get_tool_catalogs",
+        "get_mcp_definitions",
+        "get_tool_oauth",
+        "get_model_connections",
+        "get_organization_rules",
+        "get_conversation_commands",
+        "get_conversation_queries",
+        "get_conversation_files",
+        "get_files",
+        "get_knowledge",
+        "get_rate_limiter",
+        "get_github_oauth",
+        "get_runtime_status",
+        "get_actor",
+        "require_capability",
+        "get_evaluations",
+        "get_sandboxes",
+        "get_execution_queries"
+      ]
+    },
+    {
+      "source": "api/errors.py",
+      "sha256": "775e95340ada6782a760f2186a6bcc4bd796aba97a3265177b160323eae64bb2",
+      "action": "retain",
+      "targets": [
+        "api/errors.py"
+      ],
+      "symbols": [
+        "ErrorDetail",
+        "ErrorResponse",
+        "ValidationIssue",
+        "InputErrorResponse",
+        "service_error_response",
+        "register_error_handlers"
+      ]
+    },
+    {
+      "source": "api/failure_boundary.py",
+      "sha256": "2fbad1fd8547a8c4550ead6afb35cd786349c16d007f524cc61b29ab6f6d8cad",
+      "action": "retain",
+      "targets": [
+        "api/failure_boundary.py"
+      ],
+      "symbols": [
+        "ResponseStartedFailure",
+        "FailureBoundaryMiddleware"
+      ]
+    },
+    {
+      "source": "api/frontend_delivery.py",
+      "sha256": "850619c9eada298ccc2caa5c9a1c84728d36845c77077df55ceb872387bc789c",
+      "action": "retain",
+      "targets": [
+        "api/frontend_delivery.py"
+      ],
+      "symbols": [
+        "document_navigation",
+        "encoding",
+        "FrontendFiles",
+        "mount_frontend"
+      ]
+    },
+    {
+      "source": "api/oauth_logging.py",
+      "sha256": "7b0b0366e4fa46ee691729ae9842c2894b739ca83a3bf4a78330c4cfcb3939d1",
+      "action": "retain",
+      "targets": [
+        "api/oauth_logging.py"
+      ],
+      "symbols": [
+        "OAuthAccessFilter",
+        "install_oauth_access_filter"
+      ]
+    },
+    {
+      "source": "api/rate_limit.py",
+      "sha256": "a4d41dce6589466bb96a74124769063645d4628558a91142d29233ea74ebb6db",
+      "action": "retain",
+      "targets": [
+        "api/rate_limit.py"
+      ],
+      "symbols": [
+        "RateLimiter"
+      ]
+    },
+    {
+      "source": "api/router.py",
+      "sha256": "5db0b75ac7b517a19f5f9f9b044de518c847f0aafd48ebc68266734754e461be",
+      "action": "retain",
+      "targets": [
+        "api/router.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "api/routes/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "retain",
+      "targets": [
+        "api/routes/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "api/routes/auth.py",
+      "sha256": "ceb6fed29c161523db8b6a644f41e649aeecccc67c8f2df7624c6f212ddeca42",
+      "action": "retain",
+      "targets": [
+        "api/routes/auth.py"
+      ],
+      "symbols": [
+        "LoginRequest",
+        "EmptyRequest",
+        "GitHubLoginRequest",
+        "GitHubAuthorization",
+        "ProviderStatus",
+        "AuthProviders",
+        "UserIdentity",
+        "ActorIdentity",
+        "IdentityResponse",
+        "identity",
+        "write_cookie",
+        "providers",
+        "github_start",
+        "github_callback",
+        "login",
+        "logout",
+        "guest",
+        "me"
+      ]
+    },
+    {
+      "source": "api/routes/capabilities.py",
+      "sha256": "1d41c63994a000055ccc5bec0d74c61cb837d00a3ac5841eb3fae1dce653b0e8",
+      "action": "retain",
+      "targets": [
+        "api/routes/capabilities.py"
+      ],
+      "symbols": [
+        "listing"
+      ]
+    },
+    {
+      "source": "api/routes/configuration_summary.py",
+      "sha256": "bc760df0bdb2c5bbe8a7cefb5e0b09a82c2abf9da9c9107b8e47b7bb50fd9646",
+      "action": "split",
+      "targets": [
+        "api/routes/configuration_summary.py",
+        "applications/configuration_summary.py"
+      ],
+      "symbols": [
+        "ConfigurationSummary",
+        "summary"
+      ]
+    },
+    {
+      "source": "api/routes/conversations.py",
+      "sha256": "0a9db17273917265538825e05f746af750b398d0bfdfcf01ac85d3ba19eb4e74",
+      "action": "retain",
+      "targets": [
+        "api/routes/conversations.py"
+      ],
+      "symbols": [
+        "create",
+        "find_creation",
+        "listing",
+        "statistics",
+        "messages",
+        "questions",
+        "question_preview",
+        "send",
+        "find_request",
+        "snapshot",
+        "response",
+        "stop",
+        "retry",
+        "events",
+        "execution_trace",
+        "execution_evidence",
+        "latest_execution_trace"
+      ]
+    },
+    {
+      "source": "api/routes/employees.py",
+      "sha256": "88980cb946e3f93b2b286245e850b5463e04d060bb8fd98d65e1a98c3ef62f30",
+      "action": "retain",
+      "targets": [
+        "api/routes/employees.py"
+      ],
+      "symbols": [
+        "create_agent",
+        "list_agents",
+        "get_agent",
+        "update_agent",
+        "delete_agent",
+        "agent_usage"
+      ]
+    },
+    {
+      "source": "api/routes/evaluations.py",
+      "sha256": "e0b6690067ebc3abaaeded91a8ad940082943eef038f22e31c2dbcf81a7f2bd4",
+      "action": "retain",
+      "targets": [
+        "api/routes/evaluations.py"
+      ],
+      "symbols": [
+        "suites",
+        "create",
+        "listing",
+        "read",
+        "cancel",
+        "execution_trace",
+        "execution_evidence"
+      ]
+    },
+    {
+      "source": "api/routes/files.py",
+      "sha256": "e8eb478b899c4325773304db894dc043499020b580bc2224279f6808cb01edbc",
+      "action": "retain",
+      "targets": [
+        "api/routes/files.py"
+      ],
+      "symbols": [
+        "upload",
+        "listing",
+        "download"
+      ]
+    },
+    {
+      "source": "api/routes/health.py",
+      "sha256": "e2d248089ddcb405cb3da1df8035febc2056f9f86372806a9a897e6e92f9a2f9",
+      "action": "retain",
+      "targets": [
+        "api/routes/health.py"
+      ],
+      "symbols": [
+        "HealthResponse",
+        "ReadinessResponse",
+        "health",
+        "ready"
+      ]
+    },
+    {
+      "source": "api/routes/knowledge.py",
+      "sha256": "c6c0269833263264497cacde37241d039888e409f84f517f32019d80db27143f",
+      "action": "retain",
+      "targets": [
+        "api/routes/knowledge.py"
+      ],
+      "symbols": [
+        "embedding_connections",
+        "build_vector_index",
+        "clear_vector_index",
+        "list_libraries",
+        "create_library",
+        "get_library",
+        "update_library",
+        "process_documents",
+        "list_processing",
+        "get_processing",
+        "cancel_processing",
+        "list_documents",
+        "upload_document",
+        "get_document",
+        "citation_preview",
+        "preview_document",
+        "remove_document",
+        "download",
+        "search",
+        "import_demo",
+        "evidence_references",
+        "evidence_preview"
+      ]
+    },
+    {
+      "source": "api/routes/mcp.py",
+      "sha256": "81360ef97d2f464c7bd7490c5856483c2e03290e4931d165a9a124f649ae2f7b",
+      "action": "retain",
+      "targets": [
+        "api/routes/mcp.py"
+      ],
+      "symbols": [
+        "listing",
+        "create",
+        "update",
+        "delete_connection",
+        "discover",
+        "approve",
+        "services",
+        "create_service",
+        "update_service",
+        "delete_service",
+        "preview_config",
+        "tool_capabilities",
+        "annotations",
+        "discard"
+      ]
+    },
+    {
+      "source": "api/routes/mcp_oauth.py",
+      "sha256": "93cdd6cf0ee94a3305e0573e2b5d339b6656f94f62d033d6d119ce05a376f6f8",
+      "action": "retain",
+      "targets": [
+        "api/routes/mcp_oauth.py"
+      ],
+      "symbols": [
+        "OAuthStart",
+        "start",
+        "status",
+        "cancel",
+        "disconnect",
+        "callback"
+      ]
+    },
+    {
+      "source": "api/routes/model_connections.py",
+      "sha256": "77820f4f77640d44481f6958175aefa367e2b2a2b566c1a4e2618fd5804f1b0a",
+      "action": "retain",
+      "targets": [
+        "api/routes/model_connections.py"
+      ],
+      "symbols": [
+        "presets",
+        "list_connections",
+        "create_connection",
+        "get_connection",
+        "update_connection",
+        "delete_connection",
+        "test_connection"
+      ]
+    },
+    {
+      "source": "api/routes/organization_rules.py",
+      "sha256": "3fb3261b96a10a2d8949431d5d4d03808c0ff8e93d585166b51e14d31078e9fb",
+      "action": "retain",
+      "targets": [
+        "api/routes/organization_rules.py"
+      ],
+      "symbols": [
+        "get_rules",
+        "update_rules"
+      ]
+    },
+    {
+      "source": "api/routes/public.py",
+      "sha256": "b6f2e7a6abf8fe1f48951864ab839bcf8e2bd63b2dbbc6f1746ecbad6b302e82",
+      "action": "retain",
+      "targets": [
+        "api/routes/public.py"
+      ],
+      "symbols": [
+        "list_agents",
+        "get_agent",
+        "list_skills",
+        "get_skill"
+      ]
+    },
+    {
+      "source": "api/routes/skills.py",
+      "sha256": "124359f1316134af51e996dca98ab7b53df82ea688913d491671b9daf5b2775c",
+      "action": "retain",
+      "targets": [
+        "api/routes/skills.py"
+      ],
+      "symbols": [
+        "skill_library",
+        "sync_skills",
+        "preview_package",
+        "import_package",
+        "create_skill",
+        "list_skills",
+        "get_skill",
+        "get_skill_file",
+        "export_skill",
+        "update_skill",
+        "delete_skill"
+      ]
+    },
+    {
+      "source": "api/security.py",
+      "sha256": "bcbe6e6e4e91c58229608fbc304aba86851212d09c4223d898d4f2898edce17e",
+      "action": "retain",
+      "targets": [
+        "api/security.py"
+      ],
+      "symbols": [
+        "BrowserSecurityMiddleware"
+      ]
+    },
+    {
+      "source": "api/streaming.py",
+      "sha256": "e4c242fe5de4f0a24064c1b2a2f10bca7db4bb1dcdb30661cdf9db5074c8b28b",
+      "action": "retain",
+      "targets": [
+        "api/streaming.py"
+      ],
+      "symbols": [
+        "subscribe",
+        "_snapshots"
+      ]
+    },
+    {
+      "source": "auth/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "retain",
+      "targets": [
+        "auth/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "auth/actor.py",
+      "sha256": "8f8dcdce1073166580189926fb90d657aeb70ff1586539c83ddb39fa6554882f",
+      "action": "retain",
+      "targets": [
+        "auth/actor.py"
+      ],
+      "symbols": [
+        "Actor"
+      ]
+    },
+    {
+      "source": "auth/cli.py",
+      "sha256": "4a3dc8a053135e67c09438bd648f7503e74546f657f524c6e7ed5f8391e0004c",
+      "action": "move",
+      "targets": [
+        "cli/auth.py"
+      ],
+      "symbols": [
+        "read_password",
+        "main"
+      ]
+    },
+    {
+      "source": "auth/config.py",
+      "sha256": "d66f663df74ac507218caf75c6bcee61ed3e606a5101eb001864387d419f42de",
+      "action": "retain",
+      "targets": [
+        "auth/config.py"
+      ],
+      "symbols": [
+        "normalize_origin",
+        "AuthConfig",
+        "load_auth_config",
+        "GitHubOAuthConfig",
+        "load_github_oauth_config"
+      ]
+    },
+    {
+      "source": "auth/github.py",
+      "sha256": "7ebec3c6a9e1e570118821f22de0120d68dc5e854d733fa22fb0dadd518e4d97",
+      "action": "retain",
+      "targets": [
+        "auth/github.py"
+      ],
+      "symbols": [
+        "safe_return_path",
+        "GitHubOAuth"
+      ]
+    },
+    {
+      "source": "auth/models.py",
+      "sha256": "9a5d2c0a3c3e24ccd98a0f2b5c7baa8d020d839262387c4fffb37eb018d72dae",
+      "action": "retain",
+      "targets": [
+        "auth/models.py"
+      ],
+      "symbols": [
+        "User",
+        "ExternalIdentity",
+        "AuthSession"
+      ]
+    },
+    {
+      "source": "auth/permissions.py",
+      "sha256": "5b9474c7ea5e80302c46732ad64c2fe15af083f0fc377502bd69e601e98e115c",
+      "action": "retain",
+      "targets": [
+        "auth/permissions.py"
+      ],
+      "symbols": [
+        "permissions_for",
+        "require_permission",
+        "require_resource_access",
+        "can_read_all_resources"
+      ]
+    },
+    {
+      "source": "auth/service.py",
+      "sha256": "45cfe17d22e47ae341f1e2a91a4b703e29dd909a0df658cd44e4aa13eabcd1d3",
+      "action": "retain",
+      "targets": [
+        "auth/service.py"
+      ],
+      "symbols": [
+        "token_digest",
+        "normalize_username",
+        "hash_password",
+        "authentication_required",
+        "AuthService"
+      ]
+    },
+    {
+      "source": "auth/work_authorizations.py",
+      "sha256": "747fe1d36fd9179ba3f53faa9f68d07bb26f293ed23562b4518d2b43f0b27465",
+      "action": "retain",
+      "targets": [
+        "auth/work_authorizations.py"
+      ],
+      "symbols": [
+        "authorize_work"
+      ]
+    },
+    {
+      "source": "bootstrap.py",
+      "sha256": "cbcfc3f4f45cc2f6ab5e49b4449c05163c9533985bcf3a17f978b3980692e62c",
+      "action": "split",
+      "targets": [
+        "bootstrap/app.py",
+        "bootstrap/services.py",
+        "bootstrap/lifecycle.py"
+      ],
+      "symbols": [
+        "create_app"
+      ]
+    },
+    {
+      "source": "builtin_tools/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "runtime/tools/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "builtin_tools/contracts.py",
+      "sha256": "b880a86a9bce8a49aecca272f5060ee48a2de548593044191aeddbb563ab78a6",
+      "action": "split",
+      "targets": [
+        "runtime/contracts/tools.py",
+        "runtime/tools/bindings.py"
+      ],
+      "symbols": [
+        "SandboxAccess",
+        "ToolInvocation",
+        "ToolPermit",
+        "ToolOutcome",
+        "ToolCaller",
+        "ModelExposure",
+        "ToolActions",
+        "WorkspaceHost",
+        "ToolResultHost",
+        "ToolBinding",
+        "catalog_hash"
+      ]
+    },
+    {
+      "source": "builtin_tools/knowledge.py",
+      "sha256": "4c542fc0d2b36400fe0d3326118a0263efa6585bcb8f96530a5bc1aa1b89c1f3",
+      "action": "move",
+      "targets": [
+        "runtime/tools/knowledge.py"
+      ],
+      "symbols": [
+        "tool_bindings",
+        "knowledge_tool",
+        "knowledge_instructions"
+      ]
+    },
+    {
+      "source": "builtin_tools/result_files.py",
+      "sha256": "ab1502e8e781510905fd7f052c3239c68309d29bd4e15ecbf6b8f77ba62ec861",
+      "action": "move",
+      "targets": [
+        "runtime/tools/result_files.py"
+      ],
+      "symbols": [
+        "ResultScope",
+        "result_read_hint",
+        "ToolResultBackend"
+      ]
+    },
+    {
+      "source": "builtin_tools/results.py",
+      "sha256": "9cf017ee8f3dc12cc639b18a894f90eb09152a6948fe362c3111e2f13bcaf91b",
+      "action": "move",
+      "targets": [
+        "runtime/tools/results.py"
+      ],
+      "symbols": [
+        "result_reader_tool",
+        "result_reader_binding",
+        "tool_message",
+        "feedback_outcome",
+        "normalize_feedback",
+        "normalize_builtin",
+        "render_feedback"
+      ]
+    },
+    {
+      "source": "builtin_tools/tool_search.py",
+      "sha256": "64dc5047e4f9e890e0ef05a4913f1fe3bcde2095848834a1d650b5cb3c8412d9",
+      "action": "move",
+      "targets": [
+        "runtime/tools/tool_search.py"
+      ],
+      "symbols": [
+        "search_binding",
+        "search_tool"
+      ]
+    },
+    {
+      "source": "builtin_tools/workspace.py",
+      "sha256": "3e56cf2ebb18af506cbeacf3a7fd960610ef37f8e92d6ed359015088e46d18a8",
+      "action": "split",
+      "targets": [
+        "runtime/tools/workspace.py",
+        "runtime/tools/sandbox_backend.py"
+      ],
+      "symbols": [
+        "SnapshotBackend",
+        "LimitedStateBackend",
+        "WorkspaceBackend",
+        "_SandboxFileBackend",
+        "filesystem_middleware",
+        "workspace_tools",
+        "normalize_workspace"
+      ]
+    },
+    {
+      "source": "capability_catalog/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "resources/capability_catalog/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "capability_catalog/queries.py",
+      "sha256": "9c16ab87b24f584decc03a3482188cd55dd19f40dda6c71dff211eb78c0e9dd2",
+      "action": "move",
+      "targets": [
+        "resources/capability_catalog/queries.py"
+      ],
+      "symbols": [
+        "list_capabilities"
+      ]
+    },
+    {
+      "source": "capability_catalog/schemas.py",
+      "sha256": "a95d2d0c2b48f72b28a8cac03f437220950a0d888fd52203c9fbc8cf14ae4947",
+      "action": "move",
+      "targets": [
+        "resources/capability_catalog/schemas.py"
+      ],
+      "symbols": [
+        "CapabilityRead"
+      ]
+    },
+    {
+      "source": "config.py",
+      "sha256": "fd00d2d0951e52ec47d69d24badf54b3c933200ad4f1a73e6ce657c478e07588",
+      "action": "retain",
+      "targets": [
+        "config.py"
+      ],
+      "symbols": [
+        "AppConfig",
+        "_read_values",
+        "_value",
+        "_resolve_path",
+        "_load_database_url",
+        "load_config"
+      ]
+    },
+    {
+      "source": "conversations/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "applications/conversations/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "conversations/acceptance.py",
+      "sha256": "f26308a228ad50745c9cf8cdd9fd9a07507c2f12fc47e98c9ce74c831b3238ff",
+      "action": "move",
+      "targets": [
+        "applications/conversations/acceptance.py"
+      ],
+      "symbols": [
+        "ConversationAcceptance"
+      ]
+    },
+    {
+      "source": "conversations/access.py",
+      "sha256": "dc4fce79df084f6e39c15bef6cbfc686330892210df1311f5d4e886edf5f9de2",
+      "action": "move",
+      "targets": [
+        "applications/conversations/access.py"
+      ],
+      "symbols": [
+        "require_conversation",
+        "require_binding",
+        "require_response"
+      ]
+    },
+    {
+      "source": "conversations/context.py",
+      "sha256": "763cbe650e54763e20c19fa0d5f0f761d2d7b33a18fba52af3a076bd5cf17bf7",
+      "action": "move",
+      "targets": [
+        "applications/conversations/context.py"
+      ],
+      "symbols": [
+        "accepted_run_id"
+      ]
+    },
+    {
+      "source": "conversations/files.py",
+      "sha256": "5a994a48c8a86c1b4a96d71392a4e8dbb0a67b0774d3abc7b406a7484ae35102",
+      "action": "move",
+      "targets": [
+        "applications/conversations/files.py"
+      ],
+      "symbols": [
+        "retained_file_ids",
+        "ConversationFiles"
+      ]
+    },
+    {
+      "source": "conversations/models.py",
+      "sha256": "5e78334acb471e1e1cde0e929cb904334ce509fa715ed6bfa530930dd852c7d7",
+      "action": "move",
+      "targets": [
+        "applications/conversations/models.py"
+      ],
+      "symbols": [
+        "Conversation",
+        "Message",
+        "ConversationRun",
+        "MessageFile"
+      ]
+    },
+    {
+      "source": "conversations/queries.py",
+      "sha256": "dff80397117e02cca7da9f5f0232ef03aa4bcebbd623717fccccb59e430008c0",
+      "action": "split",
+      "targets": [
+        "applications/conversations/queries.py",
+        "applications/conversations/projections.py"
+      ],
+      "symbols": [
+        "message_files",
+        "read_user",
+        "read_response",
+        "read_response_snapshot",
+        "read_submission",
+        "reply_summary",
+        "read_conversation",
+        "preview_text",
+        "ConversationQueries",
+        "read_run_content"
+      ]
+    },
+    {
+      "source": "conversations/schemas.py",
+      "sha256": "597146d0b2c6f1d6da4ddba2390ee39ef43299790366d19a3b1525f341444930",
+      "action": "move",
+      "targets": [
+        "applications/conversations/schemas.py"
+      ],
+      "symbols": [
+        "SendRequest",
+        "CreateRequest",
+        "RetryRequest",
+        "EmptyRequest",
+        "PublicStep",
+        "PublicError",
+        "ConversationReplySummary",
+        "ConversationRead",
+        "ConversationStats",
+        "UserMessageView",
+        "AssistantMessageView",
+        "MessagePage",
+        "ResponseSnapshot",
+        "AcceptedSubmission",
+        "ConversationSnapshot",
+        "QuestionRead",
+        "QuestionPage",
+        "QuestionPreviewRead"
+      ]
+    },
+    {
+      "source": "conversations/service.py",
+      "sha256": "2fef91cc15d4ae4647437a061ac914dd3471b820e4d21678dfd171ba4711b18d",
+      "action": "move",
+      "targets": [
+        "applications/conversations/commands.py"
+      ],
+      "symbols": [
+        "ConversationService"
+      ]
+    },
+    {
+      "source": "conversations/writes.py",
+      "sha256": "b2dc9e4438fa07e4c4131f109c7e1bd03d9ce86d26552f120646df72f3a1aee2",
+      "action": "move",
+      "targets": [
+        "applications/conversations/writes.py"
+      ],
+      "symbols": [
+        "create_conversation",
+        "require_idle",
+        "prepare_input",
+        "bind_run",
+        "publish_conversation"
+      ]
+    },
+    {
+      "source": "employees/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "resources/employees/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "employees/access.py",
+      "sha256": "94dac1b96247f2e8c683c44a4262879501263fb42b0f1a79395b5094f04d09ec",
+      "action": "split",
+      "targets": [
+        "resources/employees/access.py",
+        "runtime/execution/authorization.py"
+      ],
+      "symbols": [
+        "configured_agent",
+        "authorize_execution",
+        "authorize_tool",
+        "assert_binding"
+      ]
+    },
+    {
+      "source": "employees/assembly.py",
+      "sha256": "95dc586ff292129f02e8deed1c91d4cb7e77d8fc1a77c99b83e403555d879250",
+      "action": "move",
+      "targets": [
+        "resources/employees/assembly.py"
+      ],
+      "symbols": [
+        "capture_skills",
+        "capture_tools"
+      ]
+    },
+    {
+      "source": "employees/knowledge.py",
+      "sha256": "e15eab53049935195a7edeee2914e111e3d0be2115d753b3b3bb0892ca5ea724",
+      "action": "move",
+      "targets": [
+        "resources/employees/knowledge.py"
+      ],
+      "symbols": [
+        "knowledge_ids",
+        "knowledge_configuration",
+        "replace_knowledge",
+        "capture_knowledge"
+      ]
+    },
+    {
+      "source": "employees/models.py",
+      "sha256": "ea593760578de764636c3f12d0a9622986f12384c16188b1c2c0ddffed19ba20",
+      "action": "split",
+      "targets": [
+        "resources/employees/models.py",
+        "resources/organization_rules/models.py"
+      ],
+      "symbols": [
+        "Agent",
+        "AgentSkill",
+        "AgentKnowledgeLibrary",
+        "AgentToolGrant",
+        "OrganizationRules"
+      ]
+    },
+    {
+      "source": "employees/organization_rules.py",
+      "sha256": "a84fb4473cfd878beaf9afb7ad2b1240db2f2093ba440c6fdfa4bd222fc5f07a",
+      "action": "move",
+      "targets": [
+        "resources/organization_rules/service.py"
+      ],
+      "symbols": [
+        "current_rules",
+        "OrganizationRulesService"
+      ]
+    },
+    {
+      "source": "employees/schemas.py",
+      "sha256": "a61ce83e31632ceef40db7585a564842f221bf0260fdaf13cc747c6ec8496f45",
+      "action": "split",
+      "targets": [
+        "resources/employees/schemas.py",
+        "resources/organization_rules/schemas.py"
+      ],
+      "symbols": [
+        "SkillAssignmentInput",
+        "SkillAssignmentRead",
+        "KnowledgeConfigurationInput",
+        "AgentCreate",
+        "AgentPatch",
+        "AgentResourceCounts",
+        "AgentRead",
+        "PublicAgent",
+        "AgentSkillSummary",
+        "AgentSummary",
+        "UsageSkill",
+        "AgentUsage",
+        "OrganizationRulesUpdate",
+        "OrganizationRulesRead"
+      ]
+    },
+    {
+      "source": "employees/service.py",
+      "sha256": "6adf3c7210ebf8d898becfe7fdfd1ef6da84467904b9488da8f20b142377970d",
+      "action": "move",
+      "targets": [
+        "resources/employees/service.py"
+      ],
+      "symbols": [
+        "require_agent",
+        "validate_model_binding",
+        "agent_conflict",
+        "validate_agent_name",
+        "assignments",
+        "skill_readiness",
+        "agent_response",
+        "replace_assignments",
+        "AgentService"
+      ]
+    },
+    {
+      "source": "employees/tool_grants.py",
+      "sha256": "9783720d76549baa78b7b8570c34f51cbad49cbb3e935037821edd8c2a83e5ec",
+      "action": "move",
+      "targets": [
+        "resources/employees/tool_grants.py"
+      ],
+      "symbols": [
+        "GrantInput",
+        "GrantRead",
+        "grant_read",
+        "grants_for",
+        "grant_count",
+        "assert_connections_unused",
+        "apply_grants"
+      ]
+    },
+    {
+      "source": "environments/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "resources/environments/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "environments/cli.py",
+      "sha256": "aaa528a51616fe0aa0ceab76fb799ba691c499165a1aee37f8b4cbdaf0faba1f",
+      "action": "move",
+      "targets": [
+        "cli/environments.py"
+      ],
+      "symbols": [
+        "main"
+      ]
+    },
+    {
+      "source": "environments/config.py",
+      "sha256": "29d223a7609e216822863e8cba468ae78ac7f96d2d15fe73c6e6edf7f9ff8bdd",
+      "action": "move",
+      "targets": [
+        "resources/environments/config.py"
+      ],
+      "symbols": [
+        "SandboxConfig"
+      ]
+    },
+    {
+      "source": "environments/models.py",
+      "sha256": "e96761c176d5854f776f2d2cfabed56850743784c2266d18facc42c4e7d78f13",
+      "action": "split",
+      "targets": [
+        "resources/environments/models.py",
+        "resources/environments/legacy_models.py"
+      ],
+      "symbols": [
+        "SandboxResource",
+        "WorkspaceProfile"
+      ]
+    },
+    {
+      "source": "environments/open_sandbox.py",
+      "sha256": "0bec50dcc879860130df797599bb97d4aae1ef8ddcf37e664028fd2a10ebe23f",
+      "action": "move",
+      "targets": [
+        "resources/environments/open_sandbox.py"
+      ],
+      "symbols": [
+        "BoundedSyncStream",
+        "BoundedSandboxTransport",
+        "OpenSandboxProvider",
+        "load_verification",
+        "CommandResult",
+        "OpenSandboxOperations"
+      ]
+    },
+    {
+      "source": "environments/policy.py",
+      "sha256": "9bbf28bb61d20060765ff69c7befb76ef4f2af69634ce5c9be377de648939ad9",
+      "action": "move",
+      "targets": [
+        "resources/environments/policy.py"
+      ],
+      "symbols": [
+        "checked_path",
+        "under",
+        "authorize_workspace_arguments"
+      ]
+    },
+    {
+      "source": "environments/service.py",
+      "sha256": "2616da8b4d7f99ebdf195aa36f2672c57ee131d298f688d80ebac16daf910780",
+      "action": "move",
+      "targets": [
+        "resources/environments/service.py"
+      ],
+      "symbols": [
+        "RunSandbox",
+        "SandboxService"
+      ]
+    },
+    {
+      "source": "environments/verify.py",
+      "sha256": "8850e107d4ee08c552873e72d89b9eb28a0363c9d489dc1cf5328635d63c19b5",
+      "action": "move",
+      "targets": [
+        "cli/verify_environment.py"
+      ],
+      "symbols": [
+        "docker",
+        "verify",
+        "main"
+      ]
+    },
+    {
+      "source": "errors.py",
+      "sha256": "219a1c75805cb65d782809621babaccf88f0c4451659fe944d1f2f23ae0450af",
+      "action": "move",
+      "targets": [
+        "common/errors.py"
+      ],
+      "symbols": [
+        "FailureKind",
+        "CodedFailure",
+        "ServiceError",
+        "AuthenticationError",
+        "PermissionDeniedError",
+        "NotFoundError",
+        "ConflictError",
+        "InvalidInputError",
+        "RateLimitError",
+        "ServiceUnavailableError",
+        "failure_code",
+        "service_failure_kind"
+      ]
+    },
+    {
+      "source": "evaluations/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "applications/evaluations/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "evaluations/benchmark.py",
+      "sha256": "04203f47feaaf392989468fe67f189283c615da764ba934149ea0c9434def407",
+      "action": "move",
+      "targets": [
+        "applications/evaluations/benchmark.py"
+      ],
+      "symbols": [
+        "load_suite",
+        "catalog",
+        "exam_prompt",
+        "grade"
+      ]
+    },
+    {
+      "source": "evaluations/bfcl_checker.py",
+      "sha256": "7643b4b5fe15a820de64282aa6b8180b302ae28ba659cab7568066b44c8cbea2",
+      "action": "move",
+      "targets": [
+        "applications/evaluations/bfcl_checker.py"
+      ],
+      "symbols": [
+        "get_possible_answer_type",
+        "convert_func_name",
+        "type_checker",
+        "standardize_string",
+        "string_checker",
+        "list_checker",
+        "dict_checker",
+        "list_dict_checker",
+        "simple_function_checker"
+      ]
+    },
+    {
+      "source": "evaluations/models.py",
+      "sha256": "eb8b536bdc44a24279baf69f66fa5f4696c44e74526e5f5a7a25b16dad353393",
+      "action": "move",
+      "targets": [
+        "applications/evaluations/models.py"
+      ],
+      "symbols": [
+        "EvaluationBatch",
+        "EvaluationCase"
+      ]
+    },
+    {
+      "source": "evaluations/schemas.py",
+      "sha256": "4a50e54c2d02ad5b5cfe8654b25361cb44238822a4c29d3224aa6ee883f28086",
+      "action": "move",
+      "targets": [
+        "applications/evaluations/schemas.py"
+      ],
+      "symbols": [
+        "EvaluationCreate"
+      ]
+    },
+    {
+      "source": "evaluations/service.py",
+      "sha256": "d7995c9d364655ba65d81077e028f15af5b4924277d07a018a9aeb6c26289753",
+      "action": "split",
+      "targets": [
+        "applications/evaluations/commands.py",
+        "applications/evaluations/queries.py",
+        "applications/evaluations/progression.py",
+        "applications/evaluations/acceptance.py"
+      ],
+      "symbols": [
+        "EvaluationService"
+      ]
+    },
+    {
+      "source": "evaluations/worker.py",
+      "sha256": "ac1cfa31dd32033f6f33d7b3fdba79b521a3f27fbeffd7255542f454dd799bb5",
+      "action": "move",
+      "targets": [
+        "applications/evaluations/worker.py"
+      ],
+      "symbols": [
+        "EvaluationWorker"
+      ]
+    },
+    {
+      "source": "execution/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "runtime/execution/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "execution/assembly.py",
+      "sha256": "e7c519f622647a1a0ca686fe31d91b21de2def4269aa1f6ddd72c7f84d451a11",
+      "action": "move",
+      "targets": [
+        "runtime/assembly.py"
+      ],
+      "symbols": [
+        "build_execution"
+      ]
+    },
+    {
+      "source": "execution/authorization.py",
+      "sha256": "0a0d3cf67413df9138a5d4fe25ed82ef58a9c49707f0b451dacab7403f17d899",
+      "action": "move",
+      "targets": [
+        "runtime/execution/authorization.py"
+      ],
+      "symbols": [
+        "authorize_run"
+      ]
+    },
+    {
+      "source": "execution/config.py",
+      "sha256": "9a71573e58583ca9c538247ebecd5aa34d1f1d2f88e06d4cefcb7ad38cd62b6c",
+      "action": "move",
+      "targets": [
+        "runtime/execution/config.py"
+      ],
+      "symbols": [
+        "RuntimeConfig",
+        "load_runtime_config"
+      ]
+    },
+    {
+      "source": "execution/context.py",
+      "sha256": "2ca4972c97433624b57cc7976e6d3dc979a0f6dbc63f116abd2522925c32963b",
+      "action": "move",
+      "targets": [
+        "runtime/execution/context.py"
+      ],
+      "symbols": [
+        "_ProgressBuffer",
+        "RunContext"
+      ]
+    },
+    {
+      "source": "execution/contracts.py",
+      "sha256": "c9f363b38627d937a6b3b429a42c19df9cb6e7253990f9c3cb6787479460e453",
+      "action": "move",
+      "targets": [
+        "runtime/contracts/runs.py"
+      ],
+      "symbols": [
+        "OrganizationRulesSnapshot",
+        "RunSpec",
+        "ExecutionStatus",
+        "Completion",
+        "run_thread_id"
+      ]
+    },
+    {
+      "source": "execution/errors.py",
+      "sha256": "5c75b0f5d6514130407b48597e28a83bf94d67143508ca67d0010190f58e0ca7",
+      "action": "move",
+      "targets": [
+        "runtime/execution/errors.py"
+      ],
+      "symbols": [
+        "ExecutionFailure",
+        "PersistenceFailure",
+        "failure_kind",
+        "execution_failure",
+        "terminal_status"
+      ]
+    },
+    {
+      "source": "execution/evidence.py",
+      "sha256": "eb8af737e91d0429f3e2ec58a3646447bd5bee40233087110ff7714387fe7275",
+      "action": "move",
+      "targets": [
+        "runtime/execution/evidence.py"
+      ],
+      "symbols": [
+        "redact",
+        "document"
+      ]
+    },
+    {
+      "source": "execution/models.py",
+      "sha256": "2972e4071c3e1c2af1f9c6335670cc2cc36255783540eb9c4d4b51d92e745f51",
+      "action": "move",
+      "targets": [
+        "runtime/execution/models.py"
+      ],
+      "symbols": [
+        "Run",
+        "RunAction"
+      ]
+    },
+    {
+      "source": "execution/queries.py",
+      "sha256": "593d76c24ef65a56c4a574aed444b07381841dab03713afe97ab082d73b352c4",
+      "action": "move",
+      "targets": [
+        "runtime/execution/queries.py"
+      ],
+      "symbols": [
+        "ExecutionQueries"
+      ]
+    },
+    {
+      "source": "execution/runner.py",
+      "sha256": "eb5543e7791da6b3169b72be7adceed27f859d498f9c37ca2efa473c52f8fb5e",
+      "action": "split",
+      "targets": [
+        "runtime/execution/runner.py",
+        "runtime/execution/preparation.py"
+      ],
+      "symbols": [
+        "truncate",
+        "RunTask"
+      ]
+    },
+    {
+      "source": "execution/scheduler.py",
+      "sha256": "4c5949962354bb1d03e0b594559589cf2d3776b410a26de6eb27a92e3e68cebf",
+      "action": "move",
+      "targets": [
+        "runtime/execution/scheduler.py"
+      ],
+      "symbols": [
+        "RunWorker"
+      ]
+    },
+    {
+      "source": "execution/service.py",
+      "sha256": "96952685f95befc3684cacaf6c866abf7c5e2f2a9eb656e2e31165cf8b6e96ba",
+      "action": "move",
+      "targets": [
+        "runtime/execution/service.py"
+      ],
+      "symbols": [
+        "request_digest",
+        "find_request",
+        "active_run_ids",
+        "RunService"
+      ]
+    },
+    {
+      "source": "execution/snapshot.py",
+      "sha256": "8372f03da962dc3788a80888ad0991da979738643a32fefb2b4e4bf2a85628f9",
+      "action": "split",
+      "targets": [
+        "runtime/execution/snapshot.py",
+        "runtime/execution/snapshot_rules.py"
+      ],
+      "symbols": [
+        "validate_snapshot",
+        "RunConfiguration"
+      ]
+    },
+    {
+      "source": "execution/store.py",
+      "sha256": "bf568eae1ba0d0fa3d873fe21f1e283c928e979a45153d5ca56f4d198b56b9e5",
+      "action": "move",
+      "targets": [
+        "runtime/execution/store.py"
+      ],
+      "symbols": [
+        "RunStore",
+        "assert_tool_exposure",
+        "require_run",
+        "retained_file_ids"
+      ]
+    },
+    {
+      "source": "execution/tool_results.py",
+      "sha256": "a970b9a3b3233f8712d49104056e91b3ae0bf9ff5c296e55e0fcda6eec421cd5",
+      "action": "move",
+      "targets": [
+        "runtime/execution/tool_results.py"
+      ],
+      "symbols": [
+        "_legacy_result_text",
+        "ToolResults",
+        "_structured_payload",
+        "_result_text"
+      ]
+    },
+    {
+      "source": "files/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "resources/files/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "files/cleanup.py",
+      "sha256": "e3d7fa414ab24ece48c2797a775a1f3b428c962810408729a93e3d916454f7a1",
+      "action": "move",
+      "targets": [
+        "resources/files/cleanup.py"
+      ],
+      "symbols": [
+        "FileCleanup"
+      ]
+    },
+    {
+      "source": "files/config.py",
+      "sha256": "526075bd8bba24bfc483847158b8f79e6914357da733e5deaabf60e87e2989bb",
+      "action": "move",
+      "targets": [
+        "resources/files/config.py"
+      ],
+      "symbols": [
+        "FileConfig"
+      ]
+    },
+    {
+      "source": "files/models.py",
+      "sha256": "af96afbb1999f1cbcab5be91a97a01d0c469ccceb32b43929e87547dd3e836e0",
+      "action": "move",
+      "targets": [
+        "resources/files/models.py"
+      ],
+      "symbols": [
+        "StoredFile"
+      ]
+    },
+    {
+      "source": "files/schemas.py",
+      "sha256": "fbaaa287f5defca96cfb34f776e1d623cfeeeff3ef2a9e4b8d0575275fc1cf32",
+      "action": "move",
+      "targets": [
+        "resources/files/schemas.py"
+      ],
+      "symbols": [
+        "FileRead"
+      ]
+    },
+    {
+      "source": "files/service.py",
+      "sha256": "189db8e0002658b7a5b1678ccafeea03188dfd0911b45d8f967b71923ac9e9a5",
+      "action": "move",
+      "targets": [
+        "resources/files/service.py"
+      ],
+      "symbols": [
+        "safe_name",
+        "file_ref",
+        "FileService"
+      ]
+    },
+    {
+      "source": "files/storage.py",
+      "sha256": "4286a38db3250ebcb8f941777d3990e838781d0ad303739888638930238b2db4",
+      "action": "move",
+      "targets": [
+        "resources/files/storage.py"
+      ],
+      "symbols": [
+        "FileStorage"
+      ]
+    },
+    {
+      "source": "infrastructure/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "retain",
+      "targets": [
+        "infrastructure/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "infrastructure/concurrency.py",
+      "sha256": "e7afa80bbeba0f9f4c7e04a84af72a76b097faaa1f2f1939f10e5151726acc91",
+      "action": "retain",
+      "targets": [
+        "infrastructure/concurrency.py"
+      ],
+      "symbols": [
+        "settle",
+        "run_sync"
+      ]
+    },
+    {
+      "source": "infrastructure/credentials.py",
+      "sha256": "2aff54b80c946559036668eaf81102594cc31852f595f89a9473e14f4b3e7aef",
+      "action": "retain",
+      "targets": [
+        "infrastructure/credentials.py"
+      ],
+      "symbols": [
+        "CredentialUnavailableError",
+        "CredentialVault"
+      ]
+    },
+    {
+      "source": "infrastructure/database/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "retain",
+      "targets": [
+        "infrastructure/database/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "infrastructure/database/base.py",
+      "sha256": "46ff2e94b7956dbdccbd030e6c737de89dc60f5ae27a720e173acdc8e080c435",
+      "action": "retain",
+      "targets": [
+        "infrastructure/database/base.py"
+      ],
+      "symbols": [
+        "Base"
+      ]
+    },
+    {
+      "source": "infrastructure/database/errors.py",
+      "sha256": "fbee304bf2295497b11be4d3ece32e8cbafcbd7da71f93f1cb97684e422e955f",
+      "action": "retain",
+      "targets": [
+        "infrastructure/database/errors.py"
+      ],
+      "symbols": [
+        "_sqlite_code",
+        "is_unique_violation",
+        "is_database_busy"
+      ]
+    },
+    {
+      "source": "infrastructure/database/fields.py",
+      "sha256": "ac1b87e27aadd8c464bfba31ba7e3167667a0d587b3c46c80edbbf005773ae19",
+      "action": "retain",
+      "targets": [
+        "infrastructure/database/fields.py"
+      ],
+      "symbols": [
+        "UUIDText",
+        "UTCDateTime",
+        "StringListJSON",
+        "IdentityTimestamps",
+        "NumericID",
+        "NumericIdentityTimestamps"
+      ]
+    },
+    {
+      "source": "infrastructure/database/identifiers.py",
+      "sha256": "093e80585671823b9a5439d4733818441f0fc0dd284b2310a25f192bd4b152cd",
+      "action": "retain",
+      "targets": [
+        "infrastructure/database/identifiers.py"
+      ],
+      "symbols": [
+        "IdentifierSequence",
+        "allocate_id"
+      ]
+    },
+    {
+      "source": "infrastructure/database/models.py",
+      "sha256": "856502da07e5078e42d747e86c3813c9673a1a2431b3b80b64c001e6efcba3c2",
+      "action": "move",
+      "targets": [
+        "bootstrap/model_registry.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "infrastructure/database/session.py",
+      "sha256": "93842d0f17c7e56f1d34a818e7390a40a259f699e980e4ae3aac5329ba040a02",
+      "action": "retain",
+      "targets": [
+        "infrastructure/database/session.py"
+      ],
+      "symbols": [
+        "DatabaseConfig",
+        "Database"
+      ]
+    },
+    {
+      "source": "infrastructure/database/transactions.py",
+      "sha256": "20e7c26955bcb9f5cc4da4978e812f21a30d3367d9d646cbc6de4ca669ed8a05",
+      "action": "retain",
+      "targets": [
+        "infrastructure/database/transactions.py"
+      ],
+      "symbols": [
+        "reserve_writer"
+      ]
+    },
+    {
+      "source": "infrastructure/observability.py",
+      "sha256": "6067643c36ca254a33755c85c1005c6b04974455e36e2a47f13e7e3dce11737a",
+      "action": "retain",
+      "targets": [
+        "infrastructure/observability.py"
+      ],
+      "symbols": [
+        "request_id",
+        "failure_frames",
+        "CorrelationFilter",
+        "correlate_run",
+        "ExecutionLogs"
+      ]
+    },
+    {
+      "source": "infrastructure/settings.py",
+      "sha256": "d6655fcf640a326503499a7bfd67db93b02519ef3fd5aea7d0fbb30aa453528d",
+      "action": "retain",
+      "targets": [
+        "infrastructure/settings.py"
+      ],
+      "symbols": [
+        "validate_positive",
+        "positive_values"
+      ]
+    },
+    {
+      "source": "knowledge/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "knowledge/access.py",
+      "sha256": "34f4dc4b20b17d0df97a707dcf9f9627ce8ff323ad03adf226ddd9b37a1a3c57",
+      "action": "split",
+      "targets": [
+        "resources/knowledge/access.py",
+        "runtime/execution/knowledge.py"
+      ],
+      "symbols": [
+        "KnowledgeAccess"
+      ]
+    },
+    {
+      "source": "knowledge/chunking.py",
+      "sha256": "b4040a9c6e828405889586574ac085dcbbd656a20800c377473dc3a63fb75f0c",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/chunking.py"
+      ],
+      "symbols": [
+        "ChunkLimitExceeded",
+        "split_document",
+        "section_groups"
+      ]
+    },
+    {
+      "source": "knowledge/contracts.py",
+      "sha256": "eb5a8fcee8e9d2226dbf6b82cd89b17eb766cffe1896f1a93dff00a325f5bb72",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/contracts.py"
+      ],
+      "symbols": [
+        "FrozenModel",
+        "SourceBlock",
+        "KnowledgeDocument",
+        "SourceSpan",
+        "Chunk",
+        "ChunkingRules"
+      ]
+    },
+    {
+      "source": "knowledge/evidence.py",
+      "sha256": "5e63cbe022da808bc1c8be946d41877ffe58de00473d8be13c6bcdd81cef316d",
+      "action": "split",
+      "targets": [
+        "resources/knowledge/sources.py",
+        "runtime/execution/knowledge_evidence.py"
+      ],
+      "symbols": [
+        "KnowledgeEvidence"
+      ]
+    },
+    {
+      "source": "knowledge/lexical.py",
+      "sha256": "11a5d1e9574d355950da11c242c25f5c9cbe74f27d28cebc63fc6d96b7d0db0d",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/lexical.py"
+      ],
+      "symbols": [
+        "_lexical_tokenizer",
+        "lexical_version",
+        "lexical_terms"
+      ]
+    },
+    {
+      "source": "knowledge/loading.py",
+      "sha256": "4bc63157860e636724537f6545c502e0325198d0da12344a24af21a5993b1f1e",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/loading.py"
+      ],
+      "symbols": [
+        "normalize",
+        "markdown_sections",
+        "validate_text_upload",
+        "text_document"
+      ]
+    },
+    {
+      "source": "knowledge/models.py",
+      "sha256": "b3a22a3fafd237453ee42ab97844bac635aa9d80437293efc1450ce3dcba4106",
+      "action": "split",
+      "targets": [
+        "resources/knowledge/models.py",
+        "runtime/execution/evidence_models.py"
+      ],
+      "symbols": [
+        "KnowledgeBase",
+        "RunKnowledgeEvidence",
+        "LibraryDocument",
+        "ProcessingBatch",
+        "ProcessingItem",
+        "LibraryChunk",
+        "LibraryVectorIndex",
+        "LibraryVectorMembership"
+      ]
+    },
+    {
+      "source": "knowledge/processing.py",
+      "sha256": "e6e08dd37cadd5af9ad843731495a43138c85326b1982d2940fd9280100c1f3f",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/processing.py"
+      ],
+      "symbols": [
+        "result_digest",
+        "can_reuse",
+        "KnowledgeProcessingService"
+      ]
+    },
+    {
+      "source": "knowledge/retrieval.py",
+      "sha256": "6fce6024d1585f232c59414adbbcbca32da1a6038d5cc2955c0694bb68024db9",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/retrieval.py"
+      ],
+      "symbols": [
+        "fuse_rankings"
+      ]
+    },
+    {
+      "source": "knowledge/samples.py",
+      "sha256": "1ff42c770f24cb61b4b0350878168b43a37cfb764151f314af7ba62e0d9d5459",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/samples.py"
+      ],
+      "symbols": [
+        "sample_files"
+      ]
+    },
+    {
+      "source": "knowledge/schemas.py",
+      "sha256": "ea9a9bcafd22c19e0e4196cb7096a05c4b0a4ba40c93f3d146eb673ef98f2f09",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/schemas.py"
+      ],
+      "symbols": [
+        "ChunkingRules",
+        "effective_rules",
+        "LibraryCreate",
+        "LibraryRead",
+        "LibraryUpdate",
+        "DocumentRead",
+        "DocumentDetail",
+        "CitationPreviewRead",
+        "ProcessingRequest",
+        "ChunkPreviewRequest",
+        "ChunkPreviewRead",
+        "ProcessingItemRead",
+        "ProcessingBatchRead",
+        "SearchRequest",
+        "SearchHit",
+        "SearchResult",
+        "DemoImport",
+        "VectorBuild",
+        "EmbeddingConnectionRead",
+        "KnowledgeSearchInput",
+        "KnowledgeReadInput",
+        "KnowledgeEvidenceRead",
+        "KnowledgeEvidenceReference"
+      ]
+    },
+    {
+      "source": "knowledge/search.py",
+      "sha256": "0a9333726a1fe07aadb76a160ed3098c7dfe7cf267ff0a9d4a5104849e3c1bd4",
+      "action": "split",
+      "targets": [
+        "resources/knowledge/search.py",
+        "runtime/execution/knowledge.py"
+      ],
+      "symbols": [
+        "KnowledgeSearch"
+      ]
+    },
+    {
+      "source": "knowledge/service.py",
+      "sha256": "ecf193103df3f9da6c9a47cc3f50061f3edddaae486700ac21e374226b1c2e32",
+      "action": "split",
+      "targets": [
+        "resources/knowledge/libraries.py",
+        "resources/knowledge/documents.py",
+        "resources/knowledge/references.py"
+      ],
+      "symbols": [
+        "retained_file_ids",
+        "KnowledgeService"
+      ]
+    },
+    {
+      "source": "knowledge/vector_store.py",
+      "sha256": "093179e8b1d59bdcacf650798ab9b7db6dfd41c2720579d4b8c2ea75d8a9f2d3",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/vector_store.py"
+      ],
+      "symbols": [
+        "KnowledgeVectorStore"
+      ]
+    },
+    {
+      "source": "knowledge/vectors.py",
+      "sha256": "76d68ab80e5506d3a9d93ca7a97a2c72bfd0b8a447d0cfaa16872ed2f47a0344",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/vectors.py"
+      ],
+      "symbols": [
+        "source_digest",
+        "index_summary",
+        "KnowledgeVectorService"
+      ]
+    },
+    {
+      "source": "knowledge/worker.py",
+      "sha256": "085e0b4b7f5ae56e2069b0d912ede622ac324b5d9ae909c8dabbed50832e4879",
+      "action": "move",
+      "targets": [
+        "resources/knowledge/worker.py"
+      ],
+      "symbols": [
+        "KnowledgeWorker"
+      ]
+    },
+    {
+      "source": "llm/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "infrastructure/llm/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "llm/config.py",
+      "sha256": "7a91697e053eda9d23690b575d610b3430d0546696c8628c5af1a31219decbdd",
+      "action": "move",
+      "targets": [
+        "infrastructure/llm/config.py"
+      ],
+      "symbols": [
+        "LLMConfig"
+      ]
+    },
+    {
+      "source": "llm/embeddings.py",
+      "sha256": "858cb6cbd281c27da8e91108fc5f9b18656e748620994a890b56c6200f163c6b",
+      "action": "move",
+      "targets": [
+        "infrastructure/llm/embeddings.py"
+      ],
+      "symbols": [
+        "EmbeddingConfig",
+        "normalized_vector",
+        "embed_texts"
+      ]
+    },
+    {
+      "source": "llm/errors.py",
+      "sha256": "c24d58a0237dc59238e27bf937bb12ad418bd3b55b737801a6b451f09c956ce4",
+      "action": "move",
+      "targets": [
+        "infrastructure/llm/errors.py"
+      ],
+      "symbols": [
+        "classify_error"
+      ]
+    },
+    {
+      "source": "llm/factory.py",
+      "sha256": "cc16916fdac86225f7cd2a1aa7c07aa0a5cca519726c5aff32b726e187f33ca7",
+      "action": "move",
+      "targets": [
+        "infrastructure/llm/factory.py"
+      ],
+      "symbols": [
+        "observe_model_request",
+        "_capture_request",
+        "create_chat_model",
+        "model_session"
+      ]
+    },
+    {
+      "source": "llm/reasoning.py",
+      "sha256": "f8efba5520588207c6801a6014548f31f476d6818a2cfab60a096c0045d8af37",
+      "action": "move",
+      "targets": [
+        "infrastructure/llm/reasoning.py"
+      ],
+      "symbols": [
+        "ReasoningChatOpenAI"
+      ]
+    },
+    {
+      "source": "llm/usage.py",
+      "sha256": "6fda1d789a11c96ffb49904ba77dbb8ff865a49d2ede2d0d858c0dfd9c3748a0",
+      "action": "split",
+      "targets": [
+        "infrastructure/llm/usage.py",
+        "common/usage.py",
+        "runtime/usage.py",
+        "runtime/execution/metrics.py"
+      ],
+      "symbols": [
+        "TokenUsage",
+        "parse_token_usage",
+        "aggregate_usage",
+        "diagnostic_metrics"
+      ]
+    },
+    {
+      "source": "main.py",
+      "sha256": "49bc7f703b32ca3b51c41145b2cd54b1865cbbe1661d888450e0a2cd191d388a",
+      "action": "retain",
+      "targets": [
+        "main.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "mcp/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "resources/mcp/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "mcp/access.py",
+      "sha256": "f446bf3fa18fdac4229f6ff3ad39235c1d0f666d68cf4b0dfd729248a4aea563",
+      "action": "move",
+      "targets": [
+        "resources/mcp/access.py"
+      ],
+      "symbols": [
+        "managed_connection",
+        "service_manager"
+      ]
+    },
+    {
+      "source": "mcp/adapters/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "resources/mcp/adapters/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "mcp/adapters/http.py",
+      "sha256": "c89cb1fd2f9f9a11c69c961f536eaf7f7528e91f3a74e52099485be5d72c0ddd",
+      "action": "move",
+      "targets": [
+        "resources/mcp/adapters/http.py"
+      ],
+      "symbols": [
+        "descriptor",
+        "MCPClient",
+        "auth_status"
+      ]
+    },
+    {
+      "source": "mcp/adapters/stdio.py",
+      "sha256": "56dc9bcc270accc5300be5030be1cc09e156de300fa23fe078c95e3d30a150de",
+      "action": "move",
+      "targets": [
+        "resources/mcp/adapters/stdio.py"
+      ],
+      "symbols": [
+        "StdioMCPClient"
+      ]
+    },
+    {
+      "source": "mcp/adapters/transport.py",
+      "sha256": "f28f4dbbc4c66aa62fc5538e4662d407a0698f2561404ed88140e04e39eb7bd9",
+      "action": "move",
+      "targets": [
+        "resources/mcp/adapters/transport.py"
+      ],
+      "symbols": [
+        "ResponseStream",
+        "SDKTransport"
+      ]
+    },
+    {
+      "source": "mcp/catalogs.py",
+      "sha256": "c63b1de32a958a03ecaac8543d5d5a77c9a738ffc4d9470d7d2d7e57e2e7b5a0",
+      "action": "move",
+      "targets": [
+        "resources/mcp/catalogs.py"
+      ],
+      "symbols": [
+        "save_candidate",
+        "ToolCatalogService"
+      ]
+    },
+    {
+      "source": "mcp/config.py",
+      "sha256": "5337d27ad8ee59a30182988c91c84322510e23128c7970e1af963e64cbed887f",
+      "action": "move",
+      "targets": [
+        "resources/mcp/config.py"
+      ],
+      "symbols": [
+        "oauth_callback_origin",
+        "ToolConfig"
+      ]
+    },
+    {
+      "source": "mcp/connections.py",
+      "sha256": "c31c3340bd6f5eecc2032fe943da905448555505ec0cfa81e608de0869244094",
+      "action": "move",
+      "targets": [
+        "resources/mcp/connections.py"
+      ],
+      "symbols": [
+        "valid_header",
+        "connection_read",
+        "require_connection",
+        "compatible_stdio_definition",
+        "assert_connection",
+        "ToolConnectionService"
+      ]
+    },
+    {
+      "source": "mcp/contracts.py",
+      "sha256": "90747a1b6e1b4556712fabdecd80ff3ead5ee4bfdc7742fbbd522f36751c9beb",
+      "action": "move",
+      "targets": [
+        "resources/mcp/contracts.py"
+      ],
+      "symbols": [
+        "exposed_name",
+        "McpOutcome"
+      ]
+    },
+    {
+      "source": "mcp/definitions.py",
+      "sha256": "0ed2c023b911baf6f8fdc8d9996759c7cf41462f8338334287c278e0a8017875",
+      "action": "move",
+      "targets": [
+        "resources/mcp/definitions.py"
+      ],
+      "symbols": [
+        "service_identity",
+        "matching_service",
+        "check_unique_service",
+        "runtime_environment_key",
+        "service_read",
+        "McpDefinitionService",
+        "validate_stdio"
+      ]
+    },
+    {
+      "source": "mcp/invocation.py",
+      "sha256": "38caf9d3a50e3f89326bef36b995594a09417df987f197be7f5a2cedfd7e13ca",
+      "action": "move",
+      "targets": [
+        "resources/mcp/invocation.py"
+      ],
+      "symbols": [
+        "ToolInvocationService",
+        "RunToolCaller"
+      ]
+    },
+    {
+      "source": "mcp/models.py",
+      "sha256": "ea457511e349264c4192dba160c59acdd2cf2150058df57581bf44014d74ef94",
+      "action": "move",
+      "targets": [
+        "resources/mcp/models.py"
+      ],
+      "symbols": [
+        "ToolConnection",
+        "McpService",
+        "HttpConnection",
+        "StdioConnection"
+      ]
+    },
+    {
+      "source": "mcp/network.py",
+      "sha256": "cec5b3a4e7dd5e2ad6bcb99371167924c639b42518632fe28d5459cdc916805c",
+      "action": "move",
+      "targets": [
+        "resources/mcp/network.py"
+      ],
+      "symbols": [
+        "validate_endpoint",
+        "BoundedStream",
+        "PinnedTransport"
+      ]
+    },
+    {
+      "source": "mcp/oauth.py",
+      "sha256": "3fda9469e2be7fe0e1e8d7b6853e20467c4af48f9e70047eae1a6c294684a4f2",
+      "action": "move",
+      "targets": [
+        "resources/mcp/oauth.py"
+      ],
+      "symbols": [
+        "AuthorizationSession",
+        "OAuthService"
+      ]
+    },
+    {
+      "source": "mcp/oauth_storage.py",
+      "sha256": "679ca69a0cffde3eb022b9c20c03f6fea2017718f4a627657b71736b22ff7011",
+      "action": "split",
+      "targets": [
+        "resources/mcp/tokens.py",
+        "resources/mcp/adapters/oauth_storage.py"
+      ],
+      "symbols": [
+        "OAuthStorage"
+      ]
+    },
+    {
+      "source": "mcp/policy.py",
+      "sha256": "adaaa2000932aa8512873804fbeaa33bf7c84986ade19453dc0466657efd6625",
+      "action": "move",
+      "targets": [
+        "resources/mcp/policy.py"
+      ],
+      "symbols": [
+        "validate_scope",
+        "authorize_arguments"
+      ]
+    },
+    {
+      "source": "mcp/schemas.py",
+      "sha256": "e877e75a09d8928cdd08a809a874b85442187b39187d0fe17af12fcdadb9c851",
+      "action": "move",
+      "targets": [
+        "resources/mcp/schemas.py"
+      ],
+      "symbols": [
+        "ToolConnectionCreate",
+        "ToolConnectionPatch",
+        "CatalogApprove",
+        "ToolConnectionRead",
+        "McpInputField",
+        "McpServiceCreate",
+        "McpServicePatch",
+        "ToolAnnotation",
+        "CatalogAnnotations",
+        "McpConfigImport",
+        "McpServiceRead",
+        "McpImportEntry",
+        "McpImportPreview",
+        "ToolCapabilities"
+      ]
+    },
+    {
+      "source": "mcp/stdio_runner.py",
+      "sha256": "e34764cd7d7ec2ee2c8061eb4435c9c57009f2e29eec65cd932015f0a60c42b2",
+      "action": "move",
+      "targets": [
+        "resources/mcp/adapters/stdio_runner.py"
+      ],
+      "symbols": [
+        "main"
+      ]
+    },
+    {
+      "source": "model_connections/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "resources/model_connections/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "model_connections/models.py",
+      "sha256": "31d438ea8b796cf8ab0675f5690ce78f7d70cb462e148a81648faf631b095c0e",
+      "action": "move",
+      "targets": [
+        "resources/model_connections/models.py"
+      ],
+      "symbols": [
+        "ModelConnection"
+      ]
+    },
+    {
+      "source": "model_connections/presets.py",
+      "sha256": "197c131ed9a2623ff26df06a934221a482432161ab6dfb62f226c033bd6a965c",
+      "action": "move",
+      "targets": [
+        "resources/model_connections/presets.py"
+      ],
+      "symbols": [
+        "ModelPreset"
+      ]
+    },
+    {
+      "source": "model_connections/schemas.py",
+      "sha256": "040a17713f9ddedb968e402d9e0a30b6b2356b7bd987bb8ef95a3656b00ce600",
+      "action": "move",
+      "targets": [
+        "resources/model_connections/schemas.py"
+      ],
+      "symbols": [
+        "KeyValidation",
+        "ConnectionCreate",
+        "ConnectionPatch",
+        "AgentReference",
+        "ConnectionRead",
+        "ConnectionTestResult",
+        "ConnectionTestRequest"
+      ]
+    },
+    {
+      "source": "model_connections/service.py",
+      "sha256": "dd0d2e4568af88dd22f2993522420d2f1b66ff6dcedcedc67838fd6709b1076b",
+      "action": "split",
+      "targets": [
+        "resources/model_connections/service.py",
+        "resources/model_connections/resolution.py",
+        "resources/model_connections/references.py",
+        "infrastructure/llm/probe.py"
+      ],
+      "symbols": [
+        "credentials_unavailable",
+        "require_connection",
+        "connection_response",
+        "ModelConnectionService"
+      ]
+    },
+    {
+      "source": "public_errors.py",
+      "sha256": "d5f0432b413cf66513c73b215272b3ab8206bc5f5f0a2617d4aa72a5f2f09c74",
+      "action": "move",
+      "targets": [
+        "common/public_errors.py"
+      ],
+      "symbols": [
+        "public_error_message"
+      ]
+    },
+    {
+      "source": "schemas.py",
+      "sha256": "3c815bb324ee51edda87d925e867978f657e80e2af8e5a894c289e4ae4ff7d05",
+      "action": "move",
+      "targets": [
+        "common/schemas.py"
+      ],
+      "symbols": [
+        "RequestModel",
+        "omitted_field",
+        "Page"
+      ]
+    },
+    {
+      "source": "skills/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "action": "move",
+      "targets": [
+        "resources/skills/__init__.py"
+      ],
+      "symbols": []
+    },
+    {
+      "source": "skills/config.py",
+      "sha256": "df6dfdaf96bd2d58b02f1c9812aa6f3c3bb6b96d2c42051f06be415823085030",
+      "action": "move",
+      "targets": [
+        "resources/skills/config.py"
+      ],
+      "symbols": [
+        "SkillConfig"
+      ]
+    },
+    {
+      "source": "skills/contracts.py",
+      "sha256": "6cf2f641caf19d2175caf2a86623db62bea0bfc7063b4823a3e522f2ef82f86b",
+      "action": "move",
+      "targets": [
+        "resources/skills/contracts.py"
+      ],
+      "symbols": [
+        "SkillFileManifest",
+        "SkillExecutionEntry"
+      ]
+    },
+    {
+      "source": "skills/definitions.py",
+      "sha256": "c9f7631a056565751b023e184d361476e18ceab1220144a64a5794ed1bf12e38",
+      "action": "move",
+      "targets": [
+        "resources/skills/definitions.py"
+      ],
+      "symbols": [
+        "SkillContent",
+        "source_for",
+        "SkillDefinition",
+        "definition_from_record",
+        "protocol_names",
+        "readiness_reason"
+      ]
+    },
+    {
+      "source": "skills/library.py",
+      "sha256": "89362e1527c095825858d6fecfa25c3422103fd010401531870904e13e67e817",
+      "action": "move",
+      "targets": [
+        "resources/skills/library.py"
+      ],
+      "symbols": [
+        "fingerprint",
+        "SkillLibrary"
+      ]
+    },
+    {
+      "source": "skills/models.py",
+      "sha256": "807b049b231d3cd60374a6095b5749a0a697c1c9da77259cffaae659c4923c52",
+      "action": "move",
+      "targets": [
+        "resources/skills/models.py"
+      ],
+      "symbols": [
+        "Skill"
+      ]
+    },
+    {
+      "source": "skills/packages.py",
+      "sha256": "3dad9dff759c01326ba1d2f03d0c7e59be727d2ae3fa392b2a2355cb0533f3a3",
+      "action": "split",
+      "targets": [
+        "resources/skills/packages.py",
+        "resources/skills/storage.py"
+      ],
+      "symbols": [
+        "UniqueSafeLoader",
+        "_unique_mapping",
+        "_bounded_metadata",
+        "package_error",
+        "checked_package_path",
+        "parse_skill_md",
+        "legacy_skill_md",
+        "decode_file",
+        "validate_files",
+        "archive_files",
+        "file_manifest",
+        "SkillBlobStore"
+      ]
+    },
+    {
+      "source": "skills/parameters.py",
+      "sha256": "fc4e284a8ab5de7ef9a44ac75c1494afe9c4676238497b27063d79bc1d33ce6f",
+      "action": "move",
+      "targets": [
+        "resources/skills/parameters.py"
+      ],
+      "symbols": [
+        "json_size",
+        "validate_schema",
+        "validate_parameters"
+      ]
+    },
+    {
+      "source": "skills/schemas.py",
+      "sha256": "c3caf89d0954ab639b04fb59512500bcf65adbdd83ec6329edcce7081978535d",
+      "action": "move",
+      "targets": [
+        "resources/skills/schemas.py"
+      ],
+      "symbols": [
+        "SkillFileInput",
+        "SkillFileRead",
+        "SkillImport",
+        "SkillImportPreview",
+        "SkillFileContent",
+        "SkillConfiguration",
+        "SkillCreate",
+        "SkillPatch",
+        "SkillRead",
+        "SkillSyncItem",
+        "SkillSyncResult",
+        "PublicSkill",
+        "SkillSummary",
+        "SkillLibraryRead"
+      ]
+    },
+    {
+      "source": "skills/service.py",
+      "sha256": "1f709c0c19e55801e6a607e77181e4e2af373b6c8b305febee4bbfb4e944810f",
+      "action": "move",
+      "targets": [
+        "resources/skills/service.py"
+      ],
+      "symbols": [
+        "require_skill",
+        "SkillService"
+      ]
+    },
+    {
+      "source": "values.py",
+      "sha256": "a1ad02b83ce94bbdf1d261bccc40af20a3bef4f8fb8bb308e50cf5685619c6e3",
+      "action": "move",
+      "targets": [
+        "common/values.py"
+      ],
+      "symbols": [
+        "new_uuid",
+        "normalize_uuid",
+        "utc_now",
+        "required_text",
+        "optional_text",
+        "digest"
+      ]
+    }
+  ],
+  "required_targets": [
+    "__init__.py",
+    "api/__init__.py",
+    "api/config.py",
+    "api/dependencies.py",
+    "api/errors.py",
+    "api/failure_boundary.py",
+    "api/frontend_delivery.py",
+    "api/oauth_logging.py",
+    "api/rate_limit.py",
+    "api/router.py",
+    "api/routes/__init__.py",
+    "api/routes/auth.py",
+    "api/routes/capabilities.py",
+    "api/routes/configuration_summary.py",
+    "api/routes/conversations.py",
+    "api/routes/employees.py",
+    "api/routes/evaluations.py",
+    "api/routes/files.py",
+    "api/routes/health.py",
+    "api/routes/knowledge.py",
+    "api/routes/mcp.py",
+    "api/routes/mcp_oauth.py",
+    "api/routes/model_connections.py",
+    "api/routes/organization_rules.py",
+    "api/routes/public.py",
+    "api/routes/skills.py",
+    "api/security.py",
+    "api/streaming.py",
+    "applications/configuration_summary.py",
+    "applications/conversations/__init__.py",
+    "applications/conversations/acceptance.py",
+    "applications/conversations/access.py",
+    "applications/conversations/commands.py",
+    "applications/conversations/context.py",
+    "applications/conversations/files.py",
+    "applications/conversations/models.py",
+    "applications/conversations/projections.py",
+    "applications/conversations/queries.py",
+    "applications/conversations/references.py",
+    "applications/conversations/schemas.py",
+    "applications/conversations/writes.py",
+    "applications/evaluations/__init__.py",
+    "applications/evaluations/acceptance.py",
+    "applications/evaluations/benchmark.py",
+    "applications/evaluations/bfcl_checker.py",
+    "applications/evaluations/commands.py",
+    "applications/evaluations/models.py",
+    "applications/evaluations/progression.py",
+    "applications/evaluations/queries.py",
+    "applications/evaluations/references.py",
+    "applications/evaluations/schemas.py",
+    "applications/evaluations/worker.py",
+    "auth/__init__.py",
+    "auth/actor.py",
+    "auth/config.py",
+    "auth/github.py",
+    "auth/models.py",
+    "auth/permissions.py",
+    "auth/service.py",
+    "auth/work_authorizations.py",
+    "bootstrap/app.py",
+    "bootstrap/lifecycle.py",
+    "bootstrap/model_registry.py",
+    "bootstrap/services.py",
+    "cli/auth.py",
+    "cli/environments.py",
+    "cli/verify_environment.py",
+    "common/errors.py",
+    "common/public_errors.py",
+    "common/schemas.py",
+    "common/usage.py",
+    "common/values.py",
+    "config.py",
+    "infrastructure/__init__.py",
+    "infrastructure/concurrency.py",
+    "infrastructure/credentials.py",
+    "infrastructure/database/__init__.py",
+    "infrastructure/database/base.py",
+    "infrastructure/database/errors.py",
+    "infrastructure/database/fields.py",
+    "infrastructure/database/identifiers.py",
+    "infrastructure/database/session.py",
+    "infrastructure/database/transactions.py",
+    "infrastructure/llm/__init__.py",
+    "infrastructure/llm/config.py",
+    "infrastructure/llm/embeddings.py",
+    "infrastructure/llm/errors.py",
+    "infrastructure/llm/factory.py",
+    "infrastructure/llm/probe.py",
+    "infrastructure/llm/reasoning.py",
+    "infrastructure/llm/usage.py",
+    "infrastructure/observability.py",
+    "infrastructure/settings.py",
+    "main.py",
+    "resources/capability_catalog/__init__.py",
+    "resources/capability_catalog/queries.py",
+    "resources/capability_catalog/schemas.py",
+    "resources/employees/__init__.py",
+    "resources/employees/access.py",
+    "resources/employees/assembly.py",
+    "resources/employees/knowledge.py",
+    "resources/employees/models.py",
+    "resources/employees/references.py",
+    "resources/employees/schemas.py",
+    "resources/employees/service.py",
+    "resources/employees/tool_grants.py",
+    "resources/environments/__init__.py",
+    "resources/environments/config.py",
+    "resources/environments/contracts.py",
+    "resources/environments/legacy_models.py",
+    "resources/environments/models.py",
+    "resources/environments/open_sandbox.py",
+    "resources/environments/policy.py",
+    "resources/environments/service.py",
+    "resources/files/__init__.py",
+    "resources/files/cleanup.py",
+    "resources/files/config.py",
+    "resources/files/contracts.py",
+    "resources/files/models.py",
+    "resources/files/schemas.py",
+    "resources/files/service.py",
+    "resources/files/storage.py",
+    "resources/knowledge/__init__.py",
+    "resources/knowledge/access.py",
+    "resources/knowledge/chunking.py",
+    "resources/knowledge/contracts.py",
+    "resources/knowledge/documents.py",
+    "resources/knowledge/lexical.py",
+    "resources/knowledge/libraries.py",
+    "resources/knowledge/loading.py",
+    "resources/knowledge/models.py",
+    "resources/knowledge/processing.py",
+    "resources/knowledge/references.py",
+    "resources/knowledge/retrieval.py",
+    "resources/knowledge/samples.py",
+    "resources/knowledge/schemas.py",
+    "resources/knowledge/search.py",
+    "resources/knowledge/sources.py",
+    "resources/knowledge/vector_store.py",
+    "resources/knowledge/vectors.py",
+    "resources/knowledge/worker.py",
+    "resources/mcp/__init__.py",
+    "resources/mcp/access.py",
+    "resources/mcp/adapters/__init__.py",
+    "resources/mcp/adapters/http.py",
+    "resources/mcp/adapters/oauth_storage.py",
+    "resources/mcp/adapters/stdio.py",
+    "resources/mcp/adapters/stdio_runner.py",
+    "resources/mcp/adapters/transport.py",
+    "resources/mcp/catalogs.py",
+    "resources/mcp/config.py",
+    "resources/mcp/connections.py",
+    "resources/mcp/contracts.py",
+    "resources/mcp/definitions.py",
+    "resources/mcp/invocation.py",
+    "resources/mcp/models.py",
+    "resources/mcp/network.py",
+    "resources/mcp/oauth.py",
+    "resources/mcp/policy.py",
+    "resources/mcp/schemas.py",
+    "resources/mcp/tokens.py",
+    "resources/model_connections/__init__.py",
+    "resources/model_connections/models.py",
+    "resources/model_connections/presets.py",
+    "resources/model_connections/references.py",
+    "resources/model_connections/resolution.py",
+    "resources/model_connections/schemas.py",
+    "resources/model_connections/service.py",
+    "resources/organization_rules/models.py",
+    "resources/organization_rules/schemas.py",
+    "resources/organization_rules/service.py",
+    "resources/skills/__init__.py",
+    "resources/skills/config.py",
+    "resources/skills/contracts.py",
+    "resources/skills/definitions.py",
+    "resources/skills/library.py",
+    "resources/skills/models.py",
+    "resources/skills/packages.py",
+    "resources/skills/parameters.py",
+    "resources/skills/schemas.py",
+    "resources/skills/service.py",
+    "resources/skills/storage.py",
+    "runtime/agent/__init__.py",
+    "runtime/agent/checkpoints.py",
+    "runtime/agent/config.py",
+    "runtime/agent/engine.py",
+    "runtime/agent/errors.py",
+    "runtime/agent/mcp_tools.py",
+    "runtime/agent/model_calls.py",
+    "runtime/agent/prompts.py",
+    "runtime/agent/skills.py",
+    "runtime/agent/streaming.py",
+    "runtime/agent/tool_calls.py",
+    "runtime/agent/tool_discovery.py",
+    "runtime/assembly.py",
+    "runtime/contracts/agent.py",
+    "runtime/contracts/content.py",
+    "runtime/contracts/runs.py",
+    "runtime/contracts/tools.py",
+    "runtime/execution/__init__.py",
+    "runtime/execution/authorization.py",
+    "runtime/execution/config.py",
+    "runtime/execution/context.py",
+    "runtime/execution/errors.py",
+    "runtime/execution/evidence.py",
+    "runtime/execution/evidence_models.py",
+    "runtime/execution/knowledge.py",
+    "runtime/execution/knowledge_evidence.py",
+    "runtime/execution/metrics.py",
+    "runtime/execution/models.py",
+    "runtime/execution/preparation.py",
+    "runtime/execution/queries.py",
+    "runtime/execution/references.py",
+    "runtime/execution/runner.py",
+    "runtime/execution/scheduler.py",
+    "runtime/execution/service.py",
+    "runtime/execution/snapshot.py",
+    "runtime/execution/snapshot_rules.py",
+    "runtime/execution/store.py",
+    "runtime/execution/tool_results.py",
+    "runtime/tools/__init__.py",
+    "runtime/tools/bindings.py",
+    "runtime/tools/knowledge.py",
+    "runtime/tools/result_files.py",
+    "runtime/tools/results.py",
+    "runtime/tools/sandbox_backend.py",
+    "runtime/tools/tool_search.py",
+    "runtime/tools/workspace.py",
+    "runtime/usage.py"
+  ],
+  "allowed_top_level_packages": [
+    "api",
+    "cli",
+    "applications",
+    "runtime",
+    "resources",
+    "auth",
+    "infrastructure",
+    "common",
+    "bootstrap"
+  ],
+  "resource_dependencies": {
+    "employees": [
+      "skills",
+      "model_connections",
+      "mcp",
+      "knowledge",
+      "environments",
+      "organization_rules"
+    ],
+    "knowledge": [
+      "files",
+      "model_connections"
+    ],
+    "capability_catalog": [
+      "skills",
+      "mcp"
+    ]
+  },
+  "readonly_projections": {
+    "applications/conversations/projections.py": [
+      "runtime.execution.models",
+      "resources.employees.models",
+      "resources.files.models"
+    ],
+    "applications/evaluations/queries.py": [
+      "runtime.execution.models"
+    ],
+    "applications/configuration_summary.py": [
+      "resources.employees.models",
+      "resources.skills.models"
+    ],
+    "resources/capability_catalog/queries.py": [
+      "resources.skills.models",
+      "resources.mcp.models"
+    ]
+  },
+  "legacy_metadata": {
+    "resources/environments/legacy_models.py": [
+      "resources.mcp.models"
+    ]
+  }
+}
