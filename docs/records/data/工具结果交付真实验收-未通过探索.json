@@ -1,0 +1,1447 @@
+{
+  "method": "隔离真实应用链路；同一员工、模型、问题、固定合成回包；每次新对话，交错串行。A=旧3000字符交付，B=官方交付，C=B+简短读取证据提示。发现实现不变。A为测试适配重建，不是旧版本全量部署。",
+  "model": "kimi-for-coding",
+  "prices": null,
+  "cached_price_sensitivity": [
+    0,
+    0.1,
+    0.5,
+    1
+  ],
+  "reading_policy": "\n读取策略：信息足以回答，或当前能力明确无法确定答案时，直接说明结论和限制。只有未读内容可能改变结论时才继续读取，不为用户未要求的分类或清单补读。返回条数不等于业务总数，页面不自动等于文章；保存文本读完不等于上游集合完整。只根据实际返回说明本次检索范围，不把一次检索的限制扩大为服务所有能力的限制。",
+  "quality_gate": "recent必须说明返回50页面、非全量、文章总数未知；完整列表8；长结果137；不得编造更多或不支持的能力。关键错误任一次不通过。主例10次/组，其他5次/组；正式样本不调参。",
+  "source_hashes": {
+    "backend/app/agent/tool_discovery.py": "53f3a22f35911fd3d7ff096a3dc6a4ffafaadf3dcd11f21ed56f4c8b452d4ba8",
+    "backend/app/agent/engine.py": "67c2cfd403bbbb9062232c84706f4de36d7cbd608197d94fefb5bf5f18e8adb0",
+    "backend/app/builtin_tools/result_files.py": "185e7ee2a40434dd30e9df2f29fbd8d81aab9375940b62c688c6646bf64585bb"
+  },
+  "results": [
+    {
+      "block": 1,
+      "variant": "A",
+      "case": "recent",
+      "question": "查看一下这个Notion连接里有多少篇文章？",
+      "fixture_sha256": "bc646f53045aeb5c3820dc8f16e5b1f4956091f3d2d6abd58f645fc0bd552d13",
+      "answer": "根据搜索结果，这个 Notion 连接里**共搜索到 50 篇文章（页面）**，编号从 \"合成测试资料000\" 到 \"合成测试资料049\"。\n\n**需要注意的限制：**\n- 这 50 篇是搜索结果返回的**最近浏览过的页面**（recently viewed pages），并不一定是工作区的完整列表。\n- 由于 Notion 搜索 API 的限制，无法通过单次搜索获取工作区所有页面的完整总数。\n- 这些页面都是测试用的合成数据（synthetic test data），不是真实用户内容。\n\n如果你需要获取更完整的文章列表，我可以尝试：\n1. 使用特定的关键词搜索来查找特定类型的文章\n2. 如果你有特定的数据库，我可以查询该数据库中的条目数量\n\n你希望我怎么继续？",
+      "status": "succeeded",
+      "error": null,
+      "seconds": 23.171507625025697,
+      "usage": {
+        "input_tokens": 45020,
+        "output_tokens": 799,
+        "total_tokens": 45819,
+        "cached_input_tokens": 33536,
+        "reasoning_tokens": 179
+      },
+      "model_calls": 5,
+      "reads": 2,
+      "business_calls": [
+        {
+          "name": "notion-search",
+          "arguments": {
+            "query": "",
+            "page_size": 50,
+            "sort": "last_edited",
+            "telemetry": {
+              "intent": "Count articles/pages in the connected Notion workspace"
+            }
+          }
+        }
+      ],
+      "trace": [
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 3.025485,
+          "usage": {
+            "input_tokens": 2910,
+            "output_tokens": 89,
+            "total_tokens": 2999,
+            "cached_input_tokens": 2816,
+            "reasoning_tokens": 21
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "search_tools",
+          "seconds": 0.009278,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\": \"pending\", \"matches\": [{\"id\": \"4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78\", \"name\": \"notion-memory-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9\", \"name\": \"notion-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0\", \"name\": \"tavily_search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc\", \"name\": \"notion-fetch\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4\", \"name\": \"tavily_extract\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}], \"next_request\": true}",
+            "status": "succeeded",
+            "data": {
+              "discovery": {
+                "format_version": 1,
+                "catalog_hash": "e0dfa7f9f0113f7abf139f53a1e013fdd3d2ccde56c6cd6ac070568021b869ad",
+                "query": "Notion search pages articles count database",
+                "source_id": null,
+                "limit": 5,
+                "matched_ids": [
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4"
+                ],
+                "pending_ids": [
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4"
+                ],
+                "elapsed_ms": 0.591
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 8.390821,
+          "usage": {
+            "input_tokens": 8636,
+            "output_tokens": 311,
+            "total_tokens": 8947,
+            "cached_input_tokens": 1792,
+            "reasoning_tokens": 155
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_0420310c907319d0",
+          "seconds": 0.017803,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\":\"succeeded\",\"preview\":\"{\\\"results\\\":[{\\\"id\\\":\\\"synthetic-000\\\",\\\"title\\\":\\\"合成测试资料000\\\",\\\"url\\\":\\\"https://example.com/synthetic/000\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-001\\\",\\\"title\\\":\\\"合成测试资料001\\\",\\\"url\\\":\\\"https://example.com/synthetic/001\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-002\\\",\\\"title\\\":\\\"合成测试资料002\\\",\\\"url\\\":\\\"https://example.com/synthetic/002\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-003\\\",\\\"title\\\":\\\"合成测试资料003\\\",\\\"url\\\":\\\"https://example.com/synthetic/003\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-004\\\",\\\"title\\\":\\\"合成测试资料004\\\",\\\"url\\\":\\\"https://example.com/synthetic/004\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-005\\\",\\\"title\\\":\\\"合成测试资料005\\\",\\\"url\\\":\\\"https://example.com/synthetic/005\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-006\\\",\\\"title\\\":\\\"合成测试资料006\\\",\\\"url\\\":\\\"https://example.com/synthetic/006\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-007\\\",\\\"title\\\":\\\"合成测试资料007\\\",\\\"url\\\":\\\"https://example.com/synthetic/007\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-008\\\",\\\"title\\\":\\\"合成测试资料008\\\",\\\"url\\\":\\\"https://example.com/synthetic/008\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-009\\\",\\\"title\\\":\\\"合成测试资料009\\\",\\\"url\\\":\\\"https://example.com/synthetic/009\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-010\\\",\\\"title\\\":\\\"合成测试资料010\\\",\\\"url\\\":\\\"https://example.com/synthetic/010\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-011\\\",\\\"title\\\":\\\"合成测试资料011\\\",\\\"url\\\":\\\"https://example.com/synthetic/011\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-012\\\",\\\"title\\\":\\\"合成测试资料012\\\",\\\"url\\\":\\\"https://example.com/synthetic/012\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-013\\\",\\\"title\\\":\\\"合成测试资料013\\\",\\\"url\\\":\\\"https://example.com/synthetic/013\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting te\",\"result_id\":\"01837bf1-b4c3-4896-96ad-260d8fbcb988\",\"preview_end\":3000,\"total_chars\":10988,\"next_offset\":3000,\"truncated\":true,\"source_files_readable\":true,\"sources\":[],\"raw_result\":\"/sources/01837bf1-b4c3-4896-96ad-260d8fbcb988/tool-result-tool_6x7gwh8riFiRoRrcxoKJMJgx.json\"}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "01837bf1-b4c3-4896-96ad-260d8fbcb988",
+              "query": "",
+              "artifact": {
+                "file_id": "01837bf1-b4c3-4896-96ad-260d8fbcb988"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 3.185929,
+          "usage": {
+            "input_tokens": 9651,
+            "output_tokens": 118,
+            "total_tokens": 9769,
+            "cached_input_tokens": 8448,
+            "reasoning_tokens": 1
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "read_tool_result",
+          "seconds": 0.011408,
+          "usage": null,
+          "feedback": {
+            "content": "{\"result_id\": \"01837bf1-b4c3-4896-96ad-260d8fbcb988\", \"offset\": 0, \"end\": 6000, \"total_chars\": 10988, \"next_offset\": 6000, \"text\": \"{\\\"results\\\":[{\\\"id\\\":\\\"synthetic-000\\\",\\\"title\\\":\\\"合成测试资料000\\\",\\\"url\\\":\\\"https://example.com/synthetic/000\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-001\\\",\\\"title\\\":\\\"合成测试资料001\\\",\\\"url\\\":\\\"https://example.com/synthetic/001\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-002\\\",\\\"title\\\":\\\"合成测试资料002\\\",\\\"url\\\":\\\"https://example.com/synthetic/002\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-003\\\",\\\"title\\\":\\\"合成测试资料003\\\",\\\"url\\\":\\\"https://example.com/synthetic/003\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-004\\\",\\\"title\\\":\\\"合成测试资料004\\\",\\\"url\\\":\\\"https://example.com/synthetic/004\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-005\\\",\\\"title\\\":\\\"合成测试资料005\\\",\\\"url\\\":\\\"https://example.com/synthetic/005\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-006\\\",\\\"title\\\":\\\"合成测试资料006\\\",\\\"url\\\":\\\"https://example.com/synthetic/006\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-007\\\",\\\"title\\\":\\\"合成测试资料007\\\",\\\"url\\\":\\\"https://example.com/synthetic/007\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-008\\\",\\\"title\\\":\\\"合成测试资料008\\\",\\\"url\\\":\\\"https://example.com/synthetic/008\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-009\\\",\\\"title\\\":\\\"合成测试资料009\\\",\\\"url\\\":\\\"https://example.com/synthetic/009\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-010\\\",\\\"title\\\":\\\"合成测试资料010\\\",\\\"url\\\":\\\"https://example.com/synthetic/010\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-011\\\",\\\"title\\\":\\\"合成测试资料011\\\",\\\"url\\\":\\\"https://example.com/synthetic/011\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-012\\\",\\\"title\\\":\\\"合成测试资料012\\\",\\\"url\\\":\\\"https://example.com/synthetic/012\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-013\\\",\\\"title\\\":\\\"合成测试资料013\\\",\\\"url\\\":\\\"https://example.com/synthetic/013\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-014\\\",\\\"title\\\":\\\"合成测试资料014\\\",\\\"url\\\":\\\"https://example.com/synthetic/014\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-015\\\",\\\"title\\\":\\\"合成测试资料015\\\",\\\"url\\\":\\\"https://example.com/synthetic/015\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-016\\\",\\\"title\\\":\\\"合成测试资料016\\\",\\\"url\\\":\\\"https://example.com/synthetic/016\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-017\\\",\\\"title\\\":\\\"合成测试资料017\\\",\\\"url\\\":\\\"https://example.com/synthetic/017\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-018\\\",\\\"title\\\":\\\"合成测试资料018\\\",\\\"url\\\":\\\"https://example.com/synthetic/018\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-019\\\",\\\"title\\\":\\\"合成测试资料019\\\",\\\"url\\\":\\\"https://example.com/synthetic/019\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-020\\\",\\\"title\\\":\\\"合成测试资料020\\\",\\\"url\\\":\\\"https://example.com/synthetic/020\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-021\\\",\\\"title\\\":\\\"合成测试资料021\\\",\\\"url\\\":\\\"https://example.com/synthetic/021\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-022\\\",\\\"title\\\":\\\"合成测试资料022\\\",\\\"url\\\":\\\"https://example.com/synthetic/022\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-023\\\",\\\"title\\\":\\\"合成测试资料023\\\",\\\"url\\\":\\\"https://example.com/synthetic/023\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-024\\\",\\\"title\\\":\\\"合成测试资料024\\\",\\\"url\\\":\\\"https://example.com/synthetic/024\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-025\\\",\\\"title\\\":\\\"合成测试资料025\\\",\\\"url\\\":\\\"https://example.com/synthetic/025\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-026\\\",\\\"title\\\":\\\"合成测试资料026\\\",\\\"url\\\":\\\"https://example.com/synthetic/026\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-027\\\",\\\"title\\\":\\\"合成测试资料027\\\",\\\"url\\\":\\\"https://example.com/synthetic/027\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Gener\"}",
+            "status": "succeeded",
+            "data": {}
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 2.76966,
+          "usage": {
+            "input_tokens": 11242,
+            "output_tokens": 106,
+            "total_tokens": 11348,
+            "cached_input_tokens": 9472,
+            "reasoning_tokens": 1
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "read_tool_result",
+          "seconds": 0.011527,
+          "usage": null,
+          "feedback": {
+            "content": "{\"result_id\": \"01837bf1-b4c3-4896-96ad-260d8fbcb988\", \"offset\": 6000, \"end\": 10988, \"total_chars\": 10988, \"next_offset\": null, \"text\": \"ated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-028\\\",\\\"title\\\":\\\"合成测试资料028\\\",\\\"url\\\":\\\"https://example.com/synthetic/028\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-029\\\",\\\"title\\\":\\\"合成测试资料029\\\",\\\"url\\\":\\\"https://example.com/synthetic/029\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-030\\\",\\\"title\\\":\\\"合成测试资料030\\\",\\\"url\\\":\\\"https://example.com/synthetic/030\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-031\\\",\\\"title\\\":\\\"合成测试资料031\\\",\\\"url\\\":\\\"https://example.com/synthetic/031\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-032\\\",\\\"title\\\":\\\"合成测试资料032\\\",\\\"url\\\":\\\"https://example.com/synthetic/032\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-033\\\",\\\"title\\\":\\\"合成测试资料033\\\",\\\"url\\\":\\\"https://example.com/synthetic/033\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-034\\\",\\\"title\\\":\\\"合成测试资料034\\\",\\\"url\\\":\\\"https://example.com/synthetic/034\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-035\\\",\\\"title\\\":\\\"合成测试资料035\\\",\\\"url\\\":\\\"https://example.com/synthetic/035\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-036\\\",\\\"title\\\":\\\"合成测试资料036\\\",\\\"url\\\":\\\"https://example.com/synthetic/036\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-037\\\",\\\"title\\\":\\\"合成测试资料037\\\",\\\"url\\\":\\\"https://example.com/synthetic/037\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-038\\\",\\\"title\\\":\\\"合成测试资料038\\\",\\\"url\\\":\\\"https://example.com/synthetic/038\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-039\\\",\\\"title\\\":\\\"合成测试资料039\\\",\\\"url\\\":\\\"https://example.com/synthetic/039\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-040\\\",\\\"title\\\":\\\"合成测试资料040\\\",\\\"url\\\":\\\"https://example.com/synthetic/040\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-041\\\",\\\"title\\\":\\\"合成测试资料041\\\",\\\"url\\\":\\\"https://example.com/synthetic/041\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-042\\\",\\\"title\\\":\\\"合成测试资料042\\\",\\\"url\\\":\\\"https://example.com/synthetic/042\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-043\\\",\\\"title\\\":\\\"合成测试资料043\\\",\\\"url\\\":\\\"https://example.com/synthetic/043\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-044\\\",\\\"title\\\":\\\"合成测试资料044\\\",\\\"url\\\":\\\"https://example.com/synthetic/044\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-045\\\",\\\"title\\\":\\\"合成测试资料045\\\",\\\"url\\\":\\\"https://example.com/synthetic/045\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-046\\\",\\\"title\\\":\\\"合成测试资料046\\\",\\\"url\\\":\\\"https://example.com/synthetic/046\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-047\\\",\\\"title\\\":\\\"合成测试资料047\\\",\\\"url\\\":\\\"https://example.com/synthetic/047\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-048\\\",\\\"title\\\":\\\"合成测试资料048\\\",\\\"url\\\":\\\"https://example.com/synthetic/048\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-049\\\",\\\"title\\\":\\\"合成测试资料049\\\",\\\"url\\\":\\\"https://example.com/synthetic/049\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"}],\\\"type\\\":\\\"workspace_search\\\",\\\"notices\\\":[\\\"These are recently viewed pages only, not a complete workspace listing.\\\"]}\"}",
+            "status": "succeeded",
+            "data": {}
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 5.363162,
+          "usage": {
+            "input_tokens": 12581,
+            "output_tokens": 175,
+            "total_tokens": 12756,
+            "cached_input_tokens": 11008,
+            "reasoning_tokens": 1
+          },
+          "feedback": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "block": 1,
+      "variant": "B",
+      "case": "recent",
+      "question": "查看一下这个Notion连接里有多少篇文章？",
+      "fixture_sha256": "bc646f53045aeb5c3820dc8f16e5b1f4956091f3d2d6abd58f645fc0bd552d13",
+      "answer": "查了一下这个 Notion 连接，结果如下：\n\n**本次返回了 50 篇文章**（编号 synthetic-000 至 synthetic-049，均为\"合成测试资料\"开头的页面）。\n\n但需要注意一个重要限制：接口返回的提示说明**这只是\"最近查看的页面\"列表，并非工作区的完整清单**。因此：\n\n- ✅ 已确认：当前可见/最近查看的页面至少有 50 篇\n- ⚠️ 未知：工作区文章的确切总数（搜索接口没有提供完整遍历或总数统计的能力，本次返回中也没有分页游标表明还有下一页）\n\n如果你需要精确总数，可能需要：\n1. 通过某个数据库（database）来统计——如果你有文章所在的数据库，我可以帮你查询该数据库的行数；\n2. 或者在 Notion 界面中直接查看。\n\n要我帮你查某个具体数据库的文章数量吗？",
+      "status": "succeeded",
+      "error": null,
+      "seconds": 18.078940084087662,
+      "usage": {
+        "input_tokens": 23410,
+        "output_tokens": 521,
+        "total_tokens": 23931,
+        "cached_input_tokens": 14430,
+        "reasoning_tokens": 133
+      },
+      "model_calls": 3,
+      "reads": 0,
+      "business_calls": [
+        {
+          "name": "notion-search",
+          "arguments": {
+            "query": "",
+            "sort": "last_edited",
+            "page_size": 50,
+            "telemetry": {
+              "intent": "List all pages in the Notion workspace to count articles"
+            }
+          }
+        }
+      ],
+      "trace": [
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 2.172866,
+          "usage": {
+            "input_tokens": 2910,
+            "output_tokens": 64,
+            "total_tokens": 2974,
+            "cached_input_tokens": 2910,
+            "reasoning_tokens": 8
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "search_tools",
+          "seconds": 0.007983,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\": \"pending\", \"matches\": [{\"id\": \"de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9\", \"name\": \"notion-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0\", \"name\": \"tavily_search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78\", \"name\": \"notion-memory-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc\", \"name\": \"notion-fetch\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191\", \"name\": \"notion-get-tool-access\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}], \"next_request\": true}",
+            "status": "succeeded",
+            "data": {
+              "discovery": {
+                "format_version": 1,
+                "catalog_hash": "e0dfa7f9f0113f7abf139f53a1e013fdd3d2ccde56c6cd6ac070568021b869ad",
+                "query": "Notion search pages list databases",
+                "source_id": null,
+                "limit": 5,
+                "matched_ids": [
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191"
+                ],
+                "pending_ids": [
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191"
+                ],
+                "elapsed_ms": 0.182
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 4.439906,
+          "usage": {
+            "input_tokens": 8890,
+            "output_tokens": 161,
+            "total_tokens": 9051,
+            "cached_input_tokens": 2816,
+            "reasoning_tokens": 23
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_0420310c907319d0",
+          "seconds": 0.013882,
+          "usage": null,
+          "feedback": {
+            "content": "{\"results\":[{\"id\":\"synthetic-000\",\"title\":\"合成测试资料000\",\"url\":\"https://example.com/synthetic/000\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-001\",\"title\":\"合成测试资料001\",\"url\":\"https://example.com/synthetic/001\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-002\",\"title\":\"合成测试资料002\",\"url\":\"https://example.com/synthetic/002\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-003\",\"title\":\"合成测试资料003\",\"url\":\"https://example.com/synthetic/003\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-004\",\"title\":\"合成测试资料004\",\"url\":\"https://example.com/synthetic/004\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-005\",\"title\":\"合成测试资料005\",\"url\":\"https://example.com/synthetic/005\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-006\",\"title\":\"合成测试资料006\",\"url\":\"https://example.com/synthetic/006\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-007\",\"title\":\"合成测试资料007\",\"url\":\"https://example.com/synthetic/007\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-008\",\"title\":\"合成测试资料008\",\"url\":\"https://example.com/synthetic/008\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-009\",\"title\":\"合成测试资料009\",\"url\":\"https://example.com/synthetic/009\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-010\",\"title\":\"合成测试资料010\",\"url\":\"https://example.com/synthetic/010\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-011\",\"title\":\"合成测试资料011\",\"url\":\"https://example.com/synthetic/011\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-012\",\"title\":\"合成测试资料012\",\"url\":\"https://example.com/synthetic/012\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-013\",\"title\":\"合成测试资料013\",\"url\":\"https://example.com/synthetic/013\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-014\",\"title\":\"合成测试资料014\",\"url\":\"https://example.com/synthetic/014\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-015\",\"title\":\"合成测试资料015\",\"url\":\"https://example.com/synthetic/015\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-016\",\"title\":\"合成测试资料016\",\"url\":\"https://example.com/synthetic/016\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-017\",\"title\":\"合成测试资料017\",\"url\":\"https://example.com/synthetic/017\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-018\",\"title\":\"合成测试资料018\",\"url\":\"https://example.com/synthetic/018\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-019\",\"title\":\"合成测试资料019\",\"url\":\"https://example.com/synthetic/019\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-020\",\"title\":\"合成测试资料020\",\"url\":\"https://example.com/synthetic/020\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-021\",\"title\":\"合成测试资料021\",\"url\":\"https://example.com/synthetic/021\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-022\",\"title\":\"合成测试资料022\",\"url\":\"https://example.com/synthetic/022\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-023\",\"title\":\"合成测试资料023\",\"url\":\"https://example.com/synthetic/023\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-024\",\"title\":\"合成测试资料024\",\"url\":\"https://example.com/synthetic/024\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-025\",\"title\":\"合成测试资料025\",\"url\":\"https://example.com/synthetic/025\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-026\",\"title\":\"合成测试资料026\",\"url\":\"https://example.com/synthetic/026\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-027\",\"title\":\"合成测试资料027\",\"url\":\"https://example.com/synthetic/027\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-028\",\"title\":\"合成测试资料028\",\"url\":\"https://example.com/synthetic/028\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-029\",\"title\":\"合成测试资料029\",\"url\":\"https://example.com/synthetic/029\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-030\",\"title\":\"合成测试资料030\",\"url\":\"https://example.com/synthetic/030\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-031\",\"title\":\"合成测试资料031\",\"url\":\"https://example.com/synthetic/031\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-032\",\"title\":\"合成测试资料032\",\"url\":\"https://example.com/synthetic/032\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-033\",\"title\":\"合成测试资料033\",\"url\":\"https://example.com/synthetic/033\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-034\",\"title\":\"合成测试资料034\",\"url\":\"https://example.com/synthetic/034\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-035\",\"title\":\"合成测试资料035\",\"url\":\"https://example.com/synthetic/035\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-036\",\"title\":\"合成测试资料036\",\"url\":\"https://example.com/synthetic/036\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-037\",\"title\":\"合成测试资料037\",\"url\":\"https://example.com/synthetic/037\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-038\",\"title\":\"合成测试资料038\",\"url\":\"https://example.com/synthetic/038\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-039\",\"title\":\"合成测试资料039\",\"url\":\"https://example.com/synthetic/039\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-040\",\"title\":\"合成测试资料040\",\"url\":\"https://example.com/synthetic/040\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-041\",\"title\":\"合成测试资料041\",\"url\":\"https://example.com/synthetic/041\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-042\",\"title\":\"合成测试资料042\",\"url\":\"https://example.com/synthetic/042\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-043\",\"title\":\"合成测试资料043\",\"url\":\"https://example.com/synthetic/043\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-044\",\"title\":\"合成测试资料044\",\"url\":\"https://example.com/synthetic/044\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-045\",\"title\":\"合成测试资料045\",\"url\":\"https://example.com/synthetic/045\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-046\",\"title\":\"合成测试资料046\",\"url\":\"https://example.com/synthetic/046\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-047\",\"title\":\"合成测试资料047\",\"url\":\"https://example.com/synthetic/047\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-048\",\"title\":\"合成测试资料048\",\"url\":\"https://example.com/synthetic/048\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-049\",\"title\":\"合成测试资料049\",\"url\":\"https://example.com/synthetic/049\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}],\"type\":\"workspace_search\",\"notices\":[\"These are recently viewed pages only, not a complete workspace listing.\"]}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "3610099c-53b0-4355-adb3-e3b85477b02f",
+              "query": "",
+              "artifact": {
+                "file_id": "3610099c-53b0-4355-adb3-e3b85477b02f"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 11.36018,
+          "usage": {
+            "input_tokens": 11610,
+            "output_tokens": 296,
+            "total_tokens": 11906,
+            "cached_input_tokens": 8704,
+            "reasoning_tokens": 102
+          },
+          "feedback": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "block": 1,
+      "variant": "C",
+      "case": "recent",
+      "question": "查看一下这个Notion连接里有多少篇文章？",
+      "fixture_sha256": "bc646f53045aeb5c3820dc8f16e5b1f4956091f3d2d6abd58f645fc0bd552d13",
+      "answer": "**结论：无法给出该 Notion 连接的“文章总数”确切数字。**\n\n本次核查结果：\n\n- 我用 Notion 搜索工具以“最近编辑”排序浏览（每页上限 50 条），**返回了 50 篇页面**，标题为“合成测试资料000～049”（内容为合成测试数据）。\n- 但工具明确提示：**“这些只是最近浏览过的页面，并非完整工作区列表”**。\n- 权限检查结果：该连接只提供 `notion-search` 这一个工具，没有可遍历全部页面或统计总数的能力。\n\n因此，**本次检索确认可见的有 50 篇，但工作区内实际文章总数可能更多**，受工具能力限制无法统计完整数量。如需精确总数，需要在 Notion 界面内直接查看，或为该连接开通更完整的数据库/页面列举权限。",
+      "status": "succeeded",
+      "error": null,
+      "seconds": 26.435946417041123,
+      "usage": {
+        "input_tokens": 33468,
+        "output_tokens": 936,
+        "total_tokens": 34404,
+        "cached_input_tokens": 23808,
+        "reasoning_tokens": 358
+      },
+      "model_calls": 4,
+      "reads": 0,
+      "business_calls": [
+        {
+          "name": "notion-search",
+          "arguments": {
+            "query": "",
+            "sort": "last_edited",
+            "page_size": 50,
+            "telemetry": {
+              "intent": "Count how many pages/articles exist in the connected Notion workspace by browsing with a non-relevance sort"
+            }
+          }
+        },
+        {
+          "name": "notion-get-tool-access",
+          "arguments": {
+            "tool_names": [
+              "search",
+              "ai_search",
+              "connector_search"
+            ],
+            "telemetry": {
+              "intent": "Check whether the connection offers a complete workspace listing or count capability beyond the recently-viewed search results"
+            }
+          }
+        }
+      ],
+      "trace": [
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 3.834507,
+          "usage": {
+            "input_tokens": 2994,
+            "output_tokens": 126,
+            "total_tokens": 3120,
+            "cached_input_tokens": 2816,
+            "reasoning_tokens": 34
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "search_tools",
+          "seconds": 0.009028,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\": \"pending\", \"matches\": [{\"id\": \"fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4\", \"name\": \"tavily_extract\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc\", \"name\": \"notion-fetch\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78\", \"name\": \"notion-memory-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9\", \"name\": \"notion-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191\", \"name\": \"notion-get-tool-access\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}], \"next_request\": true}",
+            "status": "succeeded",
+            "data": {
+              "discovery": {
+                "format_version": 1,
+                "catalog_hash": "e0dfa7f9f0113f7abf139f53a1e013fdd3d2ccde56c6cd6ac070568021b869ad",
+                "query": "Notion list pages articles count",
+                "source_id": "e514ecd9-7cc4-4e97-b2bf-ce75c3329cab",
+                "limit": 5,
+                "matched_ids": [
+                  "fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191"
+                ],
+                "pending_ids": [
+                  "fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191"
+                ],
+                "elapsed_ms": 0.176
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 8.922043,
+          "usage": {
+            "input_tokens": 8259,
+            "output_tokens": 306,
+            "total_tokens": 8565,
+            "cached_input_tokens": 1792,
+            "reasoning_tokens": 140
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_0420310c907319d0",
+          "seconds": 0.016191,
+          "usage": null,
+          "feedback": {
+            "content": "{\"results\":[{\"id\":\"synthetic-000\",\"title\":\"合成测试资料000\",\"url\":\"https://example.com/synthetic/000\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-001\",\"title\":\"合成测试资料001\",\"url\":\"https://example.com/synthetic/001\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-002\",\"title\":\"合成测试资料002\",\"url\":\"https://example.com/synthetic/002\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-003\",\"title\":\"合成测试资料003\",\"url\":\"https://example.com/synthetic/003\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-004\",\"title\":\"合成测试资料004\",\"url\":\"https://example.com/synthetic/004\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-005\",\"title\":\"合成测试资料005\",\"url\":\"https://example.com/synthetic/005\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-006\",\"title\":\"合成测试资料006\",\"url\":\"https://example.com/synthetic/006\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-007\",\"title\":\"合成测试资料007\",\"url\":\"https://example.com/synthetic/007\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-008\",\"title\":\"合成测试资料008\",\"url\":\"https://example.com/synthetic/008\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-009\",\"title\":\"合成测试资料009\",\"url\":\"https://example.com/synthetic/009\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-010\",\"title\":\"合成测试资料010\",\"url\":\"https://example.com/synthetic/010\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-011\",\"title\":\"合成测试资料011\",\"url\":\"https://example.com/synthetic/011\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-012\",\"title\":\"合成测试资料012\",\"url\":\"https://example.com/synthetic/012\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-013\",\"title\":\"合成测试资料013\",\"url\":\"https://example.com/synthetic/013\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-014\",\"title\":\"合成测试资料014\",\"url\":\"https://example.com/synthetic/014\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-015\",\"title\":\"合成测试资料015\",\"url\":\"https://example.com/synthetic/015\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-016\",\"title\":\"合成测试资料016\",\"url\":\"https://example.com/synthetic/016\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-017\",\"title\":\"合成测试资料017\",\"url\":\"https://example.com/synthetic/017\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-018\",\"title\":\"合成测试资料018\",\"url\":\"https://example.com/synthetic/018\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-019\",\"title\":\"合成测试资料019\",\"url\":\"https://example.com/synthetic/019\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-020\",\"title\":\"合成测试资料020\",\"url\":\"https://example.com/synthetic/020\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-021\",\"title\":\"合成测试资料021\",\"url\":\"https://example.com/synthetic/021\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-022\",\"title\":\"合成测试资料022\",\"url\":\"https://example.com/synthetic/022\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-023\",\"title\":\"合成测试资料023\",\"url\":\"https://example.com/synthetic/023\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-024\",\"title\":\"合成测试资料024\",\"url\":\"https://example.com/synthetic/024\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-025\",\"title\":\"合成测试资料025\",\"url\":\"https://example.com/synthetic/025\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-026\",\"title\":\"合成测试资料026\",\"url\":\"https://example.com/synthetic/026\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-027\",\"title\":\"合成测试资料027\",\"url\":\"https://example.com/synthetic/027\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-028\",\"title\":\"合成测试资料028\",\"url\":\"https://example.com/synthetic/028\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-029\",\"title\":\"合成测试资料029\",\"url\":\"https://example.com/synthetic/029\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-030\",\"title\":\"合成测试资料030\",\"url\":\"https://example.com/synthetic/030\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-031\",\"title\":\"合成测试资料031\",\"url\":\"https://example.com/synthetic/031\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-032\",\"title\":\"合成测试资料032\",\"url\":\"https://example.com/synthetic/032\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-033\",\"title\":\"合成测试资料033\",\"url\":\"https://example.com/synthetic/033\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-034\",\"title\":\"合成测试资料034\",\"url\":\"https://example.com/synthetic/034\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-035\",\"title\":\"合成测试资料035\",\"url\":\"https://example.com/synthetic/035\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-036\",\"title\":\"合成测试资料036\",\"url\":\"https://example.com/synthetic/036\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-037\",\"title\":\"合成测试资料037\",\"url\":\"https://example.com/synthetic/037\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-038\",\"title\":\"合成测试资料038\",\"url\":\"https://example.com/synthetic/038\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-039\",\"title\":\"合成测试资料039\",\"url\":\"https://example.com/synthetic/039\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-040\",\"title\":\"合成测试资料040\",\"url\":\"https://example.com/synthetic/040\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-041\",\"title\":\"合成测试资料041\",\"url\":\"https://example.com/synthetic/041\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-042\",\"title\":\"合成测试资料042\",\"url\":\"https://example.com/synthetic/042\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-043\",\"title\":\"合成测试资料043\",\"url\":\"https://example.com/synthetic/043\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-044\",\"title\":\"合成测试资料044\",\"url\":\"https://example.com/synthetic/044\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-045\",\"title\":\"合成测试资料045\",\"url\":\"https://example.com/synthetic/045\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-046\",\"title\":\"合成测试资料046\",\"url\":\"https://example.com/synthetic/046\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-047\",\"title\":\"合成测试资料047\",\"url\":\"https://example.com/synthetic/047\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-048\",\"title\":\"合成测试资料048\",\"url\":\"https://example.com/synthetic/048\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-049\",\"title\":\"合成测试资料049\",\"url\":\"https://example.com/synthetic/049\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}],\"type\":\"workspace_search\",\"notices\":[\"These are recently viewed pages only, not a complete workspace listing.\"]}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "40ae0450-eed0-4224-b238-413359d3fdb3",
+              "query": "",
+              "artifact": {
+                "file_id": "40ae0450-eed0-4224-b238-413359d3fdb3"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 6.527831,
+          "usage": {
+            "input_tokens": 11007,
+            "output_tokens": 247,
+            "total_tokens": 11254,
+            "cached_input_tokens": 8192,
+            "reasoning_tokens": 120
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_995c35d7a8f472a2",
+          "seconds": 0.015857,
+          "usage": null,
+          "feedback": {
+            "content": "This isolated test only supplies notion-search. No other upstream operation was executed.",
+            "status": "succeeded",
+            "data": {
+              "file_id": "e55f3513-a8d5-4829-b334-abeeade91c0f",
+              "query": null,
+              "artifact": {
+                "file_id": "e55f3513-a8d5-4829-b334-abeeade91c0f"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 6.99332,
+          "usage": {
+            "input_tokens": 11208,
+            "output_tokens": 257,
+            "total_tokens": 11465,
+            "cached_input_tokens": 11008,
+            "reasoning_tokens": 64
+          },
+          "feedback": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "block": 2,
+      "variant": "C",
+      "case": "recent",
+      "question": "查看一下这个Notion连接里有多少篇文章？",
+      "fixture_sha256": "bc646f53045aeb5c3820dc8f16e5b1f4956091f3d2d6abd58f645fc0bd552d13",
+      "answer": "当前 Notion 连接这次检索到 **50 篇文章/页面**，编号为 `synthetic-000` 到 `synthetic-049`。\n\n注意：工具返回提示这是“最近查看的页面”结果，并非完整的全工作区列表；因此 **50 是本次可见/返回的数量**，不能保证是整个 Notion 工作区的绝对总数。",
+      "status": "succeeded",
+      "error": null,
+      "seconds": 16.02308479207568,
+      "usage": {
+        "input_tokens": 23518,
+        "output_tokens": 579,
+        "total_tokens": 24097,
+        "cached_input_tokens": 17074,
+        "reasoning_tokens": 291
+      },
+      "model_calls": 3,
+      "reads": 0,
+      "business_calls": [
+        {
+          "name": "notion-search",
+          "arguments": {
+            "query": "",
+            "sort": "last_edited",
+            "page_size": 50,
+            "telemetry": {
+              "intent": "Inspect available Notion content to estimate how many pages/articles are accessible in this connection."
+            }
+          }
+        }
+      ],
+      "trace": [
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 1.994133,
+          "usage": {
+            "input_tokens": 2994,
+            "output_tokens": 63,
+            "total_tokens": 3057,
+            "cached_input_tokens": 2994,
+            "reasoning_tokens": 8
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "search_tools",
+          "seconds": 0.009535,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\": \"pending\", \"matches\": [{\"id\": \"98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc\", \"name\": \"notion-fetch\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9\", \"name\": \"notion-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191\", \"name\": \"notion-get-tool-access\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4\", \"name\": \"tavily_extract\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0\", \"name\": \"tavily_search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}], \"next_request\": true}",
+            "status": "succeeded",
+            "data": {
+              "discovery": {
+                "format_version": 1,
+                "catalog_hash": "e0dfa7f9f0113f7abf139f53a1e013fdd3d2ccde56c6cd6ac070568021b869ad",
+                "query": "Notion list pages database",
+                "source_id": null,
+                "limit": 5,
+                "matched_ids": [
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191",
+                  "fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0"
+                ],
+                "pending_ids": [
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191",
+                  "fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0"
+                ],
+                "elapsed_ms": 0.208
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 3.789374,
+          "usage": {
+            "input_tokens": 8899,
+            "output_tokens": 146,
+            "total_tokens": 9045,
+            "cached_input_tokens": 5376,
+            "reasoning_tokens": 1
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_0420310c907319d0",
+          "seconds": 0.014212,
+          "usage": null,
+          "feedback": {
+            "content": "{\"results\":[{\"id\":\"synthetic-000\",\"title\":\"合成测试资料000\",\"url\":\"https://example.com/synthetic/000\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-001\",\"title\":\"合成测试资料001\",\"url\":\"https://example.com/synthetic/001\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-002\",\"title\":\"合成测试资料002\",\"url\":\"https://example.com/synthetic/002\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-003\",\"title\":\"合成测试资料003\",\"url\":\"https://example.com/synthetic/003\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-004\",\"title\":\"合成测试资料004\",\"url\":\"https://example.com/synthetic/004\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-005\",\"title\":\"合成测试资料005\",\"url\":\"https://example.com/synthetic/005\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-006\",\"title\":\"合成测试资料006\",\"url\":\"https://example.com/synthetic/006\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-007\",\"title\":\"合成测试资料007\",\"url\":\"https://example.com/synthetic/007\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-008\",\"title\":\"合成测试资料008\",\"url\":\"https://example.com/synthetic/008\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-009\",\"title\":\"合成测试资料009\",\"url\":\"https://example.com/synthetic/009\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-010\",\"title\":\"合成测试资料010\",\"url\":\"https://example.com/synthetic/010\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-011\",\"title\":\"合成测试资料011\",\"url\":\"https://example.com/synthetic/011\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-012\",\"title\":\"合成测试资料012\",\"url\":\"https://example.com/synthetic/012\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-013\",\"title\":\"合成测试资料013\",\"url\":\"https://example.com/synthetic/013\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-014\",\"title\":\"合成测试资料014\",\"url\":\"https://example.com/synthetic/014\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-015\",\"title\":\"合成测试资料015\",\"url\":\"https://example.com/synthetic/015\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-016\",\"title\":\"合成测试资料016\",\"url\":\"https://example.com/synthetic/016\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-017\",\"title\":\"合成测试资料017\",\"url\":\"https://example.com/synthetic/017\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-018\",\"title\":\"合成测试资料018\",\"url\":\"https://example.com/synthetic/018\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-019\",\"title\":\"合成测试资料019\",\"url\":\"https://example.com/synthetic/019\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-020\",\"title\":\"合成测试资料020\",\"url\":\"https://example.com/synthetic/020\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-021\",\"title\":\"合成测试资料021\",\"url\":\"https://example.com/synthetic/021\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-022\",\"title\":\"合成测试资料022\",\"url\":\"https://example.com/synthetic/022\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-023\",\"title\":\"合成测试资料023\",\"url\":\"https://example.com/synthetic/023\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-024\",\"title\":\"合成测试资料024\",\"url\":\"https://example.com/synthetic/024\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-025\",\"title\":\"合成测试资料025\",\"url\":\"https://example.com/synthetic/025\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-026\",\"title\":\"合成测试资料026\",\"url\":\"https://example.com/synthetic/026\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-027\",\"title\":\"合成测试资料027\",\"url\":\"https://example.com/synthetic/027\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-028\",\"title\":\"合成测试资料028\",\"url\":\"https://example.com/synthetic/028\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-029\",\"title\":\"合成测试资料029\",\"url\":\"https://example.com/synthetic/029\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-030\",\"title\":\"合成测试资料030\",\"url\":\"https://example.com/synthetic/030\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-031\",\"title\":\"合成测试资料031\",\"url\":\"https://example.com/synthetic/031\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-032\",\"title\":\"合成测试资料032\",\"url\":\"https://example.com/synthetic/032\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-033\",\"title\":\"合成测试资料033\",\"url\":\"https://example.com/synthetic/033\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-034\",\"title\":\"合成测试资料034\",\"url\":\"https://example.com/synthetic/034\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-035\",\"title\":\"合成测试资料035\",\"url\":\"https://example.com/synthetic/035\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-036\",\"title\":\"合成测试资料036\",\"url\":\"https://example.com/synthetic/036\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-037\",\"title\":\"合成测试资料037\",\"url\":\"https://example.com/synthetic/037\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-038\",\"title\":\"合成测试资料038\",\"url\":\"https://example.com/synthetic/038\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-039\",\"title\":\"合成测试资料039\",\"url\":\"https://example.com/synthetic/039\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-040\",\"title\":\"合成测试资料040\",\"url\":\"https://example.com/synthetic/040\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-041\",\"title\":\"合成测试资料041\",\"url\":\"https://example.com/synthetic/041\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-042\",\"title\":\"合成测试资料042\",\"url\":\"https://example.com/synthetic/042\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-043\",\"title\":\"合成测试资料043\",\"url\":\"https://example.com/synthetic/043\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-044\",\"title\":\"合成测试资料044\",\"url\":\"https://example.com/synthetic/044\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-045\",\"title\":\"合成测试资料045\",\"url\":\"https://example.com/synthetic/045\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-046\",\"title\":\"合成测试资料046\",\"url\":\"https://example.com/synthetic/046\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-047\",\"title\":\"合成测试资料047\",\"url\":\"https://example.com/synthetic/047\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-048\",\"title\":\"合成测试资料048\",\"url\":\"https://example.com/synthetic/048\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-049\",\"title\":\"合成测试资料049\",\"url\":\"https://example.com/synthetic/049\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}],\"type\":\"workspace_search\",\"notices\":[\"These are recently viewed pages only, not a complete workspace listing.\"]}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "001ef544-b513-446f-a79d-0b37240bdfd7",
+              "query": "",
+              "artifact": {
+                "file_id": "001ef544-b513-446f-a79d-0b37240bdfd7"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 10.123625,
+          "usage": {
+            "input_tokens": 11625,
+            "output_tokens": 370,
+            "total_tokens": 11995,
+            "cached_input_tokens": 8704,
+            "reasoning_tokens": 282
+          },
+          "feedback": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "block": 2,
+      "variant": "B",
+      "case": "recent",
+      "question": "查看一下这个Notion连接里有多少篇文章？",
+      "fixture_sha256": "bc646f53045aeb5c3820dc8f16e5b1f4956091f3d2d6abd58f645fc0bd552d13",
+      "answer": "我查询了这个 Notion 连接的内容，结果如下：\n\n**已确认事实：**\n- 搜索返回了 **50 篇页面**（标题为\"合成测试资料000\"到\"合成测试资料049\"，ID 为 synthetic-000 ~ synthetic-049）。\n- 这 50 篇是按\"最近编辑\"排序返回的，正好达到单次搜索的上限（50 条）。\n\n**重要限制：**\n- 工具返回的提示明确指出：**这些只是\"最近查看的页面\"，并非工作区的完整列表**，且结果中没有提供总数（total）或分页游标信息。\n\n**结论：**\n- 该连接中**至少有 50 篇文章**；实际总数**无法通过当前搜索结果直接确认**，因为返回的只是最近查看的子集。\n- 如果这些\"合成测试资料\"是连续编号的（000–049 正好 50 个，无缺口），可以推断当前可见范围就是 50 篇，但这只是推断，不是确认的总数。\n\n如果你能告诉我这些文章存放在某个具体的数据库或页面下，我可以通过抓取那个数据库/页面来获取准确的总数。",
+      "status": "succeeded",
+      "error": null,
+      "seconds": 22.233214666950516,
+      "usage": {
+        "input_tokens": 23413,
+        "output_tokens": 773,
+        "total_tokens": 24186,
+        "cached_input_tokens": 20062,
+        "reasoning_tokens": 330
+      },
+      "model_calls": 3,
+      "reads": 0,
+      "business_calls": [
+        {
+          "name": "notion-search",
+          "arguments": {
+            "query": "",
+            "sort": "last_edited",
+            "page_size": 50,
+            "intent": "用户想知道该 Notion 连接中有多少篇文章，先列出可访问的页面来计数"
+          }
+        }
+      ],
+      "trace": [
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 2.451859,
+          "usage": {
+            "input_tokens": 2910,
+            "output_tokens": 87,
+            "total_tokens": 2997,
+            "cached_input_tokens": 2910,
+            "reasoning_tokens": 31
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "search_tools",
+          "seconds": 0.008713,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\": \"pending\", \"matches\": [{\"id\": \"de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9\", \"name\": \"notion-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0\", \"name\": \"tavily_search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78\", \"name\": \"notion-memory-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc\", \"name\": \"notion-fetch\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191\", \"name\": \"notion-get-tool-access\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}], \"next_request\": true}",
+            "status": "succeeded",
+            "data": {
+              "discovery": {
+                "format_version": 1,
+                "catalog_hash": "e0dfa7f9f0113f7abf139f53a1e013fdd3d2ccde56c6cd6ac070568021b869ad",
+                "query": "Notion search pages database list",
+                "source_id": null,
+                "limit": 5,
+                "matched_ids": [
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191"
+                ],
+                "pending_ids": [
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191"
+                ],
+                "elapsed_ms": 0.188
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 8.316014,
+          "usage": {
+            "input_tokens": 8890,
+            "output_tokens": 291,
+            "total_tokens": 9181,
+            "cached_input_tokens": 8448,
+            "reasoning_tokens": 149
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_0420310c907319d0",
+          "seconds": 0.016081,
+          "usage": null,
+          "feedback": {
+            "content": "{\"results\":[{\"id\":\"synthetic-000\",\"title\":\"合成测试资料000\",\"url\":\"https://example.com/synthetic/000\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-001\",\"title\":\"合成测试资料001\",\"url\":\"https://example.com/synthetic/001\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-002\",\"title\":\"合成测试资料002\",\"url\":\"https://example.com/synthetic/002\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-003\",\"title\":\"合成测试资料003\",\"url\":\"https://example.com/synthetic/003\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-004\",\"title\":\"合成测试资料004\",\"url\":\"https://example.com/synthetic/004\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-005\",\"title\":\"合成测试资料005\",\"url\":\"https://example.com/synthetic/005\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-006\",\"title\":\"合成测试资料006\",\"url\":\"https://example.com/synthetic/006\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-007\",\"title\":\"合成测试资料007\",\"url\":\"https://example.com/synthetic/007\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-008\",\"title\":\"合成测试资料008\",\"url\":\"https://example.com/synthetic/008\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-009\",\"title\":\"合成测试资料009\",\"url\":\"https://example.com/synthetic/009\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-010\",\"title\":\"合成测试资料010\",\"url\":\"https://example.com/synthetic/010\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-011\",\"title\":\"合成测试资料011\",\"url\":\"https://example.com/synthetic/011\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-012\",\"title\":\"合成测试资料012\",\"url\":\"https://example.com/synthetic/012\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-013\",\"title\":\"合成测试资料013\",\"url\":\"https://example.com/synthetic/013\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-014\",\"title\":\"合成测试资料014\",\"url\":\"https://example.com/synthetic/014\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-015\",\"title\":\"合成测试资料015\",\"url\":\"https://example.com/synthetic/015\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-016\",\"title\":\"合成测试资料016\",\"url\":\"https://example.com/synthetic/016\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-017\",\"title\":\"合成测试资料017\",\"url\":\"https://example.com/synthetic/017\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-018\",\"title\":\"合成测试资料018\",\"url\":\"https://example.com/synthetic/018\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-019\",\"title\":\"合成测试资料019\",\"url\":\"https://example.com/synthetic/019\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-020\",\"title\":\"合成测试资料020\",\"url\":\"https://example.com/synthetic/020\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-021\",\"title\":\"合成测试资料021\",\"url\":\"https://example.com/synthetic/021\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-022\",\"title\":\"合成测试资料022\",\"url\":\"https://example.com/synthetic/022\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-023\",\"title\":\"合成测试资料023\",\"url\":\"https://example.com/synthetic/023\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-024\",\"title\":\"合成测试资料024\",\"url\":\"https://example.com/synthetic/024\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-025\",\"title\":\"合成测试资料025\",\"url\":\"https://example.com/synthetic/025\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-026\",\"title\":\"合成测试资料026\",\"url\":\"https://example.com/synthetic/026\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-027\",\"title\":\"合成测试资料027\",\"url\":\"https://example.com/synthetic/027\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-028\",\"title\":\"合成测试资料028\",\"url\":\"https://example.com/synthetic/028\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-029\",\"title\":\"合成测试资料029\",\"url\":\"https://example.com/synthetic/029\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-030\",\"title\":\"合成测试资料030\",\"url\":\"https://example.com/synthetic/030\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-031\",\"title\":\"合成测试资料031\",\"url\":\"https://example.com/synthetic/031\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-032\",\"title\":\"合成测试资料032\",\"url\":\"https://example.com/synthetic/032\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-033\",\"title\":\"合成测试资料033\",\"url\":\"https://example.com/synthetic/033\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-034\",\"title\":\"合成测试资料034\",\"url\":\"https://example.com/synthetic/034\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-035\",\"title\":\"合成测试资料035\",\"url\":\"https://example.com/synthetic/035\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-036\",\"title\":\"合成测试资料036\",\"url\":\"https://example.com/synthetic/036\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-037\",\"title\":\"合成测试资料037\",\"url\":\"https://example.com/synthetic/037\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-038\",\"title\":\"合成测试资料038\",\"url\":\"https://example.com/synthetic/038\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-039\",\"title\":\"合成测试资料039\",\"url\":\"https://example.com/synthetic/039\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-040\",\"title\":\"合成测试资料040\",\"url\":\"https://example.com/synthetic/040\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-041\",\"title\":\"合成测试资料041\",\"url\":\"https://example.com/synthetic/041\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-042\",\"title\":\"合成测试资料042\",\"url\":\"https://example.com/synthetic/042\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-043\",\"title\":\"合成测试资料043\",\"url\":\"https://example.com/synthetic/043\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-044\",\"title\":\"合成测试资料044\",\"url\":\"https://example.com/synthetic/044\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-045\",\"title\":\"合成测试资料045\",\"url\":\"https://example.com/synthetic/045\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-046\",\"title\":\"合成测试资料046\",\"url\":\"https://example.com/synthetic/046\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-047\",\"title\":\"合成测试资料047\",\"url\":\"https://example.com/synthetic/047\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-048\",\"title\":\"合成测试资料048\",\"url\":\"https://example.com/synthetic/048\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-049\",\"title\":\"合成测试资料049\",\"url\":\"https://example.com/synthetic/049\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}],\"type\":\"workspace_search\",\"notices\":[\"These are recently viewed pages only, not a complete workspace listing.\"]}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "d9845d58-802d-47bc-a205-ca0f36a6491e",
+              "query": "",
+              "artifact": {
+                "file_id": "d9845d58-802d-47bc-a205-ca0f36a6491e"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 11.352738,
+          "usage": {
+            "input_tokens": 11613,
+            "output_tokens": 395,
+            "total_tokens": 12008,
+            "cached_input_tokens": 8704,
+            "reasoning_tokens": 150
+          },
+          "feedback": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "block": 2,
+      "variant": "A",
+      "case": "recent",
+      "question": "查看一下这个Notion连接里有多少篇文章？",
+      "fixture_sha256": "bc646f53045aeb5c3820dc8f16e5b1f4956091f3d2d6abd58f645fc0bd552d13",
+      "answer": "我按“文章 = Notion 页面”来数了一遍：这次连接检索返回 **50 篇页面**，编号为 `synthetic-000` 到 `synthetic-049`，类型都是 `page`。\n\n但要注意一个限制：Notion 返回结果里明确提示 **“These are recently viewed pages only, not a complete workspace listing.”** 所以这 50 篇是“最近浏览/当前返回结果”，**不能代表整个 Notion 工作区的文章总数**。目前可用连接只提供了搜索能力，没有可遍历全量数据库/页面的计数接口，因此无法给出全工作区精确总数。",
+      "status": "succeeded",
+      "error": null,
+      "seconds": 26.039057624991983,
+      "usage": {
+        "input_tokens": 59958,
+        "output_tokens": 1476,
+        "total_tokens": 61434,
+        "cached_input_tokens": 46686,
+        "reasoning_tokens": 755
+      },
+      "model_calls": 5,
+      "reads": 2,
+      "business_calls": [
+        {
+          "name": "notion-get-tool-access",
+          "arguments": {
+            "tool_names": [
+              "notion-search",
+              "notion-fetch"
+            ],
+            "telemetry": {
+              "intent": "Check which Notion search and fetch capabilities are available before counting pages."
+            }
+          }
+        },
+        {
+          "name": "notion-search",
+          "arguments": {
+            "query": "",
+            "sort": "last_edited",
+            "page_size": 50,
+            "max_highlight_length": 0,
+            "telemetry": {
+              "intent": "Browse the connected Notion workspace to enumerate and count accessible pages."
+            }
+          }
+        }
+      ],
+      "trace": [
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 3.708212,
+          "usage": {
+            "input_tokens": 2910,
+            "output_tokens": 144,
+            "total_tokens": 3054,
+            "cached_input_tokens": 2910,
+            "reasoning_tokens": 35
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "search_tools",
+          "seconds": 0.008681,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\": \"pending\", \"matches\": [{\"id\": \"4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78\", \"name\": \"notion-memory-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9\", \"name\": \"notion-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0\", \"name\": \"tavily_search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc\", \"name\": \"notion-fetch\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4\", \"name\": \"tavily_extract\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191\", \"name\": \"notion-get-tool-access\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"6b77e4faa9fca4e8f826c569944a89fad3554b1242e1ee0905a522fb255dd1ca\", \"name\": \"tavily_map\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"58f1647930b28f44609bf5deaefb5344548b1b6fc4107d255d40d548ce58c569\", \"name\": \"tavily_crawl\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"dc5e34e70324f01e542b082828bb00b16c86b92db11e13651025c74fe68439d6\", \"name\": \"notion-create-attachment\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"7cc6ac450b0d008a9f58c1a7b0920212f88079314b796ab689856f278ed2603a\", \"name\": \"tavily_research\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}], \"next_request\": true}",
+            "status": "succeeded",
+            "data": {
+              "discovery": {
+                "format_version": 1,
+                "catalog_hash": "e0dfa7f9f0113f7abf139f53a1e013fdd3d2ccde56c6cd6ac070568021b869ad",
+                "query": "Notion list pages databases articles count search",
+                "source_id": "e514ecd9-7cc4-4e97-b2bf-ce75c3329cab",
+                "limit": 10,
+                "matched_ids": [
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191",
+                  "6b77e4faa9fca4e8f826c569944a89fad3554b1242e1ee0905a522fb255dd1ca",
+                  "58f1647930b28f44609bf5deaefb5344548b1b6fc4107d255d40d548ce58c569",
+                  "dc5e34e70324f01e542b082828bb00b16c86b92db11e13651025c74fe68439d6",
+                  "7cc6ac450b0d008a9f58c1a7b0920212f88079314b796ab689856f278ed2603a"
+                ],
+                "pending_ids": [
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191",
+                  "6b77e4faa9fca4e8f826c569944a89fad3554b1242e1ee0905a522fb255dd1ca",
+                  "58f1647930b28f44609bf5deaefb5344548b1b6fc4107d255d40d548ce58c569",
+                  "dc5e34e70324f01e542b082828bb00b16c86b92db11e13651025c74fe68439d6",
+                  "7cc6ac450b0d008a9f58c1a7b0920212f88079314b796ab689856f278ed2603a"
+                ],
+                "elapsed_ms": 0.188
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 6.971306,
+          "usage": {
+            "input_tokens": 12079,
+            "output_tokens": 446,
+            "total_tokens": 12525,
+            "cached_input_tokens": 3328,
+            "reasoning_tokens": 186
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_995c35d7a8f472a2",
+          "seconds": 0.02271,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\":\"succeeded\",\"preview\":\"This isolated test only supplies notion-search. No other upstream operation was executed.\",\"result_id\":\"5158a423-608c-4a08-bf64-40ddb940dbb5\",\"preview_end\":89,\"total_chars\":89,\"next_offset\":null,\"truncated\":false,\"source_files_readable\":true,\"sources\":[],\"raw_result\":\"/sources/5158a423-608c-4a08-bf64-40ddb940dbb5/tool-result-tool_wtBtDveAXNuoHY4ApbhT6Lrl.json\"}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "5158a423-608c-4a08-bf64-40ddb940dbb5",
+              "query": null,
+              "artifact": {
+                "file_id": "5158a423-608c-4a08-bf64-40ddb940dbb5"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_0420310c907319d0",
+          "seconds": 0.0216,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\":\"succeeded\",\"preview\":\"{\\\"results\\\":[{\\\"id\\\":\\\"synthetic-000\\\",\\\"title\\\":\\\"合成测试资料000\\\",\\\"url\\\":\\\"https://example.com/synthetic/000\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-001\\\",\\\"title\\\":\\\"合成测试资料001\\\",\\\"url\\\":\\\"https://example.com/synthetic/001\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-002\\\",\\\"title\\\":\\\"合成测试资料002\\\",\\\"url\\\":\\\"https://example.com/synthetic/002\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-003\\\",\\\"title\\\":\\\"合成测试资料003\\\",\\\"url\\\":\\\"https://example.com/synthetic/003\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-004\\\",\\\"title\\\":\\\"合成测试资料004\\\",\\\"url\\\":\\\"https://example.com/synthetic/004\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-005\\\",\\\"title\\\":\\\"合成测试资料005\\\",\\\"url\\\":\\\"https://example.com/synthetic/005\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-006\\\",\\\"title\\\":\\\"合成测试资料006\\\",\\\"url\\\":\\\"https://example.com/synthetic/006\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-007\\\",\\\"title\\\":\\\"合成测试资料007\\\",\\\"url\\\":\\\"https://example.com/synthetic/007\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-008\\\",\\\"title\\\":\\\"合成测试资料008\\\",\\\"url\\\":\\\"https://example.com/synthetic/008\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-009\\\",\\\"title\\\":\\\"合成测试资料009\\\",\\\"url\\\":\\\"https://example.com/synthetic/009\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-010\\\",\\\"title\\\":\\\"合成测试资料010\\\",\\\"url\\\":\\\"https://example.com/synthetic/010\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-011\\\",\\\"title\\\":\\\"合成测试资料011\\\",\\\"url\\\":\\\"https://example.com/synthetic/011\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-012\\\",\\\"title\\\":\\\"合成测试资料012\\\",\\\"url\\\":\\\"https://example.com/synthetic/012\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-013\\\",\\\"title\\\":\\\"合成测试资料013\\\",\\\"url\\\":\\\"https://example.com/synthetic/013\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting te\",\"result_id\":\"2d5cdfd2-67d8-4760-ba27-299929d83651\",\"preview_end\":3000,\"total_chars\":10988,\"next_offset\":3000,\"truncated\":true,\"source_files_readable\":true,\"sources\":[],\"raw_result\":\"/sources/2d5cdfd2-67d8-4760-ba27-299929d83651/tool-result-tool_Dh1sjhKOS0Tu2oLNiW9RvL3D.json\"}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "2d5cdfd2-67d8-4760-ba27-299929d83651",
+              "query": "",
+              "artifact": {
+                "file_id": "2d5cdfd2-67d8-4760-ba27-299929d83651"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 2.101767,
+          "usage": {
+            "input_tokens": 13371,
+            "output_tokens": 127,
+            "total_tokens": 13498,
+            "cached_input_tokens": 12032,
+            "reasoning_tokens": 23
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "read_tool_result",
+          "seconds": 0.01141,
+          "usage": null,
+          "feedback": {
+            "content": "{\"result_id\": \"2d5cdfd2-67d8-4760-ba27-299929d83651\", \"offset\": 0, \"end\": 7580, \"total_chars\": 10988, \"next_offset\": 7580, \"text\": \"{\\\"results\\\":[{\\\"id\\\":\\\"synthetic-000\\\",\\\"title\\\":\\\"合成测试资料000\\\",\\\"url\\\":\\\"https://example.com/synthetic/000\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-001\\\",\\\"title\\\":\\\"合成测试资料001\\\",\\\"url\\\":\\\"https://example.com/synthetic/001\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-002\\\",\\\"title\\\":\\\"合成测试资料002\\\",\\\"url\\\":\\\"https://example.com/synthetic/002\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-003\\\",\\\"title\\\":\\\"合成测试资料003\\\",\\\"url\\\":\\\"https://example.com/synthetic/003\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-004\\\",\\\"title\\\":\\\"合成测试资料004\\\",\\\"url\\\":\\\"https://example.com/synthetic/004\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-005\\\",\\\"title\\\":\\\"合成测试资料005\\\",\\\"url\\\":\\\"https://example.com/synthetic/005\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-006\\\",\\\"title\\\":\\\"合成测试资料006\\\",\\\"url\\\":\\\"https://example.com/synthetic/006\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-007\\\",\\\"title\\\":\\\"合成测试资料007\\\",\\\"url\\\":\\\"https://example.com/synthetic/007\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-008\\\",\\\"title\\\":\\\"合成测试资料008\\\",\\\"url\\\":\\\"https://example.com/synthetic/008\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-009\\\",\\\"title\\\":\\\"合成测试资料009\\\",\\\"url\\\":\\\"https://example.com/synthetic/009\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-010\\\",\\\"title\\\":\\\"合成测试资料010\\\",\\\"url\\\":\\\"https://example.com/synthetic/010\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-011\\\",\\\"title\\\":\\\"合成测试资料011\\\",\\\"url\\\":\\\"https://example.com/synthetic/011\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-012\\\",\\\"title\\\":\\\"合成测试资料012\\\",\\\"url\\\":\\\"https://example.com/synthetic/012\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-013\\\",\\\"title\\\":\\\"合成测试资料013\\\",\\\"url\\\":\\\"https://example.com/synthetic/013\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-014\\\",\\\"title\\\":\\\"合成测试资料014\\\",\\\"url\\\":\\\"https://example.com/synthetic/014\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-015\\\",\\\"title\\\":\\\"合成测试资料015\\\",\\\"url\\\":\\\"https://example.com/synthetic/015\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-016\\\",\\\"title\\\":\\\"合成测试资料016\\\",\\\"url\\\":\\\"https://example.com/synthetic/016\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-017\\\",\\\"title\\\":\\\"合成测试资料017\\\",\\\"url\\\":\\\"https://example.com/synthetic/017\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-018\\\",\\\"title\\\":\\\"合成测试资料018\\\",\\\"url\\\":\\\"https://example.com/synthetic/018\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-019\\\",\\\"title\\\":\\\"合成测试资料019\\\",\\\"url\\\":\\\"https://example.com/synthetic/019\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-020\\\",\\\"title\\\":\\\"合成测试资料020\\\",\\\"url\\\":\\\"https://example.com/synthetic/020\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-021\\\",\\\"title\\\":\\\"合成测试资料021\\\",\\\"url\\\":\\\"https://example.com/synthetic/021\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-022\\\",\\\"title\\\":\\\"合成测试资料022\\\",\\\"url\\\":\\\"https://example.com/synthetic/022\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-023\\\",\\\"title\\\":\\\"合成测试资料023\\\",\\\"url\\\":\\\"https://example.com/synthetic/023\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-024\\\",\\\"title\\\":\\\"合成测试资料024\\\",\\\"url\\\":\\\"https://example.com/synthetic/024\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-025\\\",\\\"title\\\":\\\"合成测试资料025\\\",\\\"url\\\":\\\"https://example.com/synthetic/025\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-026\\\",\\\"title\\\":\\\"合成测试资料026\\\",\\\"url\\\":\\\"https://example.com/synthetic/026\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-027\\\",\\\"title\\\":\\\"合成测试资料027\\\",\\\"url\\\":\\\"https://example.com/synthetic/027\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-028\\\",\\\"title\\\":\\\"合成测试资料028\\\",\\\"url\\\":\\\"https://example.com/synthetic/028\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-029\\\",\\\"title\\\":\\\"合成测试资料029\\\",\\\"url\\\":\\\"https://example.com/synthetic/029\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-030\\\",\\\"title\\\":\\\"合成测试资料030\\\",\\\"url\\\":\\\"https://example.com/synthetic/030\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-031\\\",\\\"title\\\":\\\"合成测试资料031\\\",\\\"url\\\":\\\"https://example.com/synthetic/031\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-032\\\",\\\"title\\\":\\\"合成测试资料032\\\",\\\"url\\\":\\\"https://example.com/synthetic/032\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-033\\\",\\\"title\\\":\\\"合成测试资料033\\\",\\\"url\\\":\\\"https://example.com/synthetic/033\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-034\\\",\\\"title\\\":\\\"合成测试资料034\\\",\\\"url\\\":\\\"https://example.com/synthetic/034\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user dat\"}",
+            "status": "succeeded",
+            "data": {}
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 1.866864,
+          "usage": {
+            "input_tokens": 15310,
+            "output_tokens": 106,
+            "total_tokens": 15416,
+            "cached_input_tokens": 13312,
+            "reasoning_tokens": 1
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "read_tool_result",
+          "seconds": 0.011483,
+          "usage": null,
+          "feedback": {
+            "content": "{\"result_id\": \"2d5cdfd2-67d8-4760-ba27-299929d83651\", \"offset\": 7580, \"end\": 10988, \"total_chars\": 10988, \"next_offset\": null, \"text\": \"a.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-035\\\",\\\"title\\\":\\\"合成测试资料035\\\",\\\"url\\\":\\\"https://example.com/synthetic/035\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-036\\\",\\\"title\\\":\\\"合成测试资料036\\\",\\\"url\\\":\\\"https://example.com/synthetic/036\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-037\\\",\\\"title\\\":\\\"合成测试资料037\\\",\\\"url\\\":\\\"https://example.com/synthetic/037\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-038\\\",\\\"title\\\":\\\"合成测试资料038\\\",\\\"url\\\":\\\"https://example.com/synthetic/038\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-039\\\",\\\"title\\\":\\\"合成测试资料039\\\",\\\"url\\\":\\\"https://example.com/synthetic/039\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-040\\\",\\\"title\\\":\\\"合成测试资料040\\\",\\\"url\\\":\\\"https://example.com/synthetic/040\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-041\\\",\\\"title\\\":\\\"合成测试资料041\\\",\\\"url\\\":\\\"https://example.com/synthetic/041\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-042\\\",\\\"title\\\":\\\"合成测试资料042\\\",\\\"url\\\":\\\"https://example.com/synthetic/042\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-043\\\",\\\"title\\\":\\\"合成测试资料043\\\",\\\"url\\\":\\\"https://example.com/synthetic/043\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-044\\\",\\\"title\\\":\\\"合成测试资料044\\\",\\\"url\\\":\\\"https://example.com/synthetic/044\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-045\\\",\\\"title\\\":\\\"合成测试资料045\\\",\\\"url\\\":\\\"https://example.com/synthetic/045\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-046\\\",\\\"title\\\":\\\"合成测试资料046\\\",\\\"url\\\":\\\"https://example.com/synthetic/046\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-047\\\",\\\"title\\\":\\\"合成测试资料047\\\",\\\"url\\\":\\\"https://example.com/synthetic/047\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-048\\\",\\\"title\\\":\\\"合成测试资料048\\\",\\\"url\\\":\\\"https://example.com/synthetic/048\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-049\\\",\\\"title\\\":\\\"合成测试资料049\\\",\\\"url\\\":\\\"https://example.com/synthetic/049\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"}],\\\"type\\\":\\\"workspace_search\\\",\\\"notices\\\":[\\\"These are recently viewed pages only, not a complete workspace listing.\\\"]}\"}",
+            "status": "succeeded",
+            "data": {}
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 11.195759,
+          "usage": {
+            "input_tokens": 16288,
+            "output_tokens": 653,
+            "total_tokens": 16941,
+            "cached_input_tokens": 15104,
+            "reasoning_tokens": 510
+          },
+          "feedback": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "block": 3,
+      "variant": "B",
+      "case": "recent",
+      "question": "查看一下这个Notion连接里有多少篇文章？",
+      "fixture_sha256": "bc646f53045aeb5c3820dc8f16e5b1f4956091f3d2d6abd58f645fc0bd552d13",
+      "answer": "查询完成。结论如下：\n\n## 查询结果\n\n当前 Notion 连接中可查到的页面/文章共 **50 篇**（编号 synthetic-000 至 synthetic-049，标题为\"合成测试资料000\"~\"合成测试资料049\"）。\n\n## 需要注意的限制\n\n- 搜索结果提示：这些是**\"最近查看的页面\"**，并非工作区的完整清单。Notion 的搜索接口本身不提供\"全量页面总数\"，所以 **50 篇是可查询到的数量，实际总数可能更多**（如果存在未在最近查看中出现的页面）。\n- 这 50 篇均为同一类型的 page，未发现 database 类型的条目。\n- 页面内容显示为\"Generated fixture content for a counting test\"（合成测试数据），并非真实用户内容。\n\n如果你需要精确的总数，建议在 Notion 客户端中直接查看工作区页面列表，或者告诉我具体的父页面/数据库，我可以针对性地统计。",
+      "status": "succeeded",
+      "error": null,
+      "seconds": 21.19991750002373,
+      "usage": {
+        "input_tokens": 37770,
+        "output_tokens": 735,
+        "total_tokens": 38505,
+        "cached_input_tokens": 31326,
+        "reasoning_tokens": 166
+      },
+      "model_calls": 4,
+      "reads": 0,
+      "business_calls": [
+        {
+          "name": "notion-search",
+          "arguments": {
+            "query": "文章",
+            "page_size": 50,
+            "telemetry": {
+              "intent": "Count articles/pages in the connected Notion workspace"
+            }
+          }
+        },
+        {
+          "name": "notion-search",
+          "arguments": {
+            "page_size": 50,
+            "query": "",
+            "sort": "last_edited",
+            "telemetry": {
+              "intent": "Browse all pages in the connected Notion workspace to count articles"
+            }
+          }
+        }
+      ],
+      "trace": [
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 2.432254,
+          "usage": {
+            "input_tokens": 2910,
+            "output_tokens": 80,
+            "total_tokens": 2990,
+            "cached_input_tokens": 2910,
+            "reasoning_tokens": 15
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "search_tools",
+          "seconds": 0.008212,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\": \"pending\", \"matches\": [{\"id\": \"de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9\", \"name\": \"notion-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0\", \"name\": \"tavily_search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78\", \"name\": \"notion-memory-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc\", \"name\": \"notion-fetch\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191\", \"name\": \"notion-get-tool-access\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}], \"next_request\": true}",
+            "status": "succeeded",
+            "data": {
+              "discovery": {
+                "format_version": 1,
+                "catalog_hash": "e0dfa7f9f0113f7abf139f53a1e013fdd3d2ccde56c6cd6ac070568021b869ad",
+                "query": "Notion list pages search database",
+                "source_id": null,
+                "limit": 5,
+                "matched_ids": [
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191"
+                ],
+                "pending_ids": [
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191"
+                ],
+                "elapsed_ms": 0.185
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 4.759105,
+          "usage": {
+            "input_tokens": 8899,
+            "output_tokens": 175,
+            "total_tokens": 9074,
+            "cached_input_tokens": 8192,
+            "reasoning_tokens": 55
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_0420310c907319d0",
+          "seconds": 0.015076,
+          "usage": null,
+          "feedback": {
+            "content": "{\"results\":[{\"id\":\"synthetic-000\",\"title\":\"合成测试资料000\",\"url\":\"https://example.com/synthetic/000\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-001\",\"title\":\"合成测试资料001\",\"url\":\"https://example.com/synthetic/001\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-002\",\"title\":\"合成测试资料002\",\"url\":\"https://example.com/synthetic/002\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-003\",\"title\":\"合成测试资料003\",\"url\":\"https://example.com/synthetic/003\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-004\",\"title\":\"合成测试资料004\",\"url\":\"https://example.com/synthetic/004\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-005\",\"title\":\"合成测试资料005\",\"url\":\"https://example.com/synthetic/005\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-006\",\"title\":\"合成测试资料006\",\"url\":\"https://example.com/synthetic/006\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-007\",\"title\":\"合成测试资料007\",\"url\":\"https://example.com/synthetic/007\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-008\",\"title\":\"合成测试资料008\",\"url\":\"https://example.com/synthetic/008\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-009\",\"title\":\"合成测试资料009\",\"url\":\"https://example.com/synthetic/009\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-010\",\"title\":\"合成测试资料010\",\"url\":\"https://example.com/synthetic/010\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-011\",\"title\":\"合成测试资料011\",\"url\":\"https://example.com/synthetic/011\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-012\",\"title\":\"合成测试资料012\",\"url\":\"https://example.com/synthetic/012\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-013\",\"title\":\"合成测试资料013\",\"url\":\"https://example.com/synthetic/013\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-014\",\"title\":\"合成测试资料014\",\"url\":\"https://example.com/synthetic/014\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-015\",\"title\":\"合成测试资料015\",\"url\":\"https://example.com/synthetic/015\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-016\",\"title\":\"合成测试资料016\",\"url\":\"https://example.com/synthetic/016\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-017\",\"title\":\"合成测试资料017\",\"url\":\"https://example.com/synthetic/017\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-018\",\"title\":\"合成测试资料018\",\"url\":\"https://example.com/synthetic/018\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-019\",\"title\":\"合成测试资料019\",\"url\":\"https://example.com/synthetic/019\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-020\",\"title\":\"合成测试资料020\",\"url\":\"https://example.com/synthetic/020\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-021\",\"title\":\"合成测试资料021\",\"url\":\"https://example.com/synthetic/021\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-022\",\"title\":\"合成测试资料022\",\"url\":\"https://example.com/synthetic/022\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-023\",\"title\":\"合成测试资料023\",\"url\":\"https://example.com/synthetic/023\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-024\",\"title\":\"合成测试资料024\",\"url\":\"https://example.com/synthetic/024\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-025\",\"title\":\"合成测试资料025\",\"url\":\"https://example.com/synthetic/025\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-026\",\"title\":\"合成测试资料026\",\"url\":\"https://example.com/synthetic/026\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-027\",\"title\":\"合成测试资料027\",\"url\":\"https://example.com/synthetic/027\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-028\",\"title\":\"合成测试资料028\",\"url\":\"https://example.com/synthetic/028\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-029\",\"title\":\"合成测试资料029\",\"url\":\"https://example.com/synthetic/029\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-030\",\"title\":\"合成测试资料030\",\"url\":\"https://example.com/synthetic/030\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-031\",\"title\":\"合成测试资料031\",\"url\":\"https://example.com/synthetic/031\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-032\",\"title\":\"合成测试资料032\",\"url\":\"https://example.com/synthetic/032\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-033\",\"title\":\"合成测试资料033\",\"url\":\"https://example.com/synthetic/033\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-034\",\"title\":\"合成测试资料034\",\"url\":\"https://example.com/synthetic/034\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-035\",\"title\":\"合成测试资料035\",\"url\":\"https://example.com/synthetic/035\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-036\",\"title\":\"合成测试资料036\",\"url\":\"https://example.com/synthetic/036\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-037\",\"title\":\"合成测试资料037\",\"url\":\"https://example.com/synthetic/037\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-038\",\"title\":\"合成测试资料038\",\"url\":\"https://example.com/synthetic/038\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-039\",\"title\":\"合成测试资料039\",\"url\":\"https://example.com/synthetic/039\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-040\",\"title\":\"合成测试资料040\",\"url\":\"https://example.com/synthetic/040\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-041\",\"title\":\"合成测试资料041\",\"url\":\"https://example.com/synthetic/041\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-042\",\"title\":\"合成测试资料042\",\"url\":\"https://example.com/synthetic/042\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-043\",\"title\":\"合成测试资料043\",\"url\":\"https://example.com/synthetic/043\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-044\",\"title\":\"合成测试资料044\",\"url\":\"https://example.com/synthetic/044\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-045\",\"title\":\"合成测试资料045\",\"url\":\"https://example.com/synthetic/045\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-046\",\"title\":\"合成测试资料046\",\"url\":\"https://example.com/synthetic/046\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-047\",\"title\":\"合成测试资料047\",\"url\":\"https://example.com/synthetic/047\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-048\",\"title\":\"合成测试资料048\",\"url\":\"https://example.com/synthetic/048\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-049\",\"title\":\"合成测试资料049\",\"url\":\"https://example.com/synthetic/049\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}],\"type\":\"workspace_search\",\"notices\":[\"These are recently viewed pages only, not a complete workspace listing.\"]}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "78545625-cd84-454a-8971-28320d2b1454",
+              "query": "文章",
+              "artifact": {
+                "file_id": "78545625-cd84-454a-8971-28320d2b1454"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 7.947088,
+          "usage": {
+            "input_tokens": 11601,
+            "output_tokens": 273,
+            "total_tokens": 11874,
+            "cached_input_tokens": 8704,
+            "reasoning_tokens": 95
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_0420310c907319d0",
+          "seconds": 0.015563,
+          "usage": null,
+          "feedback": {
+            "content": "{\"results\":[{\"id\":\"synthetic-000\",\"title\":\"合成测试资料000\",\"url\":\"https://example.com/synthetic/000\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-001\",\"title\":\"合成测试资料001\",\"url\":\"https://example.com/synthetic/001\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-002\",\"title\":\"合成测试资料002\",\"url\":\"https://example.com/synthetic/002\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-003\",\"title\":\"合成测试资料003\",\"url\":\"https://example.com/synthetic/003\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-004\",\"title\":\"合成测试资料004\",\"url\":\"https://example.com/synthetic/004\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-005\",\"title\":\"合成测试资料005\",\"url\":\"https://example.com/synthetic/005\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-006\",\"title\":\"合成测试资料006\",\"url\":\"https://example.com/synthetic/006\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-007\",\"title\":\"合成测试资料007\",\"url\":\"https://example.com/synthetic/007\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-008\",\"title\":\"合成测试资料008\",\"url\":\"https://example.com/synthetic/008\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-009\",\"title\":\"合成测试资料009\",\"url\":\"https://example.com/synthetic/009\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-010\",\"title\":\"合成测试资料010\",\"url\":\"https://example.com/synthetic/010\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-011\",\"title\":\"合成测试资料011\",\"url\":\"https://example.com/synthetic/011\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-012\",\"title\":\"合成测试资料012\",\"url\":\"https://example.com/synthetic/012\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-013\",\"title\":\"合成测试资料013\",\"url\":\"https://example.com/synthetic/013\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-014\",\"title\":\"合成测试资料014\",\"url\":\"https://example.com/synthetic/014\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-015\",\"title\":\"合成测试资料015\",\"url\":\"https://example.com/synthetic/015\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-016\",\"title\":\"合成测试资料016\",\"url\":\"https://example.com/synthetic/016\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-017\",\"title\":\"合成测试资料017\",\"url\":\"https://example.com/synthetic/017\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-018\",\"title\":\"合成测试资料018\",\"url\":\"https://example.com/synthetic/018\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-019\",\"title\":\"合成测试资料019\",\"url\":\"https://example.com/synthetic/019\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-020\",\"title\":\"合成测试资料020\",\"url\":\"https://example.com/synthetic/020\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-021\",\"title\":\"合成测试资料021\",\"url\":\"https://example.com/synthetic/021\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-022\",\"title\":\"合成测试资料022\",\"url\":\"https://example.com/synthetic/022\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-023\",\"title\":\"合成测试资料023\",\"url\":\"https://example.com/synthetic/023\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-024\",\"title\":\"合成测试资料024\",\"url\":\"https://example.com/synthetic/024\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-025\",\"title\":\"合成测试资料025\",\"url\":\"https://example.com/synthetic/025\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-026\",\"title\":\"合成测试资料026\",\"url\":\"https://example.com/synthetic/026\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-027\",\"title\":\"合成测试资料027\",\"url\":\"https://example.com/synthetic/027\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-028\",\"title\":\"合成测试资料028\",\"url\":\"https://example.com/synthetic/028\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-029\",\"title\":\"合成测试资料029\",\"url\":\"https://example.com/synthetic/029\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-030\",\"title\":\"合成测试资料030\",\"url\":\"https://example.com/synthetic/030\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-031\",\"title\":\"合成测试资料031\",\"url\":\"https://example.com/synthetic/031\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-032\",\"title\":\"合成测试资料032\",\"url\":\"https://example.com/synthetic/032\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-033\",\"title\":\"合成测试资料033\",\"url\":\"https://example.com/synthetic/033\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-034\",\"title\":\"合成测试资料034\",\"url\":\"https://example.com/synthetic/034\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-035\",\"title\":\"合成测试资料035\",\"url\":\"https://example.com/synthetic/035\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-036\",\"title\":\"合成测试资料036\",\"url\":\"https://example.com/synthetic/036\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-037\",\"title\":\"合成测试资料037\",\"url\":\"https://example.com/synthetic/037\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-038\",\"title\":\"合成测试资料038\",\"url\":\"https://example.com/synthetic/038\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-039\",\"title\":\"合成测试资料039\",\"url\":\"https://example.com/synthetic/039\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-040\",\"title\":\"合成测试资料040\",\"url\":\"https://example.com/synthetic/040\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-041\",\"title\":\"合成测试资料041\",\"url\":\"https://example.com/synthetic/041\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-042\",\"title\":\"合成测试资料042\",\"url\":\"https://example.com/synthetic/042\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-043\",\"title\":\"合成测试资料043\",\"url\":\"https://example.com/synthetic/043\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-044\",\"title\":\"合成测试资料044\",\"url\":\"https://example.com/synthetic/044\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-045\",\"title\":\"合成测试资料045\",\"url\":\"https://example.com/synthetic/045\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-046\",\"title\":\"合成测试资料046\",\"url\":\"https://example.com/synthetic/046\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-047\",\"title\":\"合成测试资料047\",\"url\":\"https://example.com/synthetic/047\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-048\",\"title\":\"合成测试资料048\",\"url\":\"https://example.com/synthetic/048\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"},{\"id\":\"synthetic-049\",\"title\":\"合成测试资料049\",\"url\":\"https://example.com/synthetic/049\",\"type\":\"page\",\"highlight\":\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}],\"type\":\"workspace_search\",\"notices\":[\"These are recently viewed pages only, not a complete workspace listing.\"]}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "050101c9-f5e8-49cd-a1d1-cd13f437b173",
+              "query": "",
+              "artifact": {
+                "file_id": "050101c9-f5e8-49cd-a1d1-cd13f437b173"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 5.916711,
+          "usage": {
+            "input_tokens": 14360,
+            "output_tokens": 207,
+            "total_tokens": 14567,
+            "cached_input_tokens": 11520,
+            "reasoning_tokens": 1
+          },
+          "feedback": null,
+          "error": null
+        }
+      ]
+    },
+    {
+      "block": 3,
+      "variant": "A",
+      "case": "recent",
+      "question": "查看一下这个Notion连接里有多少篇文章？",
+      "fixture_sha256": "bc646f53045aeb5c3820dc8f16e5b1f4956091f3d2d6abd58f645fc0bd552d13",
+      "answer": "查看完成。这个 Notion 连接里一共有 **50 篇文章（页面）**。\n\n说明：\n- 我通过 Notion 搜索工具以最大每页 50 条进行查询，返回了 50 条结果，编号从 `synthetic-000` 到 `synthetic-049`，正好填满一页。\n- 这 50 条全部是 `type: \"page\"`，没有数据库或其他类型条目。\n- 需要注意：Notion 返回结果附带提示，这只是\"最近查看的页面\"，并非工作区完整清单。因此如果你问的是这个连接当前可见/可检索到的文章数，答案是 50；如果工作区里实际文章超过 50，需要指定搜索关键词或数据库才能进一步确认总数。",
+      "status": "succeeded",
+      "error": null,
+      "seconds": 15.804010375053622,
+      "usage": {
+        "input_tokens": 71522,
+        "output_tokens": 823,
+        "total_tokens": 72345,
+        "cached_input_tokens": 66654,
+        "reasoning_tokens": 111
+      },
+      "model_calls": 6,
+      "reads": 2,
+      "business_calls": [
+        {
+          "name": "notion-get-tool-access",
+          "arguments": {}
+        },
+        {
+          "name": "notion-search",
+          "arguments": {
+            "query": "",
+            "page_size": 50,
+            "max_highlight_length": 0,
+            "telemetry": {
+              "intent": "List Notion pages or databases to count available articles."
+            }
+          }
+        }
+      ],
+      "trace": [
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 3.476255,
+          "usage": {
+            "input_tokens": 2910,
+            "output_tokens": 139,
+            "total_tokens": 3049,
+            "cached_input_tokens": 2910,
+            "reasoning_tokens": 21
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "search_tools",
+          "seconds": 0.012259,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\": \"pending\", \"matches\": [{\"id\": \"de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9\", \"name\": \"notion-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0\", \"name\": \"tavily_search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78\", \"name\": \"notion-memory-search\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4\", \"name\": \"tavily_extract\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191\", \"name\": \"notion-get-tool-access\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"6b77e4faa9fca4e8f826c569944a89fad3554b1242e1ee0905a522fb255dd1ca\", \"name\": \"tavily_map\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc\", \"name\": \"notion-fetch\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"58f1647930b28f44609bf5deaefb5344548b1b6fc4107d255d40d548ce58c569\", \"name\": \"tavily_crawl\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"dc5e34e70324f01e542b082828bb00b16c86b92db11e13651025c74fe68439d6\", \"name\": \"notion-create-attachment\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}, {\"id\": \"7cc6ac450b0d008a9f58c1a7b0920212f88079314b796ab689856f278ed2603a\", \"name\": \"tavily_research\", \"source_id\": \"e514ecd9-7cc4-4e97-b2bf-ce75c3329cab\"}], \"next_request\": true}",
+            "status": "succeeded",
+            "data": {
+              "discovery": {
+                "format_version": 1,
+                "catalog_hash": "e0dfa7f9f0113f7abf139f53a1e013fdd3d2ccde56c6cd6ac070568021b869ad",
+                "query": "Notion search pages list articles",
+                "source_id": "e514ecd9-7cc4-4e97-b2bf-ce75c3329cab",
+                "limit": 10,
+                "matched_ids": [
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191",
+                  "6b77e4faa9fca4e8f826c569944a89fad3554b1242e1ee0905a522fb255dd1ca",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "58f1647930b28f44609bf5deaefb5344548b1b6fc4107d255d40d548ce58c569",
+                  "dc5e34e70324f01e542b082828bb00b16c86b92db11e13651025c74fe68439d6",
+                  "7cc6ac450b0d008a9f58c1a7b0920212f88079314b796ab689856f278ed2603a"
+                ],
+                "pending_ids": [
+                  "de60a7ff22740aa9307d302c197a41fecc1663cdc2614d11dff74adf57007ca9",
+                  "68145a968277afd20aa5d6469f4eb3170b581483b0370b0979decae0b882e0f0",
+                  "4a00bd46d8aa5e383b83ba0b95bf934de24b39a4d2e6572cee663108439e5c78",
+                  "fafd2fa8cbb4cf7281788f453cc122319e9eac588cbdc1fb90e05f18a412e6c4",
+                  "983f3eb46288ae49d7f025eda68e0e01780209d69ba453e4fba4582314241191",
+                  "6b77e4faa9fca4e8f826c569944a89fad3554b1242e1ee0905a522fb255dd1ca",
+                  "98a8baa9ce754260685ad9a599fc0e568e09e8aa5d8a5805b4e74b0cfff9f3bc",
+                  "58f1647930b28f44609bf5deaefb5344548b1b6fc4107d255d40d548ce58c569",
+                  "dc5e34e70324f01e542b082828bb00b16c86b92db11e13651025c74fe68439d6",
+                  "7cc6ac450b0d008a9f58c1a7b0920212f88079314b796ab689856f278ed2603a"
+                ],
+                "elapsed_ms": 0.282
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 2.591508,
+          "usage": {
+            "input_tokens": 12088,
+            "output_tokens": 151,
+            "total_tokens": 12239,
+            "cached_input_tokens": 11008,
+            "reasoning_tokens": 86
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_995c35d7a8f472a2",
+          "seconds": 0.013339,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\":\"succeeded\",\"preview\":\"This isolated test only supplies notion-search. No other upstream operation was executed.\",\"result_id\":\"24a236de-1044-4ad2-9c8f-cee703b71597\",\"preview_end\":89,\"total_chars\":89,\"next_offset\":null,\"truncated\":false,\"source_files_readable\":true,\"sources\":[],\"raw_result\":\"/sources/24a236de-1044-4ad2-9c8f-cee703b71597/tool-result-tool_MsETY6tuDVoO8BHcTfMxc6oM.json\"}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "24a236de-1044-4ad2-9c8f-cee703b71597",
+              "query": null,
+              "artifact": {
+                "file_id": "24a236de-1044-4ad2-9c8f-cee703b71597"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 2.360314,
+          "usage": {
+            "input_tokens": 12337,
+            "output_tokens": 139,
+            "total_tokens": 12476,
+            "cached_input_tokens": 12032,
+            "reasoning_tokens": 1
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "mcp_e514ecd97cc44e97b2bfce75c3329cab_0420310c907319d0",
+          "seconds": 0.014752,
+          "usage": null,
+          "feedback": {
+            "content": "{\"status\":\"succeeded\",\"preview\":\"{\\\"results\\\":[{\\\"id\\\":\\\"synthetic-000\\\",\\\"title\\\":\\\"合成测试资料000\\\",\\\"url\\\":\\\"https://example.com/synthetic/000\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-001\\\",\\\"title\\\":\\\"合成测试资料001\\\",\\\"url\\\":\\\"https://example.com/synthetic/001\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-002\\\",\\\"title\\\":\\\"合成测试资料002\\\",\\\"url\\\":\\\"https://example.com/synthetic/002\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-003\\\",\\\"title\\\":\\\"合成测试资料003\\\",\\\"url\\\":\\\"https://example.com/synthetic/003\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-004\\\",\\\"title\\\":\\\"合成测试资料004\\\",\\\"url\\\":\\\"https://example.com/synthetic/004\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-005\\\",\\\"title\\\":\\\"合成测试资料005\\\",\\\"url\\\":\\\"https://example.com/synthetic/005\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-006\\\",\\\"title\\\":\\\"合成测试资料006\\\",\\\"url\\\":\\\"https://example.com/synthetic/006\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-007\\\",\\\"title\\\":\\\"合成测试资料007\\\",\\\"url\\\":\\\"https://example.com/synthetic/007\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-008\\\",\\\"title\\\":\\\"合成测试资料008\\\",\\\"url\\\":\\\"https://example.com/synthetic/008\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-009\\\",\\\"title\\\":\\\"合成测试资料009\\\",\\\"url\\\":\\\"https://example.com/synthetic/009\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-010\\\",\\\"title\\\":\\\"合成测试资料010\\\",\\\"url\\\":\\\"https://example.com/synthetic/010\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-011\\\",\\\"title\\\":\\\"合成测试资料011\\\",\\\"url\\\":\\\"https://example.com/synthetic/011\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-012\\\",\\\"title\\\":\\\"合成测试资料012\\\",\\\"url\\\":\\\"https://example.com/synthetic/012\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-013\\\",\\\"title\\\":\\\"合成测试资料013\\\",\\\"url\\\":\\\"https://example.com/synthetic/013\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting te\",\"result_id\":\"645f9846-2138-4936-a222-a278aa55c0b1\",\"preview_end\":3000,\"total_chars\":10988,\"next_offset\":3000,\"truncated\":true,\"source_files_readable\":true,\"sources\":[],\"raw_result\":\"/sources/645f9846-2138-4936-a222-a278aa55c0b1/tool-result-tool_GsZGuKYTzjjYkRXdZdndiBff.json\"}",
+            "status": "succeeded",
+            "data": {
+              "file_id": "645f9846-2138-4936-a222-a278aa55c0b1",
+              "query": "",
+              "artifact": {
+                "file_id": "645f9846-2138-4936-a222-a278aa55c0b1"
+              }
+            }
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 1.943474,
+          "usage": {
+            "input_tokens": 13331,
+            "output_tokens": 118,
+            "total_tokens": 13449,
+            "cached_input_tokens": 12288,
+            "reasoning_tokens": 1
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "read_tool_result",
+          "seconds": 0.01114,
+          "usage": null,
+          "feedback": {
+            "content": "{\"result_id\": \"645f9846-2138-4936-a222-a278aa55c0b1\", \"offset\": 3000, \"end\": 10580, \"total_chars\": 10988, \"next_offset\": 10580, \"text\": \"st, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-014\\\",\\\"title\\\":\\\"合成测试资料014\\\",\\\"url\\\":\\\"https://example.com/synthetic/014\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-015\\\",\\\"title\\\":\\\"合成测试资料015\\\",\\\"url\\\":\\\"https://example.com/synthetic/015\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-016\\\",\\\"title\\\":\\\"合成测试资料016\\\",\\\"url\\\":\\\"https://example.com/synthetic/016\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-017\\\",\\\"title\\\":\\\"合成测试资料017\\\",\\\"url\\\":\\\"https://example.com/synthetic/017\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-018\\\",\\\"title\\\":\\\"合成测试资料018\\\",\\\"url\\\":\\\"https://example.com/synthetic/018\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-019\\\",\\\"title\\\":\\\"合成测试资料019\\\",\\\"url\\\":\\\"https://example.com/synthetic/019\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-020\\\",\\\"title\\\":\\\"合成测试资料020\\\",\\\"url\\\":\\\"https://example.com/synthetic/020\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-021\\\",\\\"title\\\":\\\"合成测试资料021\\\",\\\"url\\\":\\\"https://example.com/synthetic/021\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-022\\\",\\\"title\\\":\\\"合成测试资料022\\\",\\\"url\\\":\\\"https://example.com/synthetic/022\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-023\\\",\\\"title\\\":\\\"合成测试资料023\\\",\\\"url\\\":\\\"https://example.com/synthetic/023\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-024\\\",\\\"title\\\":\\\"合成测试资料024\\\",\\\"url\\\":\\\"https://example.com/synthetic/024\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-025\\\",\\\"title\\\":\\\"合成测试资料025\\\",\\\"url\\\":\\\"https://example.com/synthetic/025\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-026\\\",\\\"title\\\":\\\"合成测试资料026\\\",\\\"url\\\":\\\"https://example.com/synthetic/026\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-027\\\",\\\"title\\\":\\\"合成测试资料027\\\",\\\"url\\\":\\\"https://example.com/synthetic/027\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-028\\\",\\\"title\\\":\\\"合成测试资料028\\\",\\\"url\\\":\\\"https://example.com/synthetic/028\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-029\\\",\\\"title\\\":\\\"合成测试资料029\\\",\\\"url\\\":\\\"https://example.com/synthetic/029\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-030\\\",\\\"title\\\":\\\"合成测试资料030\\\",\\\"url\\\":\\\"https://example.com/synthetic/030\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-031\\\",\\\"title\\\":\\\"合成测试资料031\\\",\\\"url\\\":\\\"https://example.com/synthetic/031\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-032\\\",\\\"title\\\":\\\"合成测试资料032\\\",\\\"url\\\":\\\"https://example.com/synthetic/032\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-033\\\",\\\"title\\\":\\\"合成测试资料033\\\",\\\"url\\\":\\\"https://example.com/synthetic/033\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-034\\\",\\\"title\\\":\\\"合成测试资料034\\\",\\\"url\\\":\\\"https://example.com/synthetic/034\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-035\\\",\\\"title\\\":\\\"合成测试资料035\\\",\\\"url\\\":\\\"https://example.com/synthetic/035\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-036\\\",\\\"title\\\":\\\"合成测试资料036\\\",\\\"url\\\":\\\"https://example.com/synthetic/036\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-037\\\",\\\"title\\\":\\\"合成测试资料037\\\",\\\"url\\\":\\\"https://example.com/synthetic/037\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-038\\\",\\\"title\\\":\\\"合成测试资料038\\\",\\\"url\\\":\\\"https://example.com/synthetic/038\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-039\\\",\\\"title\\\":\\\"合成测试资料039\\\",\\\"url\\\":\\\"https://example.com/synthetic/039\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-040\\\",\\\"title\\\":\\\"合成测试资料040\\\",\\\"url\\\":\\\"https://example.com/synthetic/040\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-041\\\",\\\"title\\\":\\\"合成测试资料041\\\",\\\"url\\\":\\\"https://example.com/synthetic/041\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-042\\\",\\\"title\\\":\\\"合成测试资料042\\\",\\\"url\\\":\\\"https://example.com/synthetic/042\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-043\\\",\\\"title\\\":\\\"合成测试资料043\\\",\\\"url\\\":\\\"https://example.com/synthetic/043\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-044\\\",\\\"title\\\":\\\"合成测试资料044\\\",\\\"url\\\":\\\"https://example.com/synthetic/044\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-045\\\",\\\"title\\\":\\\"合成测试资料045\\\",\\\"url\\\":\\\"https://example.com/synthetic/045\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-046\\\",\\\"title\\\":\\\"合成测试资料046\\\",\\\"url\\\":\\\"https://example.com/synthetic/046\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-047\\\",\\\"title\\\":\\\"合成测试资料047\\\",\\\"url\\\":\\\"https://example.com/synthetic/047\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-048\\\",\\\"title\\\":\\\"合成测试资料048\\\",\\\"url\\\":\\\"https://example.com/synthetic/048\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content fo\"}",
+            "status": "succeeded",
+            "data": {}
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 1.899646,
+          "usage": {
+            "input_tokens": 15286,
+            "output_tokens": 105,
+            "total_tokens": 15391,
+            "cached_input_tokens": 13312,
+            "reasoning_tokens": 1
+          },
+          "feedback": null,
+          "error": null
+        },
+        {
+          "kind": "tool_call",
+          "status": "succeeded",
+          "name": "read_tool_result",
+          "seconds": 0.010818,
+          "usage": null,
+          "feedback": {
+            "content": "{\"result_id\": \"645f9846-2138-4936-a222-a278aa55c0b1\", \"offset\": 10580, \"end\": 10988, \"total_chars\": 10988, \"next_offset\": null, \"text\": \"r a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"},{\\\"id\\\":\\\"synthetic-049\\\",\\\"title\\\":\\\"合成测试资料049\\\",\\\"url\\\":\\\"https://example.com/synthetic/049\\\",\\\"type\\\":\\\"page\\\",\\\"highlight\\\":\\\"Generated fixture content for a counting test, not actual user data.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\\"}],\\\"type\\\":\\\"workspace_search\\\",\\\"notices\\\":[\\\"These are recently viewed pages only, not a complete workspace listing.\\\"]}\"}",
+            "status": "succeeded",
+            "data": {}
+          },
+          "error": null
+        },
+        {
+          "kind": "model_call",
+          "status": "succeeded",
+          "name": null,
+          "seconds": 3.31594,
+          "usage": {
+            "input_tokens": 15570,
+            "output_tokens": 171,
+            "total_tokens": 15741,
+            "cached_input_tokens": 15104,
+            "reasoning_tokens": 1
+          },
+          "feedback": null,
+          "error": null
+        }
+      ]
+    }
+  ]
+}

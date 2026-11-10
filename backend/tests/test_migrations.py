@@ -1,5 +1,3 @@
-"""The frozen Agent baseline, incremental migrations and atomic migration failure."""
-
 import hashlib
 import io
 import os
@@ -20,6 +18,9 @@ from sqlalchemy import URL
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 TABLES = {
+    "evaluation_batches",
+    "evaluation_cases",
+    "identifier_sequence",
     "users",
     "auth_sessions",
     "external_identities",
@@ -35,7 +36,6 @@ TABLES = {
     "conversation_runs",
     "tool_connections",
     "mcp_services",
-    "personal_tool_bindings",
     "agent_tool_grants",
     "stored_files",
     "message_files",
@@ -44,11 +44,10 @@ TABLES = {
     "knowledge_documents",
     "knowledge_chunks",
     "knowledge_vector_indexes",
-    "knowledge_vectors",
+    "knowledge_vector_memberships",
     "knowledge_processing_batches",
     "knowledge_processing_items",
-    "knowledge_employee_settings",
-    "knowledge_employee_libraries",
+    "agent_knowledge_libraries",
     "knowledge_run_evidence",
 }
 
@@ -77,7 +76,7 @@ def test_initial_migration_cli_is_repeatable_and_cwd_independent(tmp_path):
 
     run("upgrade", "head", "--sql")
     assert not path.exists()
-    # The historical empty schema remains reversible before the retirement.
+    # 退役前的历史空表结构仍可回退。
     run("upgrade", "0011")
     with closing(sqlite3.connect(path)) as db:
         assert db.execute("SELECT count(*) FROM ci_diagnoses").fetchone() == (0,)
@@ -91,10 +90,10 @@ def test_initial_migration_cli_is_repeatable_and_cwd_independent(tmp_path):
     run("upgrade", "head")
     run("upgrade", "head")
     run("check")
-    assert "0017" in run("current").stdout
+    assert "0028" in run("current").stdout
     with closing(sqlite3.connect(path)) as db:
-        assert db.execute("SELECT version_num FROM alembic_version").fetchall() == [("0017",)]
-        assert "base_checkpoint_id" not in {
+        assert db.execute("SELECT version_num FROM alembic_version").fetchall() == [("0028",)]
+        assert {"thread_id", "base_checkpoint_id", "base_run_id"} <= {
             column[1] for column in db.execute("PRAGMA table_info(runs)")
         }
         assert "ci_repository" not in {row[1] for row in db.execute("PRAGMA table_info(agents)")}
@@ -103,7 +102,9 @@ def test_initial_migration_cli_is_repeatable_and_cwd_independent(tmp_path):
             row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")
         } == TABLES | FTS_TABLES | {"alembic_version"}
         for table in TABLES:
-            expected = 1 if table == "organization_rules" else 0
+            expected = 1 if table in {"organization_rules", "identifier_sequence"} else 0
+            if table == "tool_connections":
+                expected = 2
             assert db.execute(f'SELECT count(*) FROM "{table}"').fetchone() == (expected,)
         assert db.execute("SELECT instructions, revision FROM organization_rules").fetchone() == (
             "",
@@ -112,9 +113,9 @@ def test_initial_migration_cli_is_repeatable_and_cwd_independent(tmp_path):
         assert db.execute("PRAGMA foreign_key_check").fetchall() == []
         assert db.execute("PRAGMA quick_check").fetchone() == ("ok",)
     rejected = run("downgrade", "base", expected_success=False)
-    assert "restore the verified" in rejected.stderr
+    assert "组织资源与个人配置已合并" in rejected.stderr
     with closing(sqlite3.connect(path)) as db:
-        assert db.execute("SELECT version_num FROM alembic_version").fetchone() == ("0017",)
+        assert db.execute("SELECT version_num FROM alembic_version").fetchone() == ("0028",)
         assert {
             row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")
         } == TABLES | FTS_TABLES | {"alembic_version"}
@@ -193,6 +194,58 @@ def migration_config(tmp_path, monkeypatch):
     path = tmp_path / "legacy.db"
     monkeypatch.setenv("DATABASE_URL", str(URL.create("sqlite+pysqlite", database=str(path))))
     return path, Config(str(BACKEND_DIR / "alembic.ini"))
+
+
+def test_builtin_upgrade_preserves_existing_workspace_even_with_same_name(tmp_path, monkeypatch):
+    path, config = migration_config(tmp_path, monkeypatch)
+    command.upgrade(config, "0024")
+    agent_id, grant_id = str(uuid4()), str(uuid4())
+    legacy_id = "219c3fbd-afd2-4cd1-a629-ae2fbce43894"
+    with sqlite3.connect(path) as db:
+        db.execute(
+            "INSERT INTO tool_connections "
+            "(id,name,kind,provider_key,auth_type,public_config,approved_catalog,enabled,"
+            "config_revision,credential_revision,catalog_revision) "
+            "VALUES (?,?,'native','workspace','none',?, ?,1,3,1,2)",
+            (legacy_id, "代码执行", '{"workspace_mode":"virtual"}', "[]"),
+        )
+        db.execute(
+            "INSERT INTO agents (id,name,avatar_id,revision) VALUES (?,'旧员工','admin',4)",
+            (agent_id,),
+        )
+        db.execute(
+            "INSERT INTO agent_tool_grants (id,agent_id,tool_connection_id,tools,scope_policy,enabled,revision) VALUES (?,?,?,'[]','{}',1,2)",
+            (grant_id, agent_id, legacy_id),
+        )
+        original = db.execute("SELECT * FROM tool_connections WHERE id=?", (legacy_id,)).fetchone()
+    command.upgrade(config, "0025")
+    command.upgrade(config, "0025")
+    with sqlite3.connect(path) as db:
+        assert (
+            db.execute("SELECT * FROM tool_connections WHERE id=?", (legacy_id,)).fetchone()
+            == original
+        )
+        assert db.execute("SELECT count(*) FROM tool_connections").fetchone() == (3,)
+        assert db.execute(
+            "SELECT enabled,revision FROM agent_tool_grants WHERE id=?", (grant_id,)
+        ).fetchone() == (1, 2)
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == []
+
+    command.upgrade(config, "head")
+    with sqlite3.connect(path) as db:
+        assert db.execute(
+            "SELECT enabled,config_revision FROM tool_connections WHERE id=?", (legacy_id,)
+        ).fetchone() == (0, 4)
+        assert db.execute("SELECT count(*) FROM tool_connections WHERE enabled=1").fetchone() == (
+            0,
+        )
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == []
+
+    with sqlite3.connect(path) as db:
+        assert db.execute(
+            "SELECT enabled,revision FROM agent_tool_grants WHERE id=?", (grant_id,)
+        ).fetchone() == (0, 3)
+        assert db.execute("SELECT revision FROM agents WHERE id=?", (agent_id,)).fetchone() == (5,)
 
 
 def test_execution_upgrade_preserves_content_links_and_does_not_rewrite_sdk(tmp_path, monkeypatch):
@@ -331,7 +384,7 @@ def test_mcp_account_upgrade_preserves_secrets_and_defaults_legacy_mcp_to_person
             "INSERT INTO agent_tool_grants (id,agent_id,tool_connection_id,tools,scope_policy,enabled,revision) VALUES (?,?,?,'[]','{}',1,1)",
             (grant_id, agent_id, connection_id),
         )
-    command.upgrade(config, "head")
+    command.upgrade(config, "0007")
     with sqlite3.connect(path) as db:
         assert db.execute(
             "SELECT service_id,account_scope,encrypted_credentials FROM tool_connections"
@@ -339,4 +392,91 @@ def test_mcp_account_upgrade_preserves_secrets_and_defaults_legacy_mcp_to_person
         assert db.execute("SELECT owner_user_id FROM mcp_services").fetchone() == (user_id,)
         assert db.execute("SELECT account_mode FROM agent_tool_grants").fetchone() == ("personal",)
         assert db.execute("PRAGMA foreign_key_check").fetchall() == []
+    import json
+    from argparse import Namespace
+
+    manifest = tmp_path / "组织资源接纳清单.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "connections": [connection_id],
+                "knowledge_bases": [],
+                "employee_tools": {grant_id: connection_id},
+                "employee_knowledge": {},
+            }
+        )
+    )
+    config.cmd_opts = Namespace(x=["org_assets=" + str(manifest)])
+    command.upgrade(config, "head")
     command.check(config)
+    with sqlite3.connect(path) as db:
+        assert db.execute(
+            "SELECT encrypted_credentials FROM tool_connections WHERE id=?", (connection_id,)
+        ).fetchone() == ("opaque-preserved-ciphertext",)
+        assert "account_mode" not in {
+            row[1] for row in db.execute("PRAGMA table_info(agent_tool_grants)")
+        }
+
+
+def test_thread_upgrade_preserves_legacy_runs_and_checkpoint_file(tmp_path, monkeypatch):
+    path, config = migration_config(tmp_path, monkeypatch)
+    ids = seed_legacy(config, path)
+    with sqlite3.connect(path) as db:
+        db.execute("UPDATE runs SET ci_result = NULL, ci_feedback = NULL")
+    command.upgrade(config, "0019")
+    checkpoint_digest = hashlib.sha256(ids["checkpoint"].read_bytes()).hexdigest()
+    with sqlite3.connect(path) as db:
+        before = db.execute(
+            "SELECT id,status,input_snapshot,result_text,checkpoint_id FROM runs ORDER BY id"
+        ).fetchall()
+    command.upgrade(config, "0020")
+    with sqlite3.connect(path) as db:
+        assert (
+            db.execute(
+                "SELECT id,status,input_snapshot,result_text,checkpoint_id FROM runs ORDER BY id"
+            ).fetchall()
+            == before
+        )
+        assert all(id == thread for id, thread in db.execute("SELECT id,thread_id FROM runs"))
+        assert db.execute(
+            "SELECT count(*) FROM runs WHERE base_run_id IS NOT NULL OR base_checkpoint_id IS NOT NULL"
+        ).fetchone() == (0,)
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == []
+        assert db.execute("PRAGMA quick_check").fetchone() == ("ok",)
+    assert hashlib.sha256(ids["checkpoint"].read_bytes()).hexdigest() == checkpoint_digest
+
+
+def test_thread_downgrade_rejects_shared_state_before_changing_schema(tmp_path, monkeypatch):
+    path, config = migration_config(tmp_path, monkeypatch)
+    seed_legacy(config, path)
+    with sqlite3.connect(path) as db:
+        db.execute("UPDATE runs SET ci_result = NULL, ci_feedback = NULL")
+    command.upgrade(config, "0020")
+    with sqlite3.connect(path) as db:
+        db.execute("UPDATE runs SET thread_id = 'conversation:legacy'")
+    with pytest.raises(RuntimeError, match="Shared thread history"):
+        command.downgrade(config, "0019")
+    with sqlite3.connect(path) as db:
+        assert db.execute("SELECT version_num FROM alembic_version").fetchone() == ("0020",)
+        assert {"thread_id", "base_run_id", "base_checkpoint_id"} <= {
+            column[1] for column in db.execute("PRAGMA table_info(runs)")
+        }
+
+
+def test_numeric_upgrade_rejects_existing_execution_rows_without_changing_them(
+    tmp_path, monkeypatch
+):
+    path, config = migration_config(tmp_path, monkeypatch)
+    seed_legacy(config, path)
+    with sqlite3.connect(path) as db:
+        db.execute("UPDATE runs SET ci_result = NULL, ci_feedback = NULL")
+    command.upgrade(config, "0020")
+    with sqlite3.connect(path) as db:
+        before = db.execute("SELECT id,status,result_text FROM runs ORDER BY id").fetchall()
+    with pytest.raises(RuntimeError, match="仅支持空库"):
+        command.upgrade(config, "head")
+    with sqlite3.connect(path) as db:
+        assert db.execute("SELECT version_num FROM alembic_version").fetchone() == ("0020",)
+        assert db.execute("SELECT id,status,result_text FROM runs ORDER BY id").fetchall() == before
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == []

@@ -27,8 +27,7 @@ export function DeleteToolDialog({
     <>
       <Button
         type="button"
-        variant="ghost"
-        className="text-danger"
+        variant="destructive-ghost"
         onClick={() => {
           setFailure(null);
           setOpen(true);
@@ -60,7 +59,7 @@ export function DeleteToolDialog({
             <Button
               type="button"
               variant="destructive"
-              disabled={busy}
+              loading={busy}
               onClick={async () => {
                 setBusy(true);
                 setFailure(null);

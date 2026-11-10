@@ -1,15 +1,13 @@
-"""Known conflicts remain actionable; unrelated database failures retain their identity."""
-
 from contextlib import contextmanager
 
 import pytest
-from scenario_client import ScenarioClient as TestClient
+from fastapi.testclient import TestClient
 from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.agents.models import Agent
 from app.bootstrap import create_app
+from app.employees.models import Agent
 from app.model_connections.models import ModelConnection
 from app.skills.models import Skill
 
@@ -102,7 +100,7 @@ def test_unknown_integrity_failures_return_safe_500_and_roll_back(
 
 
 def test_service_preserves_unknown_integrity_failure_and_rolls_back(api_client, probe):
-    from app.agents.schemas import AgentCreate
+    from app.employees.schemas import AgentCreate
 
     actor = api_client.app.state.auth.resolve(api_client.cookies.get("app_session"))
     with fail_flush(Agent, FAILURES["not_null"]) as errors:

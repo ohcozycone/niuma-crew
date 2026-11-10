@@ -4,12 +4,9 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.errors import FailureKind
 from app.llm.usage import TokenUsage
 from app.schemas import RequestModel
-
-
-class ConversationCreate(RequestModel):
-    agent_id: UUID
 
 
 class SendRequest(RequestModel):
@@ -34,6 +31,10 @@ class SendRequest(RequestModel):
         if not value:
             raise ValueError("请输入消息。")
         return value
+
+
+class CreateRequest(SendRequest):
+    agent_id: UUID
 
 
 class RetryRequest(RequestModel):
@@ -69,6 +70,16 @@ class PublicStep(BaseModel):
 class PublicError(BaseModel):
     code: str
     message: str
+    kind: FailureKind | None = None
+
+
+ConversationStatusFilter = Literal["processing", "replied", "attention", "stopped"]
+
+
+class ConversationReplySummary(BaseModel):
+    id: str
+    status: str
+    acceptance: Literal["pending", "accepted", "failed"] | None
 
 
 class ConversationRead(BaseModel):
@@ -80,8 +91,16 @@ class ConversationRead(BaseModel):
     version: int
     active_response_id: str | None
     last_response_id: str | None
+    matched_response_id: str | None = None
+    latest_response: ConversationReplySummary | None = None
     created_at: datetime
     updated_at: datetime
+
+
+class ConversationStats(BaseModel):
+    """可见对话中已成功接纳的问答轮数。"""
+
+    completed_rounds: int = Field(ge=0)
 
 
 class UserMessageView(BaseModel):
@@ -95,11 +114,6 @@ class UserMessageView(BaseModel):
     updated_at: datetime
 
 
-class ContextRead(BaseModel):
-    pair_count: int
-    truncated: bool
-
-
 class AssistantMessageView(BaseModel):
     files: list[dict] = Field(default_factory=list)
     id: str
@@ -110,12 +124,13 @@ class AssistantMessageView(BaseModel):
     retry_of_response_id: str | None = None
     version: int
     status: str
+    acceptance: Literal["pending", "accepted", "failed"] | None = None
+    acceptance_error: str | None = None
     content: str
     content_state: Literal["empty", "draft", "complete", "partial"]
     steps: list[PublicStep]
     usage: TokenUsage | None
     error: PublicError | None
-    context: ContextRead
     can_retry: bool
     created_at: datetime
     updated_at: datetime
@@ -164,7 +179,7 @@ class QuestionPage(BaseModel):
 
 
 class QuestionPreviewRead(BaseModel):
-    """A bounded snapshot of the latest attempt for one stable question."""
+    """同一问题最新执行的有界预览。"""
 
     question_id: str
     question: str

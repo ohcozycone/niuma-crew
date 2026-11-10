@@ -13,6 +13,7 @@ const configurationCodes = new Set([
   "embedding_not_configured",
   "embedding_model_unsupported",
   "sandbox_not_ready",
+  "sandbox_configuration_changed",
   "skill_not_ready",
   "agent_inactive",
   "upstream_auth_failed",
@@ -37,12 +38,14 @@ const connectionCodes = new Set([
   "tool_connection_timeout",
   "tool_dns_failed",
   "tool_upstream_failed",
+  "sandbox_materialization_failed",
   "stdio_session_closed",
   "upstream_unavailable",
   "upstream_stream_error",
   "embedding_unavailable",
 ]);
 const waitingCodes = new Set([
+  "upstream_timeout",
   "rate_limited",
   "run_capacity_exceeded",
   "subscription_limit",
@@ -87,6 +90,7 @@ export function failureFamily(failure: Failure): FailureFamily {
 
 const resourceTitles = {
   agent: "没找到这位数字员工",
+  evaluation: "没找到这条考核记录",
   skill: "没找到这个技能",
   knowledge: "没找到这个知识库",
   document: "没找到这份文档",

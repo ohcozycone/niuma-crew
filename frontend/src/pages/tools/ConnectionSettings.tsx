@@ -17,6 +17,12 @@ import {
 import { DeleteToolDialog } from "./DeleteToolDialog";
 import { ConfirmActionDialog } from "@/components/common/ConfirmActionDialog";
 
+import {
+  OAuthConfigurationFields,
+  oauthPublicConfig,
+  type OAuthFieldsValue,
+} from "./OAuthConfigurationFields";
+
 export function ConnectionSettings({
   connection,
   service,
@@ -35,6 +41,14 @@ export function ConnectionSettings({
   const [auth, setAuth] = useState(connection.auth_type);
   const [header, setHeader] = useState(String(connection.public_config.header_name ?? "X-API-Key"));
   const [secret, setSecret] = useState("");
+  const [oauth, setOAuth] = useState<OAuthFieldsValue>({
+    scopes: (
+      (connection.public_config.oauth as { scopes?: string[] } | undefined)?.scopes ?? []
+    ).join(" "),
+    clientId:
+      (connection.public_config.oauth as { client_id?: string } | undefined)?.client_id ?? "",
+    clientSecret: "",
+  });
   const [environment, setEnvironment] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [disabling, setDisabling] = useState(false);
@@ -47,7 +61,9 @@ export function ConnectionSettings({
       : (service?.env_keys ?? []);
   const replacingEnvironment = Object.values(environment).some(Boolean);
   const needsSecret =
-    auth !== "none" && (!connection.has_credential || auth !== connection.auth_type);
+    auth !== "none" &&
+    auth !== "oauth" &&
+    (!connection.has_credential || auth !== connection.auth_type);
   const invalid =
     stdio && auth === "env"
       ? !keys.length ||
@@ -56,6 +72,7 @@ export function ConnectionSettings({
   function clear() {
     setEditing(false);
     setSecret("");
+    setOAuth((value) => ({ ...value, clientSecret: "" }));
     setEnvironment({});
   }
   useEditingRegistration({
@@ -65,6 +82,15 @@ export function ConnectionSettings({
         auth !== connection.auth_type ||
         header !== String(connection.public_config.header_name ?? "X-API-Key") ||
         !!secret ||
+        (auth === "oauth" &&
+          (oauth.scopes !==
+            (
+              (connection.public_config.oauth as { scopes?: string[] } | undefined)?.scopes ?? []
+            ).join(" ") ||
+            oauth.clientId !==
+              ((connection.public_config.oauth as { client_id?: string } | undefined)?.client_id ??
+                "") ||
+            !!oauth.clientSecret)) ||
         replacingEnvironment),
     saving: busy,
     isSaving: () => busy,
@@ -86,12 +112,18 @@ export function ConnectionSettings({
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <p className="mr-auto type-caption">
-          {connection.auth_type === "none"
-            ? "当前不提供密钥（匿名访问）"
-            : "已配置凭据，密钥不会回显"}{" "}
+          {connection.auth_type === "oauth"
+            ? connection.oauth_status === "connected"
+              ? "OAuth 账号已连接"
+              : connection.oauth_status === "reauth_required"
+                ? "OAuth 授权需要重新连接"
+                : "OAuth 账号尚未连接"
+            : connection.auth_type === "none"
+              ? "当前不提供密钥（匿名访问）"
+              : "已配置凭据，密钥不会回显"}{" "}
           · {connection.enabled ? "已启用" : "已停用"}
         </p>
-        {!editing && connection.kind !== "native" && (
+        {!editing && (
           <Button
             type="button"
             variant="outline"
@@ -113,6 +145,16 @@ export function ConnectionSettings({
                 String(connection.public_config.header_name ?? suggestedHeader ?? "X-API-Key"),
               );
               setFailure(null);
+              setOAuth({
+                scopes: (
+                  (connection.public_config.oauth as { scopes?: string[] } | undefined)?.scopes ??
+                  []
+                ).join(" "),
+                clientId:
+                  (connection.public_config.oauth as { client_id?: string } | undefined)
+                    ?.client_id ?? "",
+                clientSecret: "",
+              });
               setEditing(true);
             }}
           >
@@ -136,7 +178,7 @@ export function ConnectionSettings({
         </Button>
         <DeleteToolDialog
           title="删除连接"
-          description={`删除“${connection.name}”及其保存的凭据。已被员工装配或个人绑定的连接不能删除，需先解除引用。`}
+          description={`删除“${connection.name}”及其保存的凭据。已被员工装配的连接不能删除，需先解除引用。`}
           onDelete={async () => {
             await deleteToolConnection(connection);
             onDelete();
@@ -147,7 +189,7 @@ export function ConnectionSettings({
         open={disabling}
         onOpenChange={setDisabling}
         title={`停用「${connection.name}」连接？`}
-        description="确认后立即阻止此连接的后续工具调用，使用该连接的员工和个人绑定都会受到影响。配置与凭据保留，可重新启用。"
+        description="确认后立即阻止此连接的后续工具调用，使用该连接的员工都会受到影响。配置与凭据保留，可重新启用。"
         confirmLabel="确认停用连接"
         busy={busy}
         onConfirm={() =>
@@ -185,10 +227,15 @@ export function ConnectionSettings({
                     : {}),
               };
               if (!stdio && auth !== "header") delete config.header_name;
+              if (auth === "oauth") config.oauth = oauthPublicConfig(oauth);
+              else delete config.oauth;
               const saved = await patchToolConnection(connection, {
                 name,
                 auth_type: auth,
                 public_config: config,
+                ...(auth === "oauth" && oauth.clientSecret
+                  ? { oauth_client_secret: oauth.clientSecret }
+                  : {}),
                 ...(stdio
                   ? replacingEnvironment
                     ? { environment }
@@ -226,6 +273,7 @@ export function ConnectionSettings({
                   : [
                       { value: "bearer", label: "API Key / Bearer Token" },
                       { value: "header", label: "自定义认证头" },
+                      { value: "oauth", label: "OAuth（浏览器授权）" },
                     ]),
               ]}
             />
@@ -238,10 +286,11 @@ export function ConnectionSettings({
                   设置凭据字段
                 </Button>
               ) : (
-                "请联系服务创建者补充允许的环境变量名。"
+                "请联系管理员补充允许的环境变量名。"
               )}
             </p>
           )}
+          {auth === "oauth" && <OAuthConfigurationFields value={oauth} onChange={setOAuth} />}
           {auth === "header" && (
             <FormField label={<>认证头名称</>}>
               <Input required value={header} onChange={(e) => setHeader(e.target.value)} />
@@ -266,7 +315,8 @@ export function ConnectionSettings({
                   />
                 </FormField>
               ))
-            : auth !== "none" && (
+            : auth !== "none" &&
+              auth !== "oauth" && (
                 <FormField label={<>API Key / Token</>}>
                   <Input
                     type="password"

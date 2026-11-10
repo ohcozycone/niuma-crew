@@ -55,7 +55,13 @@ const labels: Record<FailureFamily, string> = {
   configuration: "配置与冲突",
 };
 
-export function FailureExamples({ standalone = false }: { standalone?: boolean }) {
+export function FailureExamples({
+  standalone = false,
+  assetBase = "",
+}: {
+  standalone?: boolean;
+  assetBase?: string;
+}) {
   const [family, setFamily] = useState<FailureFamily>("not-found");
   const [variant, setVariant] = useState("full");
   const [message, setMessage] = useState("");
@@ -131,7 +137,7 @@ export function FailureExamples({ standalone = false }: { standalone?: boolean }
             模拟等待 8 秒
           </Button>
         )}
-        <ThemeSwitcher />
+        {standalone && <ThemeSwitcher />}
       </header>
       <div className="flex flex-1 flex-col">
         <FailureState
@@ -147,6 +153,7 @@ export function FailureExamples({ standalone = false }: { standalone?: boolean }
                   ? `${samples[family].message} 如果这是之前保存的链接，可以回到所属列表重新查找。请先核对当前内容，再决定下一步操作；这里的文字用于检查换行与长内容，不会发起实际业务请求。`
                   : undefined
           }
+          illustrationSrc={assetBase ? `${assetBase}/failures/${family}.png` : undefined}
           actions={actions}
         />
       </div>

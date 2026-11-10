@@ -1,5 +1,3 @@
-"""Recognize actual SQLite failures without confusing unrelated constraints."""
-
 import sqlite3
 
 import pytest

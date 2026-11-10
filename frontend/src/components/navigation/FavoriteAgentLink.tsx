@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Settings2 } from "lucide-react";
+import { MessagesSquare } from "lucide-react";
 import { AvatarBadge } from "@/components/avatars";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/Tooltip";
 
@@ -8,14 +8,20 @@ type FavoriteAgentLinkProps = {
   avatarId: string;
   to: string;
   label: string;
-  editTo?: string;
+  conversationTo?: string;
 };
 
-export function FavoriteAgentLink({ name, avatarId, to, label, editTo }: FavoriteAgentLinkProps) {
+export function FavoriteAgentLink({
+  name,
+  avatarId,
+  to,
+  label,
+  conversationTo,
+}: FavoriteAgentLinkProps) {
   return (
     <div
       className={
-        "group/favorite flex shrink-0 items-center w-full min-w-0 rounded-control hover:bg-muted"
+        "group/favorite flex shrink-0 items-center w-full min-w-0 rounded-control transition-colors duration-fast motion-reduce:transition-none hover:bg-hover"
       }
     >
       <Link
@@ -31,7 +37,7 @@ export function FavoriteAgentLink({ name, avatarId, to, label, editTo }: Favorit
           {name}
         </span>
       </Link>
-      {editTo && (
+      {conversationTo && (
         // Keep this slot outside the main link, even while hidden, so hover never changes a target.
         <div
           className={
@@ -43,22 +49,22 @@ export function FavoriteAgentLink({ name, avatarId, to, label, editTo }: Favorit
               <TooltipTrigger
                 render={
                   <Link
-                    to={editTo}
-                    aria-label={`编辑${name}的配置`}
+                    to={conversationTo}
+                    aria-label={`与${name}新建对话`}
                     className={
-                      "inline-flex shrink-0 items-center justify-center size-(--os-control-default) rounded-control text-text-muted no-underline opacity-0 pointer-events-none group-hover/favorite:opacity-100 group-hover/favorite:pointer-events-auto [@media(hover:_none)]:opacity-100 [@media(hover:_none)]:pointer-events-auto [@media(hover:_none)]:size-(--os-target-touch) [@media(any-pointer:_coarse)]:size-(--os-target-touch) focus-visible:opacity-100 focus-visible:pointer-events-auto focus-inset focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-[-2px]"
+                      "inline-flex shrink-0 items-center justify-center size-(--os-control-default) rounded-control text-text-muted hover:text-hover-text transition-colors duration-fast motion-reduce:transition-none no-underline opacity-0 pointer-events-none group-hover/favorite:opacity-100 group-hover/favorite:pointer-events-auto [@media(hover:_none)]:opacity-100 [@media(hover:_none)]:pointer-events-auto [@media(hover:_none)]:size-(--os-target-touch) [@media(any-pointer:_coarse)]:size-(--os-target-touch) focus-visible:opacity-100 focus-visible:pointer-events-auto focus-inset focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-[-2px]"
                     }
                   />
                 }
               >
-                <Settings2
+                <MessagesSquare
                   className={
                     "size-(--os-space-4) pointer-events-none [stroke-width:var(--os-nav-icon-stroke)]"
                   }
                   aria-hidden="true"
                 />
               </TooltipTrigger>
-              <TooltipContent sideOffset={6}>编辑员工配置</TooltipContent>
+              <TooltipContent sideOffset={6}>新建对话</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>

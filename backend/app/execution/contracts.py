@@ -1,24 +1,7 @@
-"""Small boundaries between scheduling, execution and SDK adaptation."""
-
-from __future__ import annotations
-
-from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, TypedDict
+from typing import Literal, TypedDict
 
-from app.agent_runtime.contracts import (
-    AgentOutput,
-    AgentResult,
-    AgentSnapshot,
-    ContentUpdate,
-)
-
-if TYPE_CHECKING:
-    from app.execution.control import RunControl
-
-# 快照协议版本，不是可由部署环境调整的运行参数。
-RUN_SNAPSHOT_VERSION = 3
-SUPPORTED_SNAPSHOT_VERSIONS = frozenset({2, 3})
+from app.agent.contracts import AgentResult, AgentSnapshot, ContentUpdate
 
 
 class OrganizationRulesSnapshot(TypedDict):
@@ -28,8 +11,6 @@ class OrganizationRulesSnapshot(TypedDict):
 
 
 class RunSpec(AgentSnapshot):
-    """Accepted runtime input uses the same plain contract as the Agent boundary."""
-
     checkpoint_resumable: bool
     allow_partial_output: bool
     agent_revision: int
@@ -44,13 +25,6 @@ class RunSpec(AgentSnapshot):
     protocol: str
     base_url: str
     model_id: str
-    context_pairs: int
-
-
-@dataclass(frozen=True, slots=True)
-class ExecutionStrategy:
-    execute: Callable[[RunControl], Awaitable[AgentOutput]]
-    publish_partial: bool = True
 
 
 @dataclass(slots=True)
@@ -71,3 +45,14 @@ class Completion:
     usage: dict | None = None
     structured: AgentResult | None = None
     progress: tuple[ContentUpdate, ...] = ()
+
+
+# 版本 8 冻结组织资源并逐请求记录工具暴露；升级前须排空旧活动 Run。
+RUN_SNAPSHOT_VERSION = 8
+SUPPORTED_SNAPSHOT_VERSIONS = frozenset({RUN_SNAPSHOT_VERSION})
+
+
+def run_thread_id(origin: str, identifier: str, *, snapshot_version: int | None = None) -> str:
+    version = RUN_SNAPSHOT_VERSION if snapshot_version is None else snapshot_version
+    # 版本 8 起分隔 SDK 线程；更早正式历史仍保留原线程标识。
+    return f"{origin}:v{version}:{identifier}" if version >= 8 else f"{origin}:{identifier}"

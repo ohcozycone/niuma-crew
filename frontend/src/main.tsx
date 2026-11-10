@@ -1,5 +1,5 @@
 import { StrictMode, useEffect } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, type Root } from "react-dom/client";
 import { RouterProvider } from "react-router/dom";
 import { router } from "./router";
 import "./globals.css";
@@ -15,7 +15,12 @@ function Application() {
   return <RouterProvider router={router} />;
 }
 
-createRoot(document.getElementById("root")!).render(
+// 入口可被 Vite 重新执行；同一容器必须继续使用原根实例，否则导航后会叠出两套外壳。
+const root =
+  (import.meta.hot?.data.root as Root | undefined) ?? createRoot(document.getElementById("root")!);
+if (import.meta.hot) import.meta.hot.data.root = root;
+
+root.render(
   <StrictMode>
     <Application />
   </StrictMode>,

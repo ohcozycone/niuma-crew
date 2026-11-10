@@ -1,5 +1,5 @@
 import * as api from "./conversations";
-import { ApiError, request } from "./http";
+import { request } from "./http";
 import type { FileRef } from "./files";
 
 /** 一次提交时固定的用户输入，不包含模型上下文或凭证。 */
@@ -15,16 +15,15 @@ export type ConversationInput = {
 export type ConversationTransport = {
   /** 本地新草稿的创建参数；已有会话省略。 */
   create?: { agentId: string };
-  getConversation: typeof api.getConversation;
   getSnapshot: typeof api.getSnapshot;
   getMessages: typeof api.getMessages;
   getResponse: typeof api.getResponse;
   cancel: typeof api.stopResponse;
   retry: typeof api.retryResponse;
   /** 同键重发必须使用相同的输入及创建参数。 */
-  send: (id: string, input: ConversationInput, key: string) => Promise<api.Reply>;
+  send: (id: string | null, input: ConversationInput, key: string) => Promise<api.Reply>;
   /** 只读核对幂等请求，未接受时返回 null。 */
-  findRequest: (id: string, key: string, signal?: AbortSignal) => Promise<api.Reply | null>;
+  findRequest: (id: string | null, key: string, signal?: AbortSignal) => Promise<api.Reply | null>;
   /** 建立一次观察连接；关闭连接不取消执行。 */
   subscribe: (
     conversationId: string,
@@ -44,7 +43,6 @@ export function createConversationTransport(
 ): ConversationTransport {
   return {
     ...options,
-    getConversation: api.getConversation,
     getSnapshot: api.getSnapshot,
     getMessages: api.getMessages,
     getResponse: api.getResponse,
@@ -60,16 +58,11 @@ export function createConversationTransport(
         input.files?.map((file) => file.id),
       ),
     async findRequest(id, key, signal) {
-      try {
-        const submission = await request<api.AcceptedSubmission | null>(
-          `conversations/${id}/requests/${key}`,
-          { signal },
-        );
-        return submission ? api.scopedReply(submission) : null;
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 404) return null;
-        throw error;
-      }
+      const submission = await request<api.AcceptedSubmission | null>(
+        id === null ? `conversations/requests/${key}` : `conversations/${id}/requests/${key}`,
+        { signal },
+      );
+      return submission ? api.scopedReply(submission) : null;
     },
     subscribe(conversationId, runId, listener) {
       const source = new EventSource(`/api/${api.responsePath(conversationId, runId)}/events`);

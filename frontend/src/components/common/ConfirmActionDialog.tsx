@@ -35,8 +35,8 @@ export function ConfirmActionDialog({
       <DialogContent size="small" initialFocus={cancel} showCloseButton={!busy}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
+        <DialogDescription>{description}</DialogDescription>
         {children}
         <DialogFooter>
           <Button
@@ -48,7 +48,7 @@ export function ConfirmActionDialog({
           >
             取消
           </Button>
-          <Button type="button" variant="destructive" disabled={busy} onClick={onConfirm}>
+          <Button type="button" variant="destructive" loading={busy} onClick={onConfirm}>
             {busy ? "正在处理…" : confirmLabel}
           </Button>
         </DialogFooter>

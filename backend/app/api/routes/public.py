@@ -1,17 +1,15 @@
-"""Session-protected display endpoints with explicit response allowlists."""
-
 from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
 
-from app.agents.schemas import PublicAgent
 from app.api.dependencies import (
     ActorDependency,
     AgentDependency,
     SkillDependency,
     require_capability,
 )
+from app.employees.schemas import PublicAgent
 from app.schemas import Page
 from app.skills.schemas import PublicSkill
 

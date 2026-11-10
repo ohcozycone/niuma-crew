@@ -1,7 +1,7 @@
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { Card, CardContent, CardFooter } from "@/components/ui/Card";
 import { AgentAvatar } from "@/components/avatars/index";
-import { ArrowUpRight, RotateCcw, Scissors, Settings2, Star } from "lucide-react";
+import { ArrowUpRight, Pause, Play, Settings2, Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/Tooltip";
 import { useState } from "react";
@@ -9,8 +9,8 @@ import { ConfirmActionDialog } from "@/components/common/ConfirmActionDialog";
 import styles from "./agentCardStyles";
 import type { AgentCardProps } from "./types";
 const labels = {
-  available: "可对话",
-  paused: "已被优化",
+  available: "在岗",
+  paused: "已暂停接单",
   unconfigured: "待配置模型",
 };
 function AgentActions({
@@ -18,7 +18,7 @@ function AgentActions({
   onAction,
   statusPending,
 }: Pick<AgentCardProps, "agent" | "onAction" | "statusPending">) {
-  const optimized = agent.availability === "paused";
+  const paused = agent.availability === "paused";
   const [confirming, setConfirming] = useState(false);
   return (
     <>
@@ -43,14 +43,16 @@ function AgentActions({
           </TooltipTrigger>
           <TooltipContent sideOffset={6}>{agent.favorite ? "取消收藏" : "收藏员工"}</TooltipContent>
         </Tooltip>
+      </TooltipProvider>
+      <TooltipProvider delay={200}>
         <Tooltip>
           <TooltipTrigger
             render={
               <Button
                 type="button"
-                disabled={!onAction}
                 variant="ghost"
                 size="icon-sm"
+                disabled={!onAction}
                 aria-label={`编辑${agent.name}的配置`}
                 onClick={() => onAction?.(agent.id, "edit")}
               />
@@ -58,39 +60,34 @@ function AgentActions({
           >
             <Settings2 aria-hidden="true" />
           </TooltipTrigger>
-          <TooltipContent sideOffset={6}>编辑员工配置</TooltipContent>
+          <TooltipContent>编辑配置</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger
             render={
               <Button
                 type="button"
-                disabled={!onAction || statusPending}
                 variant="ghost"
                 size="icon-sm"
-                aria-label={`${optimized ? "返聘" : "优化"}${agent.name}`}
-                aria-busy={statusPending}
+                disabled={!onAction || statusPending}
+                aria-label={`${paused ? "恢复" : "暂停"}${agent.name}接单`}
                 onClick={() => {
-                  if (!statusPending) {
-                    if (optimized) onAction?.(agent.id, "toggle");
-                    else setConfirming(true);
-                  }
+                  if (paused) onAction?.(agent.id, "toggle");
+                  else setConfirming(true);
                 }}
               />
             }
           >
-            {optimized ? <RotateCcw aria-hidden="true" /> : <Scissors aria-hidden="true" />}
+            {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
           </TooltipTrigger>
-          <TooltipContent sideOffset={6}>
-            {optimized ? "返聘它 · 恢复在岗" : "优化它 · 暂停接单"}
-          </TooltipContent>
+          <TooltipContent>{paused ? "恢复接单" : "暂停接单"}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
       <ConfirmActionDialog
         open={confirming}
         onOpenChange={setConfirming}
-        title={`优化「${agent.name}」？`}
-        description="这会暂停员工接单，配置和历史对话继续保留；之后可通过返聘恢复在岗。"
+        title={`暂停「${agent.name}」接单？`}
+        description="暂停后无法开始对话，配置和历史对话继续保留；之后可通过「恢复接单」重新启用。"
         confirmLabel="确认暂停接单"
         busy={statusPending}
         onConfirm={() => {
@@ -106,14 +103,13 @@ export function AgentCard({
   onAction,
   readOnly = false,
   preview = false,
-  usable = false,
   statusPending = false,
   statusError = "",
   statusFailure,
   statusRetry,
 }: AgentCardProps) {
-  const canAssign =
-    (!readOnly || usable) && Boolean(onAction) && agent.availability === "available";
+  const canOpen = Boolean(onAction);
+  const hasResources = agent.skillCount > 0 || agent.toolCount > 0 || agent.knowledgeBaseCount > 0;
   return (
     <Card as="article" interactive className="@container/agent" aria-label={agent.name}>
       <CardContent className={styles.card}>
@@ -127,7 +123,7 @@ export function AgentCard({
             type="button"
             disabled={!onAction}
             className={styles.portrait}
-            aria-label={`查看${agent.name}的${readOnly ? "介绍" : "配置"}`}
+            aria-label={`查看${agent.name}的员工主页`}
             onClick={() => onAction?.(agent.id, "open")}
           >
             <AgentAvatar avatarId={agent.avatarId} size="100%" />
@@ -143,7 +139,7 @@ export function AgentCard({
               <h3>{agent.name}</h3>
             </button>
             <span className={styles.subtitle} title={agent.subtitle}>
-              {agent.subtitle || "职责待完善"}
+              {agent.subtitle || "未分类"}
             </span>
             <span className={styles.status} data-status={agent.availability}>
               <i aria-hidden="true" />
@@ -151,9 +147,7 @@ export function AgentCard({
             </span>
           </div>
         </div>
-        <p className={styles.description}>
-          {agent.description || "尚未填写职责，可在员工配置中补充工作范围。"}
-        </p>
+        <p className={styles.description}>{agent.description || "暂无职责简介"}</p>
         {statusError && (
           <FailureNotice
             compact
@@ -171,47 +165,43 @@ export function AgentCard({
         )}
         <CardFooter>
           <div className={styles.resources} role="group" aria-label={`${agent.name}的资源配置数量`}>
-            <button
-              type="button"
-              disabled={!onAction}
-              className={styles.resource}
-              onClick={() => onAction?.(agent.id, "skills")}
-              aria-label={`${readOnly ? "查看" : "配置"}${agent.name}的技能，共 ${agent.skillCount} 项`}
-            >
-              <span>技能</span>
-              <span className={styles.resourceCount}>{agent.skillCount}</span>
-            </button>
-            <span className={styles.resource}>
-              <span>工具操作</span>
-              <span className={styles.resourceCount}>{agent.toolCount}</span>
-            </span>
-            <span className={styles.resource}>
-              <span>知识库</span>
-              <span className={styles.resourceCount}>{agent.knowledgeBaseCount}</span>
-            </span>
+            {(agent.skillCount > 0 || !hasResources) && (
+              <button
+                type="button"
+                disabled={!onAction}
+                className={styles.resource}
+                onClick={() => onAction?.(agent.id, "skills")}
+                aria-label={`${readOnly ? "查看" : "配置"}${agent.name}的技能，共 ${agent.skillCount} 项`}
+              >
+                <span>{hasResources ? "技能" : "未装配扩展能力"}</span>
+                {hasResources && <span className={styles.resourceCount}>{agent.skillCount}</span>}
+              </button>
+            )}
+            {agent.toolCount > 0 && (
+              <span className={styles.resource}>
+                <span>工具操作</span>
+                <span className={styles.resourceCount}>{agent.toolCount}</span>
+              </span>
+            )}
+            {agent.knowledgeBaseCount > 0 && (
+              <span className={styles.resource}>
+                <span>知识库</span>
+                <span className={styles.resourceCount}>{agent.knowledgeBaseCount}</span>
+              </span>
+            )}
           </div>
           {!preview && (
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               className={styles.assign}
-              onClick={() => onAction?.(agent.id, "assign")}
-              disabled={!canAssign}
-              aria-label={
-                readOnly && !usable
-                  ? "体验功能尚未开放"
-                  : !onAction
-                    ? "保存配置后可开始对话"
-                    : canAssign
-                      ? `与${agent.name}开始对话`
-                      : agent.availability === "paused"
-                        ? "返聘员工后可开始对话"
-                        : "配置模型后可开始对话"
-              }
+              onClick={() => onAction?.(agent.id, "open")}
+              disabled={!canOpen}
+              aria-label={!onAction ? "保存配置后可查看员工" : `打开${agent.name}的员工主页`}
             >
-              {readOnly ? "体验暂未开放" : "开始对话"}
               <ArrowUpRight />
+              查看员工
             </Button>
           )}
         </CardFooter>

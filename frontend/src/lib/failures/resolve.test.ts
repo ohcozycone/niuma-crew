@@ -3,6 +3,20 @@ import { ApiError } from "@/lib/api/http";
 import { clientFailure, mutationOutcome, resolveFailure, toFailure } from "./resolve";
 
 describe("failure facts and presentation policy", () => {
+  it("chooses the upstream timeout presentation without changing its execution code", () => {
+    const fact = {
+      source: "run" as const,
+      status: null,
+      code: "upstream_timeout",
+      message: "模型服务响应超时",
+    };
+    expect(resolveFailure(fact, { operation: "subscription" })).toMatchObject({
+      family: "waiting",
+      status: null,
+      description: "模型服务响应超时",
+    });
+    expect(fact.code).toBe("upstream_timeout");
+  });
   it("preserves structured API metadata without inventing an HTTP status", () => {
     expect(
       toFailure(new ApiError("稍后再试", 503, "database_busy", { requestId: "r-1", retryAt: 123 })),

@@ -1,9 +1,8 @@
-"""Only advertise executable file tools; Skill reads do not grant source-file access."""
-
-from test_agent_foundations import SearchClient, run_id, search_grant, send
+from test_agent_foundations import SearchClient, search_grant, send
 from test_capability_runtime import ScriptedModel, execute, response, setup
+from test_tool_discovery import discovery_response
 
-from app.tools.contracts import exposed_name
+from app.mcp.contracts import exposed_name
 
 
 def search_setup(client, *, skills=False):
@@ -20,42 +19,44 @@ def search_setup(client, *, skills=False):
     return agent, conversation, connection
 
 
-def test_mcp_only_advertises_no_skill_reader_and_preserves_downloadable_sources(
-    api_client, monkeypatch
-):
+def test_mcp_and_base_file_tools_preserve_downloadable_sources(api_client, monkeypatch):
     _, conversation, connection = search_setup(api_client)
     name = exposed_name(connection["id"], "tavily_search")
     accepted = send(api_client, conversation)
     model = ScriptedModel(
         responses=[
+            discovery_response(),
             response("", [{"name": name, "id": "search", "args": {"query": "网页"}}]),
             response("已根据工具返回内容生成摘要。"),
         ]
     )
-    result = execute(api_client, monkeypatch, model, {"id": run_id(api_client, accepted)})
+    result = execute(api_client, monkeypatch, model, accepted)
     assert result["status"] == "succeeded", result
-    assert model.bindings and all(tools == [name, "read_tool_result"] for tools in model.bindings)
-    assert '"source_files_readable": false' in model.prompts[-1]
-    assert '"raw_result"' not in model.prompts[-1]
-    sources = next(
-        step["safe_details"]["sources"] for step in result["steps"] if step["kind"] == "tool_call"
+    assert model.bindings and all(
+        {"read_tool_result", "read_file", "write_file"} <= set(tools)
+        and (name in tools or "search_tools" in tools)
+        for tools in model.bindings
     )
-    assert sources and all(source["path"] not in model.prompts[-1] for source in sources)
+    assert "/sources/large_tool_results/search" in model.prompts[-1]
+    source = next(
+        ref
+        for ref in api_client.app.state.files.sources(accepted["id"])
+        if ref["name"].startswith("tool-result-")
+    )
     assert (
-        api_client.get(
-            f"/api/conversations/{conversation['id']}/files/{sources[0]['file_id']}"
-        ).status_code
+        api_client.get(f"/api/conversations/{conversation['id']}/files/{source['id']}").status_code
         == 200
     )
 
 
-def test_skill_reader_does_not_grant_source_access_or_report_a_skill_failure(
+def test_source_reader_rejects_unknown_source_without_reporting_a_skill_failure(
     api_client, monkeypatch
 ):
     _, conversation, connection = search_setup(api_client, skills=True)
     accepted = send(api_client, conversation)
     model = ScriptedModel(
         responses=[
+            discovery_response(),
             response(
                 "",
                 [
@@ -76,69 +77,32 @@ def test_skill_reader_does_not_grant_source_access_or_report_a_skill_failure(
                     }
                 ],
             ),
+            response("没有找到该来源文件。"),
         ]
     )
-    result = execute(api_client, monkeypatch, model, {"id": run_id(api_client, accepted)})
-    assert result["status"] == "failed", result
-    assert result["error"]["code"] == "tool_not_allowed"
+    result = execute(api_client, monkeypatch, model, accepted)
+    assert result["status"] == "succeeded", result
+    assert "not found" in model.prompts[-1].lower()
     assert all("read_file" in tools for tools in model.bindings)
-    assert '"raw_result"' not in model.prompts[-1]
+    assert "/sources/large_tool_results/search" in model.prompts[-1]
 
 
-def test_explicit_source_reader_can_read_mcp_results_without_activating_a_skill(
+def test_base_source_reader_reads_mcp_results_without_any_workspace_assignment(
     api_client, monkeypatch
 ):
     agent, conversation, connection = search_setup(api_client)
-    native = api_client.post(
-        "/api/tool-connections",
-        json={
-            "name": "只读来源",
-            "kind": "native",
-            "provider_key": "workspace",
-            "public_config": {},
-        },
-    )
-    assert native.status_code == 201, native.text
-    current = api_client.get(f"/api/agents/{agent['id']}/tool-grants").json()
-    saved = api_client.put(
-        f"/api/agents/{agent['id']}/tool-grants",
-        json={
-            "expected_revision": current["agent_revision"],
-            "grants": [
-                {
-                    "connection_id": connection["id"],
-                    "tools": ["tavily_search"],
-                    "expected_descriptors": {
-                        "tavily_search": SearchClient.catalog[0]["descriptor_hash"]
-                    },
-                    "scope_policy": {"mode": "provider", "max_calls": 5},
-                },
-                {
-                    "connection_id": native.json()["id"],
-                    "tools": ["read_file"],
-                    "scope_policy": {
-                        "mode": "workspace",
-                        "max_calls": 5,
-                        "read_roots": ["/sources"],
-                        "write_roots": [],
-                    },
-                },
-            ],
-        },
-    )
-    assert saved.status_code == 200, saved.text
     accepted = send(api_client, conversation)
-    id = run_id(api_client, accepted)
+    id = accepted["id"]
 
     class SourceReader(ScriptedModel):
         def _generate(self, *args, **kwargs):
-            if self._index == 1:
+            if self._index == 2:
                 source = next(
                     value
                     for value in api_client.app.state.files.sources(id)
-                    if value["name"] == "page-1.txt"
+                    if value["name"].startswith("tool-result-")
                 )
-                self.responses[1] = response(
+                self.responses[2] = response(
                     "",
                     [
                         {
@@ -152,6 +116,7 @@ def test_explicit_source_reader_can_read_mcp_results_without_activating_a_skill(
 
     model = SourceReader(
         responses=[
+            discovery_response(),
             response(
                 "",
                 [
@@ -166,11 +131,12 @@ def test_explicit_source_reader_can_read_mcp_results_without_activating_a_skill(
             response("已分段读取来源正文。"),
         ]
     )
-    result = execute(api_client, monkeypatch, model, {"id": id})
+    result = execute(api_client, monkeypatch, model, accepted)
     assert result["status"] == "succeeded", result
-    assert '"source_files_readable": true' in model.prompts[1]
-    assert '"raw_result"' in model.prompts[1]
+    assert "/sources/large_tool_results/search" in model.prompts[2]
     assert [step["kind"] for step in result["steps"]] == [
+        "model_call",
+        "tool_call",
         "model_call",
         "tool_call",
         "model_call",

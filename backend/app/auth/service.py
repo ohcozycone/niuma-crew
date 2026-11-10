@@ -1,5 +1,3 @@
-"""Opaque tokens are issued after commit; password work runs outside write transactions."""
-
 import hashlib
 import re
 import secrets
@@ -13,8 +11,8 @@ from app.auth.actor import Actor
 from app.auth.config import AuthConfig
 from app.auth.models import AuthSession, ExternalIdentity, User
 from app.errors import AuthenticationError, PermissionDeniedError
-from app.infrastructure.database.fields import utc_now
 from app.infrastructure.database.session import Database
+from app.values import utc_now
 
 PASSWORDS = PasswordHash.recommended()
 DUMMY_HASH = PASSWORDS.hash(secrets.token_urlsafe(32))
@@ -50,7 +48,7 @@ class AuthService:
     def initialize_admin(self, username: str, password: str) -> None:
         username, hashed = normalize_username(username), hash_password(password)
         with self.database.transaction() as db:
-            # Acquire SQLite's writer reservation before testing for the first account.
+            # 先取得写锁，避免并发创建首个账号。
             db.execute(
                 update(User)
                 .where(User.id == "00000000-0000-0000-0000-000000000000")
@@ -70,7 +68,7 @@ class AuthService:
         elif operation in {"disable-user", "enable-user"}:
             values["is_active"] = operation == "enable-user"
         with self.database.transaction() as db:
-            # Writing first serializes maintenance against concurrent session issuance.
+            # 先写入，使账号维护与并发签发会话串行。
             user_id = db.scalar(
                 update(User)
                 .where(User.username == username, User.role == "admin")
@@ -95,7 +93,7 @@ class AuthService:
         now = self.clock()
         token = secrets.token_urlsafe(32)
         with self.database.transaction() as db:
-            # Conditional write rechecks the verified password and active state under the write lock.
+            # 写锁内复核已验证密码和启用状态，防止验证后发生变化。
             confirmed = db.scalar(
                 update(User)
                 .where(
@@ -130,10 +128,10 @@ class AuthService:
     def github_login(
         self, github_id: str, username: str, old_token: str | None
     ) -> tuple[Actor, str]:
-        """Only called with the identity verified by the server's GitHub client."""
+        """仅接受服务端 GitHub 客户端已核实的身份。"""
         now, token = self.clock(), secrets.token_urlsafe(32)
         with self.database.transaction() as db:
-            # Reserve SQLite's writer before reading: two callbacks cannot create two users.
+            # 先取得写锁，避免两个回调重复创建用户。
             db.execute(
                 update(User)
                 .where(User.id == "00000000-0000-0000-0000-000000000000")
@@ -180,7 +178,7 @@ class AuthService:
         try:
             return self.resolve(old_token), None
         except AuthenticationError:
-            # 仅无效身份允许回退为游客；存储或服务故障应继续交给调用方处理。
+            # 仅身份失效可回退游客，其他故障继续抛出。
             pass
         now, token = self.clock(), secrets.token_urlsafe(32)
         with self.database.transaction() as db:
@@ -217,7 +215,7 @@ class AuthService:
             )
             actor = self._validated_actor(db, session, now)
             previous_seen = session.last_seen_at
-        # Separate read and conditional write avoids upgrading a WAL read snapshot.
+        # 分开只读和条件写，避免升级已过期的 WAL 快照。
         touch_interval = min(300, max(1, self.config.idle_timeout_seconds // 10))
         if session.kind == "user" and (now - previous_seen).total_seconds() >= touch_interval:
             with self.database.transaction() as db:
@@ -234,7 +232,7 @@ class AuthService:
         return actor
 
     def validate_session(self, db, session_id: str | None) -> Actor:
-        """Read-only validation in the caller's snapshot; never touches last_seen."""
+        """在调用方事务中只读校验，不更新 last_seen。"""
         now = self.clock()
         session = db.get(AuthSession, session_id) if session_id else None
         return self._validated_actor(db, session, now)

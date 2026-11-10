@@ -88,7 +88,12 @@ export const ConversationMessage = memo(function ConversationMessage({
               </MessageHeader>
               {run && <RunActions key={run.id} run={run} finalText={message.content} />}
               {message.content ? (
-                <Markdown text={message.content} streaming={active} sourceTitles={sourceTitles} />
+                <Markdown
+                  text={message.content}
+                  streaming={active}
+                  sourceTitles={sourceTitles}
+                  sourceRunId={message.run?.id}
+                />
               ) : (
                 <p className="text-sm text-text-muted">
                   {active ? "等待模型响应…" : "本次没有生成文本。"}
@@ -104,11 +109,7 @@ export const ConversationMessage = memo(function ConversationMessage({
                   context={{ operation: "subscription", resource: "conversation" }}
                 />
               )}
-              {run?.context.truncated && (
-                <p className="text-xs text-text-muted">
-                  本次使用了最近 {run.context.pair_count} 轮完整对话，更早历史未发送给模型。
-                </p>
-              )}
+
               {message.content && !active && (
                 <MessageFooter className="gap-2 text-xs text-text-muted">
                   <Button

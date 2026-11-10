@@ -1,5 +1,3 @@
-"""Skill CRUD with committed responses and safe deletion of shared definitions."""
-
 from __future__ import annotations
 
 import base64
@@ -13,9 +11,9 @@ from uuid import uuid4
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, defer
 
-from app.agents.models import AgentSkill
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
+from app.employees.models import AgentSkill
 from app.errors import ConflictError, NotFoundError, ServiceError
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
@@ -117,7 +115,7 @@ class SkillService:
                 values["name"] = parse_skill_md(values["skill_md"])["name"]
         elif values["name"] is None:
             raise package_error("请提供标准 Skill 包或填写技能名称。")
-        # Legacy API input is compiled exactly once into the same portable source.
+        # 旧输入只编译一次，之后与标准包使用同一份源文件。
         skill = Skill(**values)
         if not skill.id:
             skill.id = str(uuid4())
@@ -160,7 +158,7 @@ class SkillService:
         with self.library.locked():
             with self.database.transaction() as session:
                 existing = [self._response(row) for row in session.scalars(select(Skill))]
-            # Materialize pre-directory records without changing their IDs or grants.
+            # 补建旧记录的目录，保留 ID 与装配关系。
             for current in existing:
                 if current.source_path:
                     continue
@@ -201,7 +199,7 @@ class SkillService:
                         reserve_writer(session, Skill.__table__)
                         row = session.scalar(select(Skill).where(Skill.source_path == name))
                         if row is None:
-                            # A failed legacy adoption must not create a second employee capability.
+                            # 旧记录补建失败不能产生第二份能力。
                             unlinked = list(
                                 session.scalars(select(Skill).where(Skill.source_path.is_(None)))
                             )
@@ -333,7 +331,7 @@ class SkillService:
         return skill.protocol_name + ".zip", stream.getvalue()
 
     def get_public(self, skill_id: str, actor: Actor) -> PublicSkill:
-        """Read display fields without loading package contents or internal instructions."""
+        """仅读展示字段，不加载技能包或内部指令。"""
         require_permission(actor, "skills:read_public")
         with self.database.transaction() as session:
             skill = session.scalar(
@@ -547,8 +545,7 @@ class SkillService:
     def delete(self, skill_id: str, actor: Actor) -> None:
         require_permission(actor, "skills:delete")
         with self.library.locked(), ExitStack() as filesystem:
-            # Capture the current directory association after taking the writer lock.
-            # Otherwise a concurrent first materialization could leave a resurrectable source.
+            # 写锁内读取目录关联，避免并发补建留下可重新出现的旧源文件。
             current = self._get(skill_id)
             if current.source_path:
                 filesystem.enter_context(

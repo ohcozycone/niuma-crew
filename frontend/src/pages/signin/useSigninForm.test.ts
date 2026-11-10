@@ -130,7 +130,7 @@ describe("React signin lifecycle", () => {
       await hook.result.current.enter("guest");
     });
     expect(JSON.parse(calls("auth/guest")[0][1]!.body as string)).toEqual({});
-    expect(navigation.replace).toHaveBeenCalledWith("/");
+    expect(navigation.replace).toHaveBeenCalledWith("/agents");
   });
 
   it("keeps password and guest entry available when provider discovery fails", async () => {

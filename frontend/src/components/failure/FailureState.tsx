@@ -15,14 +15,15 @@ export type FailureStateProps = {
   className?: string;
   layout?: "page" | "section";
   illustration?: boolean;
+  illustrationSrc?: string;
 };
 
-function Illustration({ family }: { family: FailureFamily }) {
+function Illustration({ family, src }: { family: FailureFamily; src?: string }) {
   const [failed, setFailed] = useState(false);
   return failed ? null : (
     <figure className="failure-art" aria-hidden="true">
       <img
-        src={failureIllustrations[family]}
+        src={src ?? failureIllustrations[family]}
         alt=""
         width={720}
         height={720}
@@ -42,6 +43,7 @@ export function FailureState({
   className,
   layout = "section",
   illustration = true,
+  illustrationSrc,
 }: FailureStateProps) {
   const fact = failure ?? toFailure(error);
   if (!fact) return null;
@@ -55,7 +57,9 @@ export function FailureState({
       className={cn("failure-region", layout === "page" && "failure-page", className)}
     >
       <div className="failure-content">
-        {illustration && <Illustration key={view.family} family={view.family} />}
+        {illustration && (
+          <Illustration key={view.family} family={view.family} src={illustrationSrc} />
+        )}
         <div className="failure-copy">
           <div className="failure-message" role="alert">
             {view.displayCode && (

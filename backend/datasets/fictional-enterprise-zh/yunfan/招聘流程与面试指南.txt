@@ -1,0 +1,73 @@
+# 招聘流程与面试指南
+
+## 适用范围
+
+本指南适用于云帆科技所有全职岗位的社会招聘与校园招聘。实习生招聘流程相同，但省略背景调查环节。
+
+## 招聘需求发起
+
+1. 用人部门在每年 11 月提交下一年度编制计划，由 CFO 苏晚晴与 VP HR 周慕云联合审批。
+2. 计划外增编须提交《增编申请》，说明业务依据，经 CEO 林远航批准。
+3. 需求获批后，招聘组在 **3 个工作日**内发布职位（官网、主流招聘平台与内部推荐渠道同步上线）。
+
+## 标准招聘流程
+
+| 环节 | 责任人 | SLA |
+| --- | --- | --- |
+| 简历筛选 | 招聘专员 + 用人 Leader | 收到简历后 3 个工作日 |
+| 一面（专业能力） | 资深骨干/Leader | 约面后 5 个工作日内出结论 |
+| 二面（综合评估） | 部门总监 | 同上 |
+| HR 面（文化与薪酬） | HRBP/招聘组 | 同上 |
+| 背景调查 | 第三方机构 | 候选人授权后 5 个工作日 |
+| Offer 审批 | 用人总监 + HRBP + 薪酬组 | 2 个工作日 |
+
+总监级以上岗位须加一轮 CEO 或分管高管终面。
+
+## 面试官行为规范
+
+1. **禁止询问**婚育计划、宗教信仰、家庭背景等与岗位无关的隐私问题。
+2. 每轮面试后须在 **24 小时内**于招聘系统填写结构化评价，禁止仅写"通过/不通过"。
+3. 面试官与候选人存在亲属、前同事等关系的须主动回避。
+4. 对外雇主品牌话术以市场部《招聘宣传规范》为准，不得承诺未获批的薪酬与期权。
+
+## 内部推荐奖励
+
+- 推荐成功入职并转正后发放：初级岗位 3,000 元，高级岗位 6,000 元，专家/总监级 12,000 元。
+- 奖金分两笔发放：入职满 1 个月发 50%，转正后发 50%。
+- 推荐入口：平台"招聘"模块 → "我要内推"。
+
+## Offer 与薪酬核定
+
+1. 薪酬按职级带宽核定（共 12 个职级 P1-P12），超出带宽上限须 CFO 特批。
+2. Offer 由招聘组统一发出，任何员工不得私自向候选人口头承诺薪酬。
+3. Offer 有效期 5 个自然日，逾期未接受自动失效。
+
+> 本指南由人力资源部招聘组维护，版本 V2.3，最近更新：2026 年 4 月。
+
+## 资料来源与许可
+
+本文为源项目提供的虚构企业中文演示资料，不代表真实公司制度。本次保留原始业务正文，仅转换为 UTF-8 TXT 并添加本节。
+原文来源：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/recruitment-guide.md
+许可：MIT；完整许可及版权声明：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/LICENSE
+
+MIT License
+
+Copyright (c) 2026 zhenyong97
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

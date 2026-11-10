@@ -1,13 +1,20 @@
 import { memo, useMemo, type ComponentProps } from "react";
 import { defaultRehypePlugins, Streamdown } from "streamdown";
 import { cjk } from "@streamdown/cjk";
-import { code } from "@streamdown/code";
+import { createCodePlugin } from "@streamdown/code";
+import codeTheme from "@/design-system/codeTheme.json";
 import { isKnowledgeSourceLink } from "@/lib/knowledgeSourceLink";
 import { knowledgeCitationBlock, rehypeKnowledgeCitations } from "@/lib/knowledgeCitations";
 import { CitationContext } from "@/components/knowledge/citationContext";
 import { KnowledgeInlineCitation } from "@/components/knowledge/KnowledgeInlineCitation";
 import { KnowledgeSources } from "@/components/knowledge/KnowledgeSources";
 
+const code = createCodePlugin({
+  themes: [
+    { ...codeTheme, name: "niuma-light", type: "light" },
+    { ...codeTheme, name: "niuma-dark", type: "dark" },
+  ],
+});
 const plugins = { cjk, code };
 const rehypePlugins = [...Object.values(defaultRehypePlugins), rehypeKnowledgeCitations];
 const emptyTitles = new Map<string, string>();
@@ -39,12 +46,17 @@ export const Markdown = memo(function Markdown({
   text,
   streaming = false,
   sourceTitles = emptyTitles,
+  sourceRunId,
 }: {
   text: string;
   streaming?: boolean;
   sourceTitles?: ReadonlyMap<string, string>;
+  sourceRunId?: string;
 }) {
-  const citations = useMemo(() => ({ titles: sourceTitles, streaming }), [sourceTitles, streaming]);
+  const citations = useMemo(
+    () => ({ titles: sourceTitles, streaming, sourceRunId }),
+    [sourceTitles, streaming, sourceRunId],
+  );
   return (
     <CitationContext.Provider value={citations}>
       <Streamdown

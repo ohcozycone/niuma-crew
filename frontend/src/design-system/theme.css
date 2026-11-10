@@ -1,87 +1,94 @@
 /* Numerical source of truth: primitives → semantic roles → component mappings. */
 :root {
-  /* 基础色 · 微暖灰 */
-  --gray-0: #ffffff;
-  --gray-25: #fdfdfb;
-  --gray-50: #fafaf8;
-  --gray-60: #f8f8f6;
-  --gray-75: #f5f5f2;
-  --gray-100: #f1f1ee;
-  --gray-125: #edede9;
-  --gray-150: #e9e9e5;
-  --gray-175: #e5e5e0;
-  --gray-200: #e1e1db;
-  --gray-250: #dcdcd6;
-  --gray-300: #d3d3cc;
-  --gray-400: #bebeb6;
-  --gray-500: #a3a39b;
-  --gray-600: #85857d;
-  --gray-700: #6b6b66;
-  --gray-800: #42423f;
-  --gray-900: #252523;
-  --gray-950: #181817;
+  /* 基础色 · 暖白与燕麦灰 */
+  --gray-0: #fffefa;
+  --gray-5: #fffefb;
+  --gray-25: #fdfcf9;
+  --gray-50: #faf8f4;
+  --gray-60: #f8f6f0;
+  --gray-65: #f7f6f2;
+  --gray-75: #f6f3ec;
+  --gray-100: #f3efe7;
+  --gray-110: #f0ede6;
+  --gray-125: #eeebe5;
+  --gray-150: #eee6d9;
+  --gray-170: #e6e3dc;
+  --gray-175: #e5e1d7;
+  --gray-190: #dedbd3;
+  --gray-200: #ded8cd;
+  --gray-250: #d5cec1;
+  --gray-300: #c9c0b2;
+  --gray-400: #b7ad9e;
+  --gray-500: #9c9283;
+  --gray-600: #81796b;
+  --gray-700: #6b675d;
+  --gray-800: #48453d;
+  --gray-850: #3d3a34;
+  --gray-875: #333129;
+  --gray-900: #292923;
+  --gray-950: #201f1b;
   --gray-1000: #000000;
 
-  /* 基础色 · shadcn 输入边界与焦点 */
-  --neutral-200: #e5e5e5;
-  --neutral-400: #a1a1a1;
-  --neutral-500: #737373;
+  /* 基础色 · 暖炭灰与米白 */
+  --night-25: #f2eee5;
+  --night-100: #e2dcd0;
+  --night-200: #cec8bc;
+  --night-300: #b9b4a8;
+  --night-400: #9a9183;
+  --night-500: #797162;
+  --night-600: #5d574c;
+  --night-700: #464239;
+  --night-750: #3a3329;
+  --night-800: #302d28;
+  --night-850: #2a2824;
+  --night-900: #242321;
+  --night-950: #1b1a18;
 
-  /* 基础色 · 夜间灰 */
-  --night-25: #f2f2eb;
-  --night-100: #e5e5dc;
-  --night-200: #cecec4;
-  --night-300: #b4b4a9;
-  --night-400: #96968b;
-  --night-500: #77776e;
-  --night-600: #54544d;
-  --night-700: #3b3b36;
-  --night-750: #30302c;
-  --night-800: #292926;
-  --night-850: #222220;
-  --night-900: #1b1b19;
-  --night-950: #141413;
-
-  /* 基础色 · 品牌橙 */
-  --orange-50: #f8efe8;
-  --orange-200: #efb69f;
-  --orange-300: #ec8a76;
-  --orange-400: #bc7863;
-  --orange-500: #bc784c;
-  --orange-600: #ac5441;
-  --orange-700: #95582f;
-  --orange-900: #5b342a;
+  /* 基础色 · 陶橙 */
+  --orange-50: #f7eee5;
+  --orange-100: #f2e4d6;
+  --orange-125: #ecdbca;
+  --orange-150: #ead3bf;
+  --orange-200: #efc7ab;
+  --orange-300: #eea379;
+  --orange-400: #d58b5c;
+  --orange-500: #bd6c3b;
+  --orange-600: #aa542c;
+  --orange-700: #8c4628;
+  --orange-800: #633b2b;
+  --orange-850: #5c3a2a;
+  --orange-900: #493025;
 
   /* 基础色 · 绿色 */
-  --green-50: #eef5ef;
-  --green-300: #93c9a5;
-  --green-700: #36734c;
-  --green-900: #21372a;
+  --green-50: #eef2e9;
+  --green-300: #a2c3a7;
+  --green-700: #477352;
+  --green-900: #29392c;
 
   /* 基础色 · 琥珀色 */
-  --amber-50: #fbf5e8;
-  --amber-300: #e4bf79;
-  --amber-700: #8c651e;
-  --amber-900: #392e1b;
+  --amber-50: #f8f1df;
+  --amber-300: #d9bc7f;
+  --amber-700: #84611e;
+  --amber-900: #3d3220;
 
   /* 基础色 · 红色 */
-  --red-50: #faeeeb;
-  --red-300: #eda395;
-  --red-700: #a74435;
-  --red-900: #3b2521;
+  --red-50: #f7ede8;
+  --red-300: #e8aa98;
+  --red-700: #a24838;
+  --red-800: #873d31;
+  --red-850: #74362c;
+  --red-900: #432d27;
 
   /* 基础色 · 蓝色 */
-  --blue-50: #edf2f6;
-  --blue-300: #a4c1da;
-  --blue-700: #496981;
-  --blue-900: #23323f;
+  --blue-50: #edf0f1;
+  --blue-300: #a8c0cb;
+  --blue-700: #4e6b79;
+  --blue-900: #2b363b;
 
   /* 基础色 · 透明遮罩 */
-  --overlay-drawer: #18181855;
-  --overlay-dialog: rgb(0 0 0 / 50%);
-  --overlay-night: #00000099;
-  --overlay-card: rgb(24 24 23 / 10%);
-  --overlay-input: rgb(255 255 255 / 15%);
+  --overlay-drawer: #29292355;
+  --overlay-dialog: rgb(27 26 24 / 50%);
+  --overlay-night: #15130fcc;
 
   /* 基础色 · 场景 */
   --scene-shadow: #7c846f;
@@ -96,12 +103,15 @@
   --art-moon-crater: #a4b8bc;
 
   /* 语义 · 背景与边界 */
-  --os-surface: var(--gray-25);
-  --os-raised: var(--gray-0);
-  --os-canvas: var(--gray-100);
+  --os-surface: var(--gray-65);
+  --os-raised: var(--gray-5);
+  --os-canvas: var(--gray-125);
   --os-muted: var(--gray-100);
-  --os-selected: var(--gray-125);
-  --os-border: var(--gray-175);
+  --os-selected: var(--gray-150);
+  --os-hover: var(--gray-100);
+  --os-hover-text: var(--gray-800);
+  --os-pressed: var(--gray-175);
+  --os-border: var(--gray-170);
 
   /* 语义 · 文字 */
   --os-text: var(--gray-900);
@@ -110,18 +120,29 @@
   /* 语义 · 交互与遮罩 */
   --os-overlay: var(--overlay-drawer);
   --os-modal-overlay: var(--overlay-dialog);
-  --os-input: var(--neutral-200);
+  --os-input: var(--gray-200);
   --os-focus: var(--gray-800);
-  --os-field-focus: var(--neutral-400);
+  --os-field-focus: var(--gray-600);
+  --os-disabled-bg: var(--gray-100);
+  --os-disabled-text: var(--gray-500);
 
   /* 语义 · 操作 */
-  --os-action: var(--gray-900);
-  --os-action-hover: var(--gray-950);
+  --os-action: var(--gray-800);
+  --os-action-hover: var(--gray-850);
+  --os-action-pressed: var(--gray-875);
   --os-action-text: var(--gray-25);
+  --os-action-soft: var(--orange-50);
+  --os-action-soft-hover: var(--orange-100);
+  --os-action-soft-pressed: var(--orange-125);
+  --os-action-soft-text: var(--orange-800);
+  --os-danger-action: var(--red-700);
+  --os-danger-action-hover: var(--red-800);
+  --os-danger-action-pressed: var(--red-850);
+  --os-danger-action-text: var(--gray-25);
 
   /* 语义 · 品牌 */
-  --os-brand: var(--orange-500);
-  --os-brand-text: var(--orange-400);
+  --os-brand: var(--orange-600);
+  --os-brand-text: var(--orange-600);
   --os-title-accent: var(--orange-200);
 
   /* 语义 · 反馈 */
@@ -139,21 +160,26 @@
   --os-nav-active: var(--gray-175);
   --os-nav-active-text: var(--os-text);
   --os-nav-count-bg: var(--os-muted);
-  --os-card-border: var(--overlay-card);
+  --os-card-border: var(--os-border);
   --os-workspace-border: var(--gray-150);
-  --os-card-border-width: 0.5px;
-  --os-avatar-bg: var(--os-muted);
-  --login-bg: var(--gray-150);
+  --os-card-border-width: 1px;
+  --os-avatar-bg: var(--gray-110);
+  --os-code-comment: var(--os-text-muted);
+  --os-code-keyword: var(--orange-700);
+  --os-code-string: var(--green-700);
+  --os-code-constant: var(--blue-700);
+  --os-code-function: var(--amber-700);
+  --login-bg: var(--os-canvas);
   --login-scene: var(--os-muted);
-  --login-border: var(--gray-250);
+  --login-border: var(--os-border);
   --login-title: var(--gray-950);
-  --login-input: var(--gray-400);
+  --login-input: var(--os-input);
   --login-ring: var(--os-focus);
   --login-selection: var(--os-border);
   --login-shadow: var(--scene-shadow);
 
-  /* 普通矩形表面统一采用超椭圆；不支持时保留 border-radius。 */
-  --os-corner-shape: squircle;
+  /* 普通矩形共用圆角曲线，按容器职责分配半径。 */
+  --os-corner-shape: round;
   --os-radius-tiny: 2px;
   --os-radius-small: 4px;
   --os-radius-soft: 6px;
@@ -209,6 +235,7 @@
   --os-dialog-small: 448px;
   --os-dialog-standard: 640px;
   --os-dialog-wide: 800px;
+  --os-dialog-workspace: 1280px;
   --os-popover-max: 360px;
   --os-tooltip-max: 240px;
 
@@ -250,6 +277,8 @@
   /* 动效 */
   --os-motion-fast: 150ms;
   --os-motion-normal: 200ms;
+  --os-motion-swap: 280ms;
+  --os-motion-loading: 1400ms;
 
   /* 文字角色 */
   --os-type-page-size: var(--os-text-page);
@@ -334,9 +363,12 @@
   --os-surface: var(--night-900);
   --os-raised: var(--night-850);
   --os-canvas: var(--night-950);
-  --os-muted: var(--night-850);
-  --os-selected: var(--night-800);
-  --os-border: var(--night-750);
+  --os-muted: var(--night-800);
+  --os-selected: var(--night-750);
+  --os-hover: var(--night-800);
+  --os-hover-text: var(--night-100);
+  --os-pressed: var(--night-700);
+  --os-border: var(--night-700);
 
   /* 语义 · 文字 */
   --os-text: var(--night-25);
@@ -345,14 +377,25 @@
   /* 语义 · 交互与遮罩 */
   --os-overlay: var(--overlay-night);
   --os-modal-overlay: var(--overlay-night);
-  --os-input: var(--overlay-input);
+  --os-input: var(--night-700);
   --os-focus: var(--night-300);
-  --os-field-focus: var(--neutral-500);
+  --os-field-focus: var(--night-400);
+  --os-disabled-bg: var(--night-850);
+  --os-disabled-text: var(--night-500);
 
   /* 语义 · 操作 */
-  --os-action: var(--gray-25);
-  --os-action-hover: var(--gray-150);
+  --os-action: var(--night-100);
+  --os-action-hover: var(--night-25);
+  --os-action-pressed: var(--night-200);
   --os-action-text: var(--night-950);
+  --os-action-soft: var(--orange-900);
+  --os-action-soft-hover: var(--orange-850);
+  --os-action-soft-pressed: var(--orange-800);
+  --os-action-soft-text: var(--orange-300);
+  --os-danger-action: var(--red-800);
+  --os-danger-action-hover: var(--red-700);
+  --os-danger-action-pressed: var(--red-850);
+  --os-danger-action-text: var(--gray-25);
 
   /* 语义 · 品牌 */
   --os-brand: var(--orange-300);
@@ -372,10 +415,15 @@
 
   /* 组件映射 · 差异通过引用表达 */
   --os-nav-active: var(--os-selected);
+  --os-nav-active-text: var(--os-text);
   --os-nav-count-bg: var(--os-selected);
   --os-card-border: var(--os-border);
   --os-workspace-border: var(--night-850);
   --os-avatar-bg: var(--os-selected);
+  --os-code-keyword: var(--orange-300);
+  --os-code-string: var(--green-300);
+  --os-code-constant: var(--blue-300);
+  --os-code-function: var(--amber-300);
   --login-bg: var(--night-950);
   --login-scene: var(--os-canvas);
   --login-border: var(--os-border);
@@ -558,23 +606,57 @@ html {
 }
 
 /* Tailwind utilities */
+@utility button-availability {
+  /* :disabled includes disabled fieldsets; data-disabled includes composed links. */
+  &:is(:disabled, [data-disabled]):not([data-loading]) {
+    color: var(--os-disabled-text);
+    font-weight: var(--os-weight-regular);
+    background-color: var(--os-disabled-bg);
+    border-color: transparent;
+  }
+  &:is(:disabled, [data-disabled]):not([data-loading]) svg {
+    color: inherit;
+  }
+  &:is(:disabled, [data-disabled]):not([data-loading]):is(
+      [data-variant="ghost"],
+      [data-variant="link"],
+      [data-variant="destructive-ghost"]
+    ) {
+    background-color: transparent;
+    border-color: transparent;
+  }
+}
 @theme inline {
   --color-canvas: var(--os-canvas);
   --color-surface: var(--os-surface);
   --color-raised: var(--os-raised);
   --color-muted: var(--os-muted);
   --color-selected: var(--os-selected);
+  --color-hover: var(--os-hover);
+  --color-hover-text: var(--os-hover-text);
+  --color-pressed: var(--os-pressed);
   --color-border: var(--os-border);
   --color-text: var(--os-text);
   --color-text-muted: var(--os-text-muted);
   --color-input: var(--os-input);
   --color-focus: var(--os-focus);
   --color-field-focus: var(--os-field-focus);
+  --color-disabled-bg: var(--os-disabled-bg);
+  --color-disabled-text: var(--os-disabled-text);
   --color-overlay: var(--os-overlay);
   --color-modal-overlay: var(--os-modal-overlay);
   --color-action: var(--os-action);
   --color-action-hover: var(--os-action-hover);
+  --color-action-pressed: var(--os-action-pressed);
   --color-action-text: var(--os-action-text);
+  --color-action-soft: var(--os-action-soft);
+  --color-action-soft-hover: var(--os-action-soft-hover);
+  --color-action-soft-pressed: var(--os-action-soft-pressed);
+  --color-action-soft-text: var(--os-action-soft-text);
+  --color-danger-action: var(--os-danger-action);
+  --color-danger-action-hover: var(--os-danger-action-hover);
+  --color-danger-action-pressed: var(--os-danger-action-pressed);
+  --color-danger-action-text: var(--os-danger-action-text);
   --color-brand: var(--os-brand);
   --color-brand-text: var(--os-brand-text);
   --color-title-accent: var(--os-title-accent);
@@ -593,6 +675,11 @@ html {
   --color-nav-active-text: var(--os-nav-active-text);
   --color-nav-count-bg: var(--os-nav-count-bg);
   --color-avatar-bg: var(--os-avatar-bg);
+  --color-code-comment: var(--os-code-comment);
+  --color-code-keyword: var(--os-code-keyword);
+  --color-code-string: var(--os-code-string);
+  --color-code-constant: var(--os-code-constant);
+  --color-code-function: var(--os-code-function);
   /* Streamdown's public theme names; application components use the roles above. */
   --color-background: var(--os-surface);
   --color-foreground: var(--os-text);
@@ -761,7 +848,7 @@ html {
   margin: var(--os-space-2) var(--os-space-2) var(--os-space-2) var(--os-navigation-width);
   background: var(--os-surface);
   border: 1px solid var(--os-workspace-border);
-  border-radius: var(--os-radius-card);
+  border-radius: var(--os-radius-roomy);
   corner-shape: var(--os-corner-shape);
   @media (width <= 768px) {
     width: 100%;
@@ -951,6 +1038,13 @@ html {
 }
 @utility dialog-wide {
   width: min(var(--os-dialog-wide), calc(100vw - var(--os-space-4) * 2));
+}
+@utility dialog-workspace {
+  width: min(var(--os-dialog-workspace), calc(100vw - var(--os-space-4) * 2));
+  height: calc(100dvh - var(--os-space-4) * 2);
+  overflow: hidden;
+  padding: 0;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 @utility dialog-side {
   width: 100%;

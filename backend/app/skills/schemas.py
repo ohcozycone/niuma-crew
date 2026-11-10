@@ -1,5 +1,3 @@
-"""Skill inputs and responses for the current reusable definition."""
-
 from datetime import datetime
 from uuid import UUID
 

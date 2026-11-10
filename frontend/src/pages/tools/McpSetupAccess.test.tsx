@@ -17,11 +17,9 @@ it.each([
         auth={auth}
         fields={[{ name: "SERVICE_KEY", description, is_required: true, is_secret: true }]}
         keys={["SERVICE_KEY"]}
-        scope="personal"
         header=""
         token=""
         environment={{}}
-        onScope={vi.fn()}
         onAuth={vi.fn()}
         onHeader={vi.fn()}
         onToken={vi.fn()}

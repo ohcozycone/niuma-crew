@@ -92,11 +92,11 @@ export function McpQuickImport({
       <DialogContent size="wide">
         <DialogHeader>
           <DialogTitle>快捷导入 MCP</DialogTitle>
-          <DialogDescription>
-            粘贴官方客户端 JSON 或 Registry
-            服务描述，也可以选择文件。解析只回填当前表单，保存并测试后才连接。
-          </DialogDescription>
         </DialogHeader>
+        <DialogDescription>
+          粘贴官方客户端 JSON 或 Registry
+          服务描述，也可以选择文件。解析只回填当前表单，保存并测试后才连接。
+        </DialogDescription>
         <Textarea
           disabled={busy}
           aria-label="MCP 配置 JSON"

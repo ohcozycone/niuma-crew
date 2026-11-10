@@ -1,10 +1,11 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
+import { RefreshButton } from "@/components/common/RefreshButton";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { FailureState } from "@/components/failure/FailureState";
 import { clientFailure, toFailure } from "@/lib/failures/resolve";
 import type { Failure } from "@/lib/failures/types";
 import { FormField } from "@/components/common/FormField";
 import { AssemblyItem } from "@/components/configuration/AssemblyItem";
-import { SelectField } from "@/components/ui/SelectField";
 import { SearchInput } from "@/components/common/SearchInput";
 import { Card } from "@/components/ui/Card";
 import { useEffect, useState } from "react";
@@ -23,7 +24,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/Dialog";
-import { useIdentity } from "@/state/auth/useIdentity";
 import {
   listToolConnections,
   toolLabel,
@@ -36,29 +36,21 @@ function initialGrant(connection: ToolConnection): ToolGrantInput {
     connection_id: connection.id,
     tools: [],
     expected_descriptors: {},
-    account_mode: connection.kind === "native" ? "shared" : "personal",
     enabled: true,
-    scope_policy:
-      connection.kind === "native"
-        ? {
-            mode: "workspace",
-            max_calls: 32,
-            read_roots: ["/inputs", "/sources", "/workspace", "/outputs"],
-            write_roots: ["/workspace", "/outputs"],
-          }
-        : { mode: "provider", max_calls: 5, arguments: {}, allowed_domains: [] },
+    scope_policy: { mode: "provider", max_calls: 5, arguments: {}, allowed_domains: [] },
   };
 }
 export function useToolAssembly({
   value,
+  readOnly = false,
   onChange,
   onValidityChange,
 }: {
   value: ToolGrantInput[];
+  readOnly?: boolean;
   onChange: (value: ToolGrantInput[]) => void;
   onValidityChange: (valid: boolean) => void;
 }) {
-  const identity = useIdentity();
   const [connections, setConnections] = useState<ToolConnection[]>([]);
   const [failure, setFailure] = useState<Failure | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -69,16 +61,13 @@ export function useToolAssembly({
   const [editing, setEditing] = useState<ToolGrantInput | null>(null);
   const [policy, setPolicy] = useState("");
   const [panelFailure, setPanelFailure] = useState<Failure | null>(null);
+  const [operationQuery, setOperationQuery] = useState("");
   useEffect(() => {
     const controller = new AbortController();
     listToolConnections(controller.signal)
       .then((rows) => {
         if (!controller.signal.aborted) {
-          setConnections(
-            rows.filter(
-              (row) => row.created_by_user_id === identity.actor.user?.id || row.kind === "native",
-            ),
-          );
+          setConnections(rows);
           setLoading(false);
           setLoaded(true);
           setFailure(null);
@@ -96,7 +85,7 @@ export function useToolAssembly({
         }
       });
     return () => controller.abort();
-  }, [identity.actor.user?.id, refresh]);
+  }, [refresh]);
   function configure(connection: ToolConnection) {
     const draft = structuredClone(
       value.find((item) => item.connection_id === connection.id) ?? initialGrant(connection),
@@ -104,6 +93,7 @@ export function useToolAssembly({
     setEditing(draft);
     setPolicy(JSON.stringify(draft.scope_policy, null, 2));
     setPanelFailure(null);
+    setOperationQuery("");
     setChooser(false);
   }
   function finish() {
@@ -117,6 +107,9 @@ export function useToolAssembly({
       }
       if (!scope || typeof scope !== "object" || Array.isArray(scope))
         throw clientFailure("tool_scope_invalid", "范围约束必须为 JSON 对象。");
+      const maxCalls = (scope as Record<string, unknown>).max_calls ?? 5;
+      if (!Number.isInteger(maxCalls) || Number(maxCalls) < 1 || Number(maxCalls) > 32)
+        throw clientFailure("tool_scope_invalid", "每项工具调用上限需为 1—32 的整数。");
       if (!editing.tools.length)
         throw clientFailure("tool_selection_required", "至少选择一项已确认操作，或取消本次配置。");
       onChange([
@@ -159,9 +152,10 @@ export function useToolAssembly({
       key: `tool:${grant.connection_id}`,
       kind,
       name: row?.name ?? "原有工具装配",
-      summary: `${grant.account_mode === "shared" ? "共用账号" : "使用者个人账号"} · ${grant.tools.length} 项操作`,
+      summary: `固定工作连接 · ${grant.tools.length} 项操作`,
       element: (
         <AssemblyItem
+          readOnly={readOnly}
           key={grant.connection_id}
           name={row?.name ?? "原有工具装配"}
           icon={<ResourceIcon kind={kind} size={18} className="text-text-muted" />}
@@ -182,10 +176,7 @@ export function useToolAssembly({
           }
           removeLabel={`移除${row?.name ?? (unavailable ? "不可用" : "原有")}装配`}
         >
-          <p className="type-caption">
-            {grant.account_mode === "shared" ? "共用账号" : "使用者个人账号"} · {grant.tools.length}{" "}
-            项操作
-          </p>
+          <p className="type-caption">固定工作连接 · {grant.tools.length} 项操作</p>
           {unavailable && <p className="text-sm text-danger">连接当前不可管理，可移除该装配。</p>}
           {stale && <p className="text-sm text-danger">有操作已移除或定义改变，请重新核对。</p>}
         </AssemblyItem>
@@ -198,12 +189,18 @@ export function useToolAssembly({
     name: row.name,
     summary: `${row.approved_catalog.length} 项已确认操作`,
     disabled: !row.enabled || !row.approved_catalog.length || loading,
+    disabledReason: !row.enabled
+      ? "连接已停用"
+      : !row.approved_catalog.length
+        ? "尚未确认工具目录"
+        : undefined,
     select: () => configure(row),
   }));
   return {
     items,
     candidateItems,
     loading,
+    loaded,
     refresh: refreshOptions,
     setQuery,
     openChooser: () => setChooser(true),
@@ -237,7 +234,6 @@ export function useToolAssembly({
               ]}
             />
           ))}
-        {loading && <p role="status">正在读取可装配连接…</p>}
       </>
     ),
     chooserDialog: (
@@ -247,10 +243,10 @@ export function useToolAssembly({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>添加工具能力</DialogTitle>
-              <DialogDescription>
-                只列出可管理的账号连接，选择后配置本员工的操作许可。
-              </DialogDescription>
             </DialogHeader>
+            <DialogDescription>
+              只列出可管理的账号连接，选择后配置本员工的操作许可。
+            </DialogDescription>
             <SearchInput
               label="搜索工具连接"
               onChange={(nextValue) => setQuery(nextValue)}
@@ -270,8 +266,7 @@ export function useToolAssembly({
                   <span>
                     {row.name}
                     <span className="block type-caption">
-                      {row.kind === "native" ? "内置" : "MCP"} · {row.approved_catalog.length}{" "}
-                      项已确认操作
+                      MCP · {row.approved_catalog.length} 项已确认操作
                     </span>
                   </span>
                   <Plus size={16} />
@@ -303,12 +298,15 @@ export function useToolAssembly({
           <DialogContent layout="side">
             <DialogHeader>
               <DialogTitle>{connection?.name ?? "配置工具能力"}</DialogTitle>
-              <DialogDescription>
-                只选择已确认操作。取消或关闭将丢弃面板修改，完成后再由员工页面统一保存。
-              </DialogDescription>
             </DialogHeader>
             {editing && connection && (
-              <div className="focus-gutter min-h-0 space-y-5 overflow-y-auto">
+              <fieldset
+                disabled={readOnly}
+                className="focus-gutter min-h-0 space-y-5 overflow-y-auto"
+              >
+                <DialogDescription>
+                  只选择已确认操作。取消或关闭将丢弃面板修改，完成后再由员工页面统一保存。
+                </DialogDescription>
                 {connection.service_id && (
                   <Link
                     className="text-sm underline underline-offset-4"
@@ -319,46 +317,69 @@ export function useToolAssembly({
                     管理账号与目录（新标签页）
                   </Link>
                 )}
-                <div className="space-y-3">
-                  {connection.approved_catalog.map((tool) => {
-                    const checked = editing.tools.includes(tool.name);
-                    const stale =
-                      checked && editing.expected_descriptors[tool.name] !== tool.descriptor_hash;
-                    return (
-                      <label
-                        key={tool.name}
-                        className="flex items-start gap-3 rounded-control border border-border p-3 text-sm"
-                      >
-                        <input
-                          type="checkbox"
-                          className="mt-1 size-4 shrink-0 accent-action"
-                          disabled={!connection.enabled}
-                          checked={checked}
-                          onChange={(event) =>
-                            setEditing({
-                              ...editing,
-                              tools: event.target.checked
-                                ? [...editing.tools, tool.name]
-                                : editing.tools.filter((name) => name !== tool.name),
-                              expected_descriptors: {
-                                ...editing.expected_descriptors,
-                                [tool.name]: tool.descriptor_hash,
-                              },
-                            })
-                          }
-                        />
-                        <span className="min-w-0 break-words">
-                          {toolLabel(connection, tool.name)}
-                          <span className="block text-xs text-text-muted">{tool.description}</span>
-                          {stale && (
-                            <span className="block text-danger">
-                              定义改变，请取消后重新核对选择。
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="type-title">允许执行的操作</h3>
+                  <span className="text-xs tabular-nums text-text-muted">
+                    已选 {editing.tools.length} / {connection.approved_catalog.length}
+                  </span>
+                </div>
+                {connection.approved_catalog.length > 5 && (
+                  <SearchInput
+                    label="筛选工具操作"
+                    value={operationQuery}
+                    onChange={setOperationQuery}
+                    placeholder="按名称或用途筛选操作…"
+                    className="w-full"
+                  />
+                )}
+                <div className="space-y-2">
+                  {connection.approved_catalog
+                    .filter((tool) =>
+                      `${toolLabel(connection, tool.name)} ${tool.name} ${tool.description ?? ""}`
+                        .toLocaleLowerCase()
+                        .includes(operationQuery.toLocaleLowerCase()),
+                    )
+                    .map((tool) => {
+                      const checked = editing.tools.includes(tool.name);
+                      const stale =
+                        checked && editing.expected_descriptors[tool.name] !== tool.descriptor_hash;
+                      return (
+                        <label
+                          key={tool.name}
+                          className={`flex items-start gap-3 rounded-control border p-3 text-sm ${checked ? "border-input bg-selected" : "border-border bg-raised"}`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="mt-1 size-4 shrink-0 accent-action"
+                            disabled={!connection.enabled}
+                            checked={checked}
+                            onChange={(event) =>
+                              setEditing({
+                                ...editing,
+                                tools: event.target.checked
+                                  ? [...editing.tools, tool.name]
+                                  : editing.tools.filter((name) => name !== tool.name),
+                                expected_descriptors: {
+                                  ...editing.expected_descriptors,
+                                  [tool.name]: tool.descriptor_hash,
+                                },
+                              })
+                            }
+                          />
+                          <span className="min-w-0 break-words">
+                            {toolLabel(connection, tool.name)}
+                            <span className="block text-xs text-text-muted">
+                              {tool.description}
                             </span>
-                          )}
-                        </span>
-                      </label>
-                    );
-                  })}
+                            {stale && (
+                              <span className="block text-danger">
+                                定义改变，请取消后重新核对选择。
+                              </span>
+                            )}
+                          </span>
+                        </label>
+                      );
+                    })}
                   {editing.tools
                     .filter(
                       (name) => !connection.approved_catalog.some((tool) => tool.name === name),
@@ -380,68 +401,73 @@ export function useToolAssembly({
                       </label>
                     ))}
                 </div>
-                <FormField label={<>账号方式</>}>
-                  <SelectField
-                    value={editing.account_mode}
-                    onValueChange={(nextValue) =>
-                      setEditing({
-                        ...editing,
-                        account_mode: nextValue as "personal" | "shared",
-                      })
-                    }
-                    options={[
-                      {
-                        value: "personal",
-                        label: "使用者个人账号",
-                        disabled: connection.kind === "native",
-                      },
-                      {
-                        value: "shared",
-                        label: "本员工共用账号",
-                        disabled: connection.account_scope !== "shared",
-                      },
-                    ]}
-                  />
-                </FormField>
-                <p className="type-caption">
-                  {editing.account_mode === "shared"
-                    ? "使用该员工的人可通过此共用账号执行所选操作。"
-                    : "每位使用者绑定本人账号；不会借用创建者个人 Token。"}
-                </p>
-                <FormField label={<>每项工具调用上限</>}>
-                  <Input
-                    type="number"
-                    min={1}
-                    max={32}
-                    value={Number(editing.scope_policy.max_calls ?? 5)}
-                    onChange={(e) => {
-                      const scope = { ...editing.scope_policy, max_calls: Number(e.target.value) };
-                      setEditing({ ...editing, scope_policy: scope });
-                      setPolicy(JSON.stringify(scope, null, 2));
-                    }}
-                  />
-                </FormField>
-                <details>
-                  <summary className="cursor-pointer text-sm text-text-muted">高级范围约束</summary>
+                <div className="space-y-4 border-t border-border pt-5">
+                  <h3 className="type-title">使用方式</h3>
+                  <p className="type-caption">所有使用者通过员工固定的工作连接执行所选操作。</p>
+                  <FormField label={<>每项工具调用上限</>}>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={32}
+                      className="max-w-32"
+                      value={Number(editing.scope_policy.max_calls ?? 5)}
+                      onChange={(e) => {
+                        try {
+                          const parsed: unknown = JSON.parse(policy);
+                          if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+                            throw new Error();
+                          const scope = { ...parsed, max_calls: Number(e.target.value) };
+                          setEditing({ ...editing, scope_policy: scope });
+                          setPolicy(JSON.stringify(scope, null, 2));
+                          setPanelFailure(null);
+                        } catch {
+                          setPanelFailure(
+                            clientFailure(
+                              "tool_scope_invalid",
+                              "请先修正高级范围约束的 JSON 格式，再修改调用上限。",
+                            ),
+                          );
+                        }
+                      }}
+                    />
+                  </FormField>
+                </div>
+                <details className="border-t border-border pt-4">
+                  <summary className="cursor-pointer rounded-small text-sm text-text-muted">
+                    高级范围约束
+                  </summary>
                   <Textarea
                     className="mt-2 font-mono text-xs"
                     aria-label={`${connection.name}范围约束`}
                     rows={8}
                     value={policy}
-                    onChange={(e) => setPolicy(e.target.value)}
+                    onChange={(e) => {
+                      const text = e.target.value;
+                      setPolicy(text);
+                      try {
+                        const scope: unknown = JSON.parse(text);
+                        if (scope && typeof scope === "object" && !Array.isArray(scope))
+                          setEditing({
+                            ...editing,
+                            scope_policy: scope as Record<string, unknown>,
+                          });
+                      } catch {
+                        // Keep incomplete JSON visible while the user is typing.
+                      }
+                    }}
                   />
                 </details>
-              </div>
+                <FailureNotice
+                  failure={panelFailure}
+                  context={{ operation: "mutation", resource: "connection" }}
+                />
+              </fieldset>
             )}
-            <FailureNotice
-              failure={panelFailure}
-              context={{ operation: "mutation", resource: "connection" }}
-            />
-            <DialogFooter>
+            <DialogFooter className="border-t border-border pt-4">
               <Button type="button" variant="outline" onClick={() => setEditing(null)}>
                 取消
               </Button>
-              <Button type="button" onClick={finish}>
+              <Button disabled={readOnly} type="button" onClick={finish}>
                 完成，更新草稿
               </Button>
             </DialogFooter>
@@ -461,15 +487,12 @@ export function ToolAssembly(props: Parameters<typeof useToolAssembly>[0]) {
           MCP 与内置工具 <span className="type-caption">{props.value.length} 项装配</span>
         </h3>
         <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={assembly.loading}
+          <RefreshButton
             onClick={assembly.refresh}
-          >
-            刷新连接列表
-          </Button>
+            loading={assembly.loading}
+            showProgress={assembly.loaded || props.value.length > 0}
+            label="刷新连接列表"
+          />
           <Button type="button" variant="outline" size="sm" onClick={assembly.openChooser}>
             <Plus />
             添加工具能力
@@ -477,7 +500,12 @@ export function ToolAssembly(props: Parameters<typeof useToolAssembly>[0]) {
         </div>
       </div>
       {assembly.feedback}
-      {!props.value.length && (
+      <LoadingFeedback
+        pending={assembly.loading && !assembly.loaded && !props.value.length}
+        shape="table"
+        label="正在读取可装配连接…"
+      />
+      {!props.value.length && (assembly.loaded || !assembly.loading) && (
         <Card as="p" variant="empty" className="p-5 text-sm text-text-muted">
           尚未装配工具能力。可选择已经确认目录的 MCP 或内置工具。
         </Card>

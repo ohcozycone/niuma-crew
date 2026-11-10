@@ -1,5 +1,3 @@
-"""认证配置：受信任浏览器来源、会话期限及可选 GitHub 登录。"""
-
 from dataclasses import dataclass, field
 from urllib.parse import urlsplit
 
@@ -25,14 +23,12 @@ def normalize_origin(value: str) -> str:
 
 @dataclass(frozen=True)
 class AuthConfig:
-    """写请求的来源与 Cookie 约束；所有会话期限的单位均为秒。"""
-
-    # 完整来源（协议、主机和端口），不包含路径；写请求必须精确匹配。
+    # 来源须精确匹配协议、主机和端口，不含路径。
     allowed_origins: tuple[str, ...] = ("http://127.0.0.1:3000", "http://localhost:3000")
-    cookie_secure: bool = False  # HTTPS 部署必须开启，非本机来源不允许关闭。
-    max_age_seconds: int = 604800  # 用户会话的绝对期限，最长一年。
-    idle_timeout_seconds: int = 86400  # 用户会话的闲置期限，不得超过绝对期限。
-    guest_max_age_seconds: int = 604800  # 游客会话的绝对期限，最长一年。
+    cookie_secure: bool = False  # 非本机 HTTPS 部署必须开启。
+    max_age_seconds: int = 604800  # 单位为秒，最长一年。
+    idle_timeout_seconds: int = 86400  # 单位为秒，不得超过绝对期限。
+    guest_max_age_seconds: int = 604800  # 单位为秒，最长一年。
 
     def __post_init__(self) -> None:
         if not self.allowed_origins:
@@ -70,11 +66,11 @@ def load_auth_config(values: dict[str, str | None]) -> AuthConfig:
 
 @dataclass(frozen=True)
 class GitHubOAuthConfig:
-    """三项全部缺省时关闭登录入口，启用时必须全部配置。"""
+    """三项配置同时缺省时关闭；启用时须全部提供。"""
 
     client_id: str = ""
-    client_secret: str = field(default="", repr=False)  # 仅供后端使用，不参与 repr。
-    callback_url: str = ""  # 必须为受信任来源下的 /api/auth/github/callback。
+    client_secret: str = field(default="", repr=False)
+    callback_url: str = ""  # 须位于受信任来源下的 /api/auth/github/callback。
 
     @property
     def enabled(self) -> bool:

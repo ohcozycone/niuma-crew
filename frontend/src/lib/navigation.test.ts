@@ -1,28 +1,33 @@
 import { expect, it } from "vitest";
-import { isRulesLocation, leavesEditingArea, KNOWLEDGE_RULES_URL } from "@/lib/navigation";
+import {
+  isRulesLocation,
+  leavesEditingArea,
+  ORGANIZATION_RULES_URL,
+  safeReturnPath,
+} from "@/lib/navigation";
 
 function location(path: string) {
   const url = new URL(path, "http://localhost");
   return { pathname: url.pathname, search: url.search };
 }
 
-it("recognizes both the canonical rules tab and legacy link for draft cleanup", () => {
-  expect(isRulesLocation(location(KNOWLEDGE_RULES_URL))).toBe(true);
-  expect(isRulesLocation(location("/rules"))).toBe(true);
+it("recognizes both the canonical rules page and legacy tab for draft cleanup", () => {
+  expect(isRulesLocation(location(ORGANIZATION_RULES_URL))).toBe(true);
+  expect(isRulesLocation(location("/knowledge?tab=rules"))).toBe(true);
   expect(isRulesLocation(location("/knowledge?q=规则"))).toBe(false);
 });
 
 it.each(["/knowledge", "/knowledge?tab=documents", "/knowledge?q=报销"])(
   "protects rule drafts when a tab or history navigation goes to %s",
   (next) => {
-    expect(leavesEditingArea(location(KNOWLEDGE_RULES_URL), location(next))).toBe(true);
+    expect(leavesEditingArea(location(ORGANIZATION_RULES_URL), location(next))).toBe(true);
   },
 );
 
 it("keeps same-tab query changes and agent configuration tab changes unblocked", () => {
-  expect(
-    leavesEditingArea(location(KNOWLEDGE_RULES_URL), location("/knowledge?tab=rules&q=报销")),
-  ).toBe(false);
+  expect(leavesEditingArea(location(ORGANIZATION_RULES_URL), location("/rules?q=报销"))).toBe(
+    false,
+  );
   expect(
     leavesEditingArea(
       location("/agents/abc?tab=instructions"),
@@ -35,7 +40,7 @@ it("keeps same-tab query changes and agent configuration tab changes unblocked",
 });
 
 it("still protects pathname navigation away from any editor", () => {
-  expect(leavesEditingArea(location(KNOWLEDGE_RULES_URL), location("/agents"))).toBe(true);
+  expect(leavesEditingArea(location(ORGANIZATION_RULES_URL), location("/agents"))).toBe(true);
   expect(leavesEditingArea(location("/agents/abc"), location("/skills"))).toBe(true);
 });
 
@@ -51,4 +56,14 @@ it("protects selected uploads on a library tab change but keeps document filteri
   expect(leavesEditingArea(location("/knowledge/abc"), location("/knowledge/abc?q=指南"))).toBe(
     false,
   );
+});
+
+it.each([
+  "/agents/employee/home",
+  "/knowledge/library/documents/document",
+  "/conversations/100000000000/trace",
+  "/help/agents",
+  "/tools?service=mcp",
+])("preserves a readable return path %s", (path) => {
+  expect(safeReturnPath(path)).toBe(path);
 });

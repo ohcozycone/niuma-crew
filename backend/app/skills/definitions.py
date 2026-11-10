@@ -1,5 +1,3 @@
-"""Interpret published Skill content once for configuration and execution consumers."""
-
 from collections.abc import Collection
 from dataclasses import dataclass
 from hashlib import sha256
@@ -25,7 +23,6 @@ class SkillContent(Protocol):
 
 
 def source_for(record: SkillContent) -> str:
-    """Choose the portable source, compiling legacy fields only when needed."""
     return record.skill_md or legacy_skill_md(record)
 
 
@@ -46,7 +43,7 @@ class SkillDefinition:
 
 
 def definition_from_record(record: Skill) -> SkillDefinition:
-    """Read a definition in the caller's transaction without loading file bytes."""
+    """在调用方事务读取已发布定义，不读取文件字节。"""
     source = source_for(record)
     metadata = parse_skill_md(source)
     return SkillDefinition(
@@ -61,8 +58,7 @@ def definition_from_record(record: Skill) -> SkillDefinition:
         instructions_hash=sha256(source.encode()).hexdigest(),
         skill_revision=record.revision,
         is_active=record.is_active,
-        # Legacy input/output/example sections describe a method; they do not
-        # replace its missing working instructions. Standard packages use their body.
+        # 旧格式的输入、输出和示例不能替代工作指令；标准包以正文为准。
         has_method_body=bool(
             metadata["body"].strip() if record.skill_md else record.instructions.strip()
         ),
@@ -70,7 +66,7 @@ def definition_from_record(record: Skill) -> SkillDefinition:
 
 
 def protocol_names(session: Session, skill_ids: Collection[str]) -> dict[str, str]:
-    """Read only this page's names; legacy IDs need no body or support files."""
+    """仅读取本页协议名，不加载正文或支持文件。"""
     if not skill_ids:
         return {}
     rows = session.execute(select(Skill.id, Skill.skill_md).where(Skill.id.in_(skill_ids)))

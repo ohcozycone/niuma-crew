@@ -1,12 +1,10 @@
-"""Typed HTTP access to application-owned services; sessions stay inside operations."""
+from __future__ import annotations
 
+import re
 from typing import Annotated
 
 from fastapi import Depends, Request
 
-from app.agents.service import AgentService
-from app.agents.tool_account_bindings import ToolAccountBindingService
-from app.agents.tool_grants import ToolGrantService
 from app.api.rate_limit import RateLimiter
 from app.auth.actor import Actor
 from app.auth.github import GitHubOAuth
@@ -15,17 +13,22 @@ from app.auth.service import AuthService
 from app.conversations.files import ConversationFiles
 from app.conversations.queries import ConversationQueries
 from app.conversations.service import ConversationService
+from app.employees.organization_rules import OrganizationRulesService
+from app.employees.service import AgentService
+from app.environments.service import SandboxService
+from app.errors import PermissionDeniedError
+from app.evaluations.service import EvaluationService
 from app.execution.contracts import ExecutionStatus
+from app.execution.queries import ExecutionQueries
 from app.files.service import FileService
 from app.infrastructure.database.session import Database
 from app.knowledge.service import KnowledgeService
+from app.mcp.catalogs import ToolCatalogService
+from app.mcp.connections import ToolConnectionService
+from app.mcp.definitions import McpDefinitionService
+from app.mcp.oauth import OAuthService
 from app.model_connections.service import ModelConnectionService
-from app.organization_rules.service import OrganizationRulesService
-from app.sandboxes.service import SandboxService
 from app.skills.service import SkillService
-from app.tools.catalogs import ToolCatalogService
-from app.tools.connections import ToolConnectionService
-from app.tools.definitions import McpDefinitionService
 
 
 def get_database(request: Request) -> Database:
@@ -77,20 +80,11 @@ def get_mcp_definitions(request: Request) -> McpDefinitionService:
 McpDefinitionDependency = Annotated[McpDefinitionService, Depends(get_mcp_definitions)]
 
 
-def get_tool_grants(request: Request) -> ToolGrantService:
-    return request.app.state.tool_grants
+def get_tool_oauth(request: Request) -> OAuthService:
+    return request.app.state.tool_oauth
 
 
-ToolGrantDependency = Annotated[ToolGrantService, Depends(get_tool_grants)]
-
-
-def get_tool_account_bindings(request: Request) -> ToolAccountBindingService:
-    return request.app.state.tool_account_bindings
-
-
-ToolAccountBindingDependency = Annotated[
-    ToolAccountBindingService, Depends(get_tool_account_bindings)
-]
+OAuthDependency = Annotated[OAuthService, Depends(get_tool_oauth)]
 
 
 def get_model_connections(request: Request) -> ModelConnectionService:
@@ -142,13 +136,6 @@ def get_knowledge(request: Request) -> KnowledgeService:
 KnowledgeDependency = Annotated[KnowledgeService, Depends(get_knowledge)]
 
 
-def get_sandboxes(request: Request) -> SandboxService:
-    return request.app.state.sandboxes
-
-
-SandboxDependency = Annotated[SandboxService, Depends(get_sandboxes)]
-
-
 def get_rate_limiter(request: Request) -> RateLimiter:
     return request.app.state.rate_limiter
 
@@ -171,7 +158,18 @@ ExecutionStatusDependency = Annotated[ExecutionStatus, Depends(get_runtime_statu
 
 
 def get_actor(request: Request, auth: AuthDependency) -> Actor:
-    return auth.resolve(request.cookies.get("app_session"))
+    actor = auth.resolve(request.cookies.get("app_session"))
+    # 搜索通过 POST 传问题，但不修改数据；具体检索策略还由知识服务授权。
+    readonly_search = request.method == "POST" and re.fullmatch(
+        r"/api/knowledge-bases/[0-9a-f-]+/search", request.url.path
+    )
+    if (
+        actor.kind == "guest"
+        and request.method not in {"GET", "HEAD", "OPTIONS"}
+        and not readonly_search
+    ):
+        raise PermissionDeniedError("permission_denied", "游客仅可查看，不能修改数据或发起执行。")
+    return actor
 
 
 ActorDependency = Annotated[Actor, Depends(get_actor)]
@@ -183,3 +181,24 @@ def require_capability(permission: str):
         return actor
 
     return check
+
+
+def get_evaluations(request: Request) -> EvaluationService:
+    return request.app.state.evaluations
+
+
+EvaluationDependency = Annotated[EvaluationService, Depends(get_evaluations)]
+
+
+def get_sandboxes(request: Request) -> SandboxService:
+    return request.app.state.sandboxes
+
+
+SandboxDependency = Annotated[SandboxService, Depends(get_sandboxes)]
+
+
+def get_execution_queries(request: Request) -> ExecutionQueries:
+    return request.app.state.execution_queries
+
+
+ExecutionQueriesDependency = Annotated[ExecutionQueries, Depends(get_execution_queries)]

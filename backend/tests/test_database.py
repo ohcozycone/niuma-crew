@@ -1,5 +1,3 @@
-"""Real file-based SQLite tests for persistence, isolation and transaction safety."""
-
 import pytest
 from sqlalchemy import URL, MetaData, Table, inspect, text
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -94,7 +92,7 @@ def test_wal_reader_keeps_snapshot_while_another_connection_commits(database):
 def test_contending_writer_times_out_then_recovers_after_lock_release(database):
     other = Database(DatabaseConfig(url=database.engine.url, busy_timeout_ms=20))
     try:
-        # Open the other connection before acquiring the write lock.
+        # 取得写锁前先打开竞争连接。
         with other.engine.connect() as connection:
             assert connection.exec_driver_sql("PRAGMA busy_timeout").scalar_one() == 20
         with database.transaction() as first:
@@ -112,7 +110,7 @@ def test_contending_writer_times_out_then_recovers_after_lock_release(database):
 
 
 def test_write_reservation_blocks_writers_without_changing_rows_or_blocking_readers(database):
-    # This schema has no conversations or other application tables.
+    # 此库不含业务表，验证数据库机制不依赖业务模型。
     parents = Table("parents", MetaData(), autoload_with=database.engine)
     other = Database(DatabaseConfig(url=database.engine.url, busy_timeout_ms=20))
     try:

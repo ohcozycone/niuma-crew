@@ -40,7 +40,7 @@ function SelectTrigger({
       className={cn(
         "[@media(pointer:coarse)]:min-h-(--os-target-touch) flex min-w-0 max-w-full w-fit items-center justify-between gap-2 rounded-field border border-input bg-surface px-3 py-2 text-body leading-5 whitespace-nowrap shadow-none outline-none transition-[color,border-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-danger data-placeholder:text-text-muted  [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-text-muted",
         size === "sm" ? "h-(--os-control-small)" : "h-(--os-control-default)",
-        "focus:border-field-focus focus:ring-[3px] focus:ring-field-focus/50 data-popup-open:border-field-focus data-popup-open:ring-[3px] data-popup-open:ring-field-focus/50 aria-invalid:focus:border-danger aria-invalid:focus:ring-danger/20 aria-invalid:data-popup-open:border-danger aria-invalid:data-popup-open:ring-danger/20",
+        "focus-visible:border-field-focus focus-visible:ring-2 focus-visible:ring-field-focus/40 data-popup-open:border-field-focus aria-invalid:focus-visible:border-danger aria-invalid:focus-visible:ring-danger/20 aria-invalid:data-popup-open:border-danger",
         className,
       )}
       {...props}

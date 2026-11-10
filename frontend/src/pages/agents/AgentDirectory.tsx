@@ -1,3 +1,5 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
+import { RefreshButton } from "@/components/common/RefreshButton";
 import type { ReactNode } from "react";
 import { PageContainer } from "@/components/common/PageContainer";
 import { Plus, SlidersHorizontal, X } from "lucide-react";
@@ -32,7 +34,8 @@ type Props = {
   agentSkillId: string | null;
   setAgentSkillId: (value: string | null) => void;
   canEdit?: (agent: AgentSummary) => boolean;
-  onCreate: () => void;
+  onCreate?: () => void;
+  onRefresh?: () => void;
   onAction: (agent: AgentSummary, action: AgentAction) => void;
 };
 export function AgentDirectory({
@@ -54,6 +57,7 @@ export function AgentDirectory({
   agentSkillId,
   setAgentSkillId,
   onCreate,
+  onRefresh,
   canEdit,
   onAction,
 }: Props) {
@@ -77,7 +81,7 @@ export function AgentDirectory({
         title="数字员工"
         description={agentSkillId ? "已装配所选技能的员工。" : "为合适的员工配齐能力，交办工作。"}
         actions={
-          <Button onClick={onCreate}>
+          <Button onClick={onCreate} disabled={!onCreate}>
             <Plus />
             创建员工
           </Button>
@@ -96,21 +100,21 @@ export function AgentDirectory({
           { value: "all", label: "全部员工", count: totalAgents ?? "—" },
           { value: "favorites", label: "已收藏" },
           { value: "active", label: "可对话" },
-          { value: "paused", label: "已被优化" },
+          { value: "paused", label: "已暂停" },
         ]}
         trailing={
           <span role="status" aria-atomic="true" aria-busy={loading && !loadError}>
             {`共 ${resultTotal} 位员工 · 本页 ${availableCount} 位可对话`}
             {loadError && " · 更新失败，仍显示上次结果"}
-            {loading && !loadError && " · 正在更新…"}
           </span>
         }
       />
-      <div className={"flex flex-wrap items-center gap-3 my-5"}>
+      <div className="my-4 flex flex-wrap items-center gap-3" role="group" aria-label="员工筛选">
         <SearchInput
-          label="搜索员工"
+          label="筛选员工"
           debounceMs={300}
-          placeholder="搜索员工、场景或技能…"
+          placeholder="筛选员工：名称、职责或技能"
+          className="max-sm:w-full"
           value={query}
           onChange={setQuery}
         />
@@ -133,7 +137,17 @@ export function AgentDirectory({
             </Button>
           )}
         </div>
-        {pagination}
+        <div className="ml-auto flex flex-wrap items-center gap-3">
+          {pagination}
+          {onRefresh && (
+            <RefreshButton
+              onClick={onRefresh}
+              loading={loading}
+              showProgress={ids.length > 0}
+              label="刷新员工列表"
+            />
+          )}
+        </div>
       </div>
       <div aria-label="员工列表" aria-busy={loading && !loadError}>
         <div>
@@ -157,11 +171,7 @@ export function AgentDirectory({
               }
             />
           )}
-          {!ids.length && loading && (
-            <p role="status" className="type-caption py-12">
-              正在读取员工…
-            </p>
-          )}
+          {!ids.length && loading && <LoadingFeedback shape="employees" label="正在读取员工…" />}
         </div>
       </div>
     </PageContainer>
@@ -181,7 +191,6 @@ function DirectoryCard({
     <AgentCard
       agent={toAgentPresentation(agent)}
       readOnly={canEdit ? !canEdit(agent) : false}
-      usable
       statusPending={state.saving}
       statusError={state.error}
       statusFailure={state.failure}

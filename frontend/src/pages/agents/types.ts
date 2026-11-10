@@ -17,7 +17,6 @@ export type AgentCardProps = {
   agent: AgentPresentation;
   readOnly?: boolean;
   preview?: boolean;
-  usable?: boolean;
   statusPending?: boolean;
   statusError?: string;
   statusFailure?: Failure | null;

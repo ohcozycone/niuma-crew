@@ -1,10 +1,20 @@
-"""Pure capability and resource-scope policies for an already resolved Actor."""
-
 from app.auth.actor import Actor
 from app.errors import NotFoundError, PermissionDeniedError
 
 PUBLIC_PERMISSIONS = frozenset({"agents:read_public", "skills:read_public"})
+GUEST_PERMISSIONS = PUBLIC_PERMISSIONS | {
+    "resources:read_all",
+    "agents:read",
+    "skills:read",
+    "tools:read",
+    "model_connections:read",
+    "organization_rules:read",
+    "knowledge:read",
+    "conversations:read",
+    "runs:read",
+}
 ADMIN_PERMISSIONS = PUBLIC_PERMISSIONS | {
+    "knowledge:manage",
     "knowledge:use",
     "conversations:create",
     "conversations:read",
@@ -43,9 +53,8 @@ ROLE_PERMISSIONS = {
         "runs:read",
         "runs:cancel",
         "tools:read",
-        "tools:update",
     },
-    "guest": PUBLIC_PERMISSIONS,
+    "guest": GUEST_PERMISSIONS,
 }
 
 
@@ -59,5 +68,10 @@ def require_permission(actor: Actor, permission: str) -> None:
 
 
 def require_resource_access(actor: Actor, owner_user_id: str) -> None:
-    if "resources:all" not in permissions_for(actor) and actor.user_id != owner_user_id:
+    if not can_read_all_resources(actor) and actor.user_id != owner_user_id:
         raise NotFoundError("resource_not_found", "记录不存在。")
+
+
+def can_read_all_resources(actor: Actor) -> bool:
+    """仅判断跨所有者读取权，不授予写权限。"""
+    return bool({"resources:all", "resources:read_all"} & permissions_for(actor))

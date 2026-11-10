@@ -58,9 +58,9 @@ function DropdownMenuItem({
       data-slot="dropdown-menu-item"
       data-tone={tone}
       className={cn(
-        "flex min-h-(--os-control-default) [@media(pointer:coarse)]:min-h-(--os-target-touch) focus-inset cursor-pointer items-center gap-(--os-space-2) rounded-small p-(--os-space-2) text-(length:--os-text-caption) outline-none data-highlighted:bg-muted data-disabled:cursor-default data-disabled:text-text-muted [&>svg]:size-4 [&>svg]:shrink-0",
+        "flex min-h-(--os-control-default) [@media(pointer:coarse)]:min-h-(--os-target-touch) focus-inset cursor-pointer items-center gap-(--os-space-2) rounded-small p-(--os-space-2) text-(length:--os-text-caption) outline-none data-highlighted:bg-hover data-disabled:cursor-default data-disabled:text-text-muted [&>svg]:size-4 [&>svg]:shrink-0",
         tone === "destructive" &&
-          "text-danger data-highlighted:bg-danger/10 data-highlighted:text-danger",
+          "text-danger data-highlighted:bg-danger-bg data-highlighted:text-danger",
         className,
       )}
       {...props}

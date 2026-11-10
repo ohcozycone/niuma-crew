@@ -9,7 +9,7 @@ export function returnPath(params: URLSearchParams, fallback: string) {
 
 type PageLocation = { pathname: string; search: string };
 
-export const KNOWLEDGE_RULES_URL = "/knowledge?tab=rules";
+export const ORGANIZATION_RULES_URL = "/rules";
 
 export function isRulesLocation(location: PageLocation) {
   const pathname = location.pathname.replace(/\/+$/, "");
@@ -44,7 +44,7 @@ export function safeReturnPath(value: string | null): string {
     const url = new URL(value, "http://app.local");
     if (url.origin !== "http://app.local") return "/";
     if (
-      !/^\/(?:|agents(?:\/(?:new|[a-zA-Z0-9-]+)(?:\/connections)?)?|skills(?:\/(?:new|[a-zA-Z0-9-]+))?|knowledge(?:\/[a-zA-Z0-9-]+(?:\/documents\/[a-zA-Z0-9-]+)?)?|design-system|brains|tools|rules|conversations(?:\/(?:new|[a-zA-Z0-9-]+))?|avatars\/svg|avatars\/playground(?:\/[a-z0-9-]+)?|avatars\/svg|avatars\/rive\/programmer)$/.test(
+      !/^\/(?:|agents(?:\/(?:new|[a-zA-Z0-9-]+)(?:\/(?:home|evaluations\/[a-zA-Z0-9-]+\/cases\/[a-zA-Z0-9-]+\/trace))?)?|skills(?:\/(?:new|[a-zA-Z0-9-]+))?|knowledge(?:\/sources\/[1-9][0-9]{11}\/K-[0-9a-f]{16}|\/[a-zA-Z0-9-]+(?:\/documents\/[a-zA-Z0-9-]+)?)?|help(?:\/[a-zA-Z0-9-]+)?|design-system|brains|tools|rules|conversations(?:\/(?:new|[a-zA-Z0-9-]+)(?:\/trace)?)?|avatars\/svg|avatars\/playground(?:\/[a-z0-9-]+)?|avatars\/svg|avatars\/rive\/programmer)$/.test(
         url.pathname,
       )
     )

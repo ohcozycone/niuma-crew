@@ -1,13 +1,34 @@
-"""Create LangChain models without narrowing their business-facing capabilities."""
-
-from collections.abc import AsyncIterator, Callable
-from contextlib import asynccontextmanager
+import json
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
+from contextlib import asynccontextmanager, contextmanager
+from contextvars import ContextVar
 
 import httpx
 from langchain_core.language_models import BaseChatModel
 from langchain_openai import ChatOpenAI
 
 from app.llm.config import LLMConfig
+from app.llm.reasoning import ReasoningChatOpenAI
+
+_request_observer: ContextVar[Callable[[dict], Awaitable[None]] | None] = ContextVar(
+    "model_request_observer", default=None
+)
+
+
+@contextmanager
+def observe_model_request(callback: Callable[[dict], Awaitable[None]]) -> Iterator[None]:
+    token = _request_observer.set(callback)
+    try:
+        yield
+    finally:
+        _request_observer.reset(token)
+
+
+async def _capture_request(request: httpx.Request) -> None:
+    observer = _request_observer.get()
+    if observer is not None:
+        # 仅采集 JSON 正文，排除请求头、URL 和认证信息。
+        await observer(json.loads(request.content))
 
 
 def create_chat_model(
@@ -21,7 +42,8 @@ def create_chat_model(
     if max_tokens is not None:
         runtime_options["max_tokens"] = max_tokens
 
-    return ChatOpenAI(
+    model_class = ReasoningChatOpenAI if config.provider in {"zhipu", "deepseek"} else ChatOpenAI
+    return model_class(
         model=config.model_id,
         api_key=config.api_key,
         base_url=config.base_url,
@@ -41,6 +63,9 @@ async def model_session(
     factory: Callable[..., BaseChatModel] | None = None,
 ) -> AsyncIterator[BaseChatModel]:
     async with httpx.AsyncClient(
-        timeout=httpx.Timeout(60, connect=10), follow_redirects=False, trust_env=False
+        timeout=httpx.Timeout(config.timeout, connect=min(10, config.timeout)),
+        follow_redirects=False,
+        trust_env=False,
+        event_hooks={"request": [_capture_request]},
     ) as transport:
         yield (factory or create_chat_model)(config, transport=transport, max_tokens=max_tokens)

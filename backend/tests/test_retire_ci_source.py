@@ -1,5 +1,3 @@
-"""Exercise the upgrade-only source archive against isolated 0011 databases."""
-
 import fcntl
 import json
 import os
@@ -51,7 +49,7 @@ def ci_source(retirement_database):
             ),
             configuration_schema=json.dumps({"properties": {"example": {"type": "string"}}}),
         )
-        # A name containing CI never makes another Skill eligible for retirement.
+        # 名称包含 CI 不代表属于退役技能。
         insert(db, "skills", id=str(uuid4()), name="CI diagnosis user method")
         db.commit()
     ordinary = library / "ci-diagnosis-user-method"
@@ -217,7 +215,7 @@ def test_cross_filesystem_archive_is_rejected_before_writing_backup(ci_source, m
         value = original(path, *args, **kwargs)
         if path == ci_source.source:
             fields = list(value)
-            fields[2] += 1  # st_dev; keep all file type and permission bits intact.
+            fields[2] += 1  # 仅替换 st_dev，保留文件类型和权限位。
             return os.stat_result(fields)
         return value
 

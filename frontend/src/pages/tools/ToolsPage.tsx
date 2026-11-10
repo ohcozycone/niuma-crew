@@ -1,3 +1,4 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { FailureState } from "@/components/failure/FailureState";
 import { clientFailure, toFailure, mutationOutcome } from "@/lib/failures/resolve";
@@ -15,6 +16,12 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Upload } from "lucide-react";
 import { McpQuickImport, type McpImportEntry } from "./McpQuickImport";
+import { OAuthConnectionPanel } from "./OAuthConnectionPanel";
+import {
+  OAuthConfigurationFields,
+  emptyOAuthFields,
+  oauthPublicConfig,
+} from "./OAuthConfigurationFields";
 import { McpSetupAccess } from "./McpSetupAccess";
 import { useWorkspaceData } from "@/state/workspace/useWorkspaceData";
 import { useEditingRegistration } from "@/state/editing/useEditing";
@@ -39,6 +46,7 @@ import { ResourceIcon } from "@/components/common/ResourceIcon";
 
 export function ToolsPage() {
   const identity = useIdentity();
+  const writable = identity.permissions.includes("tools:update");
   const shared = useWorkspaceData();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
@@ -67,18 +75,16 @@ export function ToolsPage() {
   const [envKeys, setEnvKeys] = useState("");
   const [environment, setEnvironment] = useState<Record<string, string>>({});
   const [account, setAccount] = useState("");
-  const [scope, setScope] = useState("personal");
   const [auth, setAuth] = useState("none");
   const [header, setHeader] = useState("X-API-Key");
   const [token, setToken] = useState("");
+  const [oauth, setOAuth] = useState(emptyOAuthFields);
   const [stdioAuth, setStdioAuth] = useState("none");
   const [serviceEnvKeys, setServiceEnvKeys] = useState("");
   const [serviceEditing, setServiceEditing] = useState(false);
   const [serviceName, setServiceName] = useState("");
   const [serviceDescription, setServiceDescription] = useState("");
   const service = services.find((item) => item.id === params.get("service"));
-  const native = params.get("native") === "1";
-  const userId = identity.actor.user?.id;
   function clear() {
     setName("");
     setDescription("");
@@ -88,6 +94,7 @@ export function ToolsPage() {
     setEnvKeys("");
     setAccount("");
     setToken("");
+    setOAuth(emptyOAuthFields);
     setEnvironment({});
     setInputFields([]);
     setServiceEditing(false);
@@ -102,6 +109,9 @@ export function ToolsPage() {
       envKeys ||
       account ||
       token ||
+      oauth.scopes ||
+      oauth.clientId ||
+      oauth.clientSecret ||
       Object.values(environment).some(Boolean) ||
       serviceEditing
     ),
@@ -142,6 +152,15 @@ export function ToolsPage() {
     if (serviceEditing)
       document.getElementById("mcp-service-information")?.scrollIntoView?.({ block: "start" });
   }, [serviceEditing]);
+  useEffect(() => {
+    if (!loaded || !params.has("oauth_error")) return;
+    setFailure(
+      clientFailure("oauth_session_expired", "授权回调未完成，请重新打开对应 MCP 并连接账号。"),
+    );
+    const next = new URLSearchParams(params);
+    next.delete("oauth_error");
+    setParams(next, { replace: true });
+  }, [loaded, params, setParams]);
   async function perform(action: () => Promise<void>) {
     if (busy) return;
     setBusy(true);
@@ -218,15 +237,14 @@ export function ToolsPage() {
           ? stdioAuth === "env" && Object.keys(selected).length
             ? "env"
             : "none"
-          : auth !== "none" && !token && optionalHttp
+          : auth !== "none" && auth !== "oauth" && !token && optionalHttp
             ? "none"
             : auth;
       let saved: ToolConnection | null = null;
       try {
         const connection = await createToolConnection({
           service_id: result.id,
-          name: account.trim() || `${result.name} · 我的访问设置`,
-          account_scope: scope,
+          name: account.trim() || `${result.name} · 工作连接`,
           kind: transport === "stdio" ? "mcp_stdio" : "mcp_http",
           auth_type: connectionAuth,
           public_config:
@@ -239,10 +257,14 @@ export function ToolsPage() {
               : {
                   url: result.url,
                   ...(connectionAuth === "header" ? { header_name: header } : {}),
+                  ...(connectionAuth === "oauth" ? { oauth: oauthPublicConfig(oauth) } : {}),
                 },
+          ...(connectionAuth === "oauth" && oauth.clientSecret
+            ? { oauth_client_secret: oauth.clientSecret }
+            : {}),
           ...(connectionAuth === "env"
             ? { environment: selected }
-            : connectionAuth !== "none"
+            : connectionAuth !== "none" && connectionAuth !== "oauth"
               ? { credential: token }
               : {}),
         });
@@ -250,6 +272,12 @@ export function ToolsPage() {
         saved = connection;
         clear();
         setNotice("配置已保存，正在测试连接并读取工具…");
+        if (connection.auth_type === "oauth") {
+          clear();
+          setParams({ service: result.id, oauth_connect: connection.id });
+          setNotice("访问设置已保存，请完成浏览器授权。");
+          return;
+        }
         const discovered = await discoverTools(connection.id);
         updateConnection(discovered);
         setNotice(
@@ -270,49 +298,47 @@ export function ToolsPage() {
     event.preventDefault();
     await perform(async () => {
       const stdio = service?.transport === "stdio";
-      const result = await createToolConnection(
-        native
+      const result = await createToolConnection({
+        name: account,
+        kind: stdio ? "mcp_stdio" : "mcp_http",
+        service_id: service!.id,
+        auth_type: stdio
+          ? service!.env_keys.length && stdioAuth === "env"
+            ? "env"
+            : "none"
+          : auth,
+        public_config: stdio
           ? {
-              name: account,
-              kind: "native",
-              provider_key: "workspace",
-              public_config: { workspace_mode: params.get("mode") ?? "virtual" },
+              command: service!.command,
+              args: service!.args,
+              env_keys: stdioAuth === "env" ? service!.env_keys : [],
             }
           : {
-              name: account,
-              kind: stdio ? "mcp_stdio" : "mcp_http",
-              service_id: service!.id,
-              account_scope: scope,
-              auth_type: stdio
-                ? service!.env_keys.length && stdioAuth === "env"
-                  ? "env"
-                  : "none"
-                : auth,
-              public_config: stdio
-                ? {
-                    command: service!.command,
-                    args: service!.args,
-                    env_keys: stdioAuth === "env" ? service!.env_keys : [],
-                  }
-                : { url: service!.url, ...(auth === "header" ? { header_name: header } : {}) },
-              ...(stdio
-                ? { environment: stdioAuth === "env" ? environment : {} }
-                : auth !== "none"
-                  ? { credential: token }
-                  : {}),
+              url: service!.url,
+              ...(auth === "header" ? { header_name: header } : {}),
+              ...(auth === "oauth" ? { oauth: oauthPublicConfig(oauth) } : {}),
             },
-      );
+        ...(auth === "oauth" && oauth.clientSecret
+          ? { oauth_client_secret: oauth.clientSecret }
+          : {}),
+        ...(stdio
+          ? { environment: stdioAuth === "env" ? environment : {} }
+          : auth !== "none" && auth !== "oauth"
+            ? { credential: token }
+            : {}),
+      });
       updateConnection(result);
+      if (result.auth_type === "oauth")
+        setParams({ service: service!.id, oauth_connect: result.id });
+      setOAuth(emptyOAuthFields);
       setAccount("");
       setToken("");
       setEnvironment({});
     });
   }
-  const visible = connections.filter((item) =>
-    native ? item.kind === "native" : service ? item.service_id === service.id : false,
-  );
-  const creating = !service && !native && !params.get("service");
-  const ownService = service?.owner_user_id === userId;
+  const visible = connections.filter((item) => service && item.service_id === service.id);
+  const creating = !service && !params.get("service");
+  const ownService = writable && !!service;
   const initialAccessInvalid =
     creating &&
     (transport === "stdio" && stdioAuth === "env"
@@ -327,19 +353,16 @@ export function ToolsPage() {
           )
       : transport === "http" &&
         auth !== "none" &&
+        auth !== "oauth" &&
         (!inputFields.length || inputFields.some((field) => field.is_required)) &&
         !token.trim());
   return (
     <PageContainer as="main" className="space-y-6">
       <PageHeading
-        title={native ? "内置工具" : (service?.name ?? "接入 MCP")}
-        description={
-          native
-            ? "管理文件与代码工具。文本工作区与沙箱执行的可用能力取决于运行环境。"
-            : service?.description || "登记服务，配置账号并确认目录，再由员工主动装配。"
-        }
+        title={service?.name ?? "接入 MCP"}
+        description={service?.description || "登记服务，配置账号并确认目录，再由员工主动装配。"}
         actions={
-          creating ? (
+          creating && writable ? (
             <>
               <Button
                 variant="outline"
@@ -363,7 +386,11 @@ export function ToolsPage() {
                     : !command || !capabilities.stdio_registration_allowed)
                 }
               >
-                {busy ? "正在保存并测试…" : "保存并测试"}
+                {busy
+                  ? "正在保存…"
+                  : auth === "oauth" && transport === "http"
+                    ? "保存并连接账号"
+                    : "保存并测试"}
               </Button>
             </>
           ) : serviceEditing && service ? (
@@ -390,7 +417,12 @@ export function ToolsPage() {
                   })
                 }
               >
-                {busy ? "正在保存并测试…" : "保存并测试"}信息
+                {busy
+                  ? "正在保存…"
+                  : auth === "oauth" && transport === "http"
+                    ? "保存并连接账号"
+                    : "保存并测试"}
+                信息
               </Button>
             </>
           ) : ownService ? (
@@ -425,7 +457,7 @@ export function ToolsPage() {
           ) : undefined
         }
       />
-      {!loaded && !failure && <p role="status">正在读取…</p>}
+      {!loaded && !failure && <LoadingFeedback shape="connections" label="正在读取工具连接…" />}
       {notice && (
         <p role="status" className="text-sm">
           {notice}
@@ -441,10 +473,7 @@ export function ToolsPage() {
               outcome: savedConnectionId ? "rejected" : mutationOutcome(failure),
             }}
             actions={
-              savedConnectionId &&
-              connections.some(
-                (item) => item.id === savedConnectionId && item.created_by_user_id === userId,
-              )
+              savedConnectionId && connections.some((item) => item.id === savedConnectionId)
                 ? [
                     {
                       label: "检查访问设置",
@@ -469,7 +498,7 @@ export function ToolsPage() {
             ]}
           />
         ))}
-      {loaded && creating && (
+      {loaded && creating && writable && (
         <Card
           as="form"
           variant="outline"
@@ -525,7 +554,7 @@ export function ToolsPage() {
             {transport === "http" ? (
               <FormField
                 label="MCP 服务地址"
-                description="地址须在部署者允许的网络范围内。OAuth 暂不支持。"
+                description="支持 HTTP(S)、本机和内网地址；认证方式在访问设置中选择。"
               >
                 <Input
                   required
@@ -572,14 +601,14 @@ export function ToolsPage() {
               transport={transport}
               fields={inputFields}
               keys={envKeys.split(/[\s,]+/).filter(Boolean)}
-              scope={scope}
-              onScope={setScope}
               auth={transport === "stdio" ? stdioAuth : auth}
               onAuth={transport === "stdio" ? setStdioAuth : setAuth}
               header={header}
               onHeader={setHeader}
               token={token}
               onToken={setToken}
+              oauth={oauth}
+              onOAuth={setOAuth}
               environment={environment}
               onEnvironment={setEnvironment}
             />
@@ -650,7 +679,7 @@ export function ToolsPage() {
           actions={[{ label: "返回能力库", kind: "return", href: "/skills" }]}
         />
       )}
-      {(service || native) && (
+      {service && (
         <>
           {service && (
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -681,131 +710,120 @@ export function ToolsPage() {
               )}
             </div>
           )}
-          <Card as="details" variant="outline" className="form-panel" open={!visible.length}>
-            <summary className="cursor-pointer type-title">
-              {visible.length ? "添加另一组凭据" : "配置访问方式"}
-            </summary>
-            <p className="mt-3 type-description">
-              在这里保存自己的 API Key 或选择匿名访问。同一 MCP
-              可以使用不同账号或密钥，不需要重复创建服务。
-            </p>
-            <form onSubmit={(e) => void addConnection(e)} className="form-grid mt-5">
-              <FormField label={<>连接名称</>}>
-                <Input
-                  required
-                  value={account}
-                  onChange={(e) => setAccount(e.target.value)}
-                  placeholder="例如：我的工作账号"
-                />
-              </FormField>
-              {!native && (
-                <>
-                  <FormField label={<>使用范围</>}>
-                    <SelectField
-                      value={scope}
-                      onValueChange={(nextValue) => setScope(nextValue)}
-                      options={[
-                        { value: "personal", label: "个人账号，仅本人使用" },
-                        ...(ownService
-                          ? [{ value: "shared", label: "明确共用，供装配此账号的员工使用" }]
-                          : []),
-                      ]}
-                    />
-                  </FormField>
-                  {service?.transport === "stdio" ? (
-                    <>
-                      <FormField label={<>认证方式</>}>
-                        <SelectField
-                          value={service.env_keys.length ? stdioAuth : "none"}
-                          onValueChange={(nextValue) => setStdioAuth(nextValue)}
-                          options={[
-                            { value: "none", label: "不提供密钥（匿名访问）" },
-                            {
-                              value: "env",
-                              label: "环境变量（API Key 等）",
-                              disabled: !service.env_keys.length,
-                            },
-                          ]}
-                        />
-                      </FormField>
-                      {stdioAuth === "env" &&
-                        service.env_keys.map((key) => (
-                          <FormField key={key} label={<>{key}</>}>
+          {writable && (
+            <Card as="details" variant="outline" className="form-panel" open={!visible.length}>
+              <summary className="cursor-pointer type-title">
+                {visible.length ? "添加另一组凭据" : "配置访问方式"}
+              </summary>
+              <p className="mt-3 type-description">
+                选择浏览器授权、填写 API Key 或使用匿名访问。同一 MCP
+                可以使用不同账号或密钥，不需要重复创建服务。
+              </p>
+              <form onSubmit={(e) => void addConnection(e)} className="form-grid mt-5">
+                <FormField label={<>连接名称</>}>
+                  <Input
+                    required
+                    value={account}
+                    onChange={(e) => setAccount(e.target.value)}
+                    placeholder="例如：团队资料工作账号"
+                  />
+                </FormField>
+                {
+                  <>
+                    {service?.transport === "stdio" ? (
+                      <>
+                        <FormField label={<>认证方式</>}>
+                          <SelectField
+                            value={service.env_keys.length ? stdioAuth : "none"}
+                            onValueChange={(nextValue) => setStdioAuth(nextValue)}
+                            options={[
+                              { value: "none", label: "不提供密钥（匿名访问）" },
+                              {
+                                value: "env",
+                                label: "环境变量（API Key 等）",
+                                disabled: !service.env_keys.length,
+                              },
+                            ]}
+                          />
+                        </FormField>
+                        {stdioAuth === "env" &&
+                          service.env_keys.map((key) => (
+                            <FormField key={key} label={<>{key}</>}>
+                              <Input
+                                type="password"
+                                autoComplete="off"
+                                required
+                                value={environment[key] ?? ""}
+                                onChange={(event) =>
+                                  setEnvironment((current) => ({
+                                    ...current,
+                                    [key]: event.target.value,
+                                  }))
+                                }
+                              />
+                            </FormField>
+                          ))}
+                      </>
+                    ) : (
+                      <>
+                        <FormField label={<>认证方式</>}>
+                          <SelectField
+                            value={auth}
+                            onValueChange={(nextValue) => setAuth(nextValue)}
+                            options={[
+                              { value: "bearer", label: "Bearer Token" },
+                              { value: "header", label: "自定义认证头" },
+                              { value: "oauth", label: "OAuth（浏览器授权）" },
+                              { value: "none", label: "无需认证" },
+                            ]}
+                          />
+                        </FormField>
+                        {auth === "oauth" && (
+                          <OAuthConfigurationFields value={oauth} onChange={setOAuth} />
+                        )}
+                        {auth === "header" && (
+                          <FormField label={<>认证头名称</>}>
                             <Input
-                              type="password"
-                              autoComplete="off"
                               required
-                              value={environment[key] ?? ""}
-                              onChange={(event) =>
-                                setEnvironment((current) => ({
-                                  ...current,
-                                  [key]: event.target.value,
-                                }))
-                              }
+                              value={header}
+                              onChange={(e) => setHeader(e.target.value)}
                             />
                           </FormField>
-                        ))}
-                    </>
-                  ) : (
-                    <>
-                      <FormField label={<>认证方式</>}>
-                        <SelectField
-                          value={auth}
-                          onValueChange={(nextValue) => setAuth(nextValue)}
-                          options={[
-                            { value: "bearer", label: "Bearer Token" },
-                            { value: "header", label: "自定义认证头" },
-                            { value: "none", label: "无需认证" },
-                          ]}
-                        />
-                      </FormField>
-                      {auth === "header" && (
-                        <FormField label={<>认证头名称</>}>
-                          <Input
-                            required
-                            value={header}
-                            onChange={(e) => setHeader(e.target.value)}
-                          />
-                        </FormField>
-                      )}
-                      {auth !== "none" && (
-                        <FormField label={<>Token</>}>
-                          <Input
-                            required
-                            type="password"
-                            autoComplete="off"
-                            value={token}
-                            onChange={(e) => setToken(e.target.value)}
-                            maxLength={4096}
-                          />
-                        </FormField>
-                      )}
-                    </>
-                  )}
-                </>
-              )}
-              {native && (
-                <p className="type-description">
-                  内置文件与代码能力仍需员工主动装配，每轮任务环境分别管理。
-                </p>
-              )}
-              <div className="col-span-full">
-                <Button
-                  type="submit"
-                  disabled={
-                    busy ||
-                    !account.trim() ||
-                    (!native && !service?.enabled) ||
-                    (service?.transport === "stdio" &&
-                      stdioAuth === "env" &&
-                      service.env_keys.some((key) => !environment[key]?.trim()))
-                  }
-                >
-                  保存访问设置
-                </Button>
-              </div>
-            </form>
-          </Card>
+                        )}
+                        {auth !== "none" && auth !== "oauth" && (
+                          <FormField label={<>Token</>}>
+                            <Input
+                              required
+                              type="password"
+                              autoComplete="off"
+                              value={token}
+                              onChange={(e) => setToken(e.target.value)}
+                              maxLength={4096}
+                            />
+                          </FormField>
+                        )}
+                      </>
+                    )}
+                  </>
+                }
+                <div className="col-span-full">
+                  <Button
+                    type="submit"
+                    disabled={
+                      busy ||
+                      !account.trim() ||
+                      !service?.enabled ||
+                      (service?.transport === "stdio" &&
+                        stdioAuth === "env" &&
+                        service.env_keys.some((key) => !environment[key]?.trim()))
+                    }
+                  >
+                    保存访问设置
+                  </Button>
+                </div>
+              </form>
+            </Card>
+          )}
           <div className="space-y-5">
             {!!visible.length && (
               <div>
@@ -816,7 +834,7 @@ export function ToolsPage() {
               </div>
             )}
             {visible.map((connection) => {
-              const own = connection.created_by_user_id === userId;
+              const own = writable;
               return (
                 <Card
                   as="section"
@@ -832,8 +850,7 @@ export function ToolsPage() {
                       {connection.name}
                     </h2>
                     <span className="type-caption">
-                      {connection.account_scope === "shared" ? "共用账号" : "个人账号"} ·{" "}
-                      {connection.enabled ? "已启用" : "已停用"}
+                      组织工作连接 · {connection.enabled ? "已启用" : "已停用"}
                     </span>
                   </div>
                   {own && (
@@ -857,6 +874,9 @@ export function ToolsPage() {
                           : undefined
                       }
                     />
+                  )}
+                  {own && connection.auth_type === "oauth" && (
+                    <OAuthConnectionPanel connection={connection} onChange={updateConnection} />
                   )}
                   <ToolCatalogEditor
                     key={`${connection.id}:${connection.annotations_revision}`}

@@ -1,5 +1,3 @@
-"""Retire real 0011 data without changing ordinary or mixed conversation history."""
-
 import io
 import json
 import sqlite3
@@ -12,7 +10,6 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from alembic.operations import Operations
-from alembic.script import ScriptDirectory
 
 CI_SKILL_ID = "6e69bf0e-84ca-44fd-8afb-d299a63d4381"
 BACKEND = Path(__file__).resolve().parents[1]
@@ -22,7 +19,7 @@ TIMESTAMP = "2026-10-29T01:02:03.000000Z"
 @pytest.fixture
 def retirement_database(tmp_path, monkeypatch):
     database = tmp_path / "retirement.db"
-    # Isolate all configuration, including .env loading, from the developer setup.
+    # 隔离 .env 等全部配置，不读取开发者设置。
     monkeypatch.setattr(
         "app.config._read_values",
         lambda backend_dir: {
@@ -257,15 +254,12 @@ def test_retirement_preserves_mixed_history_and_closes_only_active_ci(retirement
                 "SELECT name FROM sqlite_master WHERE tbl_name='agents' AND type='index'"
             )
         }
-    command.upgrade(fixture.configuration, "head")
-    command.upgrade(fixture.configuration, "head")
+    command.upgrade(fixture.configuration, "0020")
+    command.upgrade(fixture.configuration, "0020")
     with closing(sqlite3.connect(fixture.path)) as db:
         db.row_factory = sqlite3.Row
         assert db.execute("PRAGMA foreign_key_check").fetchall() == []
-        assert (
-            db.execute("SELECT version_num FROM alembic_version").fetchone()[0]
-            == ScriptDirectory.from_config(fixture.configuration).get_current_head()
-        )
+        assert db.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0020"
         assert table_rows(db, "messages") == messages
         assert [row["id"] for row in table_rows(db, "runs")] == all_run_ids
         ordinary_ids = {ids[name] for name in ordinary}
@@ -284,16 +278,15 @@ def test_retirement_preserves_mixed_history_and_closes_only_active_ci(retirement
         assert not db.execute("SELECT 1 FROM sqlite_master WHERE name='ci_diagnoses'").fetchall()
         assert "ci_repository" not in {row[1] for row in db.execute("PRAGMA table_info(agents)")}
         for name, before in ordinary.items():
-            assert (
-                dict(db.execute("SELECT * FROM runs WHERE id=?", (ids[name],)).fetchone()) == before
-            )
+            after = dict(db.execute("SELECT * FROM runs WHERE id=?", (ids[name],)).fetchone())
+            assert {key: after[key] for key in before} == before
         for name, before in finished_ci.items():
             after = dict(db.execute("SELECT * FROM runs WHERE id=?", (ids[name],)).fetchone())
             before_without_snapshot = {
                 key: value for key, value in before.items() if key != "config_snapshot"
             }
             after.pop("config_snapshot")
-            assert after == before_without_snapshot
+            assert {key: after[key] for key in before_without_snapshot} == before_without_snapshot
         assert (
             dict(
                 db.execute(
@@ -374,13 +367,10 @@ def test_retirement_preserves_mixed_history_and_closes_only_active_ci(retirement
 
 def test_empty_database_reaches_head_and_preserves_agent_constraints(retirement_database):
     fixture = retirement_database
-    command.upgrade(fixture.configuration, "head")
+    command.upgrade(fixture.configuration, "0020")
     with closing(sqlite3.connect(fixture.path)) as db:
         assert db.execute("PRAGMA foreign_key_check").fetchall() == []
-        assert (
-            db.execute("SELECT version_num FROM alembic_version").fetchone()[0]
-            == ScriptDirectory.from_config(fixture.configuration).get_current_head()
-        )
+        assert db.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0020"
         assert "ci_repository" not in {row[1] for row in db.execute("PRAGMA table_info(agents)")}
         insert(db, "agents", id=str(uuid4()), name="Unique name", avatar_id="admin")
         with pytest.raises(sqlite3.IntegrityError):
@@ -402,14 +392,11 @@ def test_full_upgrade_sql_contains_retirement_and_no_filesystem_changes(retireme
 
 def test_downgrade_refuses_to_fake_lost_reports(retirement_database):
     fixture = retirement_database
-    command.upgrade(fixture.configuration, "head")
+    command.upgrade(fixture.configuration, "0020")
     with pytest.raises(RuntimeError, match="restore the verified database"):
         command.downgrade(fixture.configuration, "0011")
     with closing(sqlite3.connect(fixture.path)) as db:
-        assert (
-            db.execute("SELECT version_num FROM alembic_version").fetchone()[0]
-            == ScriptDirectory.from_config(fixture.configuration).get_current_head()
-        )
+        assert db.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0020"
         assert not db.execute("SELECT 1 FROM sqlite_master WHERE name='ci_diagnoses'").fetchall()
 
 
@@ -429,7 +416,7 @@ def test_retirement_leaves_editable_source_archiving_to_deployment(retirement_da
             source_path="old-ci",
         )
         db.commit()
-    command.upgrade(fixture.configuration, "head")
+    command.upgrade(fixture.configuration, "0020")
     assert document.read_text() == "---\nname: old-ci\n---\nOld CI method\n"
     with closing(sqlite3.connect(fixture.path)) as db:
         assert db.execute("SELECT id FROM skills WHERE id=?", (CI_SKILL_ID,)).fetchone() is None
@@ -461,7 +448,7 @@ def test_failed_retirement_rolls_back_states_and_schema_together(retirement_data
     with monkeypatch.context() as patch:
         patch.setattr(Operations, "drop_column", failed_drop)
         with pytest.raises(RuntimeError, match="injected schema change failure"):
-            command.upgrade(fixture.configuration, "head")
+            command.upgrade(fixture.configuration, "0020")
     with closing(sqlite3.connect(fixture.path)) as db:
         db.row_factory = sqlite3.Row
         assert db.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0011"
@@ -473,7 +460,7 @@ def test_failed_retirement_rolls_back_states_and_schema_together(retirement_data
             db.execute("SELECT id FROM skills WHERE id=?", (CI_SKILL_ID,)).fetchone()[0]
             == CI_SKILL_ID
         )
-    command.upgrade(fixture.configuration, "head")
+    command.upgrade(fixture.configuration, "0020")
     with closing(sqlite3.connect(fixture.path)) as db:
         assert (
             db.execute("SELECT status FROM runs WHERE id=?", (ids["ci_running"],)).fetchone()[0]

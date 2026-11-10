@@ -1,5 +1,3 @@
-"""Classify provider exceptions without swallowing storage or application errors."""
-
 import httpx
 import openai
 
@@ -18,7 +16,7 @@ def classify_error(error: Exception) -> str | None:
             else "upstream_stream_error"
         )
     if isinstance(error, (openai.APITimeoutError, httpx.TimeoutException)):
-        return "run_timeout"
+        return "upstream_timeout"
     if isinstance(error, (openai.APIConnectionError, httpx.HTTPError)):
         return "upstream_unavailable"
     if isinstance(error, openai.APIError):

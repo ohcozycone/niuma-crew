@@ -1,5 +1,3 @@
-"""Write-only secrets and explicitly enumerated response fields."""
-
 from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
@@ -48,7 +46,7 @@ class KeyValidation(RequestModel):
 class ConnectionCreate(KeyValidation):
     enabled: StrictBool = True
     name: Name
-    preset_id: Literal["kimi-code", "siliconflow-embedding"] = "kimi-code"
+    preset_id: Literal["kimi-code", "zhipu", "deepseek", "siliconflow-embedding"] = "kimi-code"
     model_id: ModelId = "kimi-for-coding"
     api_key: ApiKey
 

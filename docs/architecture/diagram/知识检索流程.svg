@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 700" role="img" aria-labelledby="title desc">
+<title id="title">知识检索流程</title>
+<desc id="desc">原件解析为固定正文与片段，分别建立关键词与向量索引。执行中的查询限定资料范围，通过关键词与可用向量召回，按名次融合并登记证据，回答引用再次核对来源。图为当前实现概览，不包含查询改写或语义精排。</desc>
+<metadata>沿用平台整体技术架构的布局、字体与日夜配色；颜色来自 frontend/src/design-system/theme.css。</metadata>
+<defs>
+<marker id="arrow" markerWidth="7" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L7 3.5L0 7Z" class="arrow"/></marker>
+<style>
+text{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;fill:#292923}
+.title{font-size:32px;font-weight:600;letter-spacing:-.5px}.name{font-size:22px;font-weight:600}.body{font-size:18px;fill:#6b675d}.caption{font-size:16px;fill:#6b675d}.section{font-size:20px;font-weight:600;fill:#aa542c}
+.canvas{fill:#eeebe5}.region{fill:#f7f6f2;stroke:#e6e3dc;stroke-width:1.2}.card{fill:#fffefb;stroke:#e6e3dc;stroke-width:1.2}.line{fill:none;stroke:#aa542c;stroke-width:1.5;marker-end:url(#arrow)}.arrow{fill:#aa542c}.dependency{stroke:#6b675d;stroke-dasharray:5 5}
+@media(prefers-color-scheme:dark){text{fill:#f2eee5}.body,.caption{fill:#b9b4a8}.section{fill:#eea379}.canvas{fill:#1b1a18}.region{fill:#242321;stroke:#464239}.card{fill:#2a2824;stroke:#464239}.line{stroke:#eea379}.arrow{fill:#eea379}.dependency{stroke:#b9b4a8}}
+</style>
+</defs>
+<rect class="canvas" width="1440" height="700"/>
+<text class="title" x="48" y="61">知识检索 · 从资料到回答依据</text>
+<text class="caption" x="48" y="96">当前实现；实线表示处理流转，虚线表示索引供查询使用</text>
+<text class="section" x="48" y="146">资料入库</text>
+<rect class="card" x="48" y="176" width="300" height="134" rx="12"/>
+<text class="name" x="72" y="216">上传原件</text><text class="body" x="72" y="252">保存组织文本资料</text><text class="body" x="72" y="282">手动发起处理</text>
+<path class="line" d="M348 243H408"/>
+<rect class="card" x="408" y="176" width="300" height="134" rx="12"/>
+<text class="name" x="432" y="216">正文与片段</text><text class="body" x="432" y="252">按章节、长度与重叠切分</text><text class="body" x="432" y="282">保留来源区间与版本</text>
+<path class="line" d="M708 243H768"/>
+<rect class="region" x="768" y="176" width="624" height="134" rx="12"/>
+<rect class="card" x="784" y="192" width="284" height="102" rx="10"/>
+<text class="name" x="808" y="230">关键词索引</text><text class="body" x="808" y="267">分词与全文检索</text>
+<rect class="card" x="1084" y="192" width="292" height="102" rx="10"/>
+<text class="name" x="1108" y="230">向量索引</text><text class="body" x="1108" y="267">向量生成与成员发布</text>
+<path class="line dependency" d="M1080 310V350H558V410"/>
+<text class="section" x="48" y="380">运行检索</text>
+<rect class="card" x="48" y="410" width="300" height="138" rx="12"/>
+<text class="name" x="72" y="451">问题与资料范围</text><text class="body" x="72" y="489">员工固定选库与策略</text><text class="body" x="72" y="520">前置或按需查询</text>
+<path class="line" d="M348 479H408"/>
+<rect class="card" x="408" y="410" width="300" height="138" rx="12"/>
+<text class="name" x="432" y="451">多路召回</text><text class="body" x="432" y="489">关键词与可用向量</text><text class="body" x="432" y="520">按当前索引成员过滤</text>
+<path class="line" d="M708 479H768"/>
+<rect class="card" x="768" y="410" width="260" height="138" rx="12"/>
+<text class="name" x="792" y="451">排名融合</text><text class="body" x="792" y="489">合并名次、片段去重</text><text class="body" x="792" y="520">控制全局结果预算</text>
+<path class="line" d="M1028 479H1088"/>
+<rect class="card" x="1088" y="410" width="304" height="138" rx="12"/>
+<text class="name" x="1112" y="451">登记证据</text><text class="body" x="1112" y="489">固定片段供本轮回答</text><text class="body" x="1112" y="520">发布前核对引用与版本</text>
+<rect class="region" x="48" y="588" width="1344" height="64" rx="10"/>
+<text class="body" x="72" y="627">来源可定位不等于结论正确；分片、召回、证据选择和回答质量需要分别评估。</text>
+</svg>

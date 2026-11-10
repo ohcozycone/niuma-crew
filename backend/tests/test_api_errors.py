@@ -1,11 +1,8 @@
-"""Verify application failure categories at HTTP and identity-check boundaries."""
-
-from dataclasses import replace
 from types import SimpleNamespace
 
 import pytest
 from fastapi import FastAPI
-from scenario_client import ScenarioClient as TestClient
+from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 
 from app.api.errors import SERVICE_ERROR_RESPONSES, InputErrorResponse, register_error_handlers
@@ -126,19 +123,23 @@ def test_identity_rechecks_only_convert_lost_authorization(
         if failure == "authentication":
             raise AuthenticationError("session_expired", "登录已失效。")
         if failure == "permission":
-            return replace(actor, role="guest")
+            raise PermissionDeniedError("permission_denied", "身份权限已失效。")
         raise ServiceUnavailableError("identity_unavailable", "身份服务暂不可用。")
 
-    monkeypatch.setattr(state.auth, "validate_session", resolve)
+    monkeypatch.setattr("app.execution.authorization.authorize_work", resolve)
 
     def recheck():
         if consumer == "execution":
-            state.runner.coordinator.authorize(
-                SimpleNamespace(initiated_by_session_id=actor.session_id)
+            state.runs.authorize(
+                SimpleNamespace(
+                    initiated_by_user_id=actor.user_id, initiated_by_session_id=actor.session_id
+                )
             )
         else:
-            state.conversation_commands.publisher.authorize(
-                SimpleNamespace(initiated_by_session_id=actor.session_id)
+            state.runs.authorize(
+                SimpleNamespace(
+                    initiated_by_user_id=actor.user_id, initiated_by_session_id=actor.session_id
+                )
             )
 
     if failure == "dependency":

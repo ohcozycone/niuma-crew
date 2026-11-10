@@ -4,9 +4,9 @@ import { SvgAvatar, svgCharacters, type SvgCharacterId } from "@/components/avat
 import styles from "./svgGalleryStyles";
 
 const backgrounds = [
-  { id: "warm", label: "暖色", color: "#faddc2" },
-  { id: "light", label: "浅色", color: "#fff9ef" },
-  { id: "dark", label: "深色", color: "#20252b" },
+  { id: "warm", label: "暖色", color: "var(--os-selected)" },
+  { id: "light", label: "主题表面", color: "var(--os-surface)" },
+  { id: "dark", label: "反差", color: "var(--os-text)" },
   { id: "transparent", label: "透明", color: "transparent" },
 ] as const;
 export function AvatarGalleryPage() {

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "yf-travel",
+    "library": "yunfan",
+    "question": "按云帆科技制度，去上海出差的住宿每晚上限是多少？",
+    "expected_documents": ["yunfan/差旅管理与费用标准.txt"],
+    "reference_keywords": ["500"],
+    "answerable": true,
+    "source": "按未改写原文补充的本地冒烟题；不是上游完整基准",
+    "scope": "前六条文档命中及关键字覆盖；不代表回答语义正确"
+  },
+  {
+    "id": "yf-expense",
+    "library": "yunfan",
+    "question": "在云帆科技报销单笔5000元，审批链路需要哪些人？",
+    "expected_documents": ["yunfan/费用报销流程指南.txt"],
+    "reference_keywords": ["财务总监"],
+    "answerable": true,
+    "source": "按未改写原文补充的本地冒烟题；不是上游完整基准",
+    "scope": "前六条文档命中及关键字覆盖；不代表回答语义正确"
+  },
+  {
+    "id": "yf-meeting",
+    "library": "yunfan",
+    "question": "云帆科技预约会议室后，开会多久还没人用就会自动释放？",
+    "expected_documents": ["yunfan/会议室与办公资源使用规范.txt"],
+    "reference_keywords": ["15"],
+    "answerable": true,
+    "source": "按未改写原文补充的本地冒烟题；不是上游完整基准",
+    "scope": "前六条文档命中及关键字覆盖；不代表回答语义正确"
+  },
+  {
+    "id": "yz-travel",
+    "library": "yunzhou",
+    "question": "按云舟科技制度，去上海出差的住宿每晚上限是多少？",
+    "expected_documents": ["yunzhou/云舟科技费用报销与差旅管理制度.txt"],
+    "reference_keywords": ["650"],
+    "answerable": true,
+    "source": "按未改写原文补充的本地冒烟题；不是上游完整基准",
+    "scope": "前六条文档命中及关键字覆盖；不代表回答语义正确"
+  },
+  {
+    "id": "yz-late-expense",
+    "library": "yunzhou",
+    "question": "云舟科技员工超过30天才提交报销，需要哪些负责人审批？",
+    "expected_documents": ["yunzhou/云舟科技费用报销与差旅管理制度.txt"],
+    "reference_keywords": ["部门负责人", "财务负责人"],
+    "answerable": true,
+    "source": "按未改写原文补充的本地冒烟题；不是上游完整基准",
+    "scope": "前六条文档命中及关键字覆盖；不代表回答语义正确"
+  },
+  {
+    "id": "yz-p0",
+    "library": "yunzhou",
+    "question": "云舟科技P0工单首次响应、临时方案和最终解决的时限分别是多少？",
+    "expected_documents": ["yunzhou/云舟科技客户服务与工单 SLA 规范.txt"],
+    "reference_keywords": ["15", "1", "4"],
+    "answerable": true,
+    "source": "按未改写原文补充的本地冒烟题；不是上游完整基准",
+    "scope": "前六条文档命中及关键字覆盖；不代表回答语义正确"
+  },
+  {
+    "id": "yf-unknown",
+    "library": "yunfan",
+    "question": "云帆科技火星仓库在2038年的轮值人员名单是什么？",
+    "expected_documents": [],
+    "reference_keywords": [],
+    "answerable": false,
+    "expected_behavior": "说明本次导入资料没有依据，不编造名单。",
+    "source": "本地无答案负例，未运行真实聊天模型"
+  }
+]

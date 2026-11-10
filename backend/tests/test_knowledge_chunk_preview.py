@@ -1,5 +1,3 @@
-"""Section-aware chunks retain evidence, and preview matches durable publication."""
-
 from datetime import timedelta
 from uuid import uuid4
 
@@ -8,13 +6,13 @@ from sqlalchemy import func, select
 from test_knowledge_library import create, process, upload
 
 from app.auth.actor import Actor
-from app.errors import NotFoundError
-from app.infrastructure.database.fields import utc_now
+from app.errors import PermissionDeniedError
 from app.knowledge.chunking import ChunkLimitExceeded, split_document
-from app.knowledge.contracts import RetrievalPreset
 from app.knowledge.loading import text_document
 from app.knowledge.models import KnowledgeBase, LibraryChunk, ProcessingBatch
 from app.knowledge.schemas import ChunkPreviewRequest
+from app.values import utc_now
+from experiments.knowledge_poc.contracts import RetrievalPreset
 
 BODY = "# 报销流程\n总则\n\n## 提交申请\n先提交出差申请。\n\n## 准备凭证\n准备发票和住宿明细。\n\n## 审批\n交给主管审批。\n"
 RULES = {"chunk_size": 300, "chunk_overlap": 20, "min_section_chars": 80}
@@ -164,11 +162,11 @@ def test_invalid_rules_scope_and_deletion_during_preview(api_client, monkeypatch
         == 404
     )
     service = api_client.app.state.knowledge
-    stranger = Actor("user", "", str(uuid4()), "other", "admin", utc_now() + timedelta(hours=1))
-    with pytest.raises(NotFoundError):
+    stranger = Actor("user", "", str(uuid4()), "other", "member", utc_now() + timedelta(hours=1))
+    with pytest.raises(PermissionDeniedError):
         service.processing.preview(stranger, kb, doc["id"], ChunkPreviewRequest())
     with service.database.transaction() as db:
-        owner_id = db.get(KnowledgeBase, kb).owner_user_id
+        owner_id = db.get(KnowledgeBase, kb).created_by_user_id
     owner = Actor("user", "", owner_id, "admin", "admin", utc_now() + timedelta(hours=1))
     native = service.processing.prepare
 

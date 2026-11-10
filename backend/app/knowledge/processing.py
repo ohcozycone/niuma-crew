@@ -1,5 +1,3 @@
-"""Durable keyword jobs: short claims, bounded work, and atomic per-file publication."""
-
 from __future__ import annotations
 
 import logging
@@ -10,17 +8,16 @@ from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
 from app.errors import ConflictError, InvalidInputError, NotFoundError, ServiceError
-from app.infrastructure.database.fields import new_uuid, utc_now
 from app.infrastructure.database.transactions import reserve_writer
 from app.knowledge.chunking import ChunkLimitExceeded, split_document
-from app.knowledge.contracts import Chunk, KnowledgeDocument, RetrievalPreset
+from app.knowledge.contracts import Chunk, ChunkingRules, KnowledgeDocument
 from app.knowledge.lexical import lexical_terms, lexical_version
-from app.knowledge.loading import text_document
+from app.knowledge.loading import LIBRARY_PARSER_VERSION, text_document
 from app.knowledge.models import (
     KnowledgeBase,
     LibraryChunk,
     LibraryDocument,
-    LibraryVector,
+    LibraryVectorMembership,
     ProcessingBatch,
     ProcessingItem,
 )
@@ -32,6 +29,7 @@ from app.knowledge.schemas import (
     ProcessingRequest,
     effective_rules,
 )
+from app.values import digest, new_uuid, utc_now
 
 if TYPE_CHECKING:
     from app.knowledge.service import KnowledgeService
@@ -40,9 +38,53 @@ logger = logging.getLogger(__name__)
 ACTIVE = ("queued", "running")
 
 
-class KnowledgeProcessingService:
-    """Own persistent jobs; the lifespan scanner only decides when to run one."""
+SPLIT_VERSION = 2
+RULE_FIELDS = ("chunk_size", "chunk_overlap", "min_section_chars", "split_version")
 
+
+def result_digest(session: Session, doc: LibraryDocument) -> str:
+    """校验已发布片段与关键词行的完整性，不重新解析或分词。"""
+    chunks = list(
+        session.scalars(
+            select(LibraryChunk)
+            .where(LibraryChunk.document_id == doc.id)
+            .order_by(LibraryChunk.position)
+        )
+    )
+    words = session.execute(
+        text("""SELECT chunk_id, knowledge_base_id, tokens FROM knowledge_fts
+        WHERE chunk_id IN (SELECT id FROM knowledge_chunks WHERE document_id=:doc)
+        ORDER BY chunk_id, knowledge_base_id, tokens"""),
+        {"doc": doc.id},
+    ).all()
+    return digest(
+        [
+            doc.content_hash,
+            doc.snapshot,
+            {key: doc.processing_rules.get(key) for key in RULE_FIELDS},
+            doc.lexical_version,
+            [[chunk.id, chunk.position, chunk.snapshot] for chunk in chunks],
+            [list(row) for row in words],
+        ]
+    )
+
+
+def can_reuse(session: Session, doc: LibraryDocument, rules: dict) -> bool:
+    """仅复用同源、同规则、同版本且完整的已发布结果。"""
+    return bool(
+        doc.processing_state == "ready"
+        and not doc.active_job_id
+        and doc.snapshot.get("original_sha256") == doc.content_hash
+        and doc.snapshot.get("parser") == LIBRARY_PARSER_VERSION
+        and doc.lexical_version == lexical_version()
+        and doc.processing_rules.get("split_version") == SPLIT_VERSION
+        and all(doc.processing_rules.get(key) == rules.get(key) for key in RULE_FIELDS)
+        and doc.processing_rules.get("result_digest")
+        and doc.processing_rules["result_digest"] == result_digest(session, doc)
+    )
+
+
+class KnowledgeProcessingService:
     def __init__(self, knowledge: KnowledgeService):
         self.knowledge = knowledge
 
@@ -60,9 +102,9 @@ class KnowledgeProcessingService:
             status = "running"
         elif "queued" in statuses:
             status = "queued"
-        elif statuses == {"succeeded"}:
+        elif statuses <= {"succeeded", "reused"}:
             status = "succeeded"
-        elif "succeeded" in statuses:
+        elif statuses & {"succeeded", "reused"}:
             status = "partial"
         elif statuses == {"cancelled"}:
             status = "cancelled"
@@ -86,10 +128,11 @@ class KnowledgeProcessingService:
         )
 
     def submit(self, actor: Actor, kb: str, data: ProcessingRequest) -> ProcessingBatchRead:
+        self.knowledge.manager(actor)
         """Freeze effective rules and an explicit file set before acknowledging enqueue."""
         payload = data.model_dump(mode="json", exclude={"client_request_id"})
         if data.rules is None:
-            payload.pop("rules")  # Preserve idempotency of submissions accepted before preview.
+            payload.pop("rules")  # 先查幂等原提交，再做预览。
         if data.document_ids and len(set(data.document_ids)) != len(data.document_ids):
             raise InvalidInputError("knowledge_duplicate_document", "处理文件不能重复。")
         with self.knowledge.database.transaction() as session:
@@ -123,7 +166,11 @@ class KnowledgeProcessingService:
                 raise NotFoundError("knowledge_document_not_found", "部分文件不存在，请刷新列表。")
             if any(doc.active_job_id for doc in docs):
                 raise ConflictError("knowledge_processing_busy", "所选文件已有处理中任务。")
-            docs = [doc for doc in docs if data.reprocess or doc.processing_state != "ready"]
+            docs = [
+                doc
+                for doc in docs
+                if data.document_ids or data.reprocess or doc.processing_state != "ready"
+            ]
             if not docs:
                 raise InvalidInputError(
                     "knowledge_nothing_pending", "没有待处理文件；如需重新切分，请选择重新处理。"
@@ -140,7 +187,7 @@ class KnowledgeProcessingService:
                             base.chunk_size, base.chunk_overlap, base.min_section_chars
                         )
                     ).model_dump(),
-                    "split_version": 2,
+                    "split_version": SPLIT_VERSION,
                 },
             )
             session.add(batch)
@@ -152,19 +199,19 @@ class KnowledgeProcessingService:
                     document_id=doc.id,
                     filename=self.knowledge.document_read(session, doc).filename,
                     source_hash=doc.content_hash,
-                    status="queued",
+                    status="reused" if can_reuse(session, doc, batch.rules) else "queued",
                 )
                 session.add(item)
-                doc.active_job_id, doc.processing_state, doc.processing_error = (
-                    item.id,
-                    "queued",
-                    None,
-                )
+                if item.status == "queued":
+                    doc.active_job_id, doc.processing_state, doc.processing_error = (
+                        item.id,
+                        "queued",
+                        None,
+                    )
             session.flush()
             return self.read(session, batch)
 
     def batches(self, actor: Actor, kb: str) -> list[ProcessingBatchRead]:
-        """Return recent batches; per-file state remains available for older work."""
         with self.knowledge.database.transaction() as session:
             self.knowledge.require_base(session, kb, actor)
             return [
@@ -186,6 +233,7 @@ class KnowledgeProcessingService:
             return self.read(session, row)
 
     def cancel(self, actor: Actor, kb: str, id: str) -> ProcessingBatchRead:
+        self.knowledge.manager(actor)
         """Invalidate commit permits; never discard previously published files."""
         with self.knowledge.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
@@ -208,7 +256,7 @@ class KnowledgeProcessingService:
             return self.read(session, batch)
 
     def recover(self) -> None:
-        """Queued work survives restart; uncertain running work requires explicit retry."""
+        """排队任务可重启续跑，执行结果未知的任务需显式重试。"""
         with self.knowledge.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
             for item in session.scalars(
@@ -227,7 +275,7 @@ class KnowledgeProcessingService:
                     )
 
     def run_next(self) -> bool:
-        """Claim at most one item. No parsing or file I/O holds a database transaction."""
+        """每次最多领取一项；解析和文件 I/O 在事务外执行。"""
         with self.knowledge.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
             item = session.scalar(
@@ -268,7 +316,7 @@ class KnowledgeProcessingService:
     def prepare(
         self, file_id: str, document_id: str, filename: str, rules: dict
     ) -> tuple[KnowledgeDocument, tuple[Chunk, ...]]:
-        """Shared bounded computation; neither preview nor parsing publishes partial content."""
+        """预览与正式处理共用计算过程，不发布部分内容。"""
         document = text_document(self.knowledge.files.read(file_id), document_id, filename)
         args = (
             {"min_section_chars": rules["min_section_chars"]}
@@ -278,7 +326,7 @@ class KnowledgeProcessingService:
         try:
             chunks = split_document(
                 document,
-                RetrievalPreset(
+                ChunkingRules(
                     chunk_tokens=rules["chunk_size"], overlap_tokens=rules["chunk_overlap"]
                 ),
                 len,
@@ -295,7 +343,7 @@ class KnowledgeProcessingService:
     def preview(
         self, actor: Actor, kb: str, id: str, data: ChunkPreviewRequest
     ) -> ChunkPreviewRead:
-        """Read one original and return a bounded page without changing any ready state."""
+        """读取原件并返回预览页，不修改入库状态。"""
         with self.knowledge.database.transaction() as session:
             base = self.knowledge.require_base(session, kb, actor)
             doc = session.get(LibraryDocument, id)
@@ -352,7 +400,7 @@ class KnowledgeProcessingService:
         tokens: list[str],
         rules: dict,
     ) -> None:
-        """Replace exactly one file atomically, after rechecking its live commit permit."""
+        """复核当前许可后，原子替换单份文档。"""
         with self.knowledge.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
             item = session.get(ProcessingItem, id)
@@ -378,7 +426,9 @@ class KnowledgeProcessingService:
                     "knowledge_quota_exceeded", "知识库超过5000个片段，请调整规则或减少文档。"
                 )
             old_ids = select(LibraryChunk.id).where(LibraryChunk.document_id == doc.id)
-            session.execute(delete(LibraryVector).where(LibraryVector.chunk_id.in_(old_ids)))
+            session.execute(
+                delete(LibraryVectorMembership).where(LibraryVectorMembership.chunk_id.in_(old_ids))
+            )
             session.execute(
                 text(
                     "DELETE FROM knowledge_fts WHERE chunk_id IN (SELECT id FROM knowledge_chunks WHERE document_id=:doc)"
@@ -406,9 +456,14 @@ class KnowledgeProcessingService:
                 document.title,
                 lexical_version(),
             )
-            doc.processing_rules = rules
+            doc.processing_rules = dict(rules)
+            session.flush()
+            doc.processing_rules = {**rules, "result_digest": result_digest(session, doc)}
             doc.active_job_id, doc.processing_state, doc.processing_error = None, "ready", None
             item.status, item.error = "succeeded", None
             base = session.get(KnowledgeBase, doc.knowledge_base_id)
             assert base is not None
             base.updated_at = utc_now()
+            kb = doc.knowledge_base_id
+        if self.knowledge._vectors is not None:
+            self.knowledge.vectors.prune(kb)

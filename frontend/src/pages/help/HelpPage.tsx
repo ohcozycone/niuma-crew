@@ -1,3 +1,4 @@
+import { designDocumentationUrl } from "@/lib/documentation";
 import { Card } from "@/components/ui/Card";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useParams } from "react-router";
@@ -22,9 +23,9 @@ export function HelpPage() {
           <BrandLogo />
         </Link>
         <span>功能指南</span>
-        <Link className={styles.designLink} to="/design-system">
-          design
-        </Link>
+        <a className={styles.designLink} href={designDocumentationUrl()}>
+          设计文档
+        </a>
       </header>
       <main className={styles.main}>
         <PageHeading title={guide.title} description={guide.description} />

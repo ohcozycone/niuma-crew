@@ -1,5 +1,3 @@
-"""Translate service and SQLite contention errors without exposing SQL or parameters."""
-
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -17,6 +15,7 @@ from app.errors import (
     ServiceUnavailableError,
 )
 from app.infrastructure.database.errors import is_database_busy
+from app.public_errors import public_error_message
 
 
 class ErrorDetail(BaseModel):
@@ -78,7 +77,13 @@ def service_error_response(error: ServiceError) -> JSONResponse:
     return JSONResponse(
         status_code=status,
         headers=headers,
-        content={"detail": {"code": error.code, "message": error.message}},
+        content={
+            "detail": {
+                "code": error.code,
+                "message": error.message
+                or public_error_message(error.code, default="操作失败，请稍后重试。"),
+            }
+        },
     )
 
 
@@ -91,7 +96,7 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(request: Request, error: RequestValidationError) -> JSONResponse:
-        # Pydantic inputs/context can include passwords, even when an unrelated field failed.
+        # 即使其他字段校验失败，Pydantic 输入与上下文也可能包含密码。
         return JSONResponse(
             status_code=422,
             content={

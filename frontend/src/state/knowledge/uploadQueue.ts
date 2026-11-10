@@ -100,7 +100,7 @@ export class KnowledgeUploadQueue {
       if (!this.disposed) {
         this.update(entry.id, {
           status: "done",
-          message: result.keyword_ready ? "原件已保存 · 关键词可用" : "原件已保存 · 待手动处理",
+          message: result.keyword_ready ? "已上传 · 关键词可用" : "已上传 · 待分片",
         });
         this.changed();
       }

@@ -1,5 +1,3 @@
-"""Administrator-only model settings; secrets never leave the write path."""
-
 from typing import Annotated
 from uuid import UUID
 

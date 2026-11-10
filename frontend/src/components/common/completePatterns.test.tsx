@@ -50,7 +50,7 @@ it("long centered dialogs own scrolling without the calling page supplying it", 
       </DialogContent>
     </Dialog>,
   );
-  expect(screen.getByRole("dialog").classList.contains("overflow-y-auto")).toBe(true);
+  expect(screen.getByRole("dialog").classList.contains("dialog-surface")).toBe(true);
   expect(screen.getByRole("button", { name: "关闭" })).toBeTruthy();
 });
 

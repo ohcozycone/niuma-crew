@@ -47,7 +47,7 @@ it("employee, legacy skill and capability cards share the same surface and foote
     expect(card.classList.contains("rounded-card")).toBe(true);
     expect(card.querySelector('[data-slot="card-footer"]')).not.toBeNull();
   }
-  expect(screen.getByRole("button", { name: "与测试员工开始对话" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "打开测试员工的员工主页" })).toBeTruthy();
   expect(screen.getByRole("button", { name: "查看旧技能详情" })).toBeTruthy();
   expect(screen.getByRole("button", { name: "查看配置" }).getAttribute("href")).toBe(
     "/skills/capability",

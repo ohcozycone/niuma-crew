@@ -13,7 +13,14 @@ export type Failure = {
 };
 
 export type FailureResource =
-  "agent" | "skill" | "knowledge" | "document" | "conversation" | "connection" | "page";
+  | "agent"
+  | "evaluation"
+  | "skill"
+  | "knowledge"
+  | "document"
+  | "conversation"
+  | "connection"
+  | "page";
 
 export type FailureContext = {
   operation: "initial-read" | "refresh" | "mutation" | "subscription" | "render";

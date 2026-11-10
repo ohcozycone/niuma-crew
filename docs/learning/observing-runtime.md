@@ -6,9 +6,9 @@
 
 ## 1. 准备三个观察位置
 
-1. 打开应用，使用现有管理员账号登录。游客能浏览公开资源，不能提交工作或修改配置。
+1. 打开应用，使用现有管理员账号登录。游客可只读浏览全站资料与历史日志，不能提交工作或修改配置。
 2. 打开浏览器开发者工具的 Network，勾选保留请求记录，筛选 `/api/`。先看方法、URL、状态码和响应，再看发起请求的前端文件。
-3. 保留开发服务日志。正常由 `make dev` 启动；后台存活看 `/health`，执行服务能否接单看 `/ready`。当前地址和启动日志位置以本轮[实施记录](../records/platform-refactor-implementation.md)为准。
+3. 保留开发服务日志。正常由 `make dev` 启动；后台存活看 `/health`，执行服务能否接单看 `/ready`。当前地址和启动日志位置以本轮实施记录为准。
 
 不要一开始同时打开所有模块。每一轮只跟踪一个用户动作，记下它的对话 ID、回复 ID 和请求键。配置页尚不需要理解 Agent 循环。
 
@@ -27,7 +27,7 @@
 
 这条链路是：页面 → 局部 Hook → agents API 客户端 → API 路由 → AgentService → 数据库。路由解析 HTTP 参数和身份、转换响应；AgentService 检查操作权限，在事务内维护配置和装配规则。这里没有额外的 ApiAgentService 转发。
 
-阅读入口：[useAgentDirectory](../../frontend/src/pages/agents/useAgentDirectory.ts)、[useAgentEditor](../../frontend/src/pages/agents/useAgentEditor.ts)、[agents 客户端](../../frontend/src/lib/api/agents.ts)、[员工路由](../../backend/app/api/routes/agents.py)、[员工服务](../../backend/app/agents/service.py)。
+阅读入口：[useAgentDirectory](../../frontend/src/pages/agents/useAgentDirectory.ts)、[useAgentEditor](../../frontend/src/pages/agents/useAgentEditor.ts)、[agents 客户端](../../frontend/src/lib/api/agents.ts)、[员工路由](../../backend/app/api/routes/employees.py)、[员工服务](../../backend/app/employees/service.py)。
 
 这一轮完成后，应能解释「为什么目录数据不能直接当成完整配置保存」以及「为什么每个 router 不必再配一个 service」。
 
@@ -40,9 +40,9 @@
 | 登录、游客与退出     | /api/auth， [auth 路由](../../backend/app/api/routes/auth.py) → [AuthService](../../backend/app/auth/service.py)                                                                                 | Cookie 怎样变成 Actor，操作权限与资源归属为何继续检查；GitHub 跳转是另一种认证入口 |
 | 技能目录与编辑       | /api/skills、/api/public/skills，[技能服务](../../backend/app/skills/service.py)                                                                                                                 | 摘要与指令详情分开，方法保存不等于员工已装配，也不授予外部工具权限                 |
 | 大脑配置             | /api/model-connections，[连接服务](../../backend/app/model_connections/service.py)                                                                                                               | 保存不生成回答，连接检查与生成是不同调用，凭证与配置分别修订                       |
-| 知识页的规章制度     | /api/organization-rules，[规则服务](../../backend/app/organization_rules/service.py)                                                                                                             | 预期版本与冲突，编辑影响后续接受；知识文档当前仍为静态教学内容                     |
+| 知识页的规章制度     | /api/organization-rules，[规则服务](../../backend/app/employees/organization_rules.py)                                                                                                           | 预期版本与冲突，编辑影响后续接受；知识文档当前仍为静态教学内容                     |
 | 侧栏、收藏与全局搜索 | configuration-summary、员工/技能分页查询，[导航 Hook](../../frontend/src/components/navigation/useNavigationSummary.ts) 与 [搜索组件](../../frontend/src/components/navigation/GlobalSearch.tsx) | 一个前端功能可以组合多个接口；目录与侧栏复用共享员工摘要及收藏查询                 |
-| MCP 连接与工具清单   | /api/tools，[连接维护](../../backend/app/tools/connections.py)、[工具清单](../../backend/app/tools/catalogs.py)                                                                                  | 保存账号、读取和确认工具清单是不同步骤；确认后仍需员工许可和本人账号绑定           |
+| MCP 连接与工具清单   | /api/tools，[连接维护](../../backend/app/mcp/connections.py)、[工具清单](../../backend/app/mcp/catalogs.py)                                                                                      | 保存账号、读取和确认工具清单是不同步骤；确认后仍需员工许可固定到明确工作连接       |
 
 完整接口清单用后端 `http://127.0.0.1:8000/docs` 或 `/openapi.json` 查漏，类型看 schema，业务原因沿所属服务追踪。登录回调等协议入口可能不在 OpenAPI 页面展示，实际路由仍是依据。没有发请求的静态页面无需寻找不存在的后端接口。
 
@@ -81,7 +81,7 @@ POST /api/conversations/{conversation_id}/messages
 
 此时已经保存的是：对话、用户原文、空助手 Message、Run、冻结输入和关联。模型调用尚在事务之外。任一检查拒绝，这些写入整体回滚。
 
-阅读顺序：[send 路由](../../backend/app/api/routes/conversations.py) → [submit 请求服务](../../backend/app/conversations/service.py) → [prepare 固定依据](../../backend/app/conversations/preparation.py) → [RunAdmission](../../backend/app/execution/admission.py) → [bind_run](../../backend/app/conversations/writes.py)。
+阅读顺序：[send 路由](../../backend/app/api/routes/conversations.py) → [submit 请求服务](../../backend/app/conversations/service.py) → [configuration 固定依据](../../backend/app/execution/snapshot.py) → [RunAdmission](../../backend/app/execution/service.py) → [bind_run](../../backend/app/conversations/writes.py)。
 
 命令服务归 conversations，组织对话目标、幂等与接受事务；HTTP 路由只适配请求和响应。准备、授权与发布同样归 conversations，由 bootstrap 装配给请求和后台使用。
 
@@ -92,17 +92,16 @@ POST /api/conversations/{conversation_id}/messages
 接受之后，HTTP 请求就可以结束，后台调度器独立运行。
 
 ```text
-scheduler 扫描 queued
-    → coordinator 复核授权并领取
-    → preparation 从冻结依据准备执行函数
-    → agent_runtime 驱动模型与已许可工具
+RunWorker 扫描 queued 并调度 RunTask.execute
+    → RunTask 加载、复核授权并领取，从冻结依据准备最终请求与资源
+    → agent/engine 驱动模型与已许可工具，Task 看护并提交成果
 ```
 
 日志中 `submission.accepted` 能关联对话、回复和请求键；`execution.started` 标识内部运行已被领取。普通模型动作开始后会出现 `model.started`。这些日志只记录标识和状态，不输出输入原文、提示词或密钥。
 
 排队、运行状态有时变化很快，页面可能来不及显示每个中间状态。不要为了观察而假设缺少状态，或随意放宽预算。需要逐步定位时，可以在隔离测试中使用假模型或断点。
 
-阅读入口：[scheduler](../../backend/app/execution/scheduler.py)、[coordinator](../../backend/app/execution/coordinator.py)、[共享授权](../../backend/app/conversations/authorization.py)。
+阅读入口：[RunWorker](../../backend/app/execution/scheduler.py)、[RunTask](../../backend/app/execution/runner.py)、[RunService.authorize](../../backend/app/execution/service.py)。
 
 此时应能区分两件事：调度器决定什么时候开始这次处理；Agent 决定处理过程中下一次请求模型、读取方法还是调用已装配工具。
 
@@ -118,9 +117,9 @@ scheduler 扫描 queued
 
 SDK 的 system、tool 或内部 AI 消息数量可能多于页面消息。它们用于内部循环与恢复，不会自动变成用户可阅读的 Message。用户提交仍是一条输入，对应一次助手回复；中间动作在执行过程里观察。
 
-阅读顺序：[LangChain 循环](../../backend/app/agent_runtime/langchain.py) → [middleware](../../backend/app/agent_runtime/middleware.py) → [方法加载](../../backend/app/agent_runtime/skill_loading.py) → [RunControl](../../backend/app/execution/control.py) → [Store](../../backend/app/execution/store.py)。
+阅读顺序：[LangChain 循环](../../backend/app/agent/engine.py) → [middleware](../../backend/app/agent/model_calls.py) → [方法加载](../../backend/app/agent/skills.py) → [RunTask](../../backend/app/execution/runner.py) → [Store](../../backend/app/execution/store.py)。
 
-[streaming](../../backend/app/agent_runtime/streaming.py) 识别 SDK 片段、完整响应和工具轮，宿主只接收普通内容。前端执行过程可以折叠步骤，但不决定哪一轮文字成为回复。
+[streaming](../../backend/app/agent/streaming.py) 识别 SDK 片段、完整响应和工具轮，宿主只接收普通内容。前端执行过程可以折叠步骤，但不决定哪一轮文字成为回复。
 
 ## 7. 区分「正在显示」与「已经交付」
 
@@ -132,11 +131,11 @@ GET /api/conversations/{conversation_id}/responses/{response_id}/events
 
 response.snapshot 和 response.finished 都携带同一种 ResponseSnapshot：当前对话摘要，加该回复的当前读取结构。事件来自已经保存的数据；不是把未落盘 token 直接转发给浏览器。
 
-生成中看到 draft，说明有已保存的可见草稿。Agent 返回完整候选后，协调器还要调用 PublishRun。在一个事务中，系统复核当前状态与权限，保存最终正文、输出文件关联、Run 终态并释放活动占用。
+生成中看到 draft，说明有已保存的可见草稿。Agent 返回完整输出后，协调器调用 RunService.complete，在一次事务内保存成果和 Run 终态；对话接纳器在另一事务保存正式正文、附件关联并释放对话占用。接纳失败只重试保存，不再次执行模型。
 
-提交成功后才可观察到 `execution.published` 和 response.finished。随后重新读取 snapshot 或历史，应能看到同一份最终正文。完整文字出现在 SDK 存档中，不能替代这一步。
+Run 成果提交后可观察到执行完成，正式回复接纳后才能以完整业务消息结束观察；接纳 pending 期间继续订阅。随后重新读取 snapshot 或历史，应能看到同一份最终正文。完整文字出现在 SDK 存档中，不能替代这一步。
 
-阅读入口：[发布流程](../../backend/app/conversations/publication.py)、[内容写入](../../backend/app/conversations/writes.py)、[SSE 连接管理](../../backend/app/api/conversation_streaming.py)。
+阅读入口：[发布流程](../../backend/app/conversations/acceptance.py)、[内容写入](../../backend/app/conversations/writes.py)、[SSE 连接管理](../../backend/app/api/streaming.py)。
 
 ## 8. 用只读查询把页面和运行记录对上
 
@@ -195,13 +194,13 @@ ORDER BY sequence;
 
 快速回复可能在点击停止前就成功，此时返回已有终态是正确的幂等行为。不要靠误改真实凭证制造失败。可先读[运行边界测试](../../backend/tests/test_runtime_boundaries.py)、[公开协议测试](../../backend/tests/test_response_contract.py)，用它们稳定复现保存失败和竞争。
 
-对照数据库，应看到一次重试增加助手记录与 Run，用户原文仍只有一份。后续上下文只选成功问答，失败片段不作为成功历史继续传入模型。
+对照数据库，应看到一次重试增加助手记录与 Run，用户原文仍只有一份。新一轮选择最近成功且已接纳的明确线程基点，失败片段不作为普通历史继续传入模型。
 
 ## 10. 最后理解重启恢复
 
 普通 Agent 的 checkpoint 是内部恢复资料。重启时，仍活动且存档可信的运行可以继续，预算和原开始时间保留；可信完成但业务未交付时只补发布。已终止记录保持不变。真实重启可能重发尚未落盘的模型请求，先用隔离[进程恢复测试](../../backend/tests/test_checkpoint_runtime.py)学习，再在理解现有数据与成本后自行实验。
 
-已退役的 CI 诊断试验只保留原有对话正文与运行历史，不能恢复或重试。旧浏览器待确认输入不能改成普通消息自动发送；处理方式见[退役说明](../reference/ci-diagnosis/README.md)。GitHub 登录和普通 MCP 工具不受此退役影响。
+已退役的 CI 诊断试验只保留原有对话正文与运行历史，不能恢复或重试。旧浏览器待确认输入不能改成普通消息自动发送；处理方式见[退役说明](../guides/backend-operations.md)。GitHub 登录和普通 MCP 工具不受此退役影响。
 
 当前没有计划模式、目标模式或独立任务实体，不为学习流程虚构对应页面和接口。
 

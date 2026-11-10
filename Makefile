@@ -11,11 +11,15 @@ export MIGRATION_MESSAGE ?=
 help: ## 显示公共命令及作用
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z0-9_-]+:.*## / {printf "  make %-24s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-setup: setup-backend setup-frontend ## 按锁文件安装依赖；仅在缺失时创建后端 .env
+setup: setup-backend setup-frontend setup-docs ## 按锁文件安装依赖；仅在缺失时创建后端 .env
 	@test -e backend/.env || (umask 077; cp -n backend/.env.example backend/.env)
 
 setup-backend: ## 按锁文件安装后端依赖
 	cd backend && uv sync --locked
+
+.PHONY: sandbox-init
+sandbox-init: ## 为配套本机沙箱生成私有配置；保留已有密钥，不启动服务
+	cd backend && uv run python ../scripts/init_sandbox.py
 
 CHECKPOINT_DB ?= /tmp/niuma-crew-checkpoint-demo.sqlite
 CHECKPOINT_PORT ?= 8001
@@ -26,8 +30,34 @@ verify-checkpoint: ## 验证 SQLite checkpoint 的多轮聊天、历史读取和
 dev-checkpoint: ## 启动隔离的 checkpoint 验证后端；仅本机、假模型、独立数据库
 	cd backend && uv run python -m experiments.sqlite_checkpoint_chat --db "$(CHECKPOINT_DB)" --port "$(CHECKPOINT_PORT)"
 
+.PHONY: verify-tool-results
+verify-tool-results: ## 隔离验证正式结果交付、来源权限和旧读取兼容；不调用真实模型或MCP
+	cd backend && uv run pytest tests/test_result_delivery.py tests/test_tool_results.py tests/test_tool_readers.py tests/test_tool_runtime.py -q
+
+EVIDENCE_BOUNDARY_OUTPUT ?= /tmp/niuma-evidence-boundary/offline.json
+.PHONY: verify-evidence-boundary
+verify-evidence-boundary: ## 离线捕获六类证据上下文并验证限流即停；不读开发库或调用真实服务
+	cd backend && uv run pytest ../scripts/tests/test_evidence_boundary.py -q
+	cd backend && uv run python ../scripts/benchmark_evidence_boundary.py --dry-run --output "$(EVIDENCE_BOUNDARY_OUTPUT)"
+
 setup-frontend: ## 按锁文件安装前端依赖
 	cd frontend && pnpm install --frozen-lockfile
+
+.PHONY: setup-docs dev-docs build-docs preview-docs check-docs-site
+setup-docs: setup-frontend ## 安装文档站及真实组件示例依赖
+	cd docs-site && pnpm install --frozen-lockfile
+
+dev-docs: ## 启动文档站与原文监听；固定 3001
+	cd docs-site && pnpm dev
+
+build-docs: ## 同步原文并构建静态文档站到 docs-site/out
+	cd docs-site && pnpm build
+
+preview-docs: ## 在 3001 预览已构建文档站
+	cd docs-site && pnpm preview
+
+check-docs-site: ## 检查文档站内容、类型、测试、格式和静态构建
+	cd docs-site && pnpm check
 
 dev: ## 启动完整开发环境；后端端口避让、代理联动、退出清理
 	cd backend && exec uv run python ../scripts/dev.py --backend-port "$$BACKEND_PORT" --startup-timeout "$$DEV_TIMEOUT"
@@ -56,6 +86,7 @@ build-avatar-manifest: ## 生成头像清单快照
 
 check: ## 顺序执行文档、全项目检查、离线测试与生产构建
 	$(MAKE) check-docs
+	$(MAKE) check-docs-site
 	$(MAKE) lint
 	$(MAKE) test
 	$(MAKE) build

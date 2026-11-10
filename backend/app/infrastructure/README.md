@@ -24,6 +24,8 @@
 
 ```text
 infrastructure/
+├── concurrency.py                 # 等待已启动同步工作结束后再取消或释放，不解释业务并发政策
+├── settings.py                    # 正数配置校验与环境值解析；默认值及业务含义仍由所属模块定义
 ├── credentials.py                 # 读取受管主密钥并进行凭据加解密，返回技术结果，由模型/工具模块决定业务错误
 └── database/
     └── README.md                  # 进入数据库子模块说明，了解连接、短事务、写入资格、字段、错误识别和模型注册
@@ -31,8 +33,16 @@ infrastructure/
 
 ## 与其他模块协作
 
-[model_connections](../model_connections/README.md) 和 [tools](../tools/README.md) 消费共同凭据机制，各业务服务消费[数据库子模块](database/README.md)。bootstrap 组合具体路径并创建组件，API 继续负责安全响应，基础设施不自行决定资源权限。
+[model_connections](../../../docs/reference/model-connections.md) 和 [tools](../mcp/README.md) 消费共同凭据机制，各业务服务消费[数据库子模块](README.md)。bootstrap 组合具体路径并创建组件，API 继续负责安全响应，基础设施不自行决定资源权限。
 
 ## 维护入口
 
 路径与备份规则见[后端操作](../../../docs/guides/backend-operations.md)，业务错误与机制的对应关系分别在模型/工具 README 维护。数据库测试覆盖共同存储，凭据恢复还需要对应业务的密钥失效场景。
+
+## 执行日志关联
+
+observability 在原 logging 上增加核心执行事件的轮转 JSONL 输出与有界查询，复用 run_id/action_key；不保存正文、异常字符串或任意参数，不新增业务表。失败不阻断执行。见[契约](../../../docs/reference/runtime.md)。
+
+## 取消与线程等待
+
+[concurrency.py](concurrency.py) 的 run_sync/settle 只处理 asyncio 与工作线程的取消顺序，供 execution 和 agent 共用，不访问 Run、数据库、账号或预算。线程被取消等待并不停止其同步操作，因此等待其结束后才能释放资源或事务。队列容量、预算和同一 Run 去重仍由 execution 负责；这也是该公共机制归 infrastructure 的依据。

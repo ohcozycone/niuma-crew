@@ -1,3 +1,4 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
 import { useFailureState } from "@/state/shared/useFailureState";
 import { FailureState } from "@/components/failure/FailureState";
 import { FailureNotice } from "@/components/failure/FailureNotice";
@@ -24,12 +25,9 @@ import { ConversationSidebar } from "./ConversationSidebar";
 import { ConversationControls } from "./ConversationControls";
 import { ConversationProvider } from "./ConversationProvider";
 import { useConversation } from "./useConversation";
-import { readConversationSession } from "./pendingSubmissionStorage";
-import {
-  clearAcceptedDraft,
-  conversationSessionKey,
-  retireLegacyConversationDraft,
-} from "./conversationDraft";
+import type { Reply } from "@/lib/api/conversations";
+import { readConversationSession, saveConversationSession } from "./pendingSubmissionStorage";
+import { clearAcceptedDraft, conversationSessionKey } from "./conversationDraft";
 
 function ConversationSession({
   id,
@@ -42,7 +40,7 @@ function ConversationSession({
 }) {
   const identity = useIdentity();
   const owner = identityKey(identity);
-  const storageKey = draftKey(owner, `chat:${id}`);
+  const storageKey = draftKey(owner, `chat:v3:${id}`);
   const [creationAgentId] = useState(agentId);
   const transport = useMemo(
     () =>
@@ -55,41 +53,43 @@ function ConversationSession({
   const alive = useRef(false);
   const { scrollToEnd } = useMessageScroller();
   const navigate = useNavigate();
-  const [params, setParams] = useSearchParams();
-  const [retiredEntry] = useState(() =>
-    retireLegacyConversationDraft(
-      storageKey,
-      params.get("work") === "ci" ||
-        !!readConversationSession(conversationSessionKey(owner, id)).pending?.retiredInput,
-    ),
-  );
-  useEffect(() => {
-    if (!params.has("work")) return;
-    setParams(
-      (current) => {
-        const next = new URLSearchParams(current);
-        next.delete("work");
-        return next;
-      },
-      { replace: true },
-    );
-  }, [params, setParams]);
+  const [params] = useSearchParams();
   const query = params.toString();
+  useEffect(() => {
+    const session = readConversationSession(conversationSessionKey(owner, id));
+    const resolved = session.conversationId;
+    if (creationAgentId && resolved) {
+      saveConversationSession(conversationSessionKey(owner, resolved), session);
+      navigate(`/conversations/${resolved}${query ? `?${query}` : ""}`, {
+        replace: true,
+        state: null,
+      });
+    }
+  }, [creationAgentId, owner, id, navigate, query]);
+
   const onAccepted = useCallback(
-    (input: ConversationInput) => {
+    (input: ConversationInput, reply: Reply) => {
       clearAcceptedDraft(storageKey, input);
       if (alive.current) {
+        if (creationAgentId) {
+          const session = readConversationSession(conversationSessionKey(owner, id));
+          saveConversationSession(conversationSessionKey(owner, reply.conversation_id), {
+            ...session,
+            persisted: true,
+            conversationId: reply.conversation_id,
+          });
+        }
         setAcceptedInput(input);
         scrollToEnd();
-        // URL 的 ID 已经稳定，只移除本次导航的未保存草稿提示。
+        // Acceptance supplies the server-owned identity; replace the local draft route.
         if (creationAgentId)
-          navigate(`/conversations/${id}${query ? `?${query}` : ""}`, {
+          navigate(`/conversations/${reply.conversation_id}${query ? `?${query}` : ""}`, {
             replace: true,
             state: null,
           });
       }
     },
-    [storageKey, scrollToEnd, creationAgentId, navigate, id, query],
+    [storageKey, scrollToEnd, creationAgentId, navigate, owner, id, query],
   );
   useEffect(() => {
     alive.current = true;
@@ -109,7 +109,6 @@ function ConversationSession({
         creationAgentId={creationAgentId}
         storageKey={storageKey}
         acceptedInput={acceptedInput}
-        retiredEntry={retiredEntry}
         onHistoricalChange={onHistoricalChange}
       />
     </ConversationProvider>
@@ -121,14 +120,12 @@ function ConversationContents({
   creationAgentId,
   storageKey,
   acceptedInput,
-  retiredEntry,
   onHistoricalChange,
 }: {
   id: string;
   creationAgentId?: string;
   storageKey: string;
   acceptedInput: ConversationInput | null;
-  retiredEntry: boolean;
   onHistoricalChange: (historical: boolean) => void;
 }) {
   const identity = useIdentity();
@@ -195,17 +192,12 @@ function ConversationContents({
   if (!agent)
     return (
       <div className="conversation-page-frame py-6">
-        <p role="status">正在加载对话…</p>
+        <LoadingFeedback shape="conversation" label="正在加载对话…" />
       </div>
     );
   const title = chat.title;
   return (
     <section className="flex h-full min-h-0 flex-col bg-surface" aria-label="员工对话">
-      {retiredEntry && (
-        <p role="status" className="conversation-page-frame py-2 text-sm text-text-muted">
-          CI 诊断入口已移除，旧草稿已清理。请重新输入普通消息。
-        </p>
-      )}
       <PageToolbar
         title={
           <div className="flex min-w-0 items-center gap-(--os-space-3)">
@@ -233,6 +225,7 @@ function ConversationContents({
             </Button>
             <Button
               aria-label="新对话"
+              disabled={!identity.permissions.includes("runs:create")}
               title="新对话"
               variant="ghost"
               size="icon-sm"
@@ -310,7 +303,7 @@ function ConversationContents({
             activeId={id}
             returnTo={source}
             historyPath={historyPath}
-            refreshKey={chat.lastMessageId ?? undefined}
+            refreshKey={`${chat.lastMessageId ?? ""}:${chat.conversation?.version ?? 0}`}
             onClose={() => {
               setSidebarOpen(false);
               sidebarToggle.current?.focus();

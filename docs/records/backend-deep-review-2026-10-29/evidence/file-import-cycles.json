@@ -1,8 +1,0 @@
-{
-  "method": "Exact internal Import and ImportFrom modules, includes function-local imports; does not resolve dynamic imports or imported submodule symbols",
-  "nodes": 140,
-  "cycles": [
-    ["app.tools.definitions", "app.tools.service"],
-    ["app.agents.schemas", "app.agents.service", "app.agents.tool_grants"]
-  ]
-}

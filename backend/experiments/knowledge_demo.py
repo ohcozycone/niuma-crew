@@ -1,17 +1,15 @@
-"""Create fictional demo originals; upload them through the normal library API/UI."""
-
 import argparse
 import hashlib
 import json
 from pathlib import Path
 
-from app.knowledge.demo import TECHNICAL
+from app.knowledge.samples import TECHNICAL
 
 DATASET = Path(__file__).resolve().parents[1] / "datasets/travel-expense"
 
 
 def generate(output: Path) -> dict:
-    """Only explicitly listed teaching documents are copied, never evaluation answers."""
+    """仅复制清单中的教学原件，不引入评分答案。"""
     source = json.loads((DATASET / "manifest.json").read_text())
     libraries = []
     travel_files = []

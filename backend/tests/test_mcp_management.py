@@ -1,14 +1,12 @@
-"""MCP management keeps definitions, credentials and employee references separate."""
-
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from threading import Barrier
 
-from app.agents.tool_grants import ToolGrantService
+from app.employees.tool_grants import assert_connections_unused
 from app.errors import ConflictError
-from app.tools.definitions import McpDefinitionService
-from app.tools.models import McpService, ToolConnection
-from app.tools.schemas import McpServiceCreate
+from app.mcp.definitions import McpDefinitionService
+from app.mcp.models import McpService, ToolConnection
+from app.mcp.schemas import McpServiceCreate
 
 
 def service(client, **changes):
@@ -66,7 +64,7 @@ def test_existing_anonymous_connection_can_add_key_without_recreating_service(ap
         json={"expected_revision": 1, "env_keys": ["CONTEXT7_API_KEY"]},
     )
     assert edited.status_code == 200, edited.text
-    # Adding an allowed field does not silently change an anonymous identity.
+    # 增加允许字段不能静默改变匿名身份。
     assert api_client.get("/api/tool-connections").json()[0]["auth_type"] == "none"
     with api_client.app.state.database.transaction() as db:
         row = db.get(ToolConnection, connection["id"])
@@ -148,7 +146,7 @@ def test_concurrent_service_creation_has_one_winner(api_client):
         barrier.wait(timeout=5)
         try:
             McpDefinitionService(
-                database, config, check_references=ToolGrantService.assert_connections_unused
+                database, config, check_references=assert_connections_unused
             ).create(
                 actor, McpServiceCreate(name=f"HTTP {index}", url="https://mcp.tavily.com/mcp")
             )
@@ -198,24 +196,28 @@ def test_employee_reference_blocks_service_and_connection_deletion(api_client):
         assert db.get(ToolConnection, connection["id"]) is not None
 
 
-def test_other_users_connections_block_service_deletion(api_client):
+def test_member_cannot_delete_organization_connection_or_service(api_client):
     from test_mcp_accounts import member
 
     definition = service(api_client)
+    connection = anonymous(api_client, definition)
     cookies = dict(api_client.cookies)
     member(api_client)
-    connection = anonymous(api_client, definition)
-    api_client.cookies.clear()
-    api_client.cookies.update(cookies)
     assert (
         api_client.delete(f"/api/mcp-services/{definition['id']}?expected_revision=1").status_code
-        == 409
+        == 403
     )
     assert (
         api_client.delete(
             f"/api/tool-connections/{connection['id']}?expected_config_revision=1&expected_credential_revision=1"
         ).status_code
-        == 404
+        == 403
+    )
+    api_client.cookies.clear()
+    api_client.cookies.update(cookies)
+    assert (
+        api_client.delete(f"/api/mcp-services/{definition['id']}?expected_revision=1").status_code
+        == 204
     )
 
 

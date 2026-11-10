@@ -1,0 +1,321 @@
+{
+  "schema_version": "ecc.agent-architecture-audit.report.v1",
+  "date": "2026-11-10",
+  "recorded_at_utc": "2026-11-10T02:11:38.025927+00:00",
+  "implementation_status": "审查与建议，未修改生产代码；官方替换尚未做集成验证",
+  "executive_verdict": {
+    "overall_health": "needs_targeted_cleanup",
+    "primary_failure_mode": "结果交付包含不可恢复的无标记裁剪，若干控制重复或配置失效；不能以现有功能存在为保留依据",
+    "most_urgent_fix": "停止无差别字节截断，先证明结果完整性和读取范围；优先验证官方移存适配而非新建处理框架"
+  },
+  "scope": {
+    "target_name": "NiumaCrew Agent运行控制与工具结果链",
+    "versions": {
+      "langchain": "1.4.7",
+      "langgraph": "1.2.16",
+      "deepagents": "0.7.30"
+    },
+    "layers_to_audit": [
+      "context_capacity",
+      "tool_interpretation",
+      "rendering",
+      "model_tool_limits",
+      "timeouts",
+      "persistence"
+    ],
+    "excluded": [
+      "全仓库质量认证",
+      "修改工具发现",
+      "组织资源重新归属",
+      "生产MCP调用",
+      "真实模型费用验收"
+    ]
+  },
+  "source_sha256": {
+    "backend/app/builtin_tools/results.py": "e5a2652fa3e3e9a4fc34b4556b68130219a652e259652ea8ba24c3230d345e68",
+    "backend/app/builtin_tools/workspace.py": "ffb856680c20480a5d3a7d889a3718bf5e9a243986206f4f526ee3f79c699ceb",
+    "backend/app/agent/model_calls.py": "d018abb9851f2b049a2bc7cd19c1ea917a57d195b883b11725b374a9a3055c1c",
+    "backend/app/agent/engine.py": "ea89fb8ea020f936079cd8cf375f7f74c352cbf2866e55d4df46dff204e3cbcc",
+    "backend/app/execution/store.py": "21180cf0c2fa204c96ce619236c6d4997263ec65759818b5ed14858bc048ada2",
+    "backend/app/execution/runner.py": "eb5543e7791da6b3169b72be7adceed27f859d498f9c37ca2efa473c52f8fb5e",
+    "backend/app/llm/factory.py": "1095f8c29cb4ebcad409a27ebc5e84ce423600a3eae82bef96881cc84d8d7121",
+    "backend/app/mcp/config.py": "66934130f78f0c95428c3e2d47a3d1ffa10e40629872720a2c7a6e6f47df3e5b",
+    "backend/app/knowledge/access.py": "5dd5278fe4d1fcc57e034f902b6a93f3c9234ef842a04c29da81a1c5c14eb823"
+  },
+  "offline_probes": [
+    {
+      "name": "feedback_truncation",
+      "method": "使用真实feedback_outcome处理合成有效JSON，正文为10000个中文字符；不加载应用或业务数据",
+      "input_bytes": 30045,
+      "returned_bytes": 24575,
+      "valid_json": false,
+      "has_truncation_metadata": false,
+      "evidence_ref": "backend/app/builtin_tools/results.py:73"
+    },
+    {
+      "name": "timeout_override",
+      "method": "model_session注入假模型工厂，检查HTTP客户端参数；不发网络请求",
+      "configured_timeout": 7.0,
+      "effective_read_timeout": 60,
+      "effective_connect_timeout": 10,
+      "evidence_ref": "backend/app/llm/factory.py:72"
+    },
+    {
+      "name": "model_profile",
+      "method": "以假密钥和本机不可用地址构造kimi-for-coding客户端，仅查看profile；不调用模型",
+      "model_id": "kimi-for-coding",
+      "profile": null,
+      "evidence_ref": "backend/app/llm/factory.py:46"
+    }
+  ],
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "high",
+      "title": "通用反馈裁剪可损坏JSON且不报告丢失",
+      "source_layer": "rendering",
+      "mechanism": "反馈规范化直接按24576字节切片，UTF-8修复不修复JSON，也不生成可读取引用或截断标记",
+      "root_cause": "格式规范化承担了无上下文依据的内容裁剪",
+      "evidence_refs": [
+        "backend/app/builtin_tools/results.py:50",
+        "backend/app/builtin_tools/results.py:73"
+      ],
+      "confidence": 1.0,
+      "value_judgement": "规范化有价值，静默裁剪没有可证明的独立价值且损坏数据",
+      "disposition": "删除静默裁剪，保留状态与多模态规范化；由已验证的交付能力负责有界内容"
+    },
+    {
+      "id": "R2",
+      "severity": "medium",
+      "title": "官方移存关闭后另建固定预览和补读",
+      "source_layer": "tool_interpretation",
+      "mechanism": "FilesystemMiddleware的工具结果移存显式禁用，MCP另存全文并固定首给3000字符；读取又受字符和字节限制",
+      "root_cause": "未先完成官方能力与平台授权/存储之间的差额验证",
+      "evidence_refs": [
+        "backend/app/builtin_tools/workspace.py:315",
+        "backend/app/execution/tool_results.py:7",
+        "backend/app/agent/mcp_tools.py:17"
+      ],
+      "confidence": 0.98,
+      "value_judgement": "大结果不挤占上下文、原始证据可回溯有价值；固定短预览和两套读取机制不天然有价值",
+      "disposition": "优先验证官方FilesystemMiddleware移存加受控Backend能否承担；通过后替换重复处理，只保留Run归属、源授权和持久证据差额",
+      "unknowns": [
+        "官方默认/large_tool_results写入路径不在现有工作区写入范围，不能直接启用",
+        "须验证撤权、读权限、非文本和旧结果游标",
+        "官方主动排除read_file/grep等工具，不能把所有工具统一重复包装"
+      ]
+    },
+    {
+      "id": "R3",
+      "severity": "medium",
+      "title": "128KiB完整请求上限缺少模型窗口依据",
+      "source_layer": "context_capacity",
+      "mechanism": "所有连接使用平台统一序列化字节上限，摘要按官方消息token估算；当前kimi-for-coding客户端profile为空",
+      "root_cause": "平台防御阈值与模型上下文窗口概念混用，动态工具定义还需单独计入实际请求",
+      "evidence_refs": [
+        "backend/app/agent/config.py:10",
+        "backend/app/agent/model_calls.py:87",
+        "backend/app/agent/model_calls.py:297",
+        "backend/app/llm/factory.py:46"
+      ],
+      "confidence": 0.99,
+      "value_judgement": "防止请求超出模型能力有价值；将128KiB作为所有模型通用上下文能力没有充分依据",
+      "disposition": "替换容量依据：确认模型能力、复用官方摘要/计数，保留一处包含动态工具的实际请求检查；未知窗口时不得假称自动识别或直接撤掉全部保护"
+    },
+    {
+      "id": "R4",
+      "severity": "medium",
+      "title": "官方单次模型限次与持久动作限次重复执行同值阈值",
+      "source_layer": "model_tool_limits",
+      "mechanism": "engine装配ModelCallLimitMiddleware(run_limit=8)，平台start_model又按同一配置预占；官方run计数是UntrackedValue且在after_model增加，平台在真实尝试前持久计数并覆盖独立摘要请求",
+      "root_cause": "按功能表叠加防线，未确定唯一权威的任务级限次",
+      "evidence_refs": [
+        "backend/app/agent/engine.py:70",
+        "backend/app/execution/store.py:261",
+        "backend/app/execution/store.py:274",
+        "backend/app/agent/model_calls.py:250",
+        "backend/tests/test_checkpoint_runtime.py:158",
+        "backend/tests/test_checkpoint_runtime.py:272"
+      ],
+      "confidence": 0.99,
+      "value_judgement": "跨恢复与未知尝试不能重置、摘要同样计数有实际价值；额外同值限次未发现额外产品收益",
+      "disposition": "在现行持久预算要求下，建议保留动作账本为唯一硬限次并撤去同值官方模型限次装配；不再叠加ToolCallLimitMiddleware。若将来改用官方为权威，必须同时通过恢复/尝试/摘要语义验收并删除旧拦截"
+    },
+    {
+      "id": "R5",
+      "severity": "medium",
+      "title": "知识工具硬编码12次缺少独立业务依据",
+      "source_layer": "model_tool_limits",
+      "mechanism": "知识授权结果始终返回max_calls=12，平台另有整个Run工具总次数；未发现现行产品契约解释该固定调用次数",
+      "root_cause": "在授权层写入非授权、非资源特定的固定限次",
+      "evidence_refs": [
+        "backend/app/knowledge/access.py:94",
+        "backend/app/execution/store.py:450"
+      ],
+      "confidence": 0.93,
+      "value_judgement": "知识范围授权、top_k及来源核验有价值；内置固定12次调用未找到产品需求或收益证据",
+      "disposition": "建议删除这一隐含固定次数，纳入统一Run规则；不删除管理员可明确配置的MCP工具max_calls或知识top_k"
+    },
+    {
+      "id": "R6",
+      "severity": "medium",
+      "title": "模型客户端超时配置被硬编码HTTP客户端覆盖",
+      "source_layer": "timeouts",
+      "mechanism": "LLMConfig.timeout传入7时，model_session仍构造httpx.Timeout(60,connect=10)，create_chat_model再优先采用transport.timeout",
+      "root_cause": "超时有两个配置来源，实际生效来源不透明",
+      "evidence_refs": [
+        "backend/app/llm/config.py:15",
+        "backend/app/llm/factory.py:51",
+        "backend/app/llm/factory.py:72"
+      ],
+      "confidence": 1.0,
+      "value_judgement": "网络超时和整个任务时限各有独立价值；被忽略的配置没有价值",
+      "disposition": "统一现有客户端超时配置来源；保留Run总时限，不因为官方有TimeoutPolicy再新增一层节点时限"
+    },
+    {
+      "id": "R7",
+      "severity": "low",
+      "title": "max_model_bytes仅声明未使用",
+      "source_layer": "configuration",
+      "mechanism": "backend源码中max_model_bytes只在ToolConfig中声明，实际反馈另用24576字节字面量",
+      "root_cause": "配置与实际行为脱节",
+      "evidence_refs": [
+        "backend/app/mcp/config.py:37",
+        "backend/app/builtin_tools/results.py:73"
+      ],
+      "confidence": 0.99,
+      "value_judgement": "未找到配置生效价值",
+      "disposition": "清理该无效配置，不能将其视为又一道生效限制"
+    },
+    {
+      "id": "R8",
+      "severity": "medium",
+      "title": "完整请求计量将不发送模型的artifact算入上下文",
+      "source_layer": "context_capacity",
+      "mechanism": "对ToolMessage使用model_dump_json会包含应用artifact；ChatOpenAI实际消息投影不包含artifact。合成消息的平台计量140191字节而模型侧75字节。",
+      "root_cause": "应用消息存储表示与模型输入表示混用",
+      "evidence_refs": [
+        "backend/app/agent/model_calls.py:90",
+        "docs/records/工具内容管理与资源引用交叉评审.md"
+      ],
+      "confidence": 1.0,
+      "value_judgement": "限制真实模型输入有价值；将来源元数据算作模型输入会误拒绝任务，没有价值",
+      "disposition": "基于模型侧消息投影统一容量检查，并与实际provider请求校验；不把审计用SDK私有函数作为新生产依赖"
+    }
+  ],
+  "retain_by_value": [
+    {
+      "capability": "官方create_agent、消息/checkpoint、官方摘要和用量合并",
+      "value": "完成任务所需的循环与上下文管理已有官方实现，继续复用，不重建引擎"
+    },
+    {
+      "capability": "组织员工固定资源、权限及当前撤权复核",
+      "value": "保障组织可复用员工使用获批资源，不能因框架提供调用器而取消"
+    },
+    {
+      "capability": "RunAction与持久模型/工具动作记录",
+      "value": "执行详情、故障定位、取消、恢复与实际消耗可追溯；官方回调是事件来源，不能自动替代业务事实"
+    },
+    {
+      "capability": "Run总时限、客户端网络超时、来源存储与下载",
+      "value": "分别控制任务生命周期、挂起连接和证据保留，职责不同，不归为同一层正文裁剪"
+    },
+    {
+      "capability": "管理员显式MCP调用限制",
+      "value": "前端ToolAssembly提供max_calls配置，属于明确资源使用策略；不能当隐含默认值静默删除"
+    }
+  ],
+  "ordered_fix_plan": [
+    {
+      "order": 1,
+      "goal": "先移除损坏输出的静默裁剪，并修正超时参数覆盖",
+      "why_now": "已有离线确定性反例",
+      "expected_effect": "反馈完整性可解释，配置值与行为一致"
+    },
+    {
+      "order": 2,
+      "goal": "收敛任务级限次和清理无效配置",
+      "why_now": "减少同值防线和无依据专项规则，保留持久执行语义",
+      "expected_effect": "一个权威任务级硬限次，管理员显式规则继续生效"
+    },
+    {
+      "order": 3,
+      "goal": "做官方FilesystemMiddleware与当前Backend的差额验证",
+      "why_now": "先判断官方是否足够，避免先建设通用结果框架",
+      "expected_effect": "可替换则删除自建重复预览/分页，只留有价值差额；不可替换须列出具体缺口"
+    },
+    {
+      "order": 4,
+      "goal": "确认模型窗口并统一完整请求容量检查",
+      "why_now": "当前profile为空，不能直接承诺按模型窗口自动运行",
+      "expected_effect": "容量依据明确，模型窗口与服务器传输限制不混用"
+    },
+    {
+      "order": 5,
+      "goal": "按已定质量、耗时及缓存折算成本进行隔离和真实模型验收",
+      "why_now": "结构简化不是收益证明，必须确认答案和执行没有回退",
+      "expected_effect": "以实际输出与成本取舍，未确认费用仍标未知"
+    }
+  ],
+  "limitations": [
+    "仅做源码核对及3个离线探针；未重新运行完整测试或付费模型",
+    "恢复测试只核对现有测试代码，历史通过不作为本次通过",
+    "未证明官方移存已适配平台授权，未确定固定限次的最优数值",
+    "未修改生产代码、数据库、员工或工具配置"
+  ],
+  "references": [
+    "https://docs.langchain.com/oss/python/deepagents/context-engineering",
+    "https://docs.langchain.com/oss/python/langchain/middleware/built-in",
+    "https://docs.langchain.com/oss/python/langgraph/fault-tolerance"
+  ],
+  "cross_review": {
+    "thread_id": "01a1c0a9-5214-7660-91c0-169534c6bf6d",
+    "thread_title": "确认回答中的 Citations 来源",
+    "report": "docs/records/工具内容管理与资源引用交叉评审.md",
+    "coordination_status": "本线读取并复核，建议先冻结共同契约；未向对方发送实施指令或代表对方承诺交付",
+    "independent_probes": [
+      {
+        "name": "artifact_input_accounting",
+        "platform_dump_bytes": 140191,
+        "actual_chatopenai_message_bytes": 75,
+        "wire_has_artifact": false,
+        "method": "合成ToolMessage正文ok、应用元数据140000个ASCII字符；用当前ChatOpenAI消息转换作离线对照，不发送网络请求"
+      },
+      {
+        "name": "final_answer_projection",
+        "returned_text": "Answer",
+        "returned_usage": {},
+        "checkpoint_annotation_count": 1,
+        "returned_annotation_count": 0,
+        "method": "合成带citation的AIMessage通过真实_completed_response；只验证成果投影，不声称当前Kimi实际返回该annotation"
+      }
+    ],
+    "shared_contract": [
+      "固定内容引用与表示版本",
+      "本次实际提供的范围或有界内容单元及单位",
+      "关联模型动作和发送状态",
+      "平台元数据与模型正文的边界",
+      "原生annotations与正式回答内容的保留"
+    ],
+    "ownership": {
+      "tool_delivery_line": [
+        "去除静默裁剪",
+        "模型侧容量投影",
+        "官方移存适配",
+        "提供最终交付事实",
+        "独立超时及限次清理"
+      ],
+      "citation_line": [
+        "来源与用途映射",
+        "原生引用及Markdown归一",
+        "最终引用清单与展示",
+        "来源预览及发布资格"
+      ],
+      "shared": [
+        "AgentOutput/结果数据最小契约",
+        "模型入口交付关联",
+        "引用所需最小业务事实的可靠保存"
+      ]
+    }
+  }
+}

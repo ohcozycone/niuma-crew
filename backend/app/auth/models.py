@@ -1,5 +1,3 @@
-"""Users and opaque server-side sessions. No credentials in business tables."""
-
 from datetime import datetime
 
 from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Index, Text, UniqueConstraint, text
@@ -11,8 +9,8 @@ from app.infrastructure.database.fields import (
     IdentityTimestamps,
     UTCDateTime,
     UUIDText,
-    new_uuid,
 )
+from app.values import new_uuid
 
 
 class User(IdentityTimestamps, Base):

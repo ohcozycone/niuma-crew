@@ -1,5 +1,3 @@
-"""Persistent connections contain encrypted credentials, never agent instructions."""
-
 from sqlalchemy import Boolean, CheckConstraint, Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column
 

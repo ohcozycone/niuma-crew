@@ -65,6 +65,14 @@ summary {
 }
 ::selection {
   background: var(--os-selected);
+  color: var(--os-text);
+}
+input,
+textarea {
+  caret-color: var(--os-text);
+}
+html {
+  scrollbar-color: var(--os-input) transparent;
 }
 ::-webkit-scrollbar {
   width: 5px;
@@ -173,13 +181,6 @@ summary {
   }
 }
 
-/* Shared motion primitives. */
-@keyframes github-pending {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* Text measure belongs to prose, never to the message or report workspace. */
 .answer-markdown :where(p, ul, ol, blockquote) {
   max-width: 896px;
@@ -197,5 +198,25 @@ summary {
   .icon-button {
     min-width: var(--os-target-touch);
     min-height: var(--os-target-touch);
+  }
+}
+
+/* Only navigation moves; content skeletons stay still in both themes. */
+.navigation-progress > span {
+  animation: navigation-progress var(--os-motion-loading) ease-in-out infinite alternate;
+}
+@keyframes navigation-progress {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(200%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .navigation-progress > span {
+    animation: none;
+    width: 100%;
+    opacity: 0.6;
   }
 }

@@ -1,5 +1,3 @@
-"""Shared metadata for domain models and Alembic migrations."""
-
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
 

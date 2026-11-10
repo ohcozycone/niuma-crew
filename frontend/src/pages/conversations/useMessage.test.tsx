@@ -18,6 +18,37 @@ afterEach(() => {
   sessionStorage.clear();
   vi.restoreAllMocks();
 });
+
+it("keeps observing completed execution until the reply is accepted", async () => {
+  const pending = runFixture({
+    status: "succeeded",
+    acceptance: "pending",
+    content: "已保存的执行成果",
+    content_state: "draft",
+  });
+  const { transport, listeners, openCount } = transportFixture(pending);
+  const { result } = renderHook(
+    () => ({ conversation: useConversation(), answer: useMessage("a1") }),
+    { wrapper: wrapper(transport) },
+  );
+  await waitFor(() => expect(openCount()).toBe(1));
+  expect(result.current.answer.message?.published).toBe(false);
+  expect(result.current.answer.message?.run?.content_state).toBe("draft");
+  expect(result.current.answer.canStop).toBe(false);
+  expect(result.current.conversation.phase).toBe("submitted");
+  act(() =>
+    listeners[0].snapshot({
+      ...pending,
+      version: pending.version + 1,
+      acceptance: "accepted",
+      content_state: "complete",
+    }),
+  );
+  await waitFor(() => expect(openCount()).toBe(0));
+  expect(result.current.answer.message?.published).toBe(true);
+  expect(result.current.answer.message?.run?.content_state).toBe("complete");
+  expect(result.current.conversation.phase).toBe("ready");
+});
 function wrapper(transport: ConversationTransport) {
   return function Scope({ children }: { children: ReactNode }) {
     return (
@@ -50,8 +81,8 @@ it("shares loading and one subscription across conversation and message consumer
     </ConversationProvider>,
   );
   await waitFor(() => expect(screen.getByTestId("answer").textContent).toBe("回答"));
-  expect(transport.getMessages).toHaveBeenCalledOnce();
-  expect(transport.getConversation).toHaveBeenCalledOnce();
+  expect(transport.getMessages).not.toHaveBeenCalled();
+  expect(transport.getSnapshot).toHaveBeenCalledOnce();
   expect(transport.getResponse).not.toHaveBeenCalled();
   expect(openCount()).toBe(1);
   const before = { ...renders };
@@ -89,7 +120,7 @@ it("returns no message for explicit null or an unloaded ID without fetching or s
   expect(result.current.missing.message).toBeNull();
   expect(result.current.missing.executionActions).toEqual([]);
   await expect(result.current.missing.actions.stop()).rejects.toThrow("不能停止");
-  expect(transport.getMessages).toHaveBeenCalledOnce();
+  expect(transport.getMessages).not.toHaveBeenCalled();
   expect(transport.cancel).not.toHaveBeenCalled();
 });
 it("keeps the message ID list and unchanged message snapshots stable on streaming updates", async () => {
@@ -157,7 +188,7 @@ it("loads historical messages through the conversation window and exposes them b
   );
   expect(result.current.current.message?.content).toBe("历史阅读期间继续生成");
   expect(result.current.conversation.messageIds).toEqual(["old-question", "old-answer"]);
-  expect(transport.getMessages).toHaveBeenCalledTimes(2);
+  expect(transport.getMessages).toHaveBeenCalledTimes(1);
 });
 it("binds retry to the selected message and rejects a stale action after a new message arrives", async () => {
   const failed = runFixture({ status: "failed" });
@@ -395,7 +426,6 @@ it("loads the latest reply and scope from one snapshot", async () => {
     },
   });
   vi.mocked(transport.getMessages).mockClear();
-  vi.mocked(transport.getConversation).mockClear();
   const { result } = renderHook(
     () => {
       const conversation = useConversation();
@@ -406,7 +436,6 @@ it("loads the latest reply and scope from one snapshot", async () => {
   await waitFor(() => expect(result.current.last.canStop).toBe(true));
   expect(result.current.conversation.lastMessageId).toBe("a2");
   expect(transport.getMessages).not.toHaveBeenCalled();
-  expect(transport.getConversation).not.toHaveBeenCalled();
 });
 
 it("hides retry actions for a read-only historical reply without hiding its content", async () => {

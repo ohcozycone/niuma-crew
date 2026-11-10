@@ -1,5 +1,3 @@
-"""Verify configuration persistence and integrity against the actual migrations."""
-
 from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -148,7 +146,7 @@ def test_renaming_keeps_ids_and_saved_ids_cannot_be_reassigned(database):
 
 @pytest.mark.parametrize("operation", ["insert", "update"])
 def test_agent_name_unique_index_protects_direct_sql(database, operation):
-    from app.agents.service import agent_conflict
+    from app.employees.service import agent_conflict
 
     agent_id, _ = create_assignment(database)
     other_id = str(uuid4())

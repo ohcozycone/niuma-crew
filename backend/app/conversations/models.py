@@ -1,4 +1,4 @@
-"""Product communication and its explicit execution bindings."""
+from datetime import datetime
 
 from sqlalchemy import (
     Boolean,
@@ -15,12 +15,18 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, validates
 
 from app.infrastructure.database.base import Base
-from app.infrastructure.database.fields import IdentityTimestamps, UUIDText
+from app.infrastructure.database.fields import (
+    NumericID,
+    NumericIdentityTimestamps,
+    UTCDateTime,
+    UUIDText,
+)
 
 
-class Conversation(IdentityTimestamps, Base):
+class Conversation(NumericIdentityTimestamps, Base):
     __tablename__ = "conversations"
     __table_args__ = (
+        CheckConstraint("id BETWEEN 100000000000 AND 999999999999", name="numeric_id_range"),
         CheckConstraint("length(title) BETWEEN 1 AND 100", name="title_length"),
         CheckConstraint("last_message_sequence >= 0", name="sequence_valid"),
         CheckConstraint("revision > 0", name="revision_valid"),
@@ -34,9 +40,10 @@ class Conversation(IdentityTimestamps, Base):
     last_message_sequence: Mapped[int] = mapped_column(Integer, server_default=text("0"))
 
 
-class Message(IdentityTimestamps, Base):
+class Message(NumericIdentityTimestamps, Base):
     __tablename__ = "messages"
     __table_args__ = (
+        CheckConstraint("id BETWEEN 100000000000 AND 999999999999", name="numeric_id_range"),
         UniqueConstraint("conversation_id", "id", name="uq_messages_identity"),
         UniqueConstraint("conversation_id", "sequence", name="uq_messages_sequence"),
         CheckConstraint("sequence > 0", name="sequence_valid"),
@@ -45,7 +52,7 @@ class Message(IdentityTimestamps, Base):
             name="content_owner",
         ),
     )
-    conversation_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("conversations.id"))
+    conversation_id: Mapped[str] = mapped_column(NumericID(), ForeignKey("conversations.id"))
     sequence: Mapped[int] = mapped_column(Integer)
     role: Mapped[str] = mapped_column(Text)
     body: Mapped[str | None] = mapped_column(Text)
@@ -70,9 +77,9 @@ class ConversationRun(Base):
             ["conversation_id", "input_message_id"], ["messages.conversation_id", "messages.id"]
         ),
         ForeignKeyConstraint(
-            ["conversation_id", "reply_message_id"], ["messages.conversation_id", "messages.id"]
+            ["conversation_id", "run_id"], ["messages.conversation_id", "messages.id"]
         ),
-        CheckConstraint("reply_message_id != input_message_id", name="messages_distinct"),
+        CheckConstraint("run_id != input_message_id", name="messages_distinct"),
         CheckConstraint("active IN (0,1)", name="active_valid"),
         Index(
             "uq_conversation_runs_active",
@@ -81,16 +88,21 @@ class ConversationRun(Base):
             sqlite_where=text("active = 1"),
         ),
     )
-    run_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("runs.id"), primary_key=True)
-    conversation_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("conversations.id"))
-    input_message_id: Mapped[str] = mapped_column(UUIDText())
-    reply_message_id: Mapped[str] = mapped_column(UUIDText(), unique=True)
+    run_id: Mapped[str] = mapped_column(NumericID(), ForeignKey("runs.id"), primary_key=True)
+    conversation_id: Mapped[str] = mapped_column(NumericID(), ForeignKey("conversations.id"))
+    input_message_id: Mapped[str] = mapped_column(NumericID())
+    handled_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    acceptance_error: Mapped[str | None] = mapped_column(Text)
+    acceptance_attempts: Mapped[int] = mapped_column(Integer, server_default="0")
+    next_acceptance_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     active: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
 class MessageFile(Base):
     __tablename__ = "message_files"
-    message_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("messages.id"), primary_key=True)
+    message_id: Mapped[str] = mapped_column(
+        NumericID(), ForeignKey("messages.id"), primary_key=True
+    )
     file_id: Mapped[str] = mapped_column(
         UUIDText(), ForeignKey("stored_files.id"), primary_key=True
     )

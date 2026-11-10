@@ -1,5 +1,3 @@
-"""Actual SDK streams, durable progress and failure boundaries; no external model calls."""
-
 import asyncio
 import threading
 import time
@@ -10,11 +8,12 @@ import pytest
 from langchain_core.messages import AIMessage, AIMessageChunk
 from langchain_core.outputs import ChatGenerationChunk
 from pydantic import Field
+from run_helpers import active_step, latest_model, load_run, read_reply, reply_path
 from test_capability_runtime import ScriptedModel, execute, response, setup, submit
 from test_conversations import live_client as live_client
 from test_conversations import wait_run
 
-from app.agent_runtime.streaming import ContentUpdate, RunProgress
+from app.agent.streaming import ContentUpdate, RunProgress
 
 
 class StreamingModel(ScriptedModel):
@@ -76,27 +75,25 @@ def test_real_stream_flushes_while_idle_and_separates_tool_rounds(live_client, m
         return decrypt(value)
 
     monkeypatch.setattr(live_client.app.state.model_connections.vault, "decrypt", count)
-    run = submit(live_client, conversation).json()
+    run = submit(live_client, conversation).json()["response"]
     try:
         partial = wait_run(
             live_client,
             run["id"],
-            lambda r: bool(
-                r["current_model"] and r["current_model"]["output_text"] == "先读取技能"
-            ),
+            lambda r: bool(latest_model(r) and latest_model(r)["output_text"] == "先读取技能"),
         )
-        assert partial["status"] == "running" and partial["assistant_content"] == ""
-        assert partial["current_model"]["reasoning_text"] == "第1轮摘要"
-        assert partial["action_count"] == 1
-        assert partial["current_activity"]["kind"] == "model_call"
+        assert partial["status"] == "running" and partial["content"] == "先读取技能"
+        assert latest_model(partial)["reasoning_text"] == "第1轮摘要"
+        assert len(partial["steps"]) == 1
+        assert active_step(partial)["kind"] == "model_call"
         model.gates[0].set()
         second = wait_run(
             live_client,
             run["id"],
-            lambda r: bool(r["current_model"] and r["current_model"]["output_text"] == "回答"),
+            lambda r: bool(latest_model(r) and latest_model(r)["output_text"] == "回答"),
         )
-        assert second["current_model"]["action_id"] != partial["current_model"]["action_id"]
-        steps = live_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
+        assert latest_model(second)["id"] != latest_model(partial)["id"]
+        steps = read_reply(live_client, run["id"])["steps"]
         assert [s["kind"] for s in steps] == [
             "model_call",
             "tool_call",
@@ -104,17 +101,14 @@ def test_real_stream_flushes_while_idle_and_separates_tool_rounds(live_client, m
             "model_call",
         ]
         assert steps[0]["safe_details"]["has_tool_calls"]
-        assert second["action_count"] == 4
+        assert len(second["steps"]) == 4
         assert "BODY_MARKER_P1" not in str(second)
-        # A newly fetched snapshot restores the exact current draft, independently of the stream.
-        assert (
-            live_client.get(f"/api/runs/{run['id']}").json()["current_model"]
-            == second["current_model"]
-        )
+        # 新查询须独立于流恢复当前完整草稿。
+        assert latest_model(read_reply(live_client, run["id"])) == latest_model(second)
         model.gates[1].set()
         completed = wait_run(live_client, run["id"])
-        assert completed["assistant_content"] == "回答完成" and completed["current_model"] is None
-        assert completed["current_activity"] is None and completed["action_count"] == 4
+        assert completed["content"] == "回答完成" and latest_model(completed) is None
+        assert active_step(completed) is None and len(completed["steps"]) == 4
         assert completed["usage"]["total_tokens"] == 30 and len(decryptions) == 1
     finally:
         for gate in model.gates:
@@ -125,41 +119,44 @@ def test_sdk_cancel_retains_draft_as_process_and_closes_upstream(live_client, mo
     skill, _, _, conversation = setup(live_client)
     model = StreamingModel(responses=[], path=f"/skills/s-{skill['id']}/SKILL.md")
     monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *a, **k: model)
-    run = submit(live_client, conversation).json()
+    run = submit(live_client, conversation).json()["response"]
     wait_run(
         live_client,
         run["id"],
-        lambda r: bool(r["current_model"] and r["current_model"]["output_text"]),
+        lambda r: bool(latest_model(r) and latest_model(r)["output_text"]),
     )
-    live_client.post(f"/api/runs/{run['id']}/cancel", json={})
+    live_client.post(reply_path(live_client, run["id"]) + "/stop", json={})
     completed = wait_run(live_client, run["id"])
-    assert completed["status"] == "cancelled" and completed["assistant_content"] == ""
+    assert completed["status"] == "cancelled" and completed["content"] == ""
     assert model.cleaned and model._index == 1
-    step = live_client.get(f"/api/runs/{run['id']}/actions").json()["items"][0]
+    step = read_reply(live_client, run["id"])["steps"][0]
     assert step["output_text"] == "先读取技能" and step["reasoning_text"] == "第1轮摘要"
     assert step["status"] == "unknown" and completed["usage"]["total_tokens"] is None
 
 
 def test_complete_step_rejects_late_content_and_content_does_not_reload_steps(api_client):
     _, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation).json()
-    store = api_client.app.state.runner.store
+    run = submit(api_client, conversation).json()["response"]
+    store = api_client.app.state.run_worker.store
     store.claim(run["id"])
     store.start_action(run["id"], "model:1", "model_call")
-    before = api_client.get(f"/api/runs/{run['id']}").json()
+    before = read_reply(api_client, run["id"])
+    before_actions = load_run(api_client, run["id"]).actions_revision
     old = ContentUpdate("model:1", "草稿", "摘要", False, False)
     store.update_progress(run["id"], [old])
-    middle = api_client.get(f"/api/runs/{run['id']}").json()
+    middle = read_reply(api_client, run["id"])
     assert (
-        middle["revision"] > before["revision"]
-        and middle["actions_revision"] == before["actions_revision"]
+        middle["version"] > before["version"]
+        and load_run(api_client, run["id"]).actions_revision == before_actions
     )
     store.finish_action(
-        run["id"], "model:1", content=ContentUpdate("model:1", "完整回答", "完整摘要", False, False)
+        run["id"],
+        "model:1",
+        content=ContentUpdate("model:1", "完整回答", "完整摘要", False, False),
     )
-    complete = api_client.get(f"/api/runs/{run['id']}").json()
+    complete = read_reply(api_client, run["id"])
     store.update_progress(run["id"], [old])
-    assert api_client.get(f"/api/runs/{run['id']}").json() == complete
+    assert read_reply(api_client, run["id"]) == complete
 
 
 def test_reasoning_budget_is_utf8_safe_and_final_reconciliation_is_not_append():
@@ -197,7 +194,7 @@ def test_reasoning_budget_is_utf8_safe_and_final_reconciliation_is_not_append():
 @pytest.mark.parametrize("reason", ["length", "auth", "bad_request"])
 def test_model_and_run_errors_match_and_partial_answer_is_real(api_client, monkeypatch, reason):
     _, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     if reason == "length":
         model = ScriptedModel(
             responses=[
@@ -227,9 +224,9 @@ def test_model_and_run_errors_match_and_partial_answer_is_real(api_client, monke
         model = AuthFailure(responses=[])
         code = "upstream_auth_failed" if reason == "auth" else "context_limit_exceeded"
     result = execute(api_client, monkeypatch, model, run)
-    step = api_client.get(f"/api/runs/{run['id']}/actions").json()["items"][0]
+    step = read_reply(api_client, run["id"])["steps"][0]
     assert result["status"] == "failed" and result["error"]["code"] == step["error_code"] == code
-    assert result["assistant_content"] == ("部分回答" if reason == "length" else "")
+    assert result["content"] == ("部分回答" if reason == "length" else "")
     assert "hidden-secret" not in str(result) + str(step)
 
 
@@ -237,7 +234,7 @@ def test_scanner_crash_closes_admission_and_readiness(live_client, monkeypatch):
     def fail():
         raise ValueError("hidden-secret")
 
-    monkeypatch.setattr(live_client.app.state.runner.store, "queued_metadata", fail)
+    monkeypatch.setattr(live_client.app.state.run_worker.store, "queued_metadata", fail)
     deadline = time.monotonic() + 3
     while time.monotonic() < deadline and live_client.get("/ready").status_code != 503:
         time.sleep(0.01)
@@ -251,11 +248,11 @@ def test_live_configuration_revocation_is_failed_not_cancelled(live_client, monk
     skill, connection, _, conversation = setup(live_client)
     model = StreamingModel(responses=[], path=f"/skills/s-{skill['id']}/SKILL.md")
     monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *a, **k: model)
-    run = submit(live_client, conversation).json()
+    run = submit(live_client, conversation).json()["response"]
     wait_run(
         live_client,
         run["id"],
-        lambda r: bool(r["current_model"] and r["current_model"]["output_text"]),
+        lambda r: bool(latest_model(r) and latest_model(r)["output_text"]),
     )
     from configuration_helpers import patch_current
 
@@ -269,7 +266,7 @@ def test_live_configuration_revocation_is_failed_not_cancelled(live_client, monk
 
 def test_truncated_tool_request_is_not_promoted_to_partial_answer(api_client, monkeypatch):
     _, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     model = ScriptedModel(
         responses=[
             AIMessage(
@@ -283,5 +280,5 @@ def test_truncated_tool_request_is_not_promoted_to_partial_answer(api_client, mo
     )
     result = execute(api_client, monkeypatch, model, run)
     assert result["error"]["code"] == "output_limit_exceeded"
-    assert result["assistant_content"] == ""
+    assert result["content"] == ""
     assert "已保留部分回答" not in result["error"]["message"]

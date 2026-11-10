@@ -1,5 +1,3 @@
-"""后端配置统一入口：合并来源、校验并装配模块配置，不修改进程环境。"""
-
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -8,46 +6,50 @@ from dotenv import dotenv_values
 from sqlalchemy import URL, make_url
 from sqlalchemy.exc import ArgumentError
 
+from app.agent.config import AgentConfig, load_agent_config
+from app.api.config import StreamConfig, load_stream_config
 from app.auth.config import (
     AuthConfig,
     GitHubOAuthConfig,
     load_auth_config,
     load_github_oauth_config,
 )
+from app.environments.config import SandboxConfig
 from app.execution.config import RuntimeConfig, load_runtime_config
 from app.files.config import FileConfig
 from app.infrastructure.database.session import DatabaseConfig
-from app.sandboxes.config import SandboxConfig
+from app.mcp.config import ToolConfig
 from app.skills.config import SkillConfig
-from app.tools.config import ToolConfig
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 
 @dataclass(frozen=True)
 class AppConfig:
-    """应用级配置聚合；模块内部继续维护各自的类型、默认值和校验。"""
-
     database: DatabaseConfig
-    model_encryption_key_file: Path  # 模型凭证加密主密钥文件，与数据库位置独立。
-    runner_lock_file: Path  # 同一数据库的 Runner 必须共用的进程锁文件。
+    model_encryption_key_file: Path
+    runner_lock_file: Path  # 同一数据库的执行宿主必须共用锁文件。
     auth: AuthConfig = AuthConfig()
-    # 环境注入的主密钥优先于文件；秘密字段不参与 repr。
+    # 环境密钥优先于文件，且不进入 repr。
     model_encryption_key: str | None = field(default=None, repr=False)
     runtime: RuntimeConfig = RuntimeConfig()
+    agent: AgentConfig = AgentConfig()
+    stream: StreamConfig = StreamConfig()
     tools: ToolConfig = ToolConfig()
     files: FileConfig = FileConfig()
     skills: SkillConfig = SkillConfig()
     sandbox: SandboxConfig = SandboxConfig()
     github_oauth: GitHubOAuthConfig = GitHubOAuthConfig()
     frontend_dist: Path = BACKEND_DIR.parent / "frontend/dist"
+    knowledge_vector_dir: Path | None = None
 
     def __post_init__(self) -> None:
         self.github_oauth.validate(self.auth)
+        self.tools.validate(self.auth)
 
 
 def _read_values(backend_dir: Path) -> dict[str, str | None]:
-    # 环境优先，包含显式空值；不使用会污染其他配置加载的 load_dotenv。
+    # 环境值优先，显式空值也覆盖；不使用会修改进程环境的 load_dotenv。
     return {**dotenv_values(backend_dir / ".env"), **os.environ}
 
 
@@ -83,7 +85,7 @@ def _load_database_url(value: str, data_dir: Path) -> URL:
 
 
 def load_config(backend_dir: Path = BACKEND_DIR) -> AppConfig:
-    """统一加载部署配置并解析绝对路径，不创建目录、文件或数据库连接。"""
+    """加载配置并解析绝对路径，不创建资源或修改进程环境。"""
     values = _read_values(backend_dir)
     data_dir = _resolve_path(_value(values, "APP_DATA_DIR", ".data"), backend_dir)
     url = _load_database_url(_value(values, "DATABASE_URL", "sqlite+pysqlite:///app.db"), data_dir)
@@ -105,21 +107,17 @@ def load_config(backend_dir: Path = BACKEND_DIR) -> AppConfig:
         github_oauth=load_github_oauth_config(values, auth),
         model_encryption_key=values.get("MODEL_CONNECTIONS_ENCRYPTION_KEY"),
         runtime=load_runtime_config(values),
+        agent=load_agent_config(values),
+        stream=load_stream_config(values),
+        knowledge_vector_dir=_resolve_path(values["KNOWLEDGE_VECTOR_DIR"], data_dir)
+        if values.get("KNOWLEDGE_VECTOR_DIR")
+        else None,
         tools=ToolConfig(
             stdio_enabled=values.get("TOOL_MCP_STDIO_ENABLED", "false").lower()
             in {"true", "1", "yes"},
             max_stdio_processes=int(values.get("TOOL_MCP_STDIO_MAX_PROCESSES", "4")),
             stdio_wait_seconds=float(values.get("TOOL_MCP_STDIO_WAIT_SECONDS", "10")),
-            allowed_hosts=tuple(
-                x.strip().lower()
-                for x in values.get("TOOL_MCP_ALLOWED_HOSTS", "mcp.tavily.com").split(",")
-                if x.strip()
-            ),
-            private_hosts=tuple(
-                x.strip().lower()
-                for x in values.get("TOOL_MCP_PRIVATE_HOSTS", "").split(",")
-                if x.strip()
-            ),
+            oauth_callback_url=values.get("TOOL_OAUTH_CALLBACK_URL"),
         ),
         skills=SkillConfig(
             directory=_resolve_path(values["SKILL_STORAGE_DIR"], data_dir)
@@ -134,6 +132,12 @@ def load_config(backend_dir: Path = BACKEND_DIR) -> AppConfig:
             max_file_bytes=int(values.get("FILES_MAX_FILE_BYTES", str(10 * 1024 * 1024))),
             max_run_bytes=int(values.get("FILES_MAX_RUN_BYTES", str(40 * 1024 * 1024))),
             max_owner_bytes=int(values.get("FILES_MAX_OWNER_BYTES", str(256 * 1024 * 1024))),
+            max_evidence_run_bytes=int(
+                values.get("FILES_MAX_EVIDENCE_RUN_BYTES", str(64 * 1024 * 1024))
+            ),
+            max_evidence_owner_bytes=int(
+                values.get("FILES_MAX_EVIDENCE_OWNER_BYTES", str(512 * 1024 * 1024))
+            ),
             retention_seconds=int(values.get("FILES_RETENTION_SECONDS", "86400")),
         ),
         sandbox=SandboxConfig(

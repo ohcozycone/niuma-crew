@@ -1,12 +1,13 @@
-"""Configuration sources remain local and preserve environment precedence."""
-
 import os
 from pathlib import Path
 
 import pytest
 
+from app.agent.config import AgentConfig, load_agent_config
+from app.auth.config import AuthConfig
 from app.config import load_config
 from app.execution.config import RuntimeConfig, load_runtime_config
+from app.mcp.config import ToolConfig
 
 
 @pytest.fixture(autouse=True)
@@ -20,6 +21,12 @@ def isolated_storage_environment(monkeypatch):
         "RUN_RECURSION_LIMIT",
         "RUN_MAX_MODEL_CALLS",
         "RUN_MAX_SKILL_READS",
+        "AUTH_ALLOWED_ORIGINS",
+        "AUTH_COOKIE_SECURE",
+        "GITHUB_OAUTH_CLIENT_ID",
+        "GITHUB_OAUTH_CLIENT_SECRET",
+        "GITHUB_OAUTH_CALLBACK_URL",
+        "TOOL_OAUTH_CALLBACK_URL",
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -38,9 +45,58 @@ def test_default_configuration_paths_stay_under_backend_project(monkeypatch):
     assert Path(config.database.url.database) == backend_dir / ".data/app.db"
     assert config.model_encryption_key_file == backend_dir / ".data/model-connections.key"
     assert config.runner_lock_file == backend_dir / ".data/runner.lock"
-    assert config.runtime.recursion_limit == 64
+    assert config.agent.recursion_limit == 64
     assert config.runtime.max_model_calls == 8
     assert config.runtime.max_skill_reads == 16
+    assert config.tools.oauth_callback_url is None
+
+
+def test_production_origins_do_not_inherit_local_tool_callback(tmp_path, monkeypatch):
+    monkeypatch.setenv("AUTH_ALLOWED_ORIGINS", "https://crew.example")
+    monkeypatch.setenv("AUTH_COOKIE_SECURE", "true")
+    config = load_config(tmp_path)
+    assert config.auth.allowed_origins == ("https://crew.example",)
+    assert config.tools.oauth_callback_url is None
+    monkeypatch.setenv(
+        "TOOL_OAUTH_CALLBACK_URL", "https://crew.example/api/tool-connections/oauth/callback"
+    )
+    assert load_config(tmp_path).tools.oauth_callback_url.startswith("https://crew.example/")
+    monkeypatch.setenv(
+        "TOOL_OAUTH_CALLBACK_URL", "http://localhost:3000/api/tool-connections/oauth/callback"
+    )
+    with pytest.raises(ValueError, match="TOOL_OAUTH_CALLBACK_URL.*AUTH_ALLOWED_ORIGINS"):
+        load_config(tmp_path)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "",
+        "http://crew.example/api/tool-connections/oauth/callback",
+        "https://crew.example/wrong",
+        "https://crew.example/api/tool-connections/oauth/callback?code=secret",
+        "https://crew.example/api/tool-connections/oauth/callback#fragment",
+        "https://user:secret@crew.example/api/tool-connections/oauth/callback",
+        "https://crew.example:invalid/api/tool-connections/oauth/callback",
+    ],
+)
+def test_invalid_tool_callbacks_fail_without_exposing_value(value):
+    with pytest.raises(ValueError, match="TOOL_OAUTH_CALLBACK_URL") as error:
+        ToolConfig(oauth_callback_url=value)
+    assert "secret" not in str(error.value)
+
+
+def test_injected_tool_config_must_match_application_origins(app_config):
+    from dataclasses import replace
+
+    with pytest.raises(ValueError, match="TOOL_OAUTH_CALLBACK_URL.*AUTH_ALLOWED_ORIGINS"):
+        replace(
+            app_config,
+            auth=AuthConfig(allowed_origins=("https://crew.example",), cookie_secure=True),
+            tools=ToolConfig(
+                oauth_callback_url="http://localhost:3000/api/tool-connections/oauth/callback"
+            ),
+        )
 
 
 def test_dotenv_values_do_not_leak_between_configurations(tmp_path, monkeypatch):
@@ -162,7 +218,7 @@ def test_runtime_budgets_load_through_app_config_with_environment_precedence(tmp
     )
     monkeypatch.setenv("RUN_MAX_MODEL_CALLS", "3")
     config = load_config(tmp_path)
-    assert config.runtime.recursion_limit == 96
+    assert config.agent.recursion_limit == 96
     assert config.runtime.max_model_calls == 3
     assert config.runtime.max_skill_reads == 24
     assert "RUN_RECURSION_LIMIT" not in os.environ
@@ -175,11 +231,13 @@ def test_runtime_budgets_load_through_app_config_with_environment_precedence(tmp
 @pytest.mark.parametrize("value", ["0", "-1", "1.5", "nan", "inf", "", None])
 def test_runtime_budgets_reject_invalid_environment_values(name, value):
     with pytest.raises(ValueError, match=f"RUN_{name}"):
-        load_runtime_config({f"RUN_{name}": value})
+        loader = load_agent_config if name == "RECURSION_LIMIT" else load_runtime_config
+        loader({f"RUN_{name}": value})
 
 
 @pytest.mark.parametrize("name", ["recursion_limit", "max_model_calls", "max_skill_reads"])
 @pytest.mark.parametrize("value", [1.5, True])
 def test_runtime_budgets_require_integers_when_injected(name, value):
     with pytest.raises(ValueError, match=f"RUN_{name.upper()}.*正整数"):
-        RuntimeConfig(**{name: value})
+        cls = AgentConfig if name == "recursion_limit" else RuntimeConfig
+        cls(**{name: value})

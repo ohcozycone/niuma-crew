@@ -1,0 +1,36 @@
+{
+  "phase": "最终复验开始时的当前源码；普通类型及文档后续变更不用于冒充已测代码",
+  "files": {
+    "agent/engine.py": "67c2cfd403bbbb9062232c84706f4de36d7cbd608197d94fefb5bf5f18e8adb0",
+    "agent/mcp_tools.py": "efdc50de4c59fcc1949e4705b765bb557b1a61764ee525bf3d0189bea7bac21c",
+    "agent/tool_calls.py": "815273027f3d3d603b4335e4b60319027318db95e4f95fe3ff00841990bbea75",
+    "agent/model_calls.py": "39600f7ff05493ff05ef15fd64356f7bedaf334d55a5565a7c244880432f7ec7",
+    "agent/prompts.py": "6c0169522bd946b2e0a2f5136cd04f14fecdddf5f7c155d50eeb8af40cf1d326",
+    "agent/tool_discovery.py": "53f3a22f35911fd3d7ff096a3dc6a4ffafaadf3dcd11f21ed56f4c8b452d4ba8",
+    "builtin_tools/results.py": "03850427d1c91dcfbc52d10a72d74a10786e38a96befed286fc49e41ae7c9330",
+    "builtin_tools/result_files.py": "185e7ee2a40434dd30e9df2f29fbd8d81aab9375940b62c688c6646bf64585bb",
+    "builtin_tools/workspace.py": "e293264d322c2f201e6fa0dea30d477b80e57119039b410932c61e7f42995ae5",
+    "execution/tool_results.py": "5b6a0cc38d445347305fbe6101c3f4b461baad60e883367e720df4d9ac8d43f7",
+    "execution/context.py": "20d48bdfd536fea76107e2a797ea7e53e515725382d057e901ac79828fce82ba",
+    "execution/store.py": "61c45f0cf09f4b59557e7de0b96ac981c73a8dd099956840e4715f66cf44ce68",
+    "agent/contracts.py": "f380588d58e20476ef582cf4ac99df8f83e9aa9b699b6d21574f8a42f96886c8",
+    "mcp/config.py": "5337d27ad8ee59a30182988c91c84322510e23128c7970e1af963e64cbed887f"
+  },
+  "final_files": {
+    "agent/engine.py": "821ab7bf7bade43e38a0c2ca8451165becce0ea14183a2e5de936def30efc97b",
+    "agent/mcp_tools.py": "efdc50de4c59fcc1949e4705b765bb557b1a61764ee525bf3d0189bea7bac21c",
+    "agent/tool_calls.py": "815273027f3d3d603b4335e4b60319027318db95e4f95fe3ff00841990bbea75",
+    "agent/model_calls.py": "39600f7ff05493ff05ef15fd64356f7bedaf334d55a5565a7c244880432f7ec7",
+    "agent/prompts.py": "6c0169522bd946b2e0a2f5136cd04f14fecdddf5f7c155d50eeb8af40cf1d326",
+    "agent/tool_discovery.py": "53f3a22f35911fd3d7ff096a3dc6a4ffafaadf3dcd11f21ed56f4c8b452d4ba8",
+    "builtin_tools/results.py": "03850427d1c91dcfbc52d10a72d74a10786e38a96befed286fc49e41ae7c9330",
+    "builtin_tools/result_files.py": "fa7ed6974fef1aeb3cd8a4905b06b288d5c41dff47642585b8837ff2994f043b",
+    "builtin_tools/workspace.py": "3e56cf2ebb18af506cbeacf3a7fd960610ef37f8e92d6ed359015088e46d18a8",
+    "execution/tool_results.py": "5b6a0cc38d445347305fbe6101c3f4b461baad60e883367e720df4d9ac8d43f7",
+    "execution/context.py": "20d48bdfd536fea76107e2a797ea7e53e515725382d057e901ac79828fce82ba",
+    "execution/store.py": "61c45f0cf09f4b59557e7de0b96ac981c73a8dd099956840e4715f66cf44ce68",
+    "agent/contracts.py": "f380588d58e20476ef582cf4ac99df8f83e9aa9b699b6d21574f8a42f96886c8",
+    "mcp/config.py": "5337d27ad8ee59a30182988c91c84322510e23128c7970e1af963e64cbed887f"
+  },
+  "late_changes": "后续仅补齐沙箱对SDK只读结果别名的正文投递，已用假沙箱定向验证；此前真实模型仅使用虚拟工作区，不把它当成真实沙箱验收。"
+}

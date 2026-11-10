@@ -26,6 +26,4 @@ export const styles = {
   feedbackGrid: "capability-grid",
   stateCard:
     "flex flex-col items-start gap-3 p-6 [&>svg]:text-text-muted [&>strong]:text-sm [&>p]:text-xs [&>p]:text-text-muted [&>button]:mt-auto",
-  skeleton: "size-8 rounded-control bg-muted",
-  skeletonLine: "h-2 w-4/5 rounded-small bg-muted",
 } as const;

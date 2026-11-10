@@ -1,5 +1,5 @@
 /** Catalogue metadata only. All visual values and mappings live in theme.css. */
-export const designSystem = { version: "2.3", updated: "2026-11-01" } as const;
+export const designSystem = { version: "2.7", updated: "2026-11-06" } as const;
 export const colorLayers = [
   {
     id: "semantic",
@@ -36,7 +36,7 @@ export const colorGroups = [
 type ColorGroup = (typeof colorGroups)[number]["id"];
 export const colorRoles = {
   canvas: { group: "surface", label: "工作底与外壳" },
-  surface: { group: "surface", label: "卡片、输入与浮层" },
+  surface: { group: "surface", label: "工作区、输入与浮层" },
   raised: { group: "surface", label: "资源卡片、表格与编辑区" },
   muted: { group: "surface", label: "次级背景与悬停" },
   selected: { group: "surface", label: "普通控件选中" },
@@ -46,11 +46,25 @@ export const colorRoles = {
   input: { group: "control", label: "输入边界" },
   focus: { group: "control", label: "键盘焦点兜底" },
   "field-focus": { group: "control", label: "表单焦点" },
+  "disabled-bg": { group: "control", label: "禁用操作背景" },
+  "disabled-text": { group: "control", label: "禁用操作文字" },
+  hover: { group: "control", label: "中性悬停背景" },
+  "hover-text": { group: "control", label: "中性悬停前景" },
+  pressed: { group: "control", label: "中性按下背景" },
   overlay: { group: "control", label: "移动抽屉遮罩" },
   "modal-overlay": { group: "control", label: "对话框遮罩" },
   action: { group: "action", label: "主操作背景" },
   "action-hover": { group: "action", label: "主操作悬停" },
+  "action-pressed": { group: "action", label: "主操作按下" },
   "action-text": { group: "action", label: "主操作文字" },
+  "action-soft": { group: "action", label: "次级强调背景" },
+  "action-soft-hover": { group: "action", label: "次级强调悬停" },
+  "action-soft-pressed": { group: "action", label: "次级强调按下" },
+  "action-soft-text": { group: "action", label: "次级强调文字" },
+  "danger-action": { group: "action", label: "危险操作背景" },
+  "danger-action-hover": { group: "action", label: "危险操作悬停" },
+  "danger-action-pressed": { group: "action", label: "危险操作按下" },
+  "danger-action-text": { group: "action", label: "危险操作文字" },
   brand: { group: "brand", label: "品牌小点与收藏" },
   "brand-text": { group: "brand", label: "品牌强调文案" },
   "title-accent": { group: "brand", label: "品牌辅助衬色" },
@@ -60,7 +74,7 @@ export const colorRoles = {
   "warning-bg": { group: "feedback", label: "警告背景" },
   danger: { group: "feedback", label: "危险前景" },
   "danger-bg": { group: "feedback", label: "危险背景" },
-  "danger-text": { group: "feedback", label: "危险按钮文字" },
+  "danger-text": { group: "feedback", label: "危险反馈实底文字" },
   info: { group: "feedback", label: "信息前景" },
   "info-bg": { group: "feedback", label: "信息背景" },
   "card-border": { group: "component", label: "卡片边界" },
@@ -77,6 +91,11 @@ export const componentColors = {
   "--os-nav-active-text": "导航选中文字",
   "--os-nav-count-bg": "导航数量背景",
   "--os-avatar-bg": "员工头像背板",
+  "--os-code-comment": "代码注释",
+  "--os-code-keyword": "代码关键字",
+  "--os-code-string": "代码字符串",
+  "--os-code-constant": "代码常量与类型",
+  "--os-code-function": "代码函数",
   "--login-bg": "登录页面外底",
   "--login-scene": "登录品牌场景",
   "--login-border": "登录容器边界",
@@ -94,11 +113,10 @@ export const contrastExceptions: {
   reason: string;
 }[] = [];
 export const paletteFamilies = [
-  { id: "neutral", label: "中性灰", kind: "界面", usage: "shadcn 原始表单焦点" },
-  { id: "gray", label: "微暖灰", kind: "界面", usage: "日间界面的中性明度尺度" },
-  { id: "night", label: "夜间灰", kind: "界面", usage: "夜间界面的中性明度尺度" },
-  { id: "orange", label: "品牌橙", kind: "品牌", usage: "品牌、收藏与局部强调" },
-  { id: "green", label: "绿色", kind: "反馈", usage: "成功与可用状态" },
+  { id: "gray", label: "暖白与燕麦灰", kind: "界面", usage: "日间表面、文字与表单的暖灰尺度" },
+  { id: "night", label: "暖炭灰与米白", kind: "界面", usage: "夜间表面、文字与表单的暖灰尺度" },
+  { id: "orange", label: "陶橙", kind: "品牌", usage: "品牌、收藏与局部强调" },
+  { id: "green", label: "灰绿", kind: "反馈", usage: "成功与可用状态" },
   { id: "amber", label: "琥珀色", kind: "反馈", usage: "注意与等待确认" },
   { id: "red", label: "红色", kind: "反馈", usage: "失败与危险操作" },
   { id: "blue", label: "蓝色", kind: "反馈", usage: "信息反馈" },
@@ -134,11 +152,8 @@ export const cornerShapeExceptions = [
   { file: "components/ui/InputGroup.tsx", reason: "组合输入外层沿用普通圆角，半径按容器保留。" },
   { file: "pages/agents/agentCardStyles.ts", reason: "员工圆拱背板使用独立几何，保留人物构图。" },
   { file: "pages/agents/AgentConfiguration.tsx", reason: "配置页角色圆拱与员工卡片保持同一构图。" },
+  { file: "pages/agents/EmployeeHomePage.tsx", reason: "员工个人页沿用角色圆拱背板。" },
   { file: "Layout.tsx", reason: "帮助气泡采用不对称四角造型。" },
-  {
-    file: "pages/signin/signinStyles.ts",
-    reason: "登录场景保留当前 14px 外框；字段容器采用普通圆角，单独验收。",
-  },
 ] as const;
 
 /** Geometry is read from theme.css; metadata never maintains a second numeric table. */

@@ -1,6 +1,6 @@
 import { FailureState } from "@/components/failure/FailureState";
 import { PageContainer } from "@/components/common/PageContainer";
-import { useNavigate, useParams, useSearchParams, Link } from "react-router";
+import { useNavigate, useParams, useSearchParams, Link, Navigate } from "react-router";
 import { useIdentity } from "@/state/auth/useIdentity";
 import { identityKey } from "@/lib/identity";
 import { Button } from "@/components/ui/Button";
@@ -53,6 +53,8 @@ function Editor({ data }: { data: ReturnType<typeof useSkillEditor> }) {
         </Link>
       </PageContainer>
     );
+  if (!id && !identity.permissions.includes("skills:create"))
+    return <Navigate replace to="/skills" />;
   if (id && !skill)
     return (
       <FailureState
@@ -84,6 +86,7 @@ function Editor({ data }: { data: ReturnType<typeof useSkillEditor> }) {
     <SkillEditor
       key={id || "new"}
       value={skill ?? "new"}
+      readOnly={!identity.permissions.includes("skills:update")}
       onSave={async (value) => {
         await data.saveSkill(value, !id);
         close();

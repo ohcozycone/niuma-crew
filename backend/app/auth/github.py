@@ -1,8 +1,7 @@
-"""Minimal GitHub identity verification; no upstream credentials are persisted."""
-
 import base64
 import hashlib
 import json
+import logging
 import re
 import secrets
 from collections.abc import Callable
@@ -14,14 +13,20 @@ from cryptography.fernet import Fernet, InvalidToken
 
 from app.auth.config import GitHubOAuthConfig
 from app.errors import InvalidInputError, ServiceUnavailableError
-from app.infrastructure.database.fields import utc_now
+from app.values import utc_now
+
+logger = logging.getLogger(__name__)
 
 OAUTH_COOKIE = "app_github_oauth"
 OAUTH_COOKIE_PATH = "/api/auth/github"
 OAUTH_TTL = 600
 RETURN_PATH = re.compile(
-    r"/(?:|agents(?:/(?:new|[a-zA-Z0-9-]+))?|skills(?:/(?:new|[a-zA-Z0-9-]+))?|"
-    r"knowledge|design-system|brains|rules|conversations(?:/(?:new|[a-zA-Z0-9-]+))?|"
+    r"/(?:|agents(?:/(?:new|[a-zA-Z0-9-]+)(?:/(?:connections|home|"
+    r"evaluations/[a-zA-Z0-9-]+/cases/[a-zA-Z0-9-]+/trace))?)?|"
+    r"skills(?:/(?:new|[a-zA-Z0-9-]+))?|"
+    r"knowledge(?:/[a-zA-Z0-9-]+(?:/documents/[a-zA-Z0-9-]+)?)?|"
+    r"help(?:/[a-zA-Z0-9-]+)?|design-system|brains|tools|rules|"
+    r"conversations(?:/(?:new|[a-zA-Z0-9-]+)(?:/trace)?)?|"
     r"avatars/svg|avatars/playground(?:/[a-z0-9-]+)?|avatars/rive/programmer)"
 )
 
@@ -107,7 +112,7 @@ class GitHubOAuth:
 
     @staticmethod
     def _json(client: httpx.Client, method: str, url: str, **kwargs) -> dict:
-        # Bound both token and profile responses; never reflect upstream bodies or exceptions.
+        # 限制响应体大小，且不回显上游正文或异常。
         with client.stream(method, url, **kwargs) as response:
             response.raise_for_status()
             content = bytearray()
@@ -123,9 +128,14 @@ class GitHubOAuth:
     def identity(self, code: str, verifier: str) -> tuple[str, str]:
         if not code or len(code) > 512:
             raise InvalidInputError("github_failed", "GitHub 登录资料不完整，请重新发起。")
+        stage = "token_exchange"
         try:
             with httpx.Client(
-                timeout=10, follow_redirects=False, trust_env=False, transport=self.transport
+                timeout=httpx.Timeout(10, connect=5),
+                follow_redirects=False,
+                trust_env=False,
+                # 只重试建立连接；读取超时后授权码可能已消费，不能重发令牌 POST。
+                transport=self.transport or httpx.HTTPTransport(retries=2, trust_env=False),
             ) as client:
                 token = self._json(
                     client,
@@ -142,6 +152,7 @@ class GitHubOAuth:
                 ).get("access_token")
                 if not isinstance(token, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,1024}", token):
                     raise ValueError
+                stage = "profile_fetch"
                 profile = self._json(
                     client,
                     "GET",
@@ -153,6 +164,7 @@ class GitHubOAuth:
                         "X-GitHub-Api-Version": "2022-11-28",
                     },
                 )
+            stage = "profile_validation"
             subject, username = profile.get("id"), profile.get("login")
             if (
                 type(subject) is not int
@@ -162,7 +174,14 @@ class GitHubOAuth:
             ):
                 raise ValueError
             return str(subject), username
-        except (httpx.HTTPError, ValueError, UnicodeError):
+        except (httpx.HTTPError, ValueError, UnicodeError) as error:
+            # 异常及响应体可能含授权码或令牌，不向外传递。
+            logger.warning(
+                "github.oauth.failed stage=%s type=%s status=%s",
+                stage,
+                type(error).__name__,
+                error.response.status_code if isinstance(error, httpx.HTTPStatusError) else None,
+            )
             raise ServiceUnavailableError(
                 "github_failed", "暂时无法完成 GitHub 登录，请重试。"
             ) from None

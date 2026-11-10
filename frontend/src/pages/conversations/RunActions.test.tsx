@@ -1,8 +1,11 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen, cleanup } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { MemoryRouter } from "react-router";
+import { fireEvent, render as renderView, screen, cleanup, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { RunActions } from "./RunActions";
 import { runFixture, actionFixture } from "./conversationTestHelpers";
+const render = (view: ReactElement) => renderView(view, { wrapper: MemoryRouter });
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
@@ -86,7 +89,7 @@ it("reads saved steps, reflects streaming and terminal snapshots without any req
     />,
   );
   expect(screen.getByText("最后保存的摘要")).toBeTruthy();
-  expect(screen.getByText("已取消")).toBeTruthy();
+  expect(within(screen.getByRole("button", { name: "执行过程" })).getByText("已取消")).toBeTruthy();
   expect(fetch).not.toHaveBeenCalled();
 });
 it("renders process text safely and preserves nested open state across collapse", () => {

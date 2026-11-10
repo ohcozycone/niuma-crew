@@ -1,25 +1,21 @@
-"""Real SDK/HTTP adapter with synthetic vectors; never a semantic quality benchmark."""
-
 import json
 from dataclasses import replace
 from datetime import timedelta
-from pathlib import Path
 from uuid import uuid4
 
 import httpx
 import pytest
 from alembic import command
-from alembic.config import Config
 from configuration_helpers import patch_current
 from fastapi.testclient import TestClient
-from test_knowledge_library import create, library_owner, process
+from test_knowledge_library import create, library_creator, process
 from test_knowledge_library import upload as stage_upload
 
 from app.auth.actor import Actor
 from app.errors import NotFoundError, PermissionDeniedError
-from app.infrastructure.database.fields import utc_now
 from app.knowledge.models import LibraryVectorIndex
 from app.knowledge.schemas import SearchRequest
+from app.values import utc_now
 
 KEY = "test-siliconflow-key"
 
@@ -131,7 +127,10 @@ def test_embedding_connection_and_real_sdk_product_roundtrip(api_client, upstrea
     assert result.status_code == 200, result.text
     hits = result.json()["hits"]
     assert hits[0]["chunk"]["document_id"] == hotel["id"]
-    assert hits[0]["score"] == 1 and hits[0]["score_kind"] == "cosine_higher_better"
+    assert (
+        hits[0]["score"] == pytest.approx(0)
+        and hits[0]["score_kind"] == "cosine_distance_lower_better"
+    )
     assert all("999" not in hit["chunk"]["text"] for hit in hits)
     hybrid = api_client.post(
         f"/api/knowledge-bases/{kb}/search",
@@ -141,9 +140,9 @@ def test_embedding_connection_and_real_sdk_product_roundtrip(api_client, upstrea
     fused = hybrid.json()
     assert fused["strategy"] == "hybrid" and len(fused["hits"]) == 1
     assert fused["hits"][0]["chunk"]["document_id"] == hotel["id"]
-    assert fused["hits"][0]["score_kind"] == "rrf_higher_better"
-    assert fused["hits"][0]["score"] == pytest.approx(2 / 61)
-    # Reading a cited source must not mutate its vectors.
+    assert fused["hits"][0]["score_kind"] == "rank_only"
+    assert fused["hits"][0]["score"] is None
+    # 读取引用不得修改向量。
     assert api_client.get(f"/api/knowledge-bases/{kb}/documents/{hotel['id']}").status_code == 200
     assert search(api_client, kb).json()["hits"] == hits
     assert api_client.delete(f"/api/model-connections/{model['id']}").status_code == 409
@@ -220,11 +219,11 @@ def test_owner_permissions_and_build_concurrency_are_enforced_before_upstream(ap
     upload(api_client, kb)
     service = api_client.app.state.knowledge
     actor = Actor(
-        "user", "", library_owner(service, kb), "member", "member", utc_now() + timedelta(hours=1)
+        "user", "", library_creator(service, kb), "admin", "admin", utc_now() + timedelta(hours=1)
     )
     assert service.vectors.options(actor)[0].id == model["id"]
     for stranger in [
-        replace(actor, user_id=str(uuid4()), role="admin"),
+        replace(actor, user_id=str(uuid4()), role="member"),
         replace(actor, role="guest"),
     ]:
         with pytest.raises((NotFoundError, PermissionDeniedError)):
@@ -239,23 +238,32 @@ def test_owner_permissions_and_build_concurrency_are_enforced_before_upstream(ap
     assert service.search(actor, kb, SearchRequest(question="查询", strategy="vector")).hits
 
 
-def test_upgrade_from_text_only_preserves_sources(api_client):
-    kb = create(api_client)["id"]
-    document = upload(api_client, kb).json()
-    config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
-    command.downgrade(config, "0013")
-    command.upgrade(config, "head")
-    assert api_client.get(f"/api/knowledge-bases/{kb}").json()["vector_status"] == "not_built"
-    assert (
-        api_client.get(f"/api/knowledge-bases/{kb}/documents/{document['id']}/original").status_code
-        == 200
+def test_upgrade_from_text_only_preserves_sources(app_config, monkeypatch):
+    from legacy_knowledge_helpers import seed_text_library
+    from sqlalchemy import text
+
+    from app.knowledge.search import KnowledgeSearch
+
+    database, files, config, actor, kb, document, chunks = seed_text_library(
+        app_config, monkeypatch, "0013"
     )
+    try:
+        command.upgrade(config, "0020")
+        with database.transaction() as db:
+            file_id = db.scalar(
+                text("SELECT file_id FROM knowledge_documents WHERE id=:id"), {"id": document}
+            )
+            assert db.scalar(text("SELECT count(*) FROM knowledge_vector_indexes")) == 0
+            assert KnowledgeSearch.lexical_search(db, kb, "高铁", 6)[0].chunk.id == chunks[0].id
+        assert files.read(file_id)
+    finally:
+        database.close()
 
 
 def test_rank_fusion_uses_ranks_and_deduplicates_chunks():
     from app.knowledge.contracts import Chunk
+    from app.knowledge.retrieval import fuse_rankings
     from app.knowledge.schemas import SearchHit
-    from app.knowledge.vectors import reciprocal_rank_fusion
 
     def hit(id, rank, score):
         return SearchHit(
@@ -277,11 +285,60 @@ def test_rank_fusion_uses_ranks_and_deduplicates_chunks():
 
     lexical = [hit("a", 1, -10000), hit("b", 2, -0.001)]
     semantic = [hit("b", 1, 0.9), hit("c", 2, 0.8)]
-    result = reciprocal_rank_fusion(lexical, semantic, 3)
+    result = fuse_rankings([lexical, semantic], 3)
     assert [h.chunk.id for h in result] == ["b", "a", "c"]
-    assert result[0].score == pytest.approx(1 / 61 + 1 / 62)
+    assert result[0].score is None
     assert [h.rank for h in result] == [1, 2, 3]
-    assert all(h.score_kind == "rrf_higher_better" for h in result)
-    assert reciprocal_rank_fusion([], [], 3) == []
-    tied = reciprocal_rank_fusion([hit("b", 1, -1)], [hit("a", 1, 0.9)], 1)
-    assert tied[0].chunk.id == "a"
+    assert all(h.score_kind == "rank_only" for h in result)
+    assert fuse_rankings([[], []], 3) == []
+    tied = fuse_rankings([[hit("b", 1, -1)], [hit("a", 1, 0.9)]], 1)
+    assert tied[0].chunk.id == "b"
+
+
+def test_reuse_keeps_vectors_and_later_uploads_do_not_block_semantic_build(api_client, upstream):
+    model = connection(api_client)
+    kb = create(api_client)["id"]
+    old = [upload(api_client, kb, f"# 住宿规则{i}\n住宿报销上限{i}元。").json() for i in range(5)]
+    before = [
+        api_client.get(f"/api/knowledge-bases/{kb}/documents/{doc['id']}").json() for doc in old
+    ]
+    assert build(api_client, kb, model["id"]).status_code == 200
+    request_count = len(upstream["requests"])
+    reused = process(api_client, kb, [doc["id"] for doc in old]).json()
+    assert {item["status"] for item in reused["items"]} == {"reused"}
+    assert api_client.get(f"/api/knowledge-bases/{kb}").json()["vector_status"] == "ready"
+    assert len(upstream["requests"]) == request_count
+    new = [
+        stage_upload(api_client, kb, f"# 新文件{i}\n尚未处理的新内容{i}。").json() for i in range(2)
+    ]
+    rebuilt = build(api_client, kb, model["id"])
+    assert rebuilt.status_code == 200 and rebuilt.json()["vector_chunk_count"] == 5
+    for index, doc in enumerate(old):
+        after = api_client.get(f"/api/knowledge-bases/{kb}/documents/{doc['id']}").json()
+        assert after["chunks"] == before[index]["chunks"]
+        assert after["processing_rules"] == before[index]["processing_rules"]
+        assert after["vector_ready"]
+    assert all(
+        api_client.get(f"/api/knowledge-bases/{kb}/documents/{doc['id']}").json()[
+            "processing_state"
+        ]
+        == "pending"
+        for doc in new
+    )
+    automatic = api_client.post(f"/api/knowledge-bases/{kb}/search", json={"question": "住宿"})
+    assert automatic.status_code == 200 and automatic.json()["strategy"] == "hybrid"
+    changed = process(
+        api_client,
+        kb,
+        [old[0]["id"]],
+        rules={"chunk_size": 900, "chunk_overlap": 120, "min_section_chars": 200},
+    ).json()
+    assert changed["items"][0]["status"] == "succeeded"
+    summary = api_client.get(f"/api/knowledge-bases/{kb}").json()
+    assert summary["vector_status"] == "partial" and summary["vector_chunk_count"] == 4
+    assert (
+        api_client.post(f"/api/knowledge-bases/{kb}/search", json={"question": "住宿"}).json()[
+            "strategy"
+        ]
+        == "hybrid"
+    )

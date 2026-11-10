@@ -1,7 +1,9 @@
 import { vi } from "vitest";
 import {
   isActive,
+  isPublished,
   type Conversation,
+  type ConversationSnapshot,
   type Reply,
   type ChatMessage,
   type ReplyStep,
@@ -10,7 +12,7 @@ import type { ConversationTransport } from "@/lib/api/conversationTransport";
 export function actionFixture(overrides: Partial<ReplyStep> = {}): ReplyStep {
   return {
     id: "step",
-    run_id: "run",
+    run_id: "a1",
     sequence: 1,
     action_key: "model:1",
     call_key: "model:1",
@@ -43,7 +45,7 @@ export function runFixture(overrides: Partial<Reply> = {}): Reply {
     retry_of_response_id: null,
     status: "running",
     version: 1,
-    steps: [actionFixture()],
+    steps: [actionFixture({ run_id: overrides.id ?? "a1" })],
     content: "回答",
     error: null,
     usage: null,
@@ -51,35 +53,34 @@ export function runFixture(overrides: Partial<Reply> = {}): Reply {
     started_at: "2026-10-24T00:00:01Z",
     finished_at: null,
     ...overrides,
-    context: overrides.context ?? { pair_count: 0, truncated: false },
   };
-  value.content_state = !value.content
-    ? "empty"
-    : isActive(value.status)
-      ? "draft"
-      : value.status === "succeeded"
-        ? "complete"
-        : "partial";
+  if (overrides.content_state === undefined) {
+    value.content_state = !value.content
+      ? "empty"
+      : isActive(value.status) || value.acceptance === "pending"
+        ? "draft"
+        : value.status === "succeeded"
+          ? "complete"
+          : "partial";
+  }
   return value;
 }
 export function messageFixture(id: string, role: "user" | "assistant", run: Reply): ChatMessage {
   return {
     id,
     role,
-    sequence: role === "user" ? 1 : 2,
+    sequence: role === "user" ? 1 : run.sequence,
     conversation_id: run.conversation_id,
     content: role === "user" ? "问题" : run.content,
     run: role === "user" ? null : run,
-    published: role === "user" || !isActive(run.status),
+    published: role === "user" || isPublished(run),
     created_at: run.created_at,
     updated_at: run.created_at,
   };
 }
-export function transportFixture(run = runFixture({ status: "succeeded", content: "已保存回答" })) {
-  const listeners: Array<Parameters<ConversationTransport["subscribe"]>[2]> = [];
-  let open = 0;
+export function snapshotFixture(run: Reply): ConversationSnapshot {
   const conversation: Conversation = {
-    id: "chat",
+    id: run.conversation_id,
     agent_id: "agent",
     agent_name: "员工",
     owner_user_id: "owner",
@@ -90,24 +91,28 @@ export function transportFixture(run = runFixture({ status: "succeeded", content
     created_at: run.created_at,
     updated_at: run.created_at,
   };
+  return {
+    conversation,
+    agent: { id: conversation.agent_id, name: conversation.agent_name, avatar_id: "admin" },
+    messages: {
+      items: [{ ...messageFixture(run.reply_to_message_id, "user", run), role: "user" }, run],
+      next_before_sequence: null,
+      has_more: false,
+    },
+    question_count: 1,
+    latest_question_id: run.reply_to_message_id,
+  };
+}
+export function transportFixture(run = runFixture({ status: "succeeded", content: "已保存回答" })) {
+  const listeners: Array<Parameters<ConversationTransport["subscribe"]>[2]> = [];
+  let open = 0;
   const transport: ConversationTransport = {
-    getSnapshot: vi.fn(async (id, signal) => {
-      const conversation = await transport.getConversation(id, signal);
-      const page = await transport.getMessages(id, undefined, signal);
-      return {
-        conversation,
-        agent: { id: conversation.agent_id, name: conversation.agent_name, avatar_id: "admin" },
-        messages: {
-          ...page,
-          items: page.items.map((message) => message.run ?? { ...message, role: "user" as const }),
-        },
-        question_count: 1,
-        latest_question_id: "u1",
-      };
-    }),
-    getConversation: vi.fn(async () => conversation),
+    getSnapshot: vi.fn(async () => snapshotFixture(run)),
     getMessages: vi.fn(async () => ({
-      items: [messageFixture("u1", "user", run), messageFixture("a1", "assistant", run)],
+      items: [
+        messageFixture(run.reply_to_message_id, "user", run),
+        messageFixture(run.id, "assistant", run),
+      ],
       next_before_sequence: null,
       has_more: false,
     })),

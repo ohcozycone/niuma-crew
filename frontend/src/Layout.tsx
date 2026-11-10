@@ -1,3 +1,4 @@
+import { NavigationProgress } from "@/components/common/LoadingFeedback";
 import { resourceIdentity } from "@/components/common/ResourceIcon";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { NavigationItem } from "@/components/ui/NavigationItem";
@@ -44,6 +45,7 @@ const navigation = [
     icon: resourceIdentity.conversation.icon,
   },
   { path: "/knowledge", title: "知识库", help: "knowledge", icon: resourceIdentity.knowledge.icon },
+  { path: "/rules", title: "全员规范", help: "knowledge", icon: resourceIdentity.rules.icon },
 ];
 
 export function Layout() {
@@ -109,7 +111,6 @@ function Shell() {
   }, [blocker, dirty, saving, editing]);
   const main = useRef<HTMLElement>(null);
   const toolPage = location.pathname === "/tools";
-  const personalConnections = /^\/agents\/[^/]+\/connections$/.test(location.pathname);
   const current =
     (toolPage
       ? navigation.find((n) => n.path === "/skills")
@@ -119,19 +120,19 @@ function Shell() {
   const editor = /^\/(agents|skills)\/[^/]+$/.test(location.pathname);
   const nested = location.pathname.replace(/\/+$/, "") !== current.path;
   const creating = location.pathname.endsWith("/new");
-  const title = toolPage
-    ? new URLSearchParams(location.search).has("native")
-      ? "内置工具"
-      : new URLSearchParams(location.search).has("service")
-        ? "MCP 配置"
-        : "接入 MCP"
-    : personalConnections
-      ? "我的工具连接"
+  const title = location.pathname.endsWith("/trace")
+    ? "执行详情"
+    : toolPage
+      ? new URLSearchParams(location.search).has("native")
+        ? "内置工具"
+        : new URLSearchParams(location.search).has("service")
+          ? "MCP 配置"
+          : "接入 MCP"
       : editor
         ? current.path === "/agents"
           ? creating
             ? "创建数字员工"
-            : admin
+            : identity.permissions.includes("agents:update")
               ? "编辑员工"
               : "员工详情"
           : creating
@@ -305,7 +306,10 @@ function Shell() {
             <div className={"shrink-0"}>
               <nav aria-label="平台导航">
                 {navigation
-                  .filter((n) => !["/brains", "/tools"].includes(n.path) || admin)
+                  .filter(
+                    (n) =>
+                      n.path !== "/rules" && (!["/brains", "/tools"].includes(n.path) || admin),
+                  )
                   .map(({ path, title: label, icon: Icon }) => (
                     <NavigationItem
                       active={path === parent.path}
@@ -322,6 +326,18 @@ function Shell() {
                     </NavigationItem>
                   ))}
               </nav>
+              {identity.permissions.includes("organization_rules:read") && (
+                <nav aria-label="平台管理" className="mt-5 border-t border-border pt-3">
+                  <NavigationItem
+                    active={parent.path === "/rules"}
+                    aria-current={parent.path === "/rules" ? "page" : undefined}
+                    render={<Link to="/rules" />}
+                  >
+                    <resourceIdentity.rules.icon aria-hidden="true" />
+                    <span>全员规范</span>
+                  </NavigationItem>
+                </nav>
+              )}
             </div>
             <section
               className={
@@ -354,11 +370,13 @@ function Shell() {
                     key={e.id}
                     name={e.name}
                     avatarId={e.avatarId}
-                    to={sourceLink(
-                      admin ? `/conversations/new?agent=${e.id}&resume=1` : `/agents/${e.id}`,
-                    )}
-                    label={admin ? `与${e.name}对话` : `查看${e.name}的介绍`}
-                    editTo={admin ? sourceLink(`/agents/${e.id}`) : undefined}
+                    to={sourceLink(`/agents/${e.id}/home`)}
+                    label={`查看${e.name}的员工主页`}
+                    conversationTo={
+                      identity.permissions.includes("runs:create")
+                        ? sourceLink(`/conversations/new?agent=${e.id}`)
+                        : undefined
+                    }
                   />
                 ))}
                 {(data.globalTotals?.favorites ?? 0) > favorites.length && (
@@ -400,7 +418,7 @@ function Shell() {
         </aside>
         <div className={"workspace-region workspace-surface flex flex-col overflow-hidden"}>
           <header
-            className={`${conversationPage ? "conversation-gutters" : "page-gutters"} min-h-[calc(var(--os-space-6)_*_2)] shrink-0 flex flex-wrap items-center justify-between gap-2 py-1 border-b border-workspace-border ${conversationPage ? "max-sm:h-auto max-sm:flex-wrap max-sm:gap-x-2 max-sm:gap-y-1 max-sm:py-1" : ""}`}
+            className={`${conversationPage ? "conversation-gutters" : "page-gutters"} min-h-[calc(var(--os-space-6)_*_2)] shrink-0 flex flex-wrap items-center justify-between gap-2 py-1 border-b border-workspace-border dark:border-border/50 ${conversationPage ? "max-sm:h-auto max-sm:flex-wrap max-sm:gap-x-2 max-sm:gap-y-1 max-sm:py-1" : ""}`}
           >
             <div
               className={`flex flex-1 items-center gap-(--os-space-2) text-[length:var(--os-text-caption)] min-w-0 ${conversationPage ? "max-sm:w-full max-sm:flex-none" : ""}`}
@@ -437,28 +455,19 @@ function Shell() {
                 className={
                   "flex items-center gap-[9px] shrink-0 w-56 min-w-0 min-h-(--os-control-small) py-0 px-[9px] [border:1px_solid_var(--os-border)] rounded-control bg-canvas text-text-muted text-[length:var(--os-text-caption)] text-left [&_>_svg]:shrink-0 [&_>_span]:min-w-0 [&_>_span]:overflow-hidden [&_>_span]:text-ellipsis [&_>_span]:whitespace-nowrap [&:hover]:bg-muted [&_kbd]:ml-auto [&_kbd]:text-[length:var(--os-text-caption)] [&_kbd]:whitespace-nowrap [&_kbd]:[border:1px_solid_var(--os-border)] [&_kbd]:rounded-small [&_kbd]:py-[1px] [&_kbd]:px-1 max-[1100px]:justify-center max-[1100px]:w-(--os-control-small) max-[1100px]:p-0 max-[1100px]:[border-color:transparent] max-[1100px]:bg-transparent max-[1100px]:[&_>_span]:hidden max-[1100px]:[&_kbd]:hidden"
                 }
-                aria-label="搜索员工或技能"
+                aria-label="全局搜索员工或技能"
                 aria-haspopup="dialog"
                 aria-expanded={searchOpen}
                 onClick={() => setSearchOpen(true)}
               >
                 <Search size={16} aria-hidden="true" />
-                <span>搜索员工或技能</span>
+                <span>全局搜索</span>
                 <kbd>⌘ K</kbd>
               </button>
               <ThemeSwitcher />
             </div>
           </header>
-          {transition.state !== "idle" && (
-            <div
-              className={
-                "fixed top-2 left-[50%] [z-index:60] bg-surface [border:1px_solid_var(--os-border)] py-1.5 px-3 rounded-control text-[length:12px]"
-              }
-              role="status"
-            >
-              正在打开页面…
-            </div>
-          )}
+          <NavigationProgress pending={transition.state !== "idle"} />
           <main
             ref={main}
             id="platform-main"
@@ -481,12 +490,10 @@ function Shell() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{saving ? "正在保存" : "放弃未保存的修改？"}</DialogTitle>
-            <DialogDescription>
-              {saving
-                ? "请等待保存完成，再切换页面。"
-                : "放弃后将清除当前草稿，恢复上次保存的配置。"}
-            </DialogDescription>
           </DialogHeader>
+          <DialogDescription>
+            {saving ? "请等待保存完成，再切换页面。" : "放弃后将清除当前草稿，恢复上次保存的配置。"}
+          </DialogDescription>
           <DialogFooter>
             <Button
               variant="outline"
@@ -510,8 +517,7 @@ function Shell() {
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
         <DialogContent className={"dialog-standard [&_.de-search-input]:w-full"}>
           <DialogHeader>
-            <DialogTitle>搜索员工或技能</DialogTitle>
-            <DialogDescription>按名称和用途搜索员工与技能。</DialogDescription>
+            <DialogTitle>全局搜索</DialogTitle>
           </DialogHeader>
           <SearchInput
             className="w-full"

@@ -1,15 +1,13 @@
-"""Target configuration API: revisions, atomic assembly edits and bounded projections."""
-
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from uuid import uuid4
 
 import pytest
 from configuration_helpers import patch_current
-from scenario_client import ScenarioClient as TestClient
+from fastapi.testclient import TestClient
 
-from app.agents.models import AgentSkill
 from app.bootstrap import create_app
+from app.employees.models import AgentSkill
 from app.infrastructure.database.session import Database
 from app.skills.models import Skill
 
@@ -197,7 +195,7 @@ def test_parameter_validation_relationship_revision_and_atomic_rollback(api_clie
     relation = changed["skill_assignments"][0]
     assert changed["revision"] == 2 and relation["revision"] == 2 and not relation["ready"]
     assert relation["updated_at"] >= relation.get("created_at", agent["created_at"])
-    # Shared schema edits cannot invalidate enabled assignments; disable/migrate first.
+    # 共享参数规范不能破坏启用中的装配，须先停用或迁移。
     patch_current(
         api_client,
         url,
@@ -431,15 +429,15 @@ def test_shell_aggregate_is_independent_of_page_and_safe_for_guest(api_client, m
     with TestClient(create_app(migrated_config), headers=api_client.headers) as guest:
         assert guest.get("/api/public/configuration-summary").status_code == 401
         guest.post("/api/auth/guest", json={})
-        assert guest.get("/api/configuration-summary").status_code == 403
+        assert guest.get("/api/configuration-summary").status_code == 200
         assert guest.get("/api/public/configuration-summary").json() == expected
 
 
 def test_directory_queries_are_bounded_and_do_not_load_method_bodies(api_client):
     from sqlalchemy import event
 
-    from app.agents.models import Agent
-    from app.agents.service import AgentService
+    from app.employees.models import Agent
+    from app.employees.service import AgentService
 
     database = api_client.app.state.database
     with database.transaction() as db:

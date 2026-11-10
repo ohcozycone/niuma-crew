@@ -1,0 +1,120 @@
+{
+  "note": "英文 query 是人工准备的关键词对照；不代表真实模型已能把 request 改写正确。",
+  "cases": [
+    {
+      "request": "搜索组织文档",
+      "query": "find pages by title",
+      "expected": "notion-search"
+    },
+    {
+      "request": "读取页面正文",
+      "query": "fetch full page content",
+      "expected": "notion-fetch"
+    },
+    {
+      "request": "新建项目页面",
+      "query": "create pages under parent",
+      "expected": "notion-create-pages"
+    },
+    {
+      "request": "修改已有页面",
+      "query": "update page content",
+      "expected": "notion-update-page"
+    },
+    {
+      "request": "删除不再使用的页面",
+      "query": "delete pages",
+      "expected": "notion-delete-pages"
+    },
+    {
+      "request": "恢复误删页面",
+      "query": "restore deleted pages",
+      "expected": "notion-restore-pages"
+    },
+    {
+      "request": "复制模板页面",
+      "query": "duplicate pages",
+      "expected": "notion-duplicate-page"
+    },
+    {
+      "request": "移动页面到文件夹",
+      "query": "move pages parent folder",
+      "expected": "notion-move-pages"
+    },
+    {
+      "request": "建立项目数据库",
+      "query": "create database properties",
+      "expected": "notion-create-database"
+    },
+    {
+      "request": "检索数据库的记录",
+      "query": "query data sources filter sort",
+      "expected": "notion-query-data-sources"
+    },
+    {
+      "request": "为页面添加评论",
+      "query": "create comment page",
+      "expected": "notion-create-comment"
+    },
+    {
+      "request": "查看页面讨论",
+      "query": "get comments discussion",
+      "expected": "notion-get-comments"
+    },
+    {
+      "request": "查看页面版本历史",
+      "query": "get version changes",
+      "expected": "notion-get-version-changes"
+    },
+    {
+      "request": "下载页面附件",
+      "query": "download attachment file",
+      "expected": "notion-download-attachment"
+    },
+    {
+      "request": "列出近期页面",
+      "query": "list recent pages",
+      "expected": "notion-list-recent-pages"
+    },
+    {
+      "request": "查询团队成员",
+      "query": "get users names",
+      "expected": "notion-get-users"
+    },
+    {
+      "request": "查日历上的会议",
+      "query": "calendar list events",
+      "expected": "notion-calendar-list-events"
+    },
+    {
+      "request": "创建日历活动",
+      "query": "calendar create events",
+      "expected": "notion-calendar-create-events"
+    },
+    {
+      "request": "搜索最新行业新闻",
+      "query": "search web latest news",
+      "expected": "tavily_search"
+    },
+    {
+      "request": "读取指定网页全文",
+      "query": "extract url web content",
+      "expected": "tavily_extract"
+    },
+    {
+      "request": "遍历站点抓取页面",
+      "query": "crawl website pages",
+      "expected": "tavily_crawl"
+    },
+    {
+      "request": "列出站点所有链接",
+      "query": "map website urls",
+      "expected": "tavily_map"
+    },
+    {
+      "request": "深入研究市场竞争",
+      "query": "research detailed report",
+      "expected": "tavily_research"
+    }
+  ]
+}

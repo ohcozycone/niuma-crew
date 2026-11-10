@@ -1,5 +1,3 @@
-"""Library administration, bounded raw-byte upload and scope-bound BM25 preview."""
-
 import asyncio
 from typing import Annotated
 from urllib.parse import quote
@@ -18,8 +16,8 @@ from app.knowledge.schemas import (
     DocumentDetail,
     DocumentRead,
     EmbeddingConnectionRead,
-    EmployeeKnowledgeInput,
-    EmployeeKnowledgeRead,
+    KnowledgeEvidenceRead,
+    KnowledgeEvidenceReference,
     LibraryCreate,
     LibraryRead,
     LibraryUpdate,
@@ -30,23 +28,9 @@ from app.knowledge.schemas import (
     VectorBuild,
 )
 from app.knowledge.service import MAX_DOCUMENT_BYTES
+from app.schemas import RecordID
 
 router = APIRouter(prefix="/api/knowledge-bases", tags=["knowledge"])
-
-
-@router.get("/employee-bindings/{agent_id}", response_model=EmployeeKnowledgeRead)
-def get_employee_bindings(agent_id: UUID, actor: ActorDependency, knowledge: KnowledgeDependency):
-    return knowledge.employee.get(actor, str(agent_id))
-
-
-@router.put("/employee-bindings/{agent_id}", response_model=EmployeeKnowledgeRead)
-def replace_employee_bindings(
-    agent_id: UUID,
-    data: EmployeeKnowledgeInput,
-    actor: ActorDependency,
-    knowledge: KnowledgeDependency,
-):
-    return knowledge.employee.replace(actor, str(agent_id), data)
 
 
 @router.get("/embedding-connections", response_model=list[EmbeddingConnectionRead])
@@ -139,7 +123,7 @@ async def upload_document(
     name: str = Query(min_length=1, max_length=255),
     client_request_id: UUID = Query(),
 ):
-    # Check ownership before buffering/parsing. DB access is moved off the event loop.
+    # 缓冲和解析前先检查归属；同步数据库操作移出事件循环。
     await asyncio.to_thread(knowledge.get, actor, str(kb_id))
     limiter.consume(f"knowledge-upload:{actor.user_id}", 30, 60)
     content = bytearray()
@@ -216,7 +200,7 @@ def search(
     knowledge: KnowledgeDependency,
     limiter: LimiterDependency,
 ):
-    if data.strategy in {"vector", "hybrid"}:
+    if data.strategy in {"auto", "vector", "hybrid"}:
         limiter.consume(f"knowledge-vector-search:{actor.user_id}", 30, 60)
     return knowledge.search(actor, str(kb_id), data)
 
@@ -231,3 +215,24 @@ def import_demo(
 ):
     limiter.consume(f"knowledge-demo:{actor.user_id}", 6, 60)
     return knowledge.import_demo(actor, str(kb_id), data.preset, str(data.client_request_id))
+
+
+source_router = APIRouter(prefix="/api/runs", tags=["knowledge"])
+
+
+@source_router.get("/{run_id}/knowledge-evidence", response_model=list[KnowledgeEvidenceReference])
+def evidence_references(run_id: RecordID, actor: ActorDependency, knowledge: KnowledgeDependency):
+    return knowledge.evidence.references(actor, run_id)
+
+
+@source_router.get(
+    "/{run_id}/knowledge-evidence/{evidence_id}", response_model=KnowledgeEvidenceRead
+)
+def evidence_preview(
+    run_id: RecordID,
+    evidence_id: Annotated[str, Path(pattern=r"^K-[0-9a-f]{16}$")],
+    actor: ActorDependency,
+    knowledge: KnowledgeDependency,
+    offset: int = Query(default=0, ge=0, le=2000),
+):
+    return knowledge.evidence.preview(actor, run_id, evidence_id, offset)

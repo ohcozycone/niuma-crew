@@ -1,5 +1,3 @@
-"""Shared Chinese lexical normalization for BM25; vectors are optional."""
-
 import hashlib
 import re
 import sqlite3
@@ -8,7 +6,7 @@ from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
-from app.knowledge.contracts import digest
+from app.values import digest
 
 
 @lru_cache(maxsize=1)

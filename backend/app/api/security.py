@@ -1,5 +1,3 @@
-"""Browser request boundary; no business authorization decisions here."""
-
 import re
 
 from starlette.datastructures import Headers, MutableHeaders
@@ -42,8 +40,7 @@ class BrowserSecurityMiddleware:
                 scope["path"] == "/api/files"
                 or re.fullmatch(r"/api/knowledge-bases/[^/]+/documents", scope["path"])
             ):
-                # Upload bytes are streamed and bounded by the file endpoint.
-                # Keep the same mandatory Origin and cookie/identity checks.
+                # 上传入口自行流式限量，仍保留 Origin 和身份检查。
                 await self.app(scope, receive, no_store)
                 return
             if (
@@ -52,9 +49,7 @@ class BrowserSecurityMiddleware:
             ):
                 await reject(415, "unsupported_media_type", "请使用 JSON 提交请求。")
                 return
-            # Skill packages carry bounded file bytes in JSON. Their 20 MiB
-            # expanded package ceiling needs base64 overhead, without raising
-            # the ceiling for ordinary configuration or authentication requests.
+            # 技能包 JSON 需容纳 base64 开销，但不提高普通配置与认证请求上限。
             limit = (
                 8192
                 if scope["path"].startswith("/api/auth/")

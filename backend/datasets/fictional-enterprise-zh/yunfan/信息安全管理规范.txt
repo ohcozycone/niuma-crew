@@ -1,0 +1,78 @@
+# 信息安全管理规范
+
+## 总则
+
+信息安全是云帆科技的生命线：我们托管着 12,000 余家客户企业的协作数据。本规范适用于全体员工、
+实习生与外包驻场人员，违反本规范将视情节按《合规与员工行为准则》处理，造成损失的依法追偿。
+安全团队邮箱：**security@yunfantech.com**，安全事件 24 小时响应。
+
+## 账号安全
+
+1. 账号一人一号，**严禁共用账号**或将密码告知他人（包括同事与 IT 人员）。
+2. 密码不少于 12 位，每 90 天更换一次；MFA 全员强制开启。
+3. 警惕钓鱼邮件：不点击可疑链接、不扫描来历不明的二维码；收到可疑邮件请转发
+   security@yunfantech.com 举报，平台每月发布《钓鱼案例通报》。
+4. 员工每年须完成信息安全必修课并通过考试（满分 100，80 分合格），新员工入职 30 天内完成。
+
+## 终端安全
+
+1. 公司电脑必须开启全盘加密、自动锁屏（离席 5 分钟锁屏，快捷键 Win+L / Ctrl+Cmd+Q）。
+2. 不得关闭终端安全软件；不得私自安装远程协助、代理翻墙类软件。
+3. 禁止使用私人网盘、私人邮箱传输工作文件；工作文件一律走云帆协作平台云盘或公司邮箱。
+4. 办公电脑不得接入家庭/公共场所的不可信网络处理 L3 级以上数据（数据分级见专项指南）。
+
+## 办公区物理安全
+
+- 进入办公区须佩戴工牌，尾随进入须刷卡登记；访客由接待人全程陪同。
+- **清洁桌面政策**：涉密纸质材料用后须用碎纸机销毁；白板讨论内容会后即擦。
+- 打印机文件即打即取，敏感文件使用"安全打印"（刷卡出纸）。
+
+## 客户数据红线（十不准）
+
+1. 不准未经审批导出、下载客户生产数据。
+2. 不准将客户数据存储在个人设备、私人云盘。
+3. 不准在公开场合（论坛、社交媒体、技术博客）披露客户数据细节。
+4. 不准绕过权限体系私自查询非业务所需客户数据。
+5. 不准对外发送含客户数据的文件而不加密（L3 级以上必须加密）。
+6. 不准复用客户环境账号密码。
+7. 不准在离职前批量下载工作资料。
+8. 不准私自搭建影子系统处理客户数据。
+9. 不准隐瞒安全事件不报。
+10. 不准接受外部利益诱导而泄露信息。
+
+## 安全事件报告
+
+- 发现账号被盗、设备遗失、数据泄露、勒索病毒等情况，**1 小时内**报告 IT 服务台（内线 8000）
+  与安全团队，并保留现场与截图证据。
+- 报告遵循"及时免责、隐瞒加重"原则：主动报告且未造成扩散的，可减轻或免于处理。
+- 公司每年 4 月与 10 月组织全员应急演练与钓鱼演练，参与情况纳入部门安全考核。
+
+> 本规范由运维与安全部制定，版本 V3.1，生效日期 2026 年 1 月 1 日。
+
+## 资料来源与许可
+
+本文为源项目提供的虚构企业中文演示资料，不代表真实公司制度。本次保留原始业务正文，仅转换为 UTF-8 TXT 并添加本节。
+原文来源：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/info-security-policy.md
+许可：MIT；完整许可及版权声明：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/LICENSE
+
+MIT License
+
+Copyright (c) 2026 zhenyong97
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

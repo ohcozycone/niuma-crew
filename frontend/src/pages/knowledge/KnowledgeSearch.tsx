@@ -1,3 +1,4 @@
+import { useIdentity } from "@/state/auth/useIdentity";
 import { FormField } from "@/components/common/FormField";
 import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router";
@@ -8,24 +9,23 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { useWorkspaceData } from "@/state/workspace/useWorkspaceData";
 import { useResource } from "@/state/shared/useResource";
 import { KnowledgeFeedback } from "./KnowledgeLibraries";
-import { KnowledgeVectors, vectorStatusLabels } from "./KnowledgeVectors";
-import { SelectField } from "@/components/ui/SelectField";
 
 export function KnowledgeSearch({ id }: { id: string }) {
+  const writable = useIdentity().permissions.includes("knowledge:manage");
   const [params, setParams] = useSearchParams();
   const question = params.get("question") || "";
-  const requested = params.get("strategy");
-  const strategy = requested === "vector" || requested === "hybrid" ? requested : "bm25";
   const [input, setInput] = useState(question);
   const store = useWorkspaceData().knowledge;
   const library = useResource(store.library(id));
   const vectorReady =
-    library.data?.vector_status === "ready" || library.data?.vector_status === "partial";
-  const blocked = strategy !== "bm25" && !vectorReady;
-  const resource = store.search(id, blocked ? "" : question, strategy);
+    writable &&
+    (library.data?.vector_status === "ready" || library.data?.vector_status === "partial");
+  const blocked = !library.data?.chunk_count;
+  const resource = store.search(id, blocked ? "" : question, writable ? "auto" : "bm25");
   const state = useResource(resource);
   function submit(event: FormEvent) {
     event.preventDefault();
+    if (blocked || state.loading || !input.trim()) return;
     if (input.trim() === question) resource.invalidate();
     else
       setParams((current) => {
@@ -35,35 +35,24 @@ export function KnowledgeSearch({ id }: { id: string }) {
       });
   }
   return (
-    <section aria-label="检索测试">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="type-title">检索测试</h2>
-        <KnowledgeVectors id={id} />
-      </div>
+    <section aria-label="检索测试" className="py-4">
+      <h2 className="type-title">检索测试</h2>
       <p className="mt-2 mb-5 max-w-prose text-sm text-text-muted">
-        输入问题，检查当前知识库命中的原文片段。支持关键词、语义和混合检索，不生成回答。
+        输入问题，检查命中的原文片段与来源，不生成回答。
       </p>
-      <form onSubmit={submit} className="flex flex-wrap items-end gap-3">
-        <FormField htmlFor="knowledge-strategy" label="检索方式" className="shrink-0">
-          <SelectField
-            options={[
-              { value: "bm25", label: "关键词检索（BM25）" },
-              { value: "vector", label: "向量检索", disabled: !vectorReady },
-              { value: "hybrid", label: "混合检索", disabled: !vectorReady },
-            ]}
-            value={strategy}
-            onValueChange={(value) =>
-              setParams((current) => {
-                const copy = new URLSearchParams(current);
-                copy.set("strategy", value);
-                return copy;
-              })
-            }
-            id="knowledge-strategy"
-            className="w-fit"
-          />
-        </FormField>
-
+      <p className="mb-4 text-sm text-text-muted" role="status">
+        当前使用：{vectorReady ? "关键词＋语义混合检索" : "关键词检索"}
+      </p>
+      {blocked && (
+        <p className="mb-4 text-sm text-text-muted">
+          还没有可检索的片段，请先在
+          <Link className="text-action underline" to={`/knowledge/${id}?view=documents`}>
+            文档页
+          </Link>
+          选择文件，分片并建立关键词索引。
+        </p>
+      )}
+      <form onSubmit={submit} className="mb-5 flex flex-wrap items-end gap-3">
         <FormField
           className="min-w-0 flex-1 basis-64"
           label={
@@ -85,12 +74,6 @@ export function KnowledgeSearch({ id }: { id: string }) {
           检索
         </Button>
       </form>
-      <p className="mt-3 mb-5 text-xs text-text-muted" role="status">
-        {vectorReady
-          ? `${vectorStatusLabels[library.data?.vector_status ?? "ready"]} · ${library.data?.vector_chunk_count} / ${library.data?.chunk_count} 个片段 · ${library.data?.vector_connection_name}`
-          : `${vectorStatusLabels[library.data?.vector_status ?? "not_built"]}。可先用 BM25，或打开“检索设置”。`}
-      </p>
-
       {!!question && !blocked && (
         <KnowledgeFeedback
           failure={state.failure}
@@ -125,10 +108,10 @@ export function KnowledgeSearch({ id }: { id: string }) {
             <details className="mt-3 text-xs text-text-muted">
               <summary className="cursor-pointer">检索诊断</summary>
               <p className="mt-2">
-                {{ bm25: "BM25 分数", vector: "余弦相似度", hybrid: "RRF 融合分数" }[strategy]}：
-                {hit.score.toFixed(4)}（
-                {strategy === "bm25" ? "越小越靠前" : "越大越靠前，不代表回答置信度"}） · 正文区间 [
-                {hit.chunk.start}, {hit.chunk.end})
+                {hit.score_kind === "rank_only"
+                  ? `融合排序第 ${hit.rank} 项`
+                  : `${hit.score_kind === "cosine_distance_lower_better" ? "向量距离" : "BM25 分数"}：${hit.score?.toFixed(4)}（越小越靠前，不代表回答置信度）`}{" "}
+                · 正文区间 [{hit.chunk.start}, {hit.chunk.end})
               </p>
             </details>
           </article>
@@ -136,7 +119,7 @@ export function KnowledgeSearch({ id }: { id: string }) {
       {!blocked && state.data?.hits.length === 0 && !state.loading && !state.error && (
         <EmptyState
           text="没有找到相关片段"
-          description="尝试文档中使用的术语，或检查相关文档是否已经入库。"
+          description="尝试文档中使用的术语，或检查相关文档是否已完成分片。"
         />
       )}
     </section>

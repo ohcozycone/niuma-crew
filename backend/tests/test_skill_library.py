@@ -1,5 +1,3 @@
-"""Portable directory writes, publication and preservation of employee identity."""
-
 import shutil
 from pathlib import Path
 
@@ -114,7 +112,7 @@ def test_missing_source_preserves_published_skill_and_can_be_restored(api_client
         json={"archive_base64": encoded_archive()},
     )
     assert duplicate.status_code == 409
-    assert not root.exists()  # DB rejection restores the filesystem as well.
+    assert not root.exists()  # 数据库拒绝后，文件系统也须恢复。
 
 
 def test_directory_conflicts_and_links_do_not_replace_published_content(api_client, tmp_path):
@@ -133,7 +131,7 @@ def test_database_rejection_restores_directory(api_client):
     assigned(api_client, skill)
     root = api_client.app.state.skills.library.root / "table-report"
     original = (root / "SKILL.md").read_bytes()
-    # Invalid employee parameter schema is checked after the staged replacement.
+    # 暂存替换后才检查员工参数规范。
     response = api_client.patch(
         f"/api/skills/{skill['id']}",
         json={

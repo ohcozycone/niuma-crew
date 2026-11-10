@@ -11,6 +11,23 @@ afterEach(() => {
   vi.useRealTimers();
 });
 describe("shared failure presentation", () => {
+  it("supports mounted documentation art without changing the platform defaults or no-art state", () => {
+    const props = { error: new ApiError("不存在", 404) };
+    const { container, rerender } = render(<FailureState {...props} />);
+    expect(container.querySelector("img")?.getAttribute("src")).toBe("/failures/not-found.png");
+    rerender(<FailureState {...props} illustrationSrc="/docs/failures/not-found.png" />);
+    expect(container.querySelector("img")?.getAttribute("src")).toBe(
+      "/docs/failures/not-found.png",
+    );
+    rerender(
+      <FailureState
+        {...props}
+        illustration={false}
+        illustrationSrc="/docs/failures/not-found.png"
+      />,
+    );
+    expect(container.querySelector("img")).toBeNull();
+  });
   it("renders optional content without empty recovery placeholders", () => {
     const { container } = render(
       <FailureState error={new ApiError("不存在", 404)} description="" />,

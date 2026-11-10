@@ -1,5 +1,3 @@
-"""Plain Skill data exchanged with employee assembly and the execution runtime."""
-
 from typing import NotRequired, TypedDict
 
 
@@ -12,8 +10,6 @@ class SkillFileManifest(TypedDict):
 
 
 class SkillExecutionEntry(TypedDict):
-    """A frozen method and its employee assignment, without ORM or file bytes."""
-
     skill_id: str
     name: str
     description: str
@@ -23,7 +19,7 @@ class SkillExecutionEntry(TypedDict):
     assignment_revision: int
     assignment_created_at: str
     parameters: dict[str, object]
-    # Supported pre-package snapshots do not contain portable source or files.
+    # 包格式引入前的受支持快照没有源文件或支持文件。
     skill_md: NotRequired[str]
     compatibility: NotRequired[str]
     package_manifest: NotRequired[list[SkillFileManifest]]

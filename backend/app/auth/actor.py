@@ -1,5 +1,3 @@
-"""Current trusted identity, independent of HTTP transport and database sessions."""
-
 from dataclasses import dataclass
 from datetime import datetime
 

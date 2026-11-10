@@ -1,20 +1,40 @@
-import { useState } from "react";
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
+import { RefreshButton } from "@/components/common/RefreshButton";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { Plus, RefreshCw } from "lucide-react";
+import { Plus, Check, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/Dialog";
 import { SearchInput } from "@/components/common/SearchInput";
 import { ResourceIcon, ResourceType } from "@/components/common/ResourceIcon";
 import { useToolAssembly } from "@/components/tools/ToolAssembly";
+import { toolCapabilities } from "@/lib/api/tools";
 import { cn } from "@/lib/utils";
 import { useSkillAssembly } from "./AgentSkillAssembly";
+
+function WorkspaceCapabilities() {
+  const [execution, setExecution] = useState("检查中…");
+  useEffect(() => {
+    const controller = new AbortController();
+    toolCapabilities(controller.signal)
+      .then((status) => {
+        if (!controller.signal.aborted)
+          setExecution(status.execute_ready ? "已就绪" : "未配置或未通过验收");
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setExecution("暂时无法确认");
+      });
+    return () => controller.abort();
+  }, []);
+  return <p className="type-caption">平台直接提供文件读写，无需装配。代码执行：{execution}。</p>;
+}
 
 type Filter = "all" | "tool" | "skill";
 const filters: { value: Filter; label: string }[] = [
@@ -48,11 +68,10 @@ function TypeFilters({
           size="sm"
           variant="ghost"
           aria-pressed={value === item.value}
-          className={cn(value === item.value && "bg-selected text-text")}
           onClick={() => onChange(item.value)}
         >
           {item.label}
-          {counts && <span className="type-caption">{counts[item.value]}</span>}
+          {counts && <span className="text-xs tabular-nums opacity-75">{counts[item.value]}</span>}
         </Button>
       ))}
     </div>
@@ -60,22 +79,23 @@ function TypeFilters({
 }
 
 export function AgentCapabilityAssembly({
+  readOnly = false,
   tools: toolProps,
   skills: skillProps,
-  personalConnectionsHref,
 }: {
+  readOnly?: boolean;
   tools: Parameters<typeof useToolAssembly>[0];
   skills: Parameters<typeof useSkillAssembly>[0];
-  personalConnectionsHref?: string;
 }) {
-  const tools = useToolAssembly(toolProps);
-  const skills = useSkillAssembly(skillProps);
+  const tools = useToolAssembly({ ...toolProps, readOnly });
+  const skills = useSkillAssembly({ ...skillProps, readOnly });
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
   const [offset, setOffset] = useState(0);
   const [adding, setAdding] = useState(false);
   const [candidateFilter, setCandidateFilter] = useState<Filter>("all");
   const [candidateQuery, setCandidateQuery] = useState("");
+  const [addedName, setAddedName] = useState("");
   const all = [...tools.items, ...skills.items].sort((a, b) =>
     a.name.localeCompare(b.name, "zh-CN"),
   );
@@ -94,41 +114,21 @@ export function AgentCapabilityAssembly({
   function choose(open: boolean) {
     setAdding(open);
     skills.setChoosing(open);
+    if (open) setAddedName("");
   }
   return (
     <section aria-label="员工能力装配" className="min-w-0">
-      <div className="sticky top-0 z-10 space-y-4 bg-canvas pb-4 pt-1">
+      <div className="space-y-5 pb-5">
+        <WorkspaceCapabilities />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="type-section">
               已装配能力 <span className="type-caption">{all.length} 项</span>
             </h2>
-            <p className="type-description mt-1">统一管理工具与技能，按工作需要装配。</p>
+            <p className="type-description mt-1">为员工选择技能和外部工具，保存配置后生效。</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {personalConnectionsHref && (
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                render={<Link to={personalConnectionsHref} />}
-                nativeButton={false}
-              >
-                <ResourceIcon kind="connection" />
-                我的工具连接
-              </Button>
-            )}
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              disabled={tools.loading}
-              onClick={tools.refresh}
-            >
-              <RefreshCw />
-              刷新连接列表
-            </Button>
-            <Button type="button" size="sm" variant="outline" onClick={() => choose(true)}>
+            <Button disabled={readOnly} type="button" size="sm" onClick={() => choose(true)}>
               <Plus />
               添加能力
             </Button>
@@ -154,17 +154,60 @@ export function AgentCapabilityAssembly({
             }}
             className="w-full sm:w-64"
           />
+          <RefreshButton
+            onClick={tools.refresh}
+            loading={tools.loading}
+            showProgress={!adding && (tools.loaded || tools.items.length > 0)}
+            label="刷新连接列表"
+          />
         </div>
       </div>
-      {tools.feedback}
-      {visible.map((item) => (
-        <div key={item.key}>{item.element}</div>
-      ))}
+      {!adding && tools.feedback}
+      <LoadingFeedback
+        pending={!adding && tools.loading && !tools.loaded && !tools.items.length}
+        shape="table"
+        label="正在读取工具连接…"
+      />
+      {visible.length > 0 && (
+        <div className="divide-y divide-border rounded-panel border border-border bg-raised">
+          {visible.map((item) => (
+            <div key={item.key}>{item.element}</div>
+          ))}
+        </div>
+      )}
       {!visible.length && (
-        <Card as="p" variant="empty" className="p-6 text-sm text-text-muted">
-          {all.length
-            ? "没有匹配的能力，可调整搜索或类型筛选。"
-            : "尚未装配能力，可从“添加能力”选择工具或技能。"}
+        <Card
+          variant="empty"
+          radius="panel"
+          className="flex flex-col items-center gap-3 px-5 py-12 text-center"
+        >
+          <ResourceIcon
+            kind={filter === "skill" ? "skill" : "tool"}
+            size={28}
+            className="text-text-muted"
+          />
+          <h3 className="type-title">
+            {all.length ? "没有匹配的已装配能力" : "为员工添加第一项能力"}
+          </h3>
+          <p className="max-w-sm text-sm leading-6 text-text-muted">
+            {all.length
+              ? "调整关键词或切换类型，已有装配不会丢失。"
+              : "技能提供工作方法，工具提供可执行的操作。按岗位需要添加即可。"}
+          </p>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={readOnly && !all.length}
+            onClick={() => {
+              if (all.length) {
+                setQuery("");
+                setFilter("all");
+              } else choose(true);
+            }}
+          >
+            {all.length ? "清除筛选" : "选择能力"}
+          </Button>
         </Card>
       )}
       {rows.length > pageSize && (
@@ -200,97 +243,138 @@ export function AgentCapabilityAssembly({
       {tools.panels}
       {skills.panels}
       <Dialog open={adding} onOpenChange={choose}>
-        <DialogContent size="wide">
+        <DialogContent layout="side">
           <DialogHeader>
             <DialogTitle>添加能力</DialogTitle>
-            <DialogDescription>选择已有技能或工具连接，加入当前员工草稿。</DialogDescription>
           </DialogHeader>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <TypeFilters
-              label="候选能力类型"
-              value={candidateFilter}
-              onChange={setCandidateFilter}
-            />
-            <SearchInput
-              label="搜索候选能力"
-              debounceMs={300}
-              value={candidateQuery}
-              placeholder="搜索名称或用途…"
-              className="w-full sm:w-64"
-              onChange={(next) => {
-                setCandidateQuery(next);
-                tools.setQuery(next);
-                skills.setQuery(next);
-              }}
-            />
-          </div>
-          {tools.loading && candidateFilter !== "skill" && (
-            <p role="status" className="type-caption">
-              正在读取工具连接…
-            </p>
-          )}
-          {skills.optionsLoading && candidateFilter !== "tool" && (
-            <p role="status" className="type-caption">
-              正在搜索技能…
-            </p>
-          )}
-          {tools.feedback}
-          {skills.candidateFeedback}
-          <div className="focus-gutter max-h-[46dvh] space-y-2 overflow-y-auto overscroll-contain">
-            {candidates.map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                disabled={item.disabled}
-                className="flex w-full items-center gap-3 rounded-control border border-border p-3 text-left hover:bg-muted disabled:opacity-50"
-                onClick={() => {
-                  choose(false);
-                  item.select();
-                  setFilter("all");
-                  setQuery("");
-                  setOffset(0);
+          <div className="focus-gutter min-h-0 space-y-4 overflow-y-auto overscroll-contain">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <TypeFilters
+                label="候选能力类型"
+                value={candidateFilter}
+                onChange={setCandidateFilter}
+              />
+              <SearchInput
+                label="搜索候选能力"
+                debounceMs={300}
+                value={candidateQuery}
+                placeholder="搜索名称或用途…"
+                className="w-full"
+                onChange={(next) => {
+                  setCandidateQuery(next);
+                  tools.setQuery(next);
+                  skills.setQuery(next);
                 }}
+              />
+            </div>
+            <LoadingFeedback
+              pending={
+                (tools.loading && candidateFilter !== "skill") ||
+                (skills.optionsLoading && candidateFilter !== "tool")
+              }
+              refreshing={candidates.length > 0}
+              shape="table"
+              label="正在读取候选能力…"
+            />
+            {tools.feedback}
+            {skills.candidateFeedback}
+            {addedName && (
+              <p
+                role="status"
+                className="flex items-start gap-2 rounded-control bg-success-bg p-3 text-xs leading-5 text-success"
               >
-                <ResourceIcon kind={item.kind} size={20} className="text-text-muted" />
-                <span className="min-w-0 flex-1">
-                  <strong className="block break-words text-sm">{item.name}</strong>
-                  <span className="type-caption line-clamp-2">{item.summary}</span>
+                <Check size={15} className="mt-0.5 shrink-0" />
+                已将「{addedName}」加入员工草稿，可继续选择。
+              </p>
+            )}
+            <div className="space-y-2">
+              {candidates.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  disabled={item.disabled}
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-panel border border-border bg-raised p-4 text-left hover:bg-muted disabled:cursor-default",
+                    item.selected ? "border-success/40 bg-success-bg" : "disabled:opacity-50",
+                  )}
+                  onClick={() => {
+                    if (item.kind !== "skill") choose(false);
+                    item.select();
+                    if (item.kind === "skill") setAddedName(item.name);
+                    setFilter("all");
+                    setQuery("");
+                    setOffset(0);
+                  }}
+                >
+                  <ResourceIcon kind={item.kind} size={20} className="text-text-muted" />
+                  <span className="min-w-0 flex-1">
+                    <strong className="block break-words text-sm">{item.name}</strong>
+                    <span className="type-caption line-clamp-2">{item.summary}</span>
+                    {item.disabledReason && (
+                      <span className="mt-1 block text-xs text-warning">{item.disabledReason}</span>
+                    )}
+                  </span>
+                  <span className="flex shrink-0 flex-col items-end gap-2">
+                    <ResourceType kind={item.kind} showIcon={false} />
+                    {item.selected ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-success">
+                        <Check size={14} />
+                        已装配
+                      </span>
+                    ) : (
+                      <Plus size={16} aria-hidden="true" />
+                    )}
+                  </span>
+                </button>
+              ))}
+              {!candidates.length && !tools.loading && !skills.optionsLoading && (
+                <p className="type-description py-4">没有其他匹配的可装配能力。</p>
+              )}
+            </div>
+            {candidateFilter !== "tool" && (
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="type-caption">
+                  技能候选共 {skills.total} 项 · 工具按可管理连接显示
                 </span>
-                <ResourceType kind={item.kind} showIcon={false} />
-                <Plus size={16} aria-hidden="true" />
-              </button>
-            ))}
-            {!candidates.length && !tools.loading && !skills.optionsLoading && (
-              <p className="type-description py-4">没有其他匹配的可装配能力。</p>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={!skills.offset || skills.optionsLoading}
+                    onClick={() => skills.changeOffset(Math.max(0, skills.offset - 20))}
+                  >
+                    上一批技能
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={skills.offset + 20 >= skills.total || skills.optionsLoading}
+                    onClick={() => skills.changeOffset(skills.offset + 20)}
+                  >
+                    下一批技能
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
-          {candidateFilter !== "tool" && (
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="type-caption">
-                技能候选共 {skills.total} 项 · 工具按可管理连接显示
-              </span>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={!skills.offset || skills.optionsLoading}
-                  onClick={() => skills.changeOffset(Math.max(0, skills.offset - 20))}
-                >
-                  上一批技能
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={skills.offset + 20 >= skills.total || skills.optionsLoading}
-                  onClick={() => skills.changeOffset(skills.offset + 20)}
-                >
-                  下一批技能
-                </Button>
-              </div>
-            </div>
-          )}
+          <DialogFooter className="items-center justify-between border-t border-border pt-4">
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              render={<Link to="/skills" target="_blank" rel="noopener noreferrer" />}
+              nativeButton={false}
+            >
+              管理能力库
+              <ArrowUpRight size={14} />
+              <span className="sr-only">（新标签页）</span>
+            </Button>
+            <Button type="button" onClick={() => choose(false)}>
+              完成选择
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </section>

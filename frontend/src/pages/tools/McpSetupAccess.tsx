@@ -3,31 +3,33 @@ import { SelectField } from "@/components/ui/SelectField";
 import { Input } from "@/components/ui/Input";
 import type { McpInputField } from "@/lib/api/tools";
 
+import { OAuthConfigurationFields, type OAuthFieldsValue } from "./OAuthConfigurationFields";
+
 export function McpSetupAccess({
   transport,
   fields,
   keys,
-  scope,
-  onScope,
   auth,
   onAuth,
   header,
   onHeader,
   token,
   onToken,
+  oauth,
+  onOAuth,
   environment,
   onEnvironment,
 }: {
   transport: "http" | "stdio";
   fields: McpInputField[];
   keys: string[];
-  scope: string;
-  onScope: (value: string) => void;
   auth: string;
   onAuth: (value: string) => void;
   header: string;
   onHeader: (value: string) => void;
   token: string;
+  oauth?: OAuthFieldsValue;
+  onOAuth?: (value: OAuthFieldsValue) => void;
   onToken: (value: string) => void;
   environment: Record<string, string>;
   onEnvironment: (value: Record<string, string>) => void;
@@ -36,19 +38,9 @@ export function McpSetupAccess({
     <section className="space-y-4 border-t border-border pt-5">
       <h2 className="type-title">访问设置</h2>
       <p className="type-caption">
-        在这里填写自己的密钥。描述中标为可选的字段可以留空；连接后仍需到员工页面主动装配。
+        选择浏览器授权或填写组织工作连接的密钥。描述中标为可选的字段可以留空；连接后仍需到员工页面主动装配。
       </p>
       <div className="form-grid">
-        <FormField label={<>使用范围</>}>
-          <SelectField
-            value={scope}
-            onValueChange={(nextValue) => onScope(nextValue)}
-            options={[
-              { value: "personal", label: "个人账号（仅本人使用）" },
-              { value: "shared", label: "明确共用账号" },
-            ]}
-          />
-        </FormField>
         <FormField label={<>认证方式</>}>
           <SelectField
             value={auth}
@@ -64,6 +56,7 @@ export function McpSetupAccess({
                 : [
                     { value: "bearer", label: "Bearer Token" },
                     { value: "header", label: "自定义认证头" },
+                    { value: "oauth", label: "OAuth（浏览器授权）" },
                   ]),
             ]}
           />
@@ -94,12 +87,15 @@ export function McpSetupAccess({
             </FormField>
           );
         })}
+      {transport === "http" && auth === "oauth" && oauth && onOAuth && (
+        <OAuthConfigurationFields value={oauth} onChange={onOAuth} />
+      )}
       {transport === "http" && auth === "header" && (
         <FormField label={<>认证头名称</>}>
           <Input required value={header} onChange={(e) => onHeader(e.target.value)} />
         </FormField>
       )}
-      {transport === "http" && auth !== "none" && (
+      {transport === "http" && auth !== "none" && auth !== "oauth" && (
         <FormField
           description={fields[0]?.description}
           label={

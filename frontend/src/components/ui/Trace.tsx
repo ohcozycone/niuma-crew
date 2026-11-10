@@ -30,7 +30,7 @@ function TraceLine({
       data-slot="trace-line"
       data-status={status}
       className={cn(
-        "flex w-fit max-w-full min-w-0 items-center gap-2 text-xs text-text-muted transition-colors in-[a,button]:cursor-pointer in-[a:hover,button:hover]:text-text data-[status=error]:text-danger data-[status=error]:in-[a:hover,button:hover]:text-danger data-[status=pending]:opacity-60",
+        "flex w-fit max-w-full min-w-0 items-center gap-2 text-xs text-text-muted transition-colors in-[a,button]:cursor-pointer in-[a:hover,button:hover]:text-text data-[status=error]:text-danger data-[status=error]:in-[a:hover,button:hover]:text-danger",
         className,
       )}
       {...props}
@@ -60,7 +60,7 @@ function TraceDescription({ className, ...props }: React.ComponentProps<"span">)
   return (
     <span
       data-slot="trace-description"
-      className={cn("shrink-0 text-text-muted/70 tabular-nums", className)}
+      className={cn("shrink-0 text-text-muted tabular-nums", className)}
       {...props}
     />
   );

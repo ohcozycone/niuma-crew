@@ -27,16 +27,12 @@ vi.mock("@/lib/api/tools", async (importOriginal) => ({
   patchToolConnection: vi.fn(),
   discoverTools: vi.fn(),
   approveTools: vi.fn(),
-  getToolGrants: vi.fn(),
-  saveToolGrants: vi.fn(),
-  getSandboxStatus: vi.fn(),
 }));
 const connection: api.ToolConnection = {
   id: "tool",
   name: "搜索服务",
   kind: "mcp_http",
   service_id: "service",
-  account_scope: "personal",
   created_by_user_id: "owner",
   tool_annotations: {},
   annotations_revision: 1,
@@ -56,6 +52,9 @@ beforeEach(() => {
   vi.mocked(api.listToolConnections).mockResolvedValue([connection]);
   vi.mocked(api.discoverTools).mockResolvedValue(connection);
   vi.mocked(api.toolCapabilities).mockResolvedValue({
+    workspace_mode: "virtual",
+    execute_ready: false,
+    execute_error: "sandbox_not_ready",
     stdio_enabled: false,
     stdio_registration_allowed: false,
     max_stdio_processes: 0,
@@ -70,12 +69,11 @@ beforeEach(() => {
       command: null,
       args: [],
       env_keys: [],
-      owner_user_id: "owner",
+      created_by_user_id: "owner",
       revision: 1,
       enabled: true,
     },
   ]);
-  vi.mocked(api.getSandboxStatus).mockResolvedValue({ ready: false, message: "待验收" });
 });
 afterEach(cleanup);
 
@@ -162,7 +160,6 @@ it("keeps discovery and catalog approval as distinct operations", async () => {
   expect(api.approveTools).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: "确认工具列表" }));
   await waitFor(() => expect(api.approveTools).toHaveBeenCalledTimes(1));
-  expect(api.saveToolGrants).not.toHaveBeenCalled();
 });
 
 it("does not offer a destructive empty grant save while connections fail to load", async () => {
@@ -178,7 +175,6 @@ it("does not offer a destructive empty grant save while connections fail to load
   );
   await screen.findByRole("heading", { name: "暂时无法连接服务" });
   expect(screen.queryByRole("button", { name: "保存员工工具许可" })).toBeNull();
-  expect(api.getToolGrants).not.toHaveBeenCalled();
 });
 
 it("does not present a new-service form while an existing service is loading", async () => {
@@ -254,13 +250,16 @@ it("keeps imported stdio environment templates empty until actual account creden
     command: "npx",
     args: ["example@1.0.0"],
     env_keys: keys,
-    owner_user_id: "owner",
+    created_by_user_id: "owner",
     revision: 1,
     enabled: true,
   };
   vi.mocked(api.listMcpServices).mockResolvedValue([]);
   vi.mocked(api.listToolConnections).mockResolvedValue([]);
   vi.mocked(api.toolCapabilities).mockResolvedValue({
+    workspace_mode: "virtual",
+    execute_ready: false,
+    execute_error: "sandbox_not_ready",
     stdio_enabled: true,
     stdio_registration_allowed: true,
     max_stdio_processes: 2,
@@ -349,7 +348,7 @@ it("offers API Key configuration on an existing anonymous stdio connection", asy
       command: "npx",
       args: ["-y", "@upstash/context7-mcp@4.4.4"],
       env_keys: ["CONTEXT7_API_KEY"],
-      owner_user_id: "owner",
+      created_by_user_id: "owner",
       revision: 1,
       enabled: true,
     },
@@ -408,7 +407,7 @@ it("explains where to declare a credential field missing from an existing stdio 
       command: "npx",
       args: [],
       env_keys: [],
-      owner_user_id: "owner",
+      created_by_user_id: "owner",
       revision: 1,
       enabled: true,
     },
@@ -511,7 +510,7 @@ it("keeps a successfully saved account and clears its key when discovery subsequ
     command: null,
     args: [],
     env_keys: [],
-    owner_user_id: "owner",
+    created_by_user_id: "owner",
     revision: 1,
     enabled: true,
   });

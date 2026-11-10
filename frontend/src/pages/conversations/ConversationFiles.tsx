@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import { Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
-import { ApiError } from "@/lib/api/http";
 import { uploadFile, listConversationFiles, type FileRef } from "@/lib/api/files";
 
 export function ConversationFiles({
@@ -34,7 +33,7 @@ export function ConversationFiles({
     listConversationFiles(conversationId, controller.signal)
       .then(setAvailable)
       .catch((e) => {
-        if (!controller.signal.aborted && !(e instanceof ApiError && e.status === 404)) setError(e);
+        if (!controller.signal.aborted) setError(e);
       });
     return () => controller.abort();
   }, [conversationId, setError]);

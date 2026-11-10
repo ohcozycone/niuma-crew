@@ -1,8 +1,4 @@
-"""Validate portable skill packages and store immutable, hash-addressed bytes.
-
-No import operation executes a package or installs its dependencies. Old blobs
-are deliberately retained: a running or recoverable Run may still reference them.
-"""
+"""导入只校验和保存，不执行技能包；旧字节保留给活动或可恢复的 Run。"""
 
 from __future__ import annotations
 
@@ -34,7 +30,7 @@ HASH = re.compile(r"^[0-9a-f]{64}$")
 
 
 class UniqueSafeLoader(yaml.SafeLoader):
-    """Ambiguous frontmatter must not silently replace one declaration."""
+    """拒绝重复字段，避免 frontmatter 静默覆盖。"""
 
 
 def _unique_mapping(loader, node, deep=False):

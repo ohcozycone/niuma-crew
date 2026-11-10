@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useIdentity } from "@/state/auth/useIdentity";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { ArrowLeft, ChevronRight, Plus, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Scissors, Upload } from "lucide-react";
 import { ResourceIcon } from "@/components/common/ResourceIcon";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -16,24 +17,16 @@ import { useWorkspaceData } from "@/state/workspace/useWorkspaceData";
 import { useAtom, useResource } from "@/state/shared/useResource";
 import { useSaveOperation } from "@/state/editing/useSaveOperation";
 import { useQueryState } from "@/hooks/useQueryState";
-import type { KnowledgeDocument } from "@/lib/api/knowledge";
 import { KnowledgeFeedback } from "./KnowledgeLibraries";
 import { KnowledgeSearch } from "./KnowledgeSearch";
 import { KnowledgeSettings } from "./KnowledgeSettings";
-import { KnowledgeProcessing } from "./KnowledgeProcessing";
-
-export const processingLabels = {
-  pending: "待处理",
-  queued: "排队中",
-  processing: "处理中",
-  ready: "处理完成",
-  failed: "处理失败",
-  interrupted: "处理已中断",
-};
-const active = (doc: KnowledgeDocument) =>
-  doc.processing_state === "queued" || doc.processing_state === "processing";
+import { KnowledgeChunkSettings } from "./KnowledgeChunkSettings";
+import type { ChunkingRules } from "@/lib/api/knowledge";
+import { KnowledgeVectors } from "./KnowledgeVectors";
+import { KnowledgeDocumentList, isDocumentProcessing as active } from "./KnowledgeDocumentList";
 
 export function KnowledgeLibrary({ id }: { id: string }) {
+  const writable = useIdentity().permissions.includes("knowledge:manage");
   const store = useWorkspaceData().knowledge;
   const resource = store.library(id);
   const state = useResource(resource);
@@ -41,8 +34,11 @@ export function KnowledgeLibrary({ id }: { id: string }) {
   const jobs = useResource(store.processing(id));
   const uploads = useAtom(store.uploads.state);
   const [adding, setAdding] = useState(false);
+  const [buildingVectors, setBuildingVectors] = useState(false);
   const [params, setParams] = useSearchParams();
-  const view = params.get("view") === "search" ? "search" : "documents";
+  const requestedView = params.get("view");
+  const view =
+    requestedView === "search" || requestedView === "settings" ? requestedView : "documents";
   const busy =
     documents.data?.some(active) ||
     jobs.data?.some((b) => ["queued", "running"].includes(b.status));
@@ -67,7 +63,7 @@ export function KnowledgeLibrary({ id }: { id: string }) {
         <>
           <PageHeading
             title={state.data.name}
-            description={`${state.data.document_count} 份原件 · ${state.data.keyword_document_count ?? state.data.document_count} 份关键词可用`}
+            description={state.data.description || "上传资料，按需分片，再为已有片段增加语义检索。"}
             actions={
               <>
                 <Button
@@ -79,8 +75,9 @@ export function KnowledgeLibrary({ id }: { id: string }) {
                   <ArrowLeft size={16} />
                   全部知识库
                 </Button>
-                <KnowledgeSettings library={state.data} />
+                {writable && <KnowledgeSettings library={state.data} />}
                 <Button
+                  disabled={!writable || buildingVectors}
                   aria-expanded={adding && view === "documents"}
                   aria-controls="knowledge-add-documents"
                   onClick={() => {
@@ -95,35 +92,34 @@ export function KnowledgeLibrary({ id }: { id: string }) {
                 >
                   <Plus size={16} />
                   {adding && view === "documents"
-                    ? "收起添加文档"
-                    : `添加文档${pendingUploads ? `（${pendingUploads}）` : ""}`}
+                    ? "收起上传"
+                    : `上传文件${pendingUploads ? `（${pendingUploads}）` : ""}`}
                 </Button>
               </>
             }
           />
-          {state.data.description && (
-            <details className="mb-4 max-w-prose text-sm text-text-muted">
-              <summary className="cursor-pointer">用途说明</summary>
-              <p className="mt-2 break-words">{state.data.description}</p>
-            </details>
-          )}
           <PageTabs
             label="库内功能"
             items={[
-              { value: "documents", label: "文档" },
-              { value: "search", label: "检索测试" },
+              { value: "documents", label: "文档", disabled: buildingVectors },
+              { value: "settings", label: "检索设置" },
+              { value: "search", label: "检索测试", disabled: buildingVectors },
             ]}
             value={view}
-            onValueChange={(next) =>
+            onValueChange={(next) => {
+              if (buildingVectors) return;
               setParams((current) => {
                 const copy = new URLSearchParams(current);
                 copy.set("view", next);
                 return copy;
-              })
-            }
+              });
+            }}
           >
-            <TabsContent value="documents">
+            <TabsContent value="documents" keepMounted>
               <LibraryDocuments id={id} name={state.data.name} adding={adding} />
+            </TabsContent>
+            <TabsContent value="settings">
+              <KnowledgeVectors id={id} onBusyChange={setBuildingVectors} />
             </TabsContent>
             <TabsContent value="search">
               <KnowledgeSearch key={params.get("question") || ""} id={id} />
@@ -136,6 +132,7 @@ export function KnowledgeLibrary({ id }: { id: string }) {
 }
 
 function LibraryDocuments({ id, name, adding }: { id: string; name: string; adding: boolean }) {
+  const writable = useIdentity().permissions.includes("knowledge:manage");
   const store = useWorkspaceData().knowledge;
   const resource = store.documents(id);
   const state = useResource(resource);
@@ -143,20 +140,60 @@ function LibraryDocuments({ id, name, adding }: { id: string; name: string; addi
   const jobs = useResource(store.processing(id));
   const uploads = useAtom(store.uploads.state);
   const [query, setQuery] = useQueryState("q");
-  const [selected, setSelected] = useState<string[]>([]);
-  const [processing, setProcessing] = useState(false);
-  const [reprocess, setReprocess] = useState(false);
+  const [selection, setSelected] = useState<string[]>([]);
+  const [adjusting, setAdjusting] = useState(false);
+  const [confirmedRules, setConfirmedRules] = useState<ChunkingRules>();
+  const request = useRef<{ id: string; signature: string } | null>(null);
+  const processingLock = useRef(false);
   const [message, setMessage] = useState("");
   const save = useSaveOperation();
   const docs = state.data ?? [];
-  const shown = docs.filter((doc) => `${doc.title} ${doc.filename}`.includes(query.trim()));
-  const pending = docs.filter(
-    (doc) => !active(doc) && (doc.processing_state ?? "ready") !== "ready",
+  const selected = selection.filter((item) => docs.some((doc) => doc.id === item && !active(doc)));
+  const shown = docs.filter((doc) =>
+    `${doc.title} ${doc.filename}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
   );
+  const rules = confirmedRules ?? {
+    chunk_size: library.data?.effective_chunk_size ?? 800,
+    chunk_overlap: library.data?.effective_chunk_overlap ?? 120,
+    min_section_chars: library.data?.effective_min_section_chars ?? 200,
+  };
+  const targets = docs.filter((doc) => selected.includes(doc.id));
+  const reuse = targets.filter(
+    (doc) =>
+      doc.processing_reusable &&
+      doc.processing_rules?.chunk_size === rules.chunk_size &&
+      doc.processing_rules?.chunk_overlap === rules.chunk_overlap &&
+      doc.processing_rules?.min_section_chars === rules.min_section_chars,
+  ).length;
+  const fresh = targets.filter((doc) => !doc.version).length;
+  async function processDocuments(ids: string[]) {
+    if (!ids.length || processingLock.current) return;
+    processingLock.current = true;
+    setMessage("");
+    const signature = JSON.stringify([[...ids].sort(), rules]);
+    if (request.current?.signature !== signature)
+      request.current = { id: crypto.randomUUID(), signature };
+    try {
+      const batch = await save.run(() => store.process(id, request.current!.id, ids, rules));
+      const reused = batch.items.filter((item) => item.status === "reused").length;
+      setMessage(
+        reused === batch.items.length && reused > 0
+          ? `已复用 ${reused} 份文档的分片和关键词索引，无需重新处理。`
+          : `已提交 ${batch.items.length} 份文档${reused ? `，其中 ${reused} 份已复用现有索引` : ""}。后台处理会继续，可离开页面。`,
+      );
+
+      setSelected([]);
+      request.current = null;
+    } catch (error) {
+      save.setError(error);
+    } finally {
+      processingLock.current = false;
+    }
+  }
   async function importDemo(preset: "travel" | "technical") {
     try {
       const result = await save.run(() => store.importDemo(id, preset, crypto.randomUUID()));
-      setMessage(`已保存${result.length}份演示原件，请确认后手动处理。`);
+      setMessage(`已添加 ${result.length} 份演示文档，选择后可分片并建立关键词索引。`);
     } catch (error) {
       save.setError(error);
     }
@@ -171,7 +208,7 @@ function LibraryDocuments({ id, name, adding }: { id: string; name: string; addi
         >
           <p className="text-sm text-text-muted" id="knowledge-upload-help">
             支持UTF-8 Markdown、TXT，每份不超过128
-            KiB。上传只保存原件，确认后再手动处理。上传列表可在全局浮层中查看。
+            KiB。上传成功即加入列表；选择文件后可分片并建立关键词索引。上传列表可在全局浮层中查看。
           </p>
           <label className="block space-y-2 text-sm">
             选择文件（可多选）
@@ -229,16 +266,45 @@ function LibraryDocuments({ id, name, adding }: { id: string; name: string; addi
           onChange={setQuery}
           placeholder="搜索文档名称…"
         />
-        <Button
-          variant="outline"
-          disabled={save.saving || (!pending.length && !selected.length)}
-          onClick={() => {
-            setProcessing(true);
-            save.clearError();
-          }}
-        >
-          处理文档{selected.length ? `（已选${selected.length}）` : `（待处理${pending.length}）`}
-        </Button>
+      </div>
+      <div className="mb-3 space-y-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
+          <span>
+            分片规则：{rules.chunk_size} 字符 · 重叠 {rules.chunk_overlap} · 合并阈值{" "}
+            {rules.min_section_chars}
+          </span>
+          {writable && (
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={save.saving}
+              onClick={() => setAdjusting(true)}
+            >
+              调整
+            </Button>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-1 text-xs text-text-muted">
+            <p role="status" className="min-h-5 tabular-nums">
+              <span className="font-medium text-text">已选 {selected.length} 份</span> ·{" "}
+              {query ? `找到 ${shown.length} / ${docs.length} 份文档` : `共 ${docs.length} 份文档`}
+              {selected.some((item) => !shown.some((doc) => doc.id === item)) &&
+                "（含搜索外的选择）"}
+            </p>
+            <p className="tabular-nums">
+              新建 {fresh} 份 · 复用 {reuse} 份 · 重新分片 {targets.length - fresh - reuse} 份
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            disabled={!writable || save.saving || !selected.length}
+            onClick={() => void processDocuments(selected)}
+          >
+            <Scissors size={16} />
+            {save.saving ? "正在提交…" : "分片并建关键词索引"}
+          </Button>
+        </div>
       </div>
       <FailureNotice
         failure={save.failure}
@@ -260,65 +326,25 @@ function LibraryDocuments({ id, name, adding }: { id: string; name: string; addi
         retry={() => resource.invalidate()}
       />
       {!!shown.length && (
-        <div className="divide-y divide-border border-y border-border">
-          {shown.map((doc) => (
-            <div key={doc.id} className="flex min-w-0 items-start gap-3 py-4">
-              <input
-                type="checkbox"
-                className="mt-1 size-4 shrink-0 accent-text"
-                aria-label={`选择${doc.filename}`}
-                disabled={active(doc)}
-                checked={selected.includes(doc.id)}
-                onChange={(e) =>
-                  setSelected((old) =>
-                    e.target.checked ? [...old, doc.id] : old.filter((item) => item !== doc.id),
-                  )
-                }
-              />
-              <Link
-                to={`/knowledge/${id}/documents/${doc.id}`}
-                className="flex min-w-0 flex-1 items-start gap-3 hover:bg-muted"
-              >
-                <ResourceIcon kind="document" size={20} className="text-text-muted" />
-                <div className="min-w-0 flex-1">
-                  <h3 className="break-words text-sm font-medium">{doc.title}</h3>
-                  <p className="mt-1 break-words text-xs text-text-muted">
-                    {doc.filename} · {doc.chunk_count}个片段 · {(doc.size / 1024).toFixed(1)} KiB
-                  </p>
-                  <p className="mt-1 text-xs text-text-muted">
-                    {processingLabels[doc.processing_state ?? "ready"]} ·{" "}
-                    {doc.keyword_ready !== false && doc.chunk_count ? "关键词可用" : "尚不可检索"}
-                    {doc.vector_ready && " · 已建向量"}
-                  </p>
-                  {doc.processing_error && (
-                    <p className="mt-2 break-words text-xs text-danger">{doc.processing_error}</p>
-                  )}
-                </div>
-                <ChevronRight size={16} className="shrink-0 text-text-muted" />
-              </Link>
-              {["failed", "interrupted"].includes(doc.processing_state ?? "") && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setSelected([doc.id]);
-                    setReprocess(false);
-                    save.clearError();
-                    setProcessing(true);
-                  }}
-                >
-                  重试处理
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
+        <KnowledgeDocumentList
+          id={id}
+          documents={shown}
+          selected={selected}
+          writable={writable && !save.saving}
+          onSelectionChange={setSelected}
+          onRetry={(doc) => {
+            setSelected([doc.id]);
+            void processDocuments([doc.id]);
+          }}
+        />
       )}
       {shown.length === 0 && !state.loading && !state.error && (
         <EmptyState
           icon={<ResourceIcon kind="document" size={28} />}
           text={query ? "没有匹配的文档" : "这个知识库还没有文档"}
-          description={query ? "更换名称，或清除搜索。" : "添加并上传原件，确认后点击“处理文档”。"}
+          description={
+            query ? "更换名称，或清除搜索。" : "点击右上角“上传文件”，上传成功后会出现在这里。"
+          }
           onReset={query ? () => setQuery("") : undefined}
         />
       )}
@@ -331,14 +357,15 @@ function LibraryDocuments({ id, name, adding }: { id: string; name: string; addi
       {!!jobs.data?.length && (
         <details className="mt-6 text-sm">
           <summary className="cursor-pointer font-medium">
-            处理记录（最近{jobs.data.length}批）
+            分片记录（最近{jobs.data.length}批）
           </summary>
           <div className="mt-3 space-y-4">
             {jobs.data.map((batch) => (
               <section key={batch.id} className="border-b border-border pb-3">
                 <p>
                   {new Date(batch.created_at).toLocaleString("zh-CN")} · 已完成
-                  {batch.items.filter((i) => i.status === "succeeded").length}/{batch.items.length}
+                  {batch.items.filter((i) => ["succeeded", "reused"].includes(i.status)).length}/
+                  {batch.items.length}
                 </p>
                 <ul className="mt-2 space-y-1 text-xs text-text-muted">
                   {batch.items.map((item) => (
@@ -349,6 +376,7 @@ function LibraryDocuments({ id, name, adding }: { id: string; name: string; addi
                           queued: "排队中",
                           running: "处理中",
                           succeeded: "完成",
+                          reused: "已复用",
                           failed: "失败",
                           cancelled: "取消",
                           interrupted: "中断",
@@ -358,7 +386,7 @@ function LibraryDocuments({ id, name, adding }: { id: string; name: string; addi
                     </li>
                   ))}
                 </ul>
-                {["queued", "running"].includes(batch.status) && (
+                {writable && ["queued", "running"].includes(batch.status) && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -379,19 +407,16 @@ function LibraryDocuments({ id, name, adding }: { id: string; name: string; addi
           </div>
         </details>
       )}
-      {processing && library.data && (
-        <KnowledgeProcessing
-          library={library.data}
-          documents={docs}
-          selected={selected}
-          reprocess={reprocess}
-          onReprocessChange={setReprocess}
-          onClose={() => setProcessing(false)}
-          onSubmitted={(count) => {
-            setMessage(`已提交${count}份文档，后台处理会继续，可离开页面。`);
-            setSelected([]);
-            setProcessing(false);
-            setReprocess(false);
+      {adjusting && (
+        <KnowledgeChunkSettings
+          kb={id}
+          rules={rules}
+          document={targets[0]}
+          onClose={() => setAdjusting(false)}
+          onConfirm={(next) => {
+            setConfirmedRules(next);
+            setAdjusting(false);
+            save.clearError();
           }}
         />
       )}

@@ -3,24 +3,24 @@ import { clientFailure } from "@/lib/failures/resolve";
 import { ResourceCache } from "@/state/shared/resource";
 import { KnowledgeUploadQueue } from "./uploadQueue";
 
-/** User-scoped API state; originals and indexes never live in the browser cache. */
+/** Identity-scoped API state; originals and indexes never live in the browser cache. */
 export class KnowledgeStore {
   private queries = new ResourceCache(24);
   private locks = new Set<string>();
   private disposed = false;
   readonly uploads = new KnowledgeUploadQueue(() => this.refresh());
-  citationPreview(library: string, document: string, chunk: string) {
+  evidence(run: string, evidence: string, offset = 0) {
     return this.queries.get(
-      `knowledge:${library}:citation:${document}:${chunk}`,
-      (signal) => api.getKnowledgeCitation(library, document, chunk, signal),
+      `knowledge:evidence:${run}:${evidence}:${offset}`,
+      (signal) => api.getKnowledgeEvidence(run, evidence, offset, signal),
       ["knowledge"],
       { discardOnMissing: true },
     );
   }
-  employeeBindings(agentId: string) {
+  evidenceReferences(run: string) {
     return this.queries.get(
-      `knowledge:employee:${agentId}`,
-      (signal) => api.getEmployeeKnowledge(agentId, signal),
+      `knowledge:evidence:${run}:references`,
+      (signal) => (run ? api.listKnowledgeEvidence(run, signal) : Promise.resolve([])),
       ["knowledge"],
       { discardOnMissing: true },
     );
@@ -71,7 +71,7 @@ export class KnowledgeStore {
       "knowledge",
     ]);
   }
-  search(kb: string, question: string, strategy: "bm25" | "vector" | "hybrid" = "bm25") {
+  search(kb: string, question: string, strategy: "auto" | "bm25" | "vector" | "hybrid" = "auto") {
     return this.queries.get(
       `knowledge:${kb}:search:${strategy}:${question}`,
       (signal) =>
@@ -94,8 +94,6 @@ export class KnowledgeStore {
   }
   create = (name: string, description: string, id: string) =>
     this.write("create", () => api.createKnowledgeBase(name, description, id));
-  saveEmployeeBindings = (agentId: string, data: api.EmployeeKnowledgeInput) =>
-    this.write(`employee:${agentId}`, () => api.saveEmployeeKnowledge(agentId, data));
   upload = (kb: string, file: File, id: string) =>
     this.write(kb, () => api.uploadKnowledgeDocument(kb, file, id));
   remove = (kb: string, id: string) => this.write(kb, () => api.removeKnowledgeDocument(kb, id));
@@ -106,14 +104,8 @@ export class KnowledgeStore {
   clearVectors = (kb: string) => this.write(kb, () => api.clearKnowledgeVectors(kb));
   update = (kb: string, data: api.LibrarySettings) =>
     this.write(kb, () => api.updateKnowledgeBase(kb, data));
-  process = (
-    kb: string,
-    request: string,
-    documents?: string[],
-    reprocess = false,
-    rules?: api.ChunkingRules,
-  ) =>
-    this.write(kb, () => api.processKnowledgeDocuments(kb, request, documents, reprocess, rules));
+  process = (kb: string, request: string, documents: string[], rules: api.ChunkingRules) =>
+    this.write(kb, () => api.processKnowledgeDocuments(kb, request, documents, rules));
   cancelProcessing = (kb: string, batch: string) =>
     this.write(kb, () => api.cancelKnowledgeProcessing(kb, batch));
   refresh = () => this.queries.invalidate("knowledge");

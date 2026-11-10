@@ -1,0 +1,74 @@
+# 费用报销流程指南
+
+## 基本原则
+
+1. **真实性**：报销事项必须真实发生，虚报、拆单报销属严重违纪，一经查实解除劳动合同并追偿。
+2. **时效性**：费用发生后须在 **次月 5 日前**提交报销，逾期 3 个月以上的费用原则上不予受理。
+3. **相关性**：费用须与业务直接相关；私人消费不得混入报销。
+
+## 报销渠道
+
+所有报销统一在云帆协作平台"**报销中心**"模块线上提交，不再接收纸质单据（特殊发票除外）。
+移动端可在平台 App"工作台 → 报销中心"拍照上传发票，系统自动 OCR 识别发票信息并查验真伪。
+
+## 标准报销流程
+
+1. **填报**：选择费用类型（差旅、餐饮、采购、团建等），上传发票与消费明细，关联对应的项目或出差申请单。
+2. **审批链**：
+   - 单笔 < 1,000 元：直属 Leader 审批。
+   - 1,000-5,000 元：直属 Leader + 部门总监审批。
+   - 单笔 ≥ 5,000 元：直属 Leader + 部门总监 + **财务总监**审批。
+3. **财务审核**：财务共享中心费控组在 **5 个工作日**内完成审核，不合规单据退回并注明原因。
+4. **付款**：审核通过的报销款于**当月 20 日**随工资打入工资卡。
+
+## 常见费用标准摘要
+
+- **市内交通**：加班至 22:00 后打车可全额报销，须附行程单；工作时段打车须填写事由。
+- **业务招待**：人均标准 150 元/餐，单次超过 2,000 元须事前申请部门总监批准；招待报销须注明客户名称与参与人数。
+- **办公用品**：单价 500 元以下由部门助理统一在"行政采购"下单，不走个人报销。
+- **团建费用**：300 元/人/次，每年 2 次，须附参与人员名单。
+- **培训费用**：须事前在"培训申请"获批，单门课程超过 5,000 元须 VP 级以上审批。
+
+## 发票要求
+
+1. 发票抬头必须为"**云帆科技有限公司**"，税号以平台"报销中心"内"抬头一键复制"为准。
+2. 电子发票须上传原件 PDF/OFD，截图无效；重复上传的发票系统会自动拦截。
+3. 增值税专用发票请提前向对方索取，并在报销时选择"专票"类型，以便抵扣。
+4. 遗失发票：须提供消费商户盖章的消费证明，经部门总监签字后方可报销。
+
+## 常见问题
+
+- **Q：报销被退回怎么办？** A：查看退回意见，补充材料后重新提交，审批链自动沿用。
+- **Q：付款日期恰逢节假日？** A：顺延至下一个工作日发放。
+- **Q：外币费用如何折算？** A：按消费当日中国银行中间价折算，附汇率截图。
+- **咨询入口**：财务共享中心 finance@yunfantech.com，或平台"报销中心"右上角"联系客服"。
+
+> 本指南由财务部维护，版本 V3.0，生效日期 2026 年 1 月 1 日。
+
+## 资料来源与许可
+
+本文为源项目提供的虚构企业中文演示资料，不代表真实公司制度。本次保留原始业务正文，仅转换为 UTF-8 TXT 并添加本节。
+原文来源：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/expense-reimbursement.md
+许可：MIT；完整许可及版权声明：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/LICENSE
+
+MIT License
+
+Copyright (c) 2026 zhenyong97
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

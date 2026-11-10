@@ -1,5 +1,3 @@
-"""Public records in the unified capability directory."""
-
 from datetime import datetime
 from typing import Literal
 
@@ -17,5 +15,5 @@ class CapabilityRead(BaseModel):
 
     @field_serializer("created_at")
     def serialize_created_at(self, value: datetime) -> str:
-        # This catalog previously returned datetime.isoformat() through plain JSON encoding.
+        # 保持旧接口 datetime.isoformat() 的时间格式。
         return value.isoformat()

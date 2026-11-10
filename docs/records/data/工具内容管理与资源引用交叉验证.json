@@ -1,0 +1,69 @@
+{
+  "schema_version": "niuma.cross_review.v1",
+  "date": "2026-11-10",
+  "status": "review_only_no_production_changes",
+  "compared_thread": {
+    "id": "01a1bb30-311c-7bc1-9603-4bb3b3565881",
+    "title": "ToolSearch 专项设计",
+    "reviewed_recent_turns": 20,
+    "latest_completed_turn": "01a1c330-c59d-7191-8eee-15885a06a818"
+  },
+  "versions": {
+    "deepagents": "0.7.30",
+    "langchain": "1.4.7",
+    "langchain-core": "1.6.13",
+    "langgraph": "1.2.16"
+  },
+  "source_sha256": {
+    "backend/app/builtin_tools/results.py": "e5a2652fa3e3e9a4fc34b4556b68130219a652e259652ea8ba24c3230d345e68",
+    "backend/app/execution/tool_results.py": "6706ae82d0425a35934537c76cc145ced473f684d0721c2de7d1a85832791651",
+    "backend/app/agent/engine.py": "ea89fb8ea020f936079cd8cf375f7f74c352cbf2866e55d4df46dff204e3cbcc",
+    "backend/app/agent/model_calls.py": "d018abb9851f2b049a2bc7cd19c1ea917a57d195b883b11725b374a9a3055c1c",
+    "backend/app/builtin_tools/workspace.py": "ffb856680c20480a5d3a7d889a3718bf5e9a243986206f4f526ee3f79c699ceb",
+    "backend/app/agent/streaming.py": "381ef661fe0299d0ffcc123d05dfd237a24fd4e88a4ad6912bd3554e8e451c3c",
+    "backend/app/llm/factory.py": "1095f8c29cb4ebcad409a27ebc5e84ce423600a3eae82bef96881cc84d8d7121",
+    "backend/app/execution/context.py": "bc9ef73a71ab217427887daf0b3714a93c9cf563285f435897bfe8e0196483b2"
+  },
+  "probes": [
+    {
+      "id": "json_integrity",
+      "method": "真实feedback_outcome处理合成有效JSON，不访问业务数据",
+      "input_bytes": 30045,
+      "output_bytes": 24575,
+      "output_valid_json": false,
+      "metadata": {}
+    },
+    {
+      "id": "artifact_capacity",
+      "method": "比较模型入口采用的model_dump_json与框架消息投影、已安装ChatOpenAI实际消息转换；未发送请求",
+      "platform_message_dump_bytes": 140188,
+      "framework_projection_bytes": 75,
+      "chatopenai_message_bytes": 75,
+      "actual_projection_keys": ["content", "role", "tool_call_id"],
+      "artifact_in_provider_message": false
+    },
+    {
+      "id": "answer_annotation_projection",
+      "method": "真实_completed_response提取合成AIMessage",
+      "sdk_annotation_count": 1,
+      "returned_fields": ["text", "usage"],
+      "returned_text": "Answer",
+      "returned_usage": {},
+      "original_message_retains_annotation": true
+    },
+    {
+      "id": "timeout_override",
+      "method": "model_session注入假工厂，检查实际HTTP客户端参数，不调用网络",
+      "configured_timeout": 7.0,
+      "effective_read_timeout": 60,
+      "effective_connect_timeout": 10
+    }
+  ],
+  "limitations": [
+    "未执行模型或远端MCP调用",
+    "未加载业务数据库或实际工具正文",
+    "未完成官方移存与受管Backend集成验证",
+    "未重新审阅对方全部18份探索答案，不证明生产成本或答案质量",
+    "源码哈希仅固定本次核对时点，不证明后续版本持续通过"
+  ]
+}

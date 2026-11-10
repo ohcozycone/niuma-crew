@@ -1,5 +1,3 @@
-"""Real migrated accounts/sessions with GitHub HTTP responses controlled offline."""
-
 import base64
 import hashlib
 from concurrent.futures import ThreadPoolExecutor
@@ -10,7 +8,7 @@ from uuid import uuid4
 
 import httpx
 import pytest
-from scenario_client import ScenarioClient as TestClient
+from fastapi.testclient import TestClient
 from sqlalchemy import func, select, update
 from sqlalchemy.exc import OperationalError
 
@@ -21,7 +19,7 @@ from app.auth.permissions import ROLE_PERMISSIONS
 from app.auth.service import token_digest
 from app.bootstrap import create_app
 from app.errors import InvalidInputError, RateLimitError, ServiceUnavailableError
-from app.infrastructure.database.fields import utc_now
+from app.values import utc_now
 
 HEADERS = {"Origin": "http://localhost:3000", "Content-Type": "application/json"}
 GITHUB_CONFIG = GitHubOAuthConfig(
@@ -216,7 +214,7 @@ def test_repeated_login_rename_and_admin_name_collision(github_client):
         == 200
     )
     assert "resources:all" in client.get("/api/auth/me").json()["permissions"]
-    # Local maintenance never targets the same-named member.
+    # 本机维护不能误操作同名成员。
     service.maintain_user("admin", "disable-user")
     with service.database.transaction() as db:
         assert db.scalar(select(User).where(User.role == "member")).is_active
@@ -301,14 +299,26 @@ def test_successful_callback_cannot_be_replayed(github_client):
 
 
 @pytest.mark.parametrize(
-    "failure", ["redirect", "timeout", "large", "invalid-json", "invalid-profile", "token-error"]
+    "failure",
+    [
+        "redirect",
+        "timeout",
+        "large",
+        "invalid-json",
+        "invalid-profile",
+        "token-error",
+        "profile-timeout",
+        "profile-denied",
+    ],
 )
-def test_upstream_failure_is_sanitized_and_preserves_old_session(github_client, failure):
+def test_upstream_failure_is_sanitized_and_preserves_old_session(github_client, failure, caplog):
     client, _ = github_client
     client.post("/api/auth/guest", json={})
     original = client.cookies.get("app_session")
+    calls = []
 
     def respond(request):
+        calls.append(str(request.url))
         if failure == "redirect":
             return httpx.Response(302, headers={"Location": "https://evil.test/steal"})
         if failure == "timeout":
@@ -321,6 +331,10 @@ def test_upstream_failure_is_sanitized_and_preserves_old_session(github_client, 
             return httpx.Response(200, json={"error": "private-upstream-secret"})
         if request.method == "POST":
             return httpx.Response(200, json={"access_token": "gho_test"})
+        if failure == "profile-timeout":
+            raise httpx.ReadTimeout("private-upstream-secret")
+        if failure == "profile-denied":
+            return httpx.Response(403, content=b"private-upstream-secret")
         return httpx.Response(200, json={"id": True, "login": "admin"})
 
     client.app.state.github_oauth.transport = httpx.MockTransport(respond)
@@ -328,6 +342,28 @@ def test_upstream_failure_is_sanitized_and_preserves_old_session(github_client, 
     response = complete(client, query)
     assert "github_failed" in response.headers["location"]
     assert "private-upstream-secret" not in response.text + str(response.headers)
+    stage = (
+        "profile_validation"
+        if failure == "invalid-profile"
+        else "profile_fetch"
+        if failure.startswith("profile-")
+        else "token_exchange"
+    )
+    assert f"github.oauth.failed stage={stage}" in caplog.text
+    assert "stage=github_identity code=github_failed" in caplog.text
+    assert response.headers["X-Request-ID"] in caplog.text
+    for secret in (
+        "private-upstream-secret",
+        "test-client-secret",
+        "gho_test",
+        original,
+        query["state"][0],
+    ):
+        assert secret not in caplog.text
+    if failure == "profile-denied":
+        assert "type=HTTPStatusError status=403" in caplog.text
+    if failure == "timeout":
+        assert calls == ["https://github.com/login/oauth/access_token"]
     assert client.cookies.get("app_session") == original
     with client.app.state.database.transaction() as db:
         assert count(db, User) == 0
@@ -354,7 +390,7 @@ def test_allowed_alias_cannot_lose_oauth_cookie_on_another_host(github_client):
     assert client.cookies.get(OAUTH_COOKIE) is None
 
 
-def test_callback_database_failure_clears_only_temporary_cookie(github_client, monkeypatch):
+def test_callback_database_failure_clears_only_temporary_cookie(github_client, monkeypatch, caplog):
     client, _ = github_client
     client.post("/api/auth/guest", json={})
     original = client.cookies.get("app_session")
@@ -369,6 +405,8 @@ def test_callback_database_failure_clears_only_temporary_cookie(github_client, m
     assert client.cookies.get(OAUTH_COOKIE) is None
     assert client.cookies.get("app_session") == original
     assert "private" not in response.text
+    assert "stage=session_creation type=OperationalError" in caplog.text
+    assert "private" not in caplog.text
 
 
 def test_production_oauth_and_session_cookies_are_secure(migrated_config):
@@ -446,3 +484,18 @@ def test_partial_or_untrusted_configuration_fails_closed(values):
     with pytest.raises(ValueError):
         load_github_oauth_config(values, AuthConfig())
     assert "test-client-secret" not in repr(GITHUB_CONFIG)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/agents/employee/home?from=%2Fagents",
+        "/agents/employee/connections",
+        "/knowledge/library/documents/document",
+        "/conversations/100000000000/trace",
+        "/help/agents",
+        "/tools?service=mcp",
+    ],
+)
+def test_signin_preserves_readonly_detail_return_paths(path):
+    assert safe_return_path(path) == path

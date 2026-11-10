@@ -1,0 +1,72 @@
+# 会议室与办公资源使用规范
+
+## 会议室预约
+
+1. 全部会议室通过云帆协作平台"**会议室预约**"模块预订，不支持口头占位。
+2. 单次预约时长上限 **2 小时**；全天培训类需求须提前 3 个工作日联系行政部（内线 8001）审批。
+3. 会议开始 **15 分钟**内无人使用，系统自动释放会议室并通知预约人。
+4. 取消预约请提前 30 分钟以上操作，释放资源；每月无故占用超过 3 次的部门将被通报。
+
+## 总部主要会议室资源（6 号楼）
+
+| 会议室 | 容量 | 设备 | 适用场景 |
+| --- | --- | --- | --- |
+| 扬帆厅（1 层） | 80 人 | 专业音响、直播设备 | 全员大会、对外活动 |
+| 远航 1/2（2 层） | 20 人 | 大屏、视频会议终端 | 跨部门评审 |
+| 北辰 1-4（3 层） | 8 人 | 会议屏、白板 | 小组讨论 |
+| 301/302 屏蔽会议室（3 层） | 10 人 | 信号屏蔽 | 涉密会议（须预约审批） |
+| 电话间（各层） | 1 人 | 隔音、耳麦 | 个人通话、面试 |
+
+分公司会议室以各自行政接口人发布的清单为准。
+
+## 使用礼仪与设备维护
+
+- 会议结束后擦净白板、归位座椅、带走垃圾与遗留文件（涉密文件按信息安全规范销毁）。
+- 会议设备故障先重启，仍未恢复在平台"IT 工单"提 P2 工单；紧急会议可联系行政临时调配。
+- 视频会议请优先使用会议室终端，避免多人同时开麦克风产生回声。
+
+## 其他公共资源
+
+1. **电话间**：免预约、先到先得，单次使用不超过 60 分钟。
+2. **打印区**：各层均设，刷卡出纸；大批量打印（200 页以上）请错峰使用。
+3. **快递收发**：前台代收个人快递，公司件由行政统一登记分发；寄件走平台"快递申请"，
+   对公快递费月结，私人快递自理。
+4. **停车位**：总部地下车库共 120 个车位，先到先得；新能源车充电桩 20 个，
+   充电车位充满后 30 分钟内请驶离。
+5. **健身房与母婴室**：工作日 8:30-21:00 开放，刷工牌进入；母婴室钥匙在前台。
+
+## 访客接待
+
+- 访客须在前台登记有效证件并佩戴访客证，由接待员工全程陪同。
+- 访客 WiFi 连接 Yunfan-Guest，当日密码在前台获取。
+- 面试候选人由招聘组统一登记，面试官凭招聘系统通知接待。
+
+> 本规范由行政部制定，版本 V1.6，生效日期 2026 年 1 月 1 日。
+
+## 资料来源与许可
+
+本文为源项目提供的虚构企业中文演示资料，不代表真实公司制度。本次保留原始业务正文，仅转换为 UTF-8 TXT 并添加本节。
+原文来源：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/meeting-room-policy.md
+许可：MIT；完整许可及版权声明：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/LICENSE
+
+MIT License
+
+Copyright (c) 2026 zhenyong97
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

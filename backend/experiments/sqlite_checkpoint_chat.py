@@ -1,4 +1,4 @@
-"""本机 checkpoint 验证后端：假模型、假制度、独立 SQLite，不装配业务应用。"""
+"""本机 checkpoint 验证后端：假模型、独立 SQLite；不装配业务应用。"""
 
 import argparse
 import asyncio

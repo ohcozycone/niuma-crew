@@ -1,5 +1,3 @@
-"""真实 FTS5/Chroma 与解析器边界；假向量只证明接线，不证明语义质量。"""
-
 import asyncio
 import json
 import subprocess
@@ -14,14 +12,19 @@ pytest.importorskip("langchain_text_splitters", reason="install --group knowledg
 
 from langchain_core.language_models.fake_chat_models import FakeListChatModel
 
-from app.knowledge.answering import answer_question, validate_answer
 from app.knowledge.chunking import split_document
-from app.knowledge.contracts import Candidate, RetrievalPreset
-from app.knowledge.evaluation import evaluate_retrieval, load_dataset, range_coverage
-from app.knowledge.indexing import CheckedEmbeddings, Release, build_release, validate_sources
-from app.knowledge.loading import KnowledgeLoader, load_document
-from app.knowledge.retrieval import KnowledgeRetriever, reciprocal_rank_fusion, retrieve
 from experiments.knowledge_poc import DATASET, FixtureEmbeddings
+from experiments.knowledge_poc.answering import answer_question, validate_answer
+from experiments.knowledge_poc.contracts import Candidate, RetrievalPreset
+from experiments.knowledge_poc.evaluation import evaluate_retrieval, load_dataset, range_coverage
+from experiments.knowledge_poc.indexing import (
+    CheckedEmbeddings,
+    Release,
+    build_release,
+    validate_sources,
+)
+from experiments.knowledge_poc.loading import KnowledgeLoader, load_document
+from experiments.knowledge_poc.retrieval import KnowledgeRetriever, reciprocal_rank_fusion, retrieve
 
 
 class CountingEmbeddings(FixtureEmbeddings):
@@ -161,9 +164,9 @@ def test_new_process_reads_persisted_indexes_without_reembedding(indexed):
     code = """
 import json,sys
 from pathlib import Path
-from app.knowledge.indexing import Release
-from app.knowledge.retrieval import retrieve
-from app.knowledge.contracts import RetrievalPreset
+from experiments.knowledge_poc.indexing import Release
+from experiments.knowledge_poc.retrieval import retrieve
+from experiments.knowledge_poc.contracts import RetrievalPreset
 from experiments.knowledge_poc import FixtureEmbeddings
 class QueryOnly(FixtureEmbeddings):
     def embed_documents(self,texts):

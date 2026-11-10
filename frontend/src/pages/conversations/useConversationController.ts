@@ -2,7 +2,7 @@ import { toFailure, failureMessage } from "@/lib/failures/resolve";
 import type { Failure } from "@/lib/failures/types";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/http";
-import { isActive, readPage, type Reply } from "@/lib/api/conversations";
+import { isActive, isObserving, readPage, type Reply } from "@/lib/api/conversations";
 import {
   createConversationTransport,
   type ConversationInput,
@@ -27,7 +27,6 @@ export type MessageOperation = {
 };
 
 const defaultTransport = createConversationTransport();
-const retiredInputMessage = "CI 诊断入口已移除，旧提交不会重新发送。请重新输入普通消息。";
 
 async function readLatest(id: string, transport: ConversationTransport, signal: AbortSignal) {
   const snapshot = await transport.getSnapshot(id, signal);
@@ -72,7 +71,7 @@ export function useConversationController({
   /** 可选的待确认请求存储键，由宿主按用户和会话隔离。 */
   storageKey?: string;
   /** 已接受输入的通知，可清理匹配的草稿；不代表执行完成。 */
-  onAccepted?: (input: ConversationInput) => void;
+  onAccepted?: (input: ConversationInput, reply: Reply) => void;
 }) {
   const [state, dispatch] = useReducer(conversationReducer, undefined, () =>
     initialState(id, transport, storageKey),
@@ -99,6 +98,16 @@ export function useConversationController({
   const pending = useRef<PendingCommand | null>(state.pending);
   const initialSession = useMemo(() => readConversationSession(storageKey), [storageKey]);
   const persisted = useRef(initialSession.persisted || !transport.create);
+  const resolved = useRef<string | null>(
+    initialSession.conversationId ?? (transport.create ? null : id),
+  );
+  const saveSession = useCallback(
+    (value: { persisted: boolean; pending: PendingCommand | null }) => {
+      saveConversationSession(storageKey, { ...value, conversationId: resolved.current });
+    },
+    [storageKey],
+  );
+
   useEffect(() => {
     acceptedCallback.current = onAccepted;
   }, [onAccepted]);
@@ -112,8 +121,15 @@ export function useConversationController({
     (error: ConversationError | null) => dispatch({ type: "connection_error", error }),
     [],
   );
-  const activeRunId = state.id === id && isActive(state.run?.status) ? state.run!.id : null;
-  useResponseSubscription(id, activeRunId, transport, receive, feedback, reload);
+  const activeRunId = state.id === id && isObserving(state.run) ? state.run!.id : null;
+  useResponseSubscription(
+    resolved.current ?? id,
+    activeRunId,
+    transport,
+    receive,
+    feedback,
+    reload,
+  );
 
   useEffect(() => {
     // 读取重连可以中止旧 GET；同一会话已发出的命令仍需接收确认。
@@ -132,6 +148,8 @@ export function useConversationController({
       target.current = id;
       const next = initialState(id, transport, storageKey);
       pending.current = next.pending;
+      resolved.current =
+        readConversationSession(storageKey).conversationId ?? (transport.create ? null : id);
       persisted.current = readConversationSession(storageKey).persisted || !transport.create;
       commandLock.current = stopLock.current = olderLock.current = false;
       dispatch({ type: "reset", state: next });
@@ -147,19 +165,22 @@ export function useConversationController({
       try {
         let accepted: Reply | null = null;
         if (original) {
-          accepted = await transport.findRequest(id, original.key, scope.signal);
+          accepted = await transport.findRequest(resolved.current, original.key, scope.signal);
           if (scope.signal.aborted || generation !== commandGeneration.current) return;
           if (accepted) {
+            resolved.current = accepted.conversation_id;
             persisted.current = true;
-            pending.current = null;
-            saveConversationSession(storageKey, { persisted: true, pending: null });
-            if (original.input && !original.retiredInput) notifyAccepted?.(original.input);
+            pending.current = original.stopRequested && isActive(accepted.status) ? original : null;
+            saveSession({ persisted: true, pending: pending.current });
+
             dispatch({ type: "accepted", command: original, run: accepted });
             if (original.stopRequested && isActive(accepted.status)) {
               try {
-                accepted = await transport.cancel(id, accepted.id);
+                accepted = await transport.cancel(resolved.current ?? id, accepted.id);
                 if (scope.signal.aborted) return;
                 receive(accepted);
+                pending.current = null;
+                saveSession({ persisted: true, pending: null });
               } catch (error) {
                 if (!scope.signal.aborted)
                   setMessageOperation(accepted.id, {
@@ -170,28 +191,23 @@ export function useConversationController({
             }
           }
         }
-        if (original?.retiredInput && !accepted) {
-          pending.current = null;
-          saveConversationSession(storageKey, { persisted: persisted.current, pending: null });
+        if (resolved.current === null) {
+          dispatch({ type: "draft_ready" });
           dispatch({
-            type: "submit_failed",
-            uncertain: false,
-            error: { message: retiredInputMessage, recovery: null },
+            type: "submission_error",
+            error: { message: "尚未确认原请求，可使用原提交标识重试。", recovery: "retry" },
           });
-          if (transport.create && !persisted.current) {
-            dispatch({ type: "draft_ready" });
-            return;
-          }
+          return;
         }
         const {
           conversation,
           page,
           run: latestRun,
-        } = await readLatest(id, transport, scope.signal);
+        } = await readLatest(resolved.current ?? id, transport, scope.signal);
         const run = latestRun ?? accepted;
         if (scope.signal.aborted || generation !== commandGeneration.current) return;
         persisted.current = true;
-        saveConversationSession(storageKey, { persisted: true, pending: pending.current });
+        saveSession({ persisted: true, pending: pending.current });
         dispatch({
           type: "loaded",
           conversation,
@@ -199,34 +215,22 @@ export function useConversationController({
           cursor: page.next_before_sequence,
           run,
         });
-        if (original && !original.retiredInput && !accepted)
+        if (accepted && original?.input) notifyAccepted?.(original.input, accepted);
+        if (original && !accepted)
           dispatch({
             type: "submission_error",
             error: { message: "尚未确认原请求，可使用原提交标识重试。", recovery: "retry" },
           });
       } catch (error) {
         if (scope.signal.aborted || generation !== commandGeneration.current) return;
-        if (
-          !original?.retiredInput &&
-          transport.create &&
-          !persisted.current &&
-          error instanceof ApiError &&
-          error.status === 404
-        ) {
-          dispatch({ type: "draft_ready" });
-          dispatch({
-            type: "submission_error",
-            error: { message: "尚未查到已接受的原请求，可核对并重试。", recovery: "retry" },
-          });
-        } else
-          feedback({
-            message: failureMessage(error),
-            failure: toFailure(error),
-            recovery:
-              error instanceof ApiError && [401, 403, 404].includes(error.status)
-                ? null
-                : "reconnect",
-          });
+        feedback({
+          message: failureMessage(error),
+          failure: toFailure(error),
+          recovery:
+            error instanceof ApiError && [401, 403, 404].includes(error.status)
+              ? null
+              : "reconnect",
+        });
       }
     }
     void load();
@@ -234,7 +238,7 @@ export function useConversationController({
       scope.abort();
       olderRequest.current?.abort();
     };
-  }, [id, transport, storageKey, receive, feedback, reload, setMessageOperation]);
+  }, [id, transport, storageKey, receive, feedback, reload, setMessageOperation, saveSession]);
 
   const submit = useCallback(
     async (command: PendingCommand) => {
@@ -247,31 +251,34 @@ export function useConversationController({
       const scope = lifetime.current;
       const notifyAccepted = acceptedCallback.current;
       pending.current = command;
-      saveConversationSession(storageKey, { persisted: persisted.current, pending: command });
+      saveSession({ persisted: persisted.current, pending: command });
       dispatch({ type: "submit", command });
       try {
-        const confirmed =
-          command.legacyRetryTarget || command.retiredInput
-            ? await transport.findRequest(id, command.key, scope?.signal)
-            : null;
-        if (command.retiredInput && !confirmed)
-          throw new ApiError(retiredInputMessage, 410, "work_type_removed");
-        if (command.legacyRetryTarget && !confirmed)
-          throw new Error("旧版待确认重试尚未查到，已保留记录；请先核对原操作，不会自动重新交办。");
-        const run =
-          confirmed ??
-          (command.retryId
-            ? await transport.retry(id, command.retryId, command.key)
-            : await transport.send(id, command.input!, command.key));
+        const run = command.retryId
+          ? await transport.retry(resolved.current ?? id, command.retryId, command.key)
+          : await transport.send(resolved.current, command.input!, command.key);
         // 接受确认即使迟于卸载，也只清理它捕获的旧用户/旧会话存储。
         const stored = readConversationSession(storageKey);
+        const sameScope = !!scope && !scope.signal.aborted && lifetime.current === scope;
+        const shouldStop =
+          (stored.pending?.key === command.key && stored.pending.stopRequested) ||
+          (sameScope && pending.current?.key === command.key && pending.current.stopRequested);
+        if (sameScope) resolved.current = run.conversation_id;
         saveConversationSession(storageKey, {
           persisted: true,
-          pending: stored.pending && stored.pending.key !== command.key ? stored.pending : null,
+          conversationId: run.conversation_id,
+          pending:
+            stored.pending && stored.pending.key !== command.key
+              ? stored.pending
+              : shouldStop
+                ? { ...command, stopRequested: true }
+                : null,
         });
-        if (command.input && !command.retiredInput) notifyAccepted?.(command.input);
-        if (!scope || scope.signal.aborted || lifetime.current !== scope) return;
-        const shouldStop = pending.current?.key === command.key && pending.current.stopRequested;
+
+        if (!scope || scope.signal.aborted || lifetime.current !== scope) {
+          if (command.input) notifyAccepted?.(command.input, run);
+          return;
+        }
         pending.current = null;
         persisted.current = true;
         dispatch({ type: "accepted", command, run });
@@ -279,7 +286,12 @@ export function useConversationController({
           setReload((version) => version + 1);
         if (shouldStop && isActive(run.status)) {
           try {
-            const stopped = await transport.cancel(id, run.id);
+            const stopped = await transport.cancel(run.conversation_id, run.id);
+            saveConversationSession(storageKey, {
+              persisted: true,
+              pending: null,
+              conversationId: run.conversation_id,
+            });
             if (!scope.signal.aborted) receive(stopped);
           } catch (error) {
             if (!scope.signal.aborted)
@@ -289,6 +301,7 @@ export function useConversationController({
               });
           }
         }
+        if (command.input) notifyAccepted?.(command.input, run);
         if (scope.signal.aborted) return;
       } catch (error) {
         if (!scope || scope.signal.aborted || lifetime.current !== scope) throw error;
@@ -299,7 +312,7 @@ export function useConversationController({
           error.status !== 408
         );
         if (!uncertain) pending.current = null;
-        saveConversationSession(storageKey, {
+        saveSession({
           persisted: persisted.current,
           pending: pending.current,
         });
@@ -317,14 +330,13 @@ export function useConversationController({
         if (lifetime.current === scope) commandLock.current = false;
       }
     },
-    [id, transport, storageKey, receive, setMessageOperation],
+    [id, transport, storageKey, receive, setMessageOperation, saveSession],
   );
 
   const status = state.id === id ? conversationPhase(state) : "loading";
+
   const sendMessage = useCallback(
     async (input: ConversationInput) => {
-      if (Object.hasOwn(input, "work"))
-        throw new ApiError(retiredInputMessage, 410, "work_type_removed");
       if (status !== "ready" || commandLock.current) throw new Error("当前对话尚未就绪。");
       if (!input.content.trim()) return;
       await submit({
@@ -346,9 +358,9 @@ export function useConversationController({
   const cancelPending = useCallback(async () => {
     if (!pending.current || pending.current.stopRequested) return;
     pending.current = { ...pending.current, stopRequested: true };
-    saveConversationSession(storageKey, { persisted: persisted.current, pending: pending.current });
+    saveSession({ persisted: persisted.current, pending: pending.current });
     dispatch({ type: "pending_stop", command: pending.current });
-  }, [storageKey]);
+  }, [saveSession]);
 
   const retryMessage = useCallback(
     async (messageId: string) => {
@@ -401,7 +413,7 @@ export function useConversationController({
       const scope = lifetime.current;
       setMessageOperation(messageId, { stopping: true, error: null });
       try {
-        const next = await transport.cancel(id, run.id);
+        const next = await transport.cancel(resolved.current ?? id, run.id);
         if (scope && !scope.signal.aborted && lifetime.current === scope) receive(next);
       } catch (error) {
         if (scope && !scope.signal.aborted && lifetime.current === scope)
@@ -432,7 +444,7 @@ export function useConversationController({
     olderRequest.current = scope;
     dispatch({ type: "older_loading" });
     try {
-      const page = await transport.getMessages(id, state.cursor, scope.signal);
+      const page = await transport.getMessages(resolved.current ?? id, state.cursor, scope.signal);
       if (!scope?.signal.aborted)
         dispatch({ type: "older", messages: page.items, cursor: page.next_before_sequence });
     } catch (error) {
@@ -467,7 +479,11 @@ export function useConversationController({
   const refreshLatest = useCallback(
     async (signal: AbortSignal) => {
       if (!persisted.current) return;
-      const { conversation, page, run } = await readLatest(id, transport, signal);
+      const { conversation, page, run } = await readLatest(
+        resolved.current ?? id,
+        transport,
+        signal,
+      );
       if (!signal.aborted)
         dispatch({
           type: "loaded",
@@ -481,13 +497,14 @@ export function useConversationController({
     [id, transport],
   );
   const transcript = useConversationHistory({
-    id,
+    id: resolved.current ?? id,
     transport,
     messages: state.messages,
     latestHistory: history,
     refreshLatest,
   });
   const { showLatest } = transcript;
+
   const sendAtLatest = useCallback(
     async (input: ConversationInput) => {
       void showLatest(false);
@@ -505,7 +522,7 @@ export function useConversationController({
   );
 
   return {
-    id,
+    id: resolved.current ?? id,
     conversation: state.id === id ? state.conversation : null,
     messages: state.id === id ? transcript.messages : [],
     liveMessages: state.id === id ? state.messages : [],
@@ -522,7 +539,6 @@ export function useConversationController({
     reconnect,
     history: transcript,
     hasPendingSubmission: !!state.pending,
-    canResendPending: !state.submitting && !!state.pending,
     canCancelPending: !!state.pending && !state.pending.stopRequested,
     submitting: state.submitting,
     messageOperations,

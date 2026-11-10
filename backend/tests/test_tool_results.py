@@ -1,21 +1,14 @@
-"""Result cursors retain source grants; final prose cannot replace retrieval evidence."""
-
 import json
 from types import SimpleNamespace
 
 import pytest
-from langchain_core.messages import ToolMessage
 from test_capability_runtime import ScriptedModel, execute, response, setup, submit
+from test_tool_discovery import discovery_response
 from test_tool_readers import search_setup
 
-from app.agent_runtime.contracts import RuntimeFailure
-from app.agent_runtime.tool_results import (
-    ToolResults,
-    requested_web_reads,
-    result_text,
-    verify_web_reads,
-)
-from app.tools.contracts import exposed_name
+from app.agent.errors import RuntimeFailure
+from app.execution.tool_results import ToolResults, _legacy_result_text
+from app.mcp.contracts import exposed_name
 
 
 def result_fixture(text="extracted text"):
@@ -30,76 +23,59 @@ def result_fixture(text="extracted text"):
         read_file=lambda key: encoded,
     )
     results = ToolResults({"tools": [{"binding_id": "grant", "kind": "mcp_http"}]}, resource)
-    return results, len(result_text(data))
+    return results, len(_legacy_result_text(data))
 
 
 def test_result_reader_rejects_cross_run_or_arbitrary_file_ids():
     results, _ = result_fixture()
     with pytest.raises(RuntimeFailure, match="tool_not_allowed"):
         results.load("other-run")
-    page = json.loads(
-        results.reader_tool().invoke({"result_id": "result", "offset": 4, "limit": 20})
-    )
+    page = json.loads(results.read_page("result", offset=4, limit=20))
     assert page["offset"] == 4 and page["end"] == 24
     assert page["next_offset"] == 24
-    with pytest.raises(RuntimeFailure, match="tool_arguments_invalid"):
-        results.reader_tool().invoke({"result_id": "result", "limit": 12001})
+    assert json.loads(results.read_page("result", limit=15000))["next_offset"] is None
 
 
-def test_evidence_rejects_zero_calls_wrong_target_and_gaps():
-    results, size = result_fixture()
-    target = "读取 https://example.com/docs"
-    with pytest.raises(RuntimeFailure, match="external_read_unverified"):
-        verify_web_reads(target, [], results)
-    partial = ToolMessage(
-        content=json.dumps({"result_id": "result", "preview_end": 20}),
-        tool_call_id="call",
-        name="mcp_x",
-    )
-    tail = ToolMessage(
-        content=json.dumps({"result_id": "result", "offset": 21, "end": size}),
-        tool_call_id="read",
-        name="read_tool_result",
-    )
-    with pytest.raises(RuntimeFailure, match="external_read_unverified"):
-        verify_web_reads(target, [partial, tail], results)
-    tail.content = json.dumps({"result_id": "result", "offset": 20, "end": size})
-    verify_web_reads(target, [partial, tail], results)
-    with pytest.raises(RuntimeFailure, match="external_read_unverified"):
-        verify_web_reads("读取 https://example.com/another", [partial, tail], results)
-    assert not requested_web_reads("https://example.com/docs 这个 URL 的格式是什么？")
-    assert not requested_web_reads("读取附件，内容含URL https://example.com/docs")
-    old = ToolMessage(
-        content=json.dumps({"result_id": "previous-run", "preview_end": 999}),
-        tool_call_id="old",
-        name="mcp_old",
-    )
-    verify_web_reads(target, [old, partial, tail], results)
+@pytest.mark.parametrize("limit", [1, 6000, 12000, 15000, 1000000000])
+def test_reader_treats_limit_as_requested_size_and_preserves_utf8_cursor(limit):
+    results, total = result_fixture("正文" * (8 if limit == 1 else 20000))
+    offset, chunks = 0, []
+    while True:
+        page = json.loads(results.read_page("result", offset=offset, limit=limit))
+        assert len(page["text"]) <= limit and len(page["text"].encode()) <= 8000
+        assert page["end"] == offset + len(page["text"])
+        chunks.append(page["text"])
+        if page["next_offset"] is None:
+            assert page["end"] == total
+            break
+        assert page["next_offset"] > offset
+        offset = page["next_offset"]
+    assert "".join(chunks) == _legacy_result_text(results.load("result")["data"])
 
 
-def test_real_loop_does_not_publish_hallucinated_page_read(api_client, monkeypatch):
+def test_generic_loop_does_not_classify_web_intent(api_client, monkeypatch):
     _, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation, content="读下 https://example.com/docs 页面内容").json()
+    run = submit(api_client, conversation, content="读下 https://example.com/docs 页面内容").json()[
+        "response"
+    ]
     model = ScriptedModel(responses=[response("已成功读取该页面，它介绍了虚构的功能。")])
     result = execute(api_client, monkeypatch, model, run)
-    assert result["status"] == "failed", result
-    assert result["error"]["code"] == "external_read_unverified"
-    assert not result["assistant_content"]
+    assert result["status"] == "succeeded", result
 
 
 def test_real_loop_pages_result_without_host_file_grant(api_client, monkeypatch):
     _, conversation, connection = search_setup(api_client)
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
 
     class Pager(ScriptedModel):
         def _generate(self, *args, **kwargs):
-            if self._index == 1:
+            if self._index == 2:
                 file = next(
                     ref
                     for ref in api_client.app.state.files.sources(run["id"])
                     if ref["name"].startswith("tool-result-")
                 )
-                self.responses[1] = response(
+                self.responses[2] = response(
                     "",
                     [
                         {
@@ -113,6 +89,7 @@ def test_real_loop_pages_result_without_host_file_grant(api_client, monkeypatch)
 
     model = Pager(
         responses=[
+            discovery_response(),
             response(
                 "",
                 [
@@ -129,18 +106,16 @@ def test_real_loop_pages_result_without_host_file_grant(api_client, monkeypatch)
     )
     result = execute(api_client, monkeypatch, model, run)
     assert result["status"] == "succeeded", result
-    assert all("read_file" not in tools and "read_tool_result" in tools for tools in model.bindings)
+    assert all("read_file" in tools and "read_tool_result" in tools for tools in model.bindings)
     assert '"offset": 3000' in model.prompts[-1]
     assert [
         item["safe_details"].get("model_tool")
         for item in result["steps"]
         if item["kind"] == "tool_call"
-    ] == [exposed_name(connection["id"], "tavily_search"), "read_tool_result"]
+    ] == ["search_tools", exposed_name(connection["id"], "tavily_search"), "read_tool_result"]
 
 
-def test_successful_target_extraction_is_verified_but_not_labelled_full_text(
-    api_client, monkeypatch
-):
+def test_provider_payload_is_saved_without_inferred_page_semantics(api_client, monkeypatch):
     from test_agent_foundations import SearchClient
 
     _, conversation, connection = search_setup(api_client)
@@ -160,9 +135,12 @@ def test_successful_target_extraction_is_verified_but_not_labelled_full_text(
         )
 
     monkeypatch.setattr(SearchClient, "invoke", extract)
-    run = submit(api_client, conversation, content="读取 https://example.com/docs").json()
+    run = submit(api_client, conversation, content="读取 https://example.com/docs").json()[
+        "response"
+    ]
     model = ScriptedModel(
         responses=[
+            discovery_response(),
             response(
                 "",
                 [
@@ -178,26 +156,33 @@ def test_successful_target_extraction_is_verified_but_not_labelled_full_text(
     )
     result = execute(api_client, monkeypatch, model, run)
     assert result["status"] == "succeeded", result
-    source = next(
-        item["safe_details"]["sources"][0]
-        for item in result["steps"]
-        if item["kind"] == "tool_call"
+    tool = next(item for item in result["steps"] if item["kind"] == "tool_call")
+    assert tool["safe_details"]["sources"] == []
+    ref = next(
+        ref
+        for ref in api_client.app.state.files.sources(run["id"])
+        if ref["name"].startswith("tool-result-")
     )
-    assert source["text_obtained"] and not source["full_text"]
+    stored = json.loads(api_client.app.state.files.read(ref["id"]))
+    assert (
+        stored["data"]["structured"]["structured_content"]["results"][0]["raw_content"]
+        == "fixture extracted text"
+    )
+    assert "extracted_urls" not in stored["platform_result"]
 
 
 def test_result_reader_rechecks_originating_permission(api_client):
 
     from sqlalchemy import select
 
-    from app.agents.models import AgentToolGrant
-    from app.agents.tool_grants import authorize_tool
+    from app.builtin_tools.contracts import ToolInvocation
+    from app.employees.access import authorize_tool
+    from app.employees.models import AgentToolGrant
     from app.errors import ConflictError
     from app.execution.models import Run
-    from app.tools.contracts import ToolInvocation
 
     agent, conversation, _ = search_setup(api_client)
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     with api_client.app.state.database.transaction() as db:
         row = db.get(Run, run["id"])
         binding = row.config_snapshot["tools"][0]

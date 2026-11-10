@@ -16,7 +16,7 @@ export function AccountMenuButton({
     <button
       type="button"
       className={cn(
-        "flex items-center gap-(--os-space-2) w-full min-w-0 min-h-[calc(var(--os-space-6)_*_2)] py-(--os-space-1) px-(--os-space-2) border-0 rounded-control bg-transparent text-text text-left [button&:hover]:bg-muted [button&[data-open]]:bg-muted [button&:hover_.de-account-avatar]:bg-canvas [&[data-open]_.de-account-avatar]:bg-canvas [&_strong]:overflow-hidden [&_strong]:text-[length:var(--os-text-body)] [&_strong]:leading-[var(--os-leading-heading)] [&_strong]:font-[500] [&_strong]:text-ellipsis [&_strong]:whitespace-nowrap [&_small]:text-[length:var(--os-text-caption)] [&_small]:text-text-muted [&[data-open]_.de-account-chevron]:[transform:rotate(180deg)]",
+        "flex items-center gap-(--os-space-2) w-full min-w-0 min-h-[calc(var(--os-space-6)_*_2)] py-(--os-space-1) px-(--os-space-2) border-0 rounded-control bg-transparent text-text text-left transition-colors duration-fast motion-reduce:transition-none [button&:hover]:bg-hover [button&[data-open]]:bg-pressed [button&:hover_.de-account-avatar]:bg-canvas [&[data-open]_.de-account-avatar]:bg-canvas [&_strong]:overflow-hidden [&_strong]:text-[length:var(--os-text-body)] [&_strong]:leading-[var(--os-leading-heading)] [&_strong]:font-[500] [&_strong]:text-ellipsis [&_strong]:whitespace-nowrap [&_small]:text-[length:var(--os-text-caption)] [&_small]:text-text-muted [&[data-open]_.de-account-chevron]:[transform:rotate(180deg)]",
         className,
       )}
       {...props}

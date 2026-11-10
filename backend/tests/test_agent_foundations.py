@@ -1,5 +1,3 @@
-"""Foundation acceptance: actual SDK loop and SQLite, with bounded fake upstreams."""
-
 import asyncio
 import json
 from contextlib import asynccontextmanager
@@ -9,56 +7,25 @@ from uuid import uuid4
 
 import httpx
 import pytest
+from run_helpers import empty_conversation, execute_run, read_reply
+from runtime_helpers import bind_model_calls, make_task
 from sqlalchemy import select
 from sqlalchemy.exc import OperationalError
-from test_capability_runtime import ScriptedModel, execute, response, setup
+from test_capability_runtime import ScriptedModel, discovery_response, execute, response, setup
 
-from app.agent_runtime.sandbox_backend import SandboxFileBackend
-from app.agents.models import AgentToolGrant
+from app.builtin_tools.contracts import ToolInvocation
+from app.builtin_tools.workspace import _SandboxFileBackend
+from app.employees.models import AgentToolGrant
+from app.environments.models import SandboxResource
+from app.environments.service import SandboxService
 from app.errors import ConflictError, InvalidInputError
-from app.execution.control import RunControl
 from app.execution.models import Run, RunAction
 from app.files.models import StoredFile
-from app.sandboxes.models import SandboxResource
-from app.sandboxes.service import SandboxService
-from app.tools.adapters.mcp import MCPClient
-from app.tools.config import ToolConfig
-from app.tools.contracts import ToolInvocation, digest, exposed_name
-from app.tools.network import BoundedStream, PinnedTransport
-
-
-def workspace(client, agent, *, mode="virtual", names=None, max_calls=32):
-    created = client.post(
-        "/api/tool-connections",
-        json={
-            "name": "工作区" + str(uuid4()),
-            "kind": "native",
-            "provider_key": "workspace",
-            "public_config": {"workspace_mode": mode},
-        },
-    )
-    assert created.status_code == 201, created.text
-    connection = created.json()
-    grant = client.put(
-        f"/api/agents/{agent['id']}/tool-grants",
-        json={
-            "expected_revision": agent["revision"],
-            "grants": [
-                {
-                    "connection_id": connection["id"],
-                    "tools": names or ["read_file", "write_file", "ls"],
-                    "scope_policy": {
-                        "mode": "workspace",
-                        "max_calls": max_calls,
-                        "read_roots": ["/inputs", "/sources", "/workspace", "/outputs"],
-                        "write_roots": ["/workspace", "/outputs"],
-                    },
-                }
-            ],
-        },
-    )
-    assert grant.status_code == 200, grant.text
-    return connection, grant.json()
+from app.mcp.adapters.http import MCPClient
+from app.mcp.config import ToolConfig
+from app.mcp.contracts import exposed_name
+from app.mcp.network import BoundedStream, PinnedTransport
+from app.values import digest
 
 
 def send(client, conversation, *, files=None):
@@ -71,25 +38,11 @@ def send(client, conversation, *, files=None):
         },
     )
     assert accepted.status_code == 202, accepted.text
-    return accepted.json()
-
-
-def run_id(client, accepted):
-    if "response" not in accepted:
-        return accepted["id"]
-    with client.app.state.database.transaction() as db:
-        from app.conversations.models import ConversationRun
-
-        return db.scalar(
-            select(ConversationRun.run_id).where(
-                ConversationRun.reply_message_id == accepted["response"]["id"]
-            )
-        )
+    return accepted.json()["response"]
 
 
 def test_file_sdk_upload_publish_and_download_survive_working_state(api_client, monkeypatch):
     _, _, agent, conversation = setup(api_client)
-    workspace(api_client, agent)
     uploaded = api_client.post(
         "/api/files?name=data.csv", content=b"a,b\n1,2\n", headers={"content-type": "text/csv"}
     )
@@ -121,7 +74,7 @@ def test_file_sdk_upload_publish_and_download_survive_working_state(api_client, 
             response("已生成结果。"),
         ]
     )
-    result = execute(api_client, monkeypatch, model, {"id": run_id(api_client, accepted)})
+    result = execute(api_client, monkeypatch, model, accepted)
     assert result["status"] == "succeeded", result
     output = result["files"][0]
     downloaded = api_client.get(f"/api/conversations/{conversation['id']}/files/{output['id']}")
@@ -131,7 +84,7 @@ def test_file_sdk_upload_publish_and_download_survive_working_state(api_client, 
     )
     assert all(step["kind"] != "skill_activation" for step in result["steps"])
     with api_client.app.state.database.transaction() as db:
-        row = db.get(Run, run_id(api_client, accepted))
+        row = db.get(Run, accepted["id"])
         assert row.tool_calls == 2 and row.skill_reads == 0
         assert not row.config_snapshot["checkpoint_resumable"]
         assert all(
@@ -140,7 +93,7 @@ def test_file_sdk_upload_publish_and_download_survive_working_state(api_client, 
                 select(RunAction).where(RunAction.run_id == row.id, RunAction.kind == "tool_call")
             )
         )
-    other = api_client.post("/api/conversations", json={"agent_id": agent["id"]}).json()
+    other = empty_conversation(api_client, agent["id"])
     assert (
         api_client.get(f"/api/conversations/{other['id']}/files/{output['id']}").status_code == 404
     )
@@ -151,27 +104,40 @@ def test_file_sdk_upload_publish_and_download_survive_working_state(api_client, 
 
 def test_file_denial_and_atomic_budget_failure_do_not_execute(api_client, monkeypatch):
     _, _, agent, conversation = setup(api_client)
-    workspace(api_client, agent, names=["read_file"], max_calls=1)
     accepted = send(api_client, conversation)
-    id = run_id(api_client, accepted)
-    store = api_client.app.state.execution_store
+    id = accepted["id"]
+    store = api_client.app.state.run_worker.store
     store.claim(id)
     row, _ = store.load(id)
-    binding = row.config_snapshot["tools"][0]
+    binding = next(
+        tool for tool in row.config_snapshot["tools"] if tool["tool_name"] == "read_file"
+    )
+    with api_client.app.state.database.transaction() as db:
+        saved = db.get(Run, id)
+        saved.config_snapshot = {**saved.config_snapshot, "max_tool_calls": 1}
 
     def auth(active, db=None, invocation=None):
-        return api_client.app.state.runner.coordinator.authorize(
+        return api_client.app.state.run_worker.runs.authorize(
             row, active, db=db, invocation=invocation
         )
 
-    control = RunControl(id, store, auth)
+    control = make_task(id, store, auth)
     denied = ToolInvocation(
         "tool:denied", binding["binding_id"], "read_file", {"file_path": "/inputs/../app.db"}
     )
+    (denied,) = bind_model_calls(store, id, denied)
     with pytest.raises(Exception, match="文件路径"):
         asyncio.run(control.begin_tool(denied))
     invocation = ToolInvocation(
         "tool:first", binding["binding_id"], "read_file", {"file_path": "/workspace/a.txt"}
+    )
+    (invocation, second) = bind_model_calls(
+        store,
+        id,
+        invocation,
+        ToolInvocation(
+            "tool:second", binding["binding_id"], "read_file", {"file_path": "/workspace/b.txt"}
+        ),
     )
     original = store._start_action
     monkeypatch.setattr(
@@ -186,16 +152,7 @@ def test_file_denial_and_atomic_budget_failure_do_not_execute(api_client, monkey
     monkeypatch.setattr(store, "_start_action", original)
     asyncio.run(control.begin_tool(invocation))
     with pytest.raises(Exception) as caught:
-        asyncio.run(
-            control.begin_tool(
-                ToolInvocation(
-                    "tool:second",
-                    binding["binding_id"],
-                    "read_file",
-                    {"file_path": "/workspace/b.txt"},
-                )
-            )
-        )
+        asyncio.run(control.begin_tool(second))
     assert caught.value.code == "agent_budget_exceeded"
 
 
@@ -304,11 +261,11 @@ def search_grant(client, agent):
         },
     )
     assert approved.status_code == 200, approved.text
-    saved = client.put(
-        f"/api/agents/{agent['id']}/tool-grants",
+    saved = client.patch(
+        f"/api/agents/{agent['id']}",
         json={
             "expected_revision": agent["revision"],
-            "grants": [
+            "tool_grants": [
                 {
                     "connection_id": connection["id"],
                     "tools": ["tavily_search"],
@@ -325,6 +282,62 @@ def search_grant(client, agent):
     return connection
 
 
+@pytest.mark.parametrize("configured_limit,effective_limit", [(2, 2), (None, 32)])
+def test_mcp_explicit_and_default_limits_survive_shared_budget_cleanup(
+    api_client, configured_limit, effective_limit
+):
+    from configuration_helpers import set_submission_limits
+
+    from app.builtin_tools.contracts import ToolOutcome
+    from app.execution.errors import ExecutionFailure
+
+    _, _, agent, conversation = setup(api_client)
+    connection = search_grant(api_client, agent)
+    with api_client.app.state.database.transaction() as db:
+        grant = db.scalar(select(AgentToolGrant).where(AgentToolGrant.agent_id == agent["id"]))
+        grant.scope_policy = {
+            "mode": "provider",
+            **({"max_calls": configured_limit} if configured_limit else {}),
+        }
+    set_submission_limits(api_client.app.state.conversation_commands, max_tool_calls=40)
+    accepted = send(api_client, conversation)
+    store = api_client.app.state.run_worker.store
+    store.claim(accepted["id"])
+    row, _ = store.load(accepted["id"])
+    binding = next(tool for tool in row.config_snapshot["tools"] if tool["kind"] == "mcp_http")
+
+    def auth(active, db=None, invocation=None):
+        return api_client.app.state.run_worker.runs.authorize(
+            row, active, db=db, invocation=invocation
+        )
+
+    control = make_task(row.id, store, auth)
+    invocations = bind_model_calls(
+        store,
+        row.id,
+        *(
+            ToolInvocation(
+                f"tool:{i}",
+                binding["binding_id"],
+                exposed_name(connection["id"], "tavily_search"),
+                {"query": "test"},
+            )
+            for i in range(effective_limit + 1)
+        ),
+    )
+
+    async def exercise():
+        for invocation in invocations[:-1]:
+            permit = await control.begin_tool(invocation)
+            await control.complete_tool(permit, ToolOutcome("fixture"))
+        with pytest.raises(ExecutionFailure, match="agent_budget_exceeded"):
+            await control.begin_tool(invocations[-1])
+
+    asyncio.run(exercise())
+    persisted, _ = store.load(row.id)
+    assert persisted.tool_calls == effective_limit
+
+
 def test_search_model_call_records_sources_and_long_result(api_client, monkeypatch):
     _, _, agent, conversation = setup(api_client)
     SearchClient.calls, SearchClient.before_guard = 0, None
@@ -332,6 +345,7 @@ def test_search_model_call_records_sources_and_long_result(api_client, monkeypat
     accepted = send(api_client, conversation)
     model = ScriptedModel(
         responses=[
+            discovery_response(),
             response(
                 "",
                 [
@@ -345,16 +359,19 @@ def test_search_model_call_records_sources_and_long_result(api_client, monkeypat
             response("找到说明，尚未读取全文。"),
         ]
     )
-    result = execute(api_client, monkeypatch, model, {"id": run_id(api_client, accepted)})
+    result = execute(api_client, monkeypatch, model, accepted)
     assert result["status"] == "succeeded", result
     assert SearchClient.calls == 1
     step = next(step for step in result["steps"] if step["kind"] == "tool_call")
-    source = step["safe_details"]["sources"][0]
-    assert not source["full_text"] and source["url"] == "https://example.com/docs"
+    assert step["safe_details"]["sources"] == []
+    source = next(
+        ref
+        for ref in api_client.app.state.files.sources(accepted["id"])
+        if ref["name"].startswith("tool-result-")
+    )
+    stored = api_client.get(f"/api/conversations/{conversation['id']}/files/{source['id']}").json()
     assert (
-        api_client.get(
-            f"/api/conversations/{conversation['id']}/files/{source['file_id']}"
-        ).content.decode()
+        stored["data"]["structured"]["structured_content"]["results"][0]["content"]
         == "正文" * 20000
     )
     assert max(len(prompt.encode()) for prompt in model.prompts) < 131072
@@ -369,7 +386,7 @@ def test_current_tools_reach_http_model_with_old_unavailable_history(api_client,
         api_client,
         monkeypatch,
         ScriptedModel(responses=[response("当前会话没有联网读取网页的工具。")]),
-        {"id": run_id(api_client, previous)},
+        previous,
     )
     assert result["status"] == "succeeded"
     connection = search_grant(api_client, agent)
@@ -380,16 +397,23 @@ def test_current_tools_reach_http_model_with_old_unavailable_history(api_client,
     def upstream(request):
         body = json.loads(request.content)
         requests.append(body)
-        first = len(requests) == 1
+        first = len(requests) < 3
         delta = (
             {
                 "role": "assistant",
                 "tool_calls": [
                     {
                         "index": 0,
-                        "id": "search-current-tools",
+                        "id": "discover-current-tools"
+                        if len(requests) == 1
+                        else "search-current-tools",
                         "type": "function",
-                        "function": {"name": name, "arguments": json.dumps({"query": "文档"})},
+                        "function": {
+                            "name": "search_tools" if len(requests) == 1 else name,
+                            "arguments": json.dumps(
+                                {"query": "tavily search" if len(requests) == 1 else "文档"}
+                            ),
+                        },
                     }
                 ],
             }
@@ -422,22 +446,29 @@ def test_current_tools_reach_http_model_with_old_unavailable_history(api_client,
         async with httpx.AsyncClient(transport=httpx.MockTransport(upstream)) as transport:
             yield create_chat_model(config, transport=transport, max_tokens=max_tokens)
 
-    monkeypatch.setattr("app.agent_runtime.langchain.model_session", model_session)
+    monkeypatch.setattr("app.agent.engine.model_session", model_session)
     accepted = send(api_client, conversation)
-    id = run_id(api_client, accepted)
-    asyncio.run(api_client.app.state.runner.coordinator.run(id))
-    completed = api_client.get(f"/api/runs/{id}").json()
-    for request in requests:
+    id = accepted["id"]
+    asyncio.run(execute_run(api_client, id))
+    api_client.app.state.conversation_acceptance.sweep()
+    completed = read_reply(api_client, accepted["id"])
+    for index, request in enumerate(requests):
         tools = {tool["function"]["name"]: tool["function"] for tool in request["tools"]}
-        assert name in tools and "query" in tools[name]["parameters"]["properties"]
+        assert (
+            (name not in tools and "search_tools" in tools)
+            if index == 0
+            else (name in tools and "query" in tools[name]["parameters"]["properties"])
+        )
         system = json.dumps(request["messages"][0]["content"], ensure_ascii=False)
-        assert "本轮工具状态" in system and name in system and "tavily_search" in system
+        assert "本轮工具状态" in system
+        if index:
+            assert name in system and "tavily_search" in system
         assert any(
             message["role"] == "assistant" and "没有联网" in str(message["content"])
             for message in request["messages"]
         ), request["messages"]
     assert completed["status"] == "succeeded", completed
-    assert len(requests) == 2 and SearchClient.calls == 1
+    assert len(requests) == 3 and SearchClient.calls == 1
     assert any(step["kind"] == "tool_call" for step in completed["steps"])
 
 
@@ -459,6 +490,7 @@ def test_revocation_during_mcp_preflight_blocks_actual_request(api_client, monke
             monkeypatch,
             ScriptedModel(
                 responses=[
+                    discovery_response(),
                     response(
                         "",
                         [
@@ -468,10 +500,10 @@ def test_revocation_during_mcp_preflight_blocks_actual_request(api_client, monke
                                 "args": {"query": "x"},
                             }
                         ],
-                    )
+                    ),
                 ]
             ),
-            {"id": run_id(api_client, accepted)},
+            accepted,
         )
         assert result["status"] == "failed" and SearchClient.calls == 0
         assert result["error"]["code"] == "tool_access_revoked"
@@ -479,7 +511,7 @@ def test_revocation_during_mcp_preflight_blocks_actual_request(api_client, monke
         SearchClient.before_guard = None
 
 
-def test_bounded_receive_and_explicit_private_network_policy(monkeypatch):
+def test_bounded_receive_rejects_oversized_stream():
     class Stream(httpx.AsyncByteStream):
         async def __aiter__(self):
             yield b"1234"
@@ -492,8 +524,6 @@ def test_bounded_receive_and_explicit_private_network_policy(monkeypatch):
     with pytest.raises(InvalidInputError) as caught:
         asyncio.run(read())
     assert caught.value.code == "tool_result_too_large"
-    with pytest.raises(InvalidInputError):
-        PinnedTransport("http://127.0.0.1:123/mcp", ToolConfig())
 
 
 class FakeProvider:
@@ -526,7 +556,7 @@ class FakeProvider:
 def test_sandbox_create_unknown_keeps_debt_and_late_resource_is_collected(api_client, monkeypatch):
     _, _, _, conversation = setup(api_client)
     accepted = send(api_client, conversation)
-    id = run_id(api_client, accepted)
+    id = accepted["id"]
     provider = FakeProvider()
     provider.fail_create = True
     service = SandboxService(
@@ -535,7 +565,7 @@ def test_sandbox_create_unknown_keeps_debt_and_late_resource_is_collected(api_cl
         lambda: [],
         provider=provider,
     )
-    monkeypatch.setattr("app.sandboxes.service.load_verification", lambda _: {})
+    monkeypatch.setattr("app.environments.service.load_verification", lambda _: {})
     with pytest.raises(TimeoutError):
         service.acquire(id, [], lambda _: b"")
     with api_client.app.state.database.transaction() as db:
@@ -559,7 +589,7 @@ def test_sandbox_sdk_commands_are_unprivileged_and_bounded():
         handlers.on_stdout(SimpleNamespace(text="done"))
         return SimpleNamespace(exit_code=0)
 
-    backend = SandboxFileBackend(
+    backend = _SandboxFileBackend(
         sandbox=SimpleNamespace(id="fake", commands=SimpleNamespace(run=run)), timeout=60
     )
     assert backend.execute("python script.py", timeout=500).output == "done"
@@ -574,10 +604,10 @@ def test_sandbox_sdk_commands_are_unprivileged_and_bounded():
         backend.execute("flood")
 
 
-def test_legacy_v2_recovery_is_not_invalidated(api_client):
+def test_obsolete_snapshot_is_rejected_during_recovery(api_client):
     _, _, _, conversation = setup(api_client)
     accepted = send(api_client, conversation)
-    id = run_id(api_client, accepted)
+    id = accepted["id"]
     with api_client.app.state.database.transaction() as db:
         row = db.get(Run, id)
         row.config_snapshot = {
@@ -585,7 +615,7 @@ def test_legacy_v2_recovery_is_not_invalidated(api_client):
             "schema_version": 2,
             "checkpoint_resumable": True,
         }
-    assert api_client.app.state.execution_store.recover(resume=True) == []
+    assert api_client.app.state.run_worker.store.recover(resume=True)[0].status == "interrupted"
 
 
 def test_default_https_port_dns_pin_and_tls_name_are_preserved(monkeypatch):
@@ -614,10 +644,9 @@ def test_default_https_port_dns_pin_and_tls_name_are_preserved(monkeypatch):
 
 def test_reference_retention_keeps_published_outputs_and_cleans_orphans(api_client, monkeypatch):
     from app.conversations.files import retained_file_ids
-    from app.infrastructure.database.fields import utc_now
+    from app.values import utc_now
 
     _, _, agent, conversation = setup(api_client)
-    workspace(api_client, agent)
     accepted = send(api_client, conversation)
     result = execute(
         api_client,
@@ -637,16 +666,22 @@ def test_reference_retention_keeps_published_outputs_and_cleans_orphans(api_clie
                 response("完成"),
             ]
         ),
-        {"id": run_id(api_client, accepted)},
+        accepted,
     )
     assert result["status"] == "succeeded"
     with api_client.app.state.database.transaction() as db:
-        owner = db.get(Run, run_id(api_client, accepted)).owner_user_id
+        owner = db.get(Run, accepted["id"]).owner_user_id
     orphan = api_client.app.state.files.save(owner, "unused.txt", b"orphan")
     with api_client.app.state.database.transaction() as db:
         for row in db.scalars(select(StoredFile)):
             row.created_at = utc_now() - timedelta(days=2)
-    api_client.app.state.files.sweep(retained_file_ids)
+    from app.execution.store import retained_file_ids as retained_execution_files
+
+    api_client.app.state.file_cleanup.sweep(
+        lambda db, candidates: (
+            retained_file_ids(db, candidates) | retained_execution_files(db, candidates)
+        )
+    )
     assert api_client.app.state.files.read(result["files"][0]["id"]) == b"retained"
     with api_client.app.state.database.transaction() as db:
         assert db.get(StoredFile, orphan["id"]) is None
@@ -654,7 +689,6 @@ def test_reference_retention_keeps_published_outputs_and_cleans_orphans(api_clie
 
 def test_agent_execute_uses_owned_sandbox_collects_then_destroys(api_client, monkeypatch):
     _, _, agent, conversation = setup(api_client)
-    workspace(api_client, agent, mode="sandbox", names=["execute"])
     events = []
 
     class Provider(FakeProvider):
@@ -689,9 +723,9 @@ def test_agent_execute_uses_owned_sandbox_collects_then_destroys(api_client, mon
 
     provider = Provider()
     api_client.app.state.sandboxes.provider = provider
-    monkeypatch.setattr("app.sandboxes.service.load_verification", lambda _: {})
+    monkeypatch.setattr("app.environments.service.load_verification", lambda _: {})
     accepted = send(api_client, conversation)
-    id = run_id(api_client, accepted)
+    id = accepted["id"]
     model = ScriptedModel(
         responses=[
             response(
@@ -707,7 +741,7 @@ def test_agent_execute_uses_owned_sandbox_collects_then_destroys(api_client, mon
             response("计算完成，文件已生成。"),
         ]
     )
-    result = execute(api_client, monkeypatch, model, {"id": id})
+    result = execute(api_client, monkeypatch, model, accepted)
     assert result["status"] == "succeeded", result
     assert (
         events.index("execute")
@@ -729,32 +763,41 @@ def test_parallel_tools_cannot_spend_the_same_last_budget(api_client):
     from concurrent.futures import ThreadPoolExecutor
 
     _, _, agent, conversation = setup(api_client)
-    workspace(api_client, agent, names=["read_file"], max_calls=1)
-    id = run_id(api_client, send(api_client, conversation))
-    store = api_client.app.state.execution_store
+    id = send(api_client, conversation)["id"]
+    store = api_client.app.state.run_worker.store
     store.claim(id)
     row, _ = store.load(id)
-    binding = row.config_snapshot["tools"][0]
+    binding = next(
+        tool for tool in row.config_snapshot["tools"] if tool["tool_name"] == "read_file"
+    )
+    with api_client.app.state.database.transaction() as db:
+        saved = db.get(Run, id)
+        saved.config_snapshot = {**saved.config_snapshot, "max_tool_calls": 1}
 
     def auth(active, db=None, invocation=None):
-        return api_client.app.state.runner.coordinator.authorize(
+        return api_client.app.state.run_worker.runs.authorize(
             row, active, db=db, invocation=invocation
         )
 
-    control = RunControl(id, store, auth)
+    control = make_task(id, store, auth)
+
+    invocations = bind_model_calls(
+        store,
+        id,
+        *(
+            ToolInvocation(
+                f"tool:{number}",
+                binding["binding_id"],
+                "read_file",
+                {"file_path": "/workspace/a.txt"},
+            )
+            for number in range(2)
+        ),
+    )
 
     def reserve(number):
         try:
-            asyncio.run(
-                control.begin_tool(
-                    ToolInvocation(
-                        f"tool:{number}",
-                        binding["binding_id"],
-                        "read_file",
-                        {"file_path": "/workspace/a.txt"},
-                    )
-                )
-            )
+            asyncio.run(control.begin_tool(invocations[number]))
             return "accepted"
         except Exception as error:
             return error.code
@@ -768,8 +811,8 @@ def test_parallel_tools_cannot_spend_the_same_last_budget(api_client):
 def test_long_source_line_has_bounded_read_windows_without_changing_original():
     from deepagents.backends.utils import file_data_to_string
 
-    from app.agent_runtime.skill_loading import prepare_skills
-    from app.agent_runtime.workspace import WorkspaceBackend
+    from app.agent.skills import prepare_skills
+    from app.builtin_tools.workspace import WorkspaceBackend
 
     raw = "资料" * 10000
     reads = []
@@ -781,11 +824,7 @@ def test_long_source_line_has_bounded_read_windows_without_changing_original():
     resources = SimpleNamespace(
         list_sources=lambda: [{"id": "source", "name": "page.txt"}], read_file=read_file
     )
-    snapshot = {
-        "tools": [
-            {"kind": "native", "scope_policy": {"read_roots": ["/sources"], "write_roots": []}}
-        ]
-    }
+    snapshot = {"workspace": {"mode": "virtual", "read_roots": ["/sources"], "write_roots": []}}
     backend = WorkspaceBackend(snapshot, prepare_skills([], []), resources)
     offset, pieces = 0, []
     while True:

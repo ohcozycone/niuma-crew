@@ -1,9 +1,7 @@
-"""Shared rule persistence, authorization and optimistic updates using isolated SQLite."""
-
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
-from scenario_client import ScenarioClient as TestClient
+from fastapi.testclient import TestClient
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
@@ -50,7 +48,7 @@ def test_rules_permissions_and_origin(api_client, migrated_config):
             ).status_code
             == 200
         )
-        assert other.get(URL).status_code == 403
+        assert other.get(URL).status_code == 200
         assert (
             other.put(
                 URL,

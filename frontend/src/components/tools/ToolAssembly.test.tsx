@@ -19,7 +19,6 @@ const connection: ToolConnection = {
   name: "搜索引擎",
   kind: "mcp_http",
   service_id: "service",
-  account_scope: "shared",
   created_by_user_id: "owner",
   tool_annotations: {},
   annotations_revision: 1,
@@ -39,7 +38,6 @@ const grant: ToolGrantInput = {
   connection_id: "search",
   tools: ["tavily_search"],
   expected_descriptors: { tavily_search: "hash" },
-  account_mode: "shared",
   scope_policy: { mode: "provider", max_calls: 3 },
   enabled: true,
 };
@@ -82,7 +80,9 @@ it("refreshes approved tools after catalog management without replacing the empl
 it("does not describe existing assignments as missing while connections are still loading", () => {
   vi.mocked(listToolConnections).mockImplementation(() => new Promise(() => {}));
   show([grant]);
-  expect(screen.getByRole("status").textContent).toContain("正在读取");
+  expect(screen.getByRole("button", { name: "刷新连接列表" }).getAttribute("aria-busy")).toBe(
+    "true",
+  );
   expect(screen.queryByRole("button", { name: "移除不可用装配" })).toBeNull();
 });
 
@@ -168,5 +168,29 @@ it("keeps malformed local scope input visible without losing its validation mess
   fireEvent.click(screen.getByRole("button", { name: "完成，更新草稿" }));
   await screen.findByText("范围约束必须为 JSON 对象。");
   expect(input).toHaveProperty("value", "{invalid");
+  expect(onChange).not.toHaveBeenCalled();
+});
+
+it("preserves advanced scope fields when changing limits and rejects invalid limits locally", async () => {
+  vi.mocked(listToolConnections).mockResolvedValue([connection]);
+  show([grant]);
+  fireEvent.click(await screen.findByRole("button", { name: "配置" }));
+  fireEvent.click(screen.getByText("高级范围约束"));
+  const json = screen.getByRole("textbox", { name: "搜索引擎范围约束" });
+  fireEvent.change(json, {
+    target: { value: '{"max_calls":5,"allowed_domains":["example.com"]}' },
+  });
+  fireEvent.change(screen.getByRole("spinbutton", { name: "每项工具调用上限" }), {
+    target: { value: "8" },
+  });
+  expect(JSON.parse((json as HTMLTextAreaElement).value)).toEqual({
+    max_calls: 8,
+    allowed_domains: ["example.com"],
+  });
+  fireEvent.change(screen.getByRole("spinbutton", { name: "每项工具调用上限" }), {
+    target: { value: "0" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "完成，更新草稿" }));
+  expect(await screen.findByText("每项工具调用上限需为 1—32 的整数。")).toBeTruthy();
   expect(onChange).not.toHaveBeenCalled();
 });

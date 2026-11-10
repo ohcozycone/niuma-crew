@@ -1,0 +1,85 @@
+# 云帆科技组织架构与部门职责
+
+## 组织架构总览
+
+云帆科技采用"职能 + 产品线"混合架构。CEO 林远航之下设四条主线：
+
+1. **产品线**（负责人：产品副总裁 高千帆）：产品部、设计部。
+2. **技术线**（负责人：CTO 陈书源）：平台研发部、应用研发部、测试与质量部、运维与安全部。
+3. **商业线**（负责人：商务副总裁 秦朗）：销售部、市场部、客户成功部。
+4. **职能线**（负责人：CFO 苏晚晴 / VP HR 周慕云）：财务部、人力资源部、法务部、行政部、IT 部。
+
+## 各部门职责
+
+### 产品部
+负责「云帆协作平台」的需求调研、产品规划与版本管理。产品经理按模块划分：即时消息、音视频会议、
+文档协同、项目与审批、商业化。产品需求统一通过平台"需求池"收集，每双周评审一次。
+
+### 设计部
+负责产品 UI/UX 设计与公司品牌视觉规范，设计规范文档见内部"设计中心"空间。
+
+### 平台研发部 / 应用研发部
+平台研发部负责账号体系、消息通道、存储与同步引擎等基础设施；应用研发部负责各业务模块的前后端开发。
+技术栈以 Go、Java、TypeScript 为主，全部代码托管于内部 Git 平台，发布走统一 CI/CD 流水线。
+
+### 测试与质量部
+负责功能测试、自动化测试与线上质量巡检，线上事故等级划分见《事故管理规范》（S1-S4）。
+
+### 运维与安全部
+负责生产环境运维、容灾演练与对外安全响应，安全事件联系邮箱 security@yunfantech.com。
+
+### 销售部 / 市场部 / 客户成功部
+销售部负责新客户拓展与续约；市场部负责品牌、内容与行业活动；客户成功部负责客户实施、
+培训与续费运营，客户服务热线 400-820-9900（工作日 9:00-21:00）。
+
+### 财务部
+负责预算、核算、报销审核与付款。报销审核联系人：财务共享中心 费控组（finance@yunfantech.com）。
+
+### 人力资源部
+下设招聘组、HRBP 组、薪酬绩效组、组织发展组。入职、转正、调岗、离职等流程均通过
+云帆协作平台"人事服务"模块线上办理。
+
+### 法务部
+负责合同审核（合同审核 SLA：标准合同 3 个工作日，非标合同 5 个工作日）、知识产权与合规管理。
+
+### 行政部
+负责办公场地、会议室设施、差旅合作渠道与员工活动。行政服务热线：内线 8001。
+
+### IT 部
+负责内部账号、网络、终端设备与信息安全落地。IT 服务台：内线 8000，邮箱 it-helpdesk@yunfantech.com。
+
+## 汇报与协作约定
+
+- 每位员工有且仅有一位直属汇报人（Leader），组织架构图以平台"通讯录"为准。
+- 跨部门项目须指定唯一项目负责人（PM），并建立项目群与里程碑文档。
+- 组织架构调整由人力资源部统一发文，任何部门不得自行对外宣称组织变更。
+
+> 本文档由人力资源部维护，最近更新：2026 年 6 月。
+
+## 资料来源与许可
+
+本文为源项目提供的虚构企业中文演示资料，不代表真实公司制度。本次保留原始业务正文，仅转换为 UTF-8 TXT 并添加本节。
+原文来源：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/mock_data/documents/org-structure.md
+许可：MIT；完整许可及版权声明：https://github.com/zhenyong97/rag-knowledge-base/blob/80c3df3a415ccf78e733b71fc069b1c4d922f80a/LICENSE
+
+MIT License
+
+Copyright (c) 2026 zhenyong97
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

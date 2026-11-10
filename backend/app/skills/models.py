@@ -1,10 +1,9 @@
-"""Persist the current definition of a reusable skill."""
-
 from sqlalchemy import JSON, Boolean, CheckConstraint, Integer, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, validates
 
 from app.infrastructure.database.base import Base
-from app.infrastructure.database.fields import IdentityTimestamps, required_text
+from app.infrastructure.database.fields import IdentityTimestamps
+from app.values import required_text
 
 
 class Skill(IdentityTimestamps, Base):

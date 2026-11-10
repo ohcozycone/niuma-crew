@@ -1,0 +1,379 @@
+{
+  "date": "2026-11-09",
+  "model": "kimi-for-coding",
+  "catalog_fixture": "backend/tests/fixtures/tool-discovery-catalog.json",
+  "remote_business_tools_executed": false,
+  "results": [
+    {
+      "case": "搜索组织文档",
+      "expected": "notion-search",
+      "queries": [
+        {
+          "query": "notion search pages",
+          "source_id": "notion",
+          "limit": 5
+        }
+      ],
+      "selected": ["notion-search"],
+      "passed": true,
+      "model_calls": 3,
+      "seconds": 10.48,
+      "exposures": [
+        {
+          "key": "model:1",
+          "ids": ["builtin:search_tools"]
+        },
+        {
+          "key": "model:2",
+          "ids": [
+            "notion:notion-search",
+            "notion:notion-memory-search",
+            "notion:notion-list-private-pages",
+            "notion:notion-search-agents",
+            "notion:notion-search-sessions",
+            "builtin:search_tools"
+          ]
+        },
+        {
+          "key": "model:3",
+          "ids": [
+            "notion:notion-search",
+            "notion:notion-memory-search",
+            "notion:notion-list-private-pages",
+            "notion:notion-search-agents",
+            "notion:notion-search-sessions",
+            "builtin:search_tools"
+          ]
+        }
+      ],
+      "rewritten_query_top5": [
+        [
+          "notion:notion-search",
+          "notion:notion-search-sessions",
+          "notion:notion-memory-search",
+          "notion:notion-search-agents",
+          "notion:notion-list-private-pages"
+        ]
+      ],
+      "top5_passed": true,
+      "usage": {
+        "input_tokens": 9809,
+        "output_tokens": 341,
+        "total_tokens": 10150,
+        "cached_input_tokens": null,
+        "reasoning_tokens": 34
+      }
+    },
+    {
+      "case": "查询成员",
+      "expected": "notion-get-users",
+      "queries": [
+        {
+          "query": "Notion workspace members users list",
+          "source_id": "notion",
+          "limit": 10
+        }
+      ],
+      "selected": ["notion-get-users"],
+      "passed": true,
+      "model_calls": 3,
+      "seconds": 14.77,
+      "exposures": [
+        {
+          "key": "model:1",
+          "ids": ["builtin:search_tools"]
+        },
+        {
+          "key": "model:2",
+          "ids": [
+            "notion:notion-get-users",
+            "notion:notion-list-private-pages",
+            "notion:notion-list-shared-pages",
+            "notion:notion-list-favorite-pages",
+            "notion:notion-list-recent-pages",
+            "notion:notion-list-session-events",
+            "notion:notion-list-page-backlinks",
+            "notion:notion-calendar-list-calendars",
+            "notion:notion-calendar-list-coworkers-events",
+            "notion:notion-calendar-list-calendar-resources",
+            "builtin:search_tools"
+          ]
+        },
+        {
+          "key": "model:3",
+          "ids": [
+            "notion:notion-get-users",
+            "notion:notion-list-private-pages",
+            "notion:notion-list-shared-pages",
+            "notion:notion-list-favorite-pages",
+            "notion:notion-list-recent-pages",
+            "notion:notion-list-session-events",
+            "notion:notion-list-page-backlinks",
+            "notion:notion-calendar-list-calendars",
+            "notion:notion-calendar-list-coworkers-events",
+            "notion:notion-calendar-list-calendar-resources",
+            "builtin:search_tools"
+          ]
+        }
+      ],
+      "rewritten_query_top5": [
+        [
+          "notion:notion-get-users",
+          "notion:notion-list-favorite-pages",
+          "notion:notion-list-private-pages",
+          "notion:notion-list-session-events",
+          "notion:notion-list-page-backlinks"
+        ]
+      ],
+      "top5_passed": true,
+      "usage": {
+        "input_tokens": 11488,
+        "output_tokens": 398,
+        "total_tokens": 11886,
+        "cached_input_tokens": null,
+        "reasoning_tokens": 136
+      }
+    },
+    {
+      "case": "搜索时效信息",
+      "expected": "tavily_search",
+      "queries": [
+        {
+          "query": "web search latest Python release version information",
+          "source_id": "tavily"
+        }
+      ],
+      "selected": ["tavily_search", "tavily_search"],
+      "passed": true,
+      "model_calls": 3,
+      "seconds": 10.82,
+      "exposures": [
+        {
+          "key": "model:1",
+          "ids": ["builtin:search_tools"]
+        },
+        {
+          "key": "model:2",
+          "ids": [
+            "tavily:tavily_search",
+            "tavily:tavily_extract",
+            "tavily:tavily_crawl",
+            "tavily:tavily_research",
+            "builtin:search_tools"
+          ]
+        },
+        {
+          "key": "model:3",
+          "ids": [
+            "tavily:tavily_search",
+            "tavily:tavily_extract",
+            "tavily:tavily_crawl",
+            "tavily:tavily_research",
+            "builtin:search_tools"
+          ]
+        }
+      ],
+      "rewritten_query_top5": [
+        [
+          "tavily:tavily_research",
+          "tavily:tavily_search",
+          "tavily:tavily_crawl",
+          "tavily:tavily_extract"
+        ]
+      ],
+      "top5_passed": true,
+      "usage": {
+        "input_tokens": 6813,
+        "output_tokens": 612,
+        "total_tokens": 7425,
+        "cached_input_tokens": null,
+        "reasoning_tokens": 128
+      }
+    },
+    {
+      "case": "读取网页",
+      "expected": "tavily_extract",
+      "queries": [
+        {
+          "query": "tavily fetch extract web page URL content body",
+          "source_id": "tavily",
+          "limit": 5
+        }
+      ],
+      "selected": ["tavily_extract"],
+      "passed": true,
+      "model_calls": 3,
+      "seconds": 8.62,
+      "exposures": [
+        {
+          "key": "model:1",
+          "ids": ["builtin:search_tools"]
+        },
+        {
+          "key": "model:2",
+          "ids": [
+            "tavily:tavily_search",
+            "tavily:tavily_extract",
+            "tavily:tavily_crawl",
+            "tavily:tavily_map",
+            "tavily:tavily_research",
+            "builtin:search_tools"
+          ]
+        },
+        {
+          "key": "model:3",
+          "ids": [
+            "tavily:tavily_search",
+            "tavily:tavily_extract",
+            "tavily:tavily_crawl",
+            "tavily:tavily_map",
+            "tavily:tavily_research",
+            "builtin:search_tools"
+          ]
+        }
+      ],
+      "rewritten_query_top5": [
+        [
+          "tavily:tavily_extract",
+          "tavily:tavily_crawl",
+          "tavily:tavily_search",
+          "tavily:tavily_research",
+          "tavily:tavily_map"
+        ]
+      ],
+      "top5_passed": true,
+      "usage": {
+        "input_tokens": 7439,
+        "output_tokens": 321,
+        "total_tokens": 7760,
+        "cached_input_tokens": 5376,
+        "reasoning_tokens": 77
+      }
+    },
+    {
+      "case": "站点链接",
+      "expected": "tavily_map",
+      "queries": [
+        {
+          "query": "tavily crawl map links web page extract URL site",
+          "source_id": "tavily",
+          "limit": 5
+        }
+      ],
+      "selected": ["tavily_map"],
+      "passed": true,
+      "model_calls": 3,
+      "seconds": 14.74,
+      "exposures": [
+        {
+          "key": "model:1",
+          "ids": ["builtin:search_tools"]
+        },
+        {
+          "key": "model:2",
+          "ids": [
+            "tavily:tavily_search",
+            "tavily:tavily_extract",
+            "tavily:tavily_crawl",
+            "tavily:tavily_map",
+            "tavily:tavily_research",
+            "builtin:search_tools"
+          ]
+        },
+        {
+          "key": "model:3",
+          "ids": [
+            "tavily:tavily_search",
+            "tavily:tavily_extract",
+            "tavily:tavily_crawl",
+            "tavily:tavily_map",
+            "tavily:tavily_research",
+            "builtin:search_tools"
+          ]
+        }
+      ],
+      "rewritten_query_top5": [
+        [
+          "tavily:tavily_crawl",
+          "tavily:tavily_map",
+          "tavily:tavily_extract",
+          "tavily:tavily_search",
+          "tavily:tavily_research"
+        ]
+      ],
+      "top5_passed": true,
+      "usage": {
+        "input_tokens": 7526,
+        "output_tokens": 668,
+        "total_tokens": 8194,
+        "cached_input_tokens": 6656,
+        "reasoning_tokens": 288
+      }
+    },
+    {
+      "case": "新建草稿",
+      "expected": "notion-create-pages",
+      "queries": [
+        {
+          "query": "notion create page new page database",
+          "limit": 8
+        }
+      ],
+      "selected": ["notion-create-pages"],
+      "passed": true,
+      "model_calls": 3,
+      "seconds": 9.21,
+      "exposures": [
+        {
+          "key": "model:1",
+          "ids": ["builtin:search_tools"]
+        },
+        {
+          "key": "model:2",
+          "ids": [
+            "notion:notion-create-pages",
+            "notion:notion-move-pages",
+            "notion:notion-create-database",
+            "notion:notion-create-folder",
+            "notion:notion-create-suggested-edit",
+            "notion:notion-create-view",
+            "notion:notion-update-page-favorites",
+            "notion:notion-create-meeting-note",
+            "builtin:search_tools"
+          ]
+        },
+        {
+          "key": "model:3",
+          "ids": [
+            "notion:notion-create-pages",
+            "notion:notion-move-pages",
+            "notion:notion-create-database",
+            "notion:notion-create-folder",
+            "notion:notion-create-suggested-edit",
+            "notion:notion-create-view",
+            "notion:notion-update-page-favorites",
+            "notion:notion-create-meeting-note",
+            "builtin:search_tools"
+          ]
+        }
+      ],
+      "rewritten_query_top5": [
+        [
+          "notion:notion-create-database",
+          "notion:notion-create-pages",
+          "notion:notion-create-view",
+          "notion:notion-create-meeting-note",
+          "notion:notion-move-pages"
+        ]
+      ],
+      "top5_passed": true,
+      "usage": {
+        "input_tokens": 18937,
+        "output_tokens": 325,
+        "total_tokens": 19262,
+        "cached_input_tokens": null,
+        "reasoning_tokens": 83
+      }
+    }
+  ]
+}

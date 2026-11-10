@@ -3,7 +3,12 @@ import { useState } from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { listToolConnections, type ToolConnection, type ToolGrantInput } from "@/lib/api/tools";
+import {
+  listToolConnections,
+  toolCapabilities,
+  type ToolConnection,
+  type ToolGrantInput,
+} from "@/lib/api/tools";
 import { getSkill, skillPage } from "@/lib/api/skills";
 import { AgentCapabilityAssembly } from "./AgentCapabilityAssembly";
 
@@ -13,6 +18,7 @@ vi.mock("@/state/auth/useIdentity", () => ({
 vi.mock("@/lib/api/tools", async (original) => ({
   ...(await original<object>()),
   listToolConnections: vi.fn(),
+  toolCapabilities: vi.fn(),
 }));
 vi.mock("@/lib/api/skills", async (original) => ({
   ...(await original<object>()),
@@ -25,7 +31,6 @@ const connections: ToolConnection[] = Array.from({ length: 11 }, (_, index) => (
   name: `工具 ${index}`,
   kind: "mcp_http",
   service_id: "service",
-  account_scope: "shared",
   created_by_user_id: "owner",
   tool_annotations: {},
   annotations_revision: 1,
@@ -45,7 +50,6 @@ const initial: ToolGrantInput[] = connections.slice(0, 10).map((item) => ({
   tools: ["search"],
   expected_descriptors: { search: "hash" },
   scope_policy: {},
-  account_mode: "shared",
   enabled: true,
 }));
 const changed = vi.fn();
@@ -82,6 +86,14 @@ function Harness() {
 }
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(toolCapabilities).mockResolvedValue({
+    workspace_mode: "virtual",
+    execute_ready: false,
+    execute_error: "sandbox_not_ready",
+    stdio_enabled: false,
+    stdio_registration_allowed: false,
+    max_stdio_processes: 0,
+  });
   vi.mocked(listToolConnections).mockResolvedValue(connections);
   vi.mocked(skillPage).mockResolvedValue({ items: [], total: 0, offset: 0, limit: 20 });
   vi.mocked(getSkill).mockResolvedValue({
@@ -205,4 +217,53 @@ it("discards cancelled panel inputs and retains completed settings across filter
   fireEvent.click(screen.getByRole("button", { name: "配置" }));
   const saved = await screen.findByRole("textbox", { name: /装配参数/ });
   expect(JSON.parse((saved as HTMLTextAreaElement).value)).toEqual({ topic: "已完成" });
+});
+
+it("keeps the catalog open for consecutive skill additions and marks selected entries", async () => {
+  vi.mocked(skillPage).mockResolvedValue({
+    items: [
+      { id: "first", name: "技能甲", description: "整理资料" },
+      { id: "second", name: "技能乙", description: "核对资料" },
+    ].map((item) => ({
+      ...item,
+      category: "研究",
+      is_active: true,
+      revision: 1,
+      assignment_count: 0,
+      updated_at: "2026-11-06T00:00:00Z",
+    })),
+    total: 2,
+    offset: 0,
+    limit: 20,
+  });
+  render(<Harness />);
+  fireEvent.click(screen.getByRole("button", { name: "添加能力" }));
+  fireEvent.click(await screen.findByRole("button", { name: /技能甲/ }));
+  expect(screen.getByRole("dialog")).toBeTruthy();
+  expect((screen.getByRole("button", { name: /技能甲/ }) as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.getByRole("status").textContent).toContain("技能甲");
+  fireEvent.click(screen.getByRole("button", { name: /技能乙/ }));
+  expect(changed).toHaveBeenLastCalledWith(["research", "first", "second"]);
+  fireEvent.click(screen.getByRole("button", { name: "完成选择" }));
+  expect(screen.queryByRole("dialog")).toBeNull();
+});
+
+it("combines slow candidate reads into one delayed status inside the chooser", async () => {
+  vi.useFakeTimers();
+  vi.mocked(listToolConnections).mockImplementation(() => new Promise(() => {}));
+  vi.mocked(skillPage).mockImplementation(() => new Promise(() => {}));
+  render(<Harness />);
+  fireEvent.click(screen.getByRole("button", { name: "添加能力" }));
+  const dialog = screen.getByRole("dialog", { name: "添加能力" });
+  expect(within(dialog).queryByRole("status")).toBeNull();
+  await act(async () => vi.advanceTimersByTimeAsync(200));
+  expect(within(dialog).getAllByRole("status")).toHaveLength(1);
+  expect(within(dialog).getByRole("status").textContent).toBe("正在读取候选能力…");
+  expect(screen.queryByText("正在读取可装配连接…")).toBeNull();
+});
+
+it("shows platform workspace state without adding an employee grant", async () => {
+  render(<Harness />);
+  await screen.findByText(/平台直接提供文件读写，无需装配。代码执行：未配置或未通过验收/);
+  expect(changed).not.toHaveBeenCalled();
 });

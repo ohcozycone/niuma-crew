@@ -30,7 +30,10 @@ const connection: ModelConnection = {
 beforeEach(() => {
   vi.mocked(loadModelConnections).mockReset();
 });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 it("describes loading and the selected connection without clearing the employee draft", async () => {
   let finish!: (items: ModelConnection[]) => void;
@@ -42,11 +45,12 @@ it("describes loading and the selected connection without clearing the employee 
   );
   const onChange = vi.fn();
   render(<AgentModelConnectionField value="brain" onChange={onChange} />);
-  const select = screen.getByRole("combobox", { name: "装配大脑" });
-  expect(select.hasAttribute("disabled")).toBe(true);
-  expect(select.textContent).toContain("正在加载大脑");
+  expect(screen.queryByRole("combobox", { name: "装配大脑" })).toBeNull();
+  expect(screen.getByRole("button", { name: "刷新大脑列表" }).hasAttribute("disabled")).toBe(true);
+  expect(screen.queryByText("加载中")).toBeNull();
   expect(screen.queryByText(/暂无可用的对话连接/)).toBeNull();
   await act(async () => finish([connection]));
+  const select = screen.getByRole("combobox", { name: "装配大脑" });
   expect(select.hasAttribute("disabled")).toBe(false);
   expect(select.textContent).toContain("共享对话模型");
   expect(screen.getByRole("status").textContent).toContain("chat-model · 凭证已配置");
@@ -98,4 +102,34 @@ it("distinguishes an empty directory from a saved connection that could not be f
   expect(screen.getByRole("status").textContent).toContain("已有选择会保留");
   expect(screen.getByRole("combobox").textContent).toContain("当前大脑（待确认）");
   expect(onChange).not.toHaveBeenCalled();
+});
+
+it("uses one delayed field skeleton, then keeps the selected name during a slow refresh", async () => {
+  vi.useFakeTimers();
+  let finish!: (items: ModelConnection[]) => void;
+  vi.mocked(loadModelConnections).mockImplementation(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
+  render(<AgentModelConnectionField value="brain" onChange={vi.fn()} />);
+  expect(screen.queryByRole("status")).toBeNull();
+  await act(async () => vi.advanceTimersByTimeAsync(199));
+  expect(screen.queryByRole("status")).toBeNull();
+  await act(async () => vi.advanceTimersByTimeAsync(1));
+  expect(screen.getByText("正在加载大脑…").className).toBe("sr-only");
+  expect(document.querySelector("[data-slot=button-spinner]")).toBeNull();
+  await act(async () => finish([connection]));
+  const select = screen.getByRole("combobox", { name: "装配大脑" });
+  fireEvent.click(screen.getByRole("button", { name: "刷新大脑列表" }));
+  expect(screen.getByRole("combobox")).toBe(select);
+  expect(select.textContent).toContain("共享对话模型");
+  expect(screen.getByRole("status").textContent).toContain("chat-model · 凭证已配置");
+  expect(document.querySelector("[data-slot=button-spinner]")).toBeNull();
+  await act(async () => vi.advanceTimersByTimeAsync(200));
+  expect(document.querySelectorAll("[data-slot=button-spinner]")).toHaveLength(1);
+  expect(screen.queryByText("正在加载大脑…")).toBeNull();
+  await act(async () => finish([connection]));
+  expect(document.querySelector("[data-slot=button-spinner]")).toBeNull();
 });

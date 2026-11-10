@@ -27,17 +27,37 @@ function contrast(a: string, b: string) {
 const pairs: [ColorToken, ColorToken, number][] = [
   ["text", "surface", 4.5],
   ["text-muted", "surface", 4.5],
+  ["text", "raised", 4.5],
+  ["text-muted", "raised", 4.5],
+  ["text-muted", "muted", 4.5],
+  ["text-muted", "selected", 4.5],
   ["text", "selected", 4.5],
   ["text", "canvas", 4.5],
   ["text", "muted", 4.5],
-  ["text-muted", "canvas", 3],
+  ["text-muted", "canvas", 4.5],
+  ["hover-text", "hover", 4.5],
+  ["hover-text", "pressed", 4.5],
+  ["text", "hover", 4.5],
   ["nav-active-text", "nav-active", 4.5],
   ["text-muted", "nav-count-bg", 4.5],
   ["action-text", "action", 4.5],
   ["action-text", "action-hover", 4.5],
-  // Default input borders follow shadcn's subtle neutral treatment, not a 3:1 boundary.
-  // Keep the stronger fallback keyboard-focus contrast checked separately below.
+  ["action-text", "action-pressed", 4.5],
+  ["action-soft-text", "action-soft", 4.5],
+  ["action-soft-text", "action-soft-hover", 4.5],
+  ["action-soft-text", "action-soft-pressed", 4.5],
+  ["danger-action-text", "danger-action", 4.5],
+  ["danger-action-text", "danger-action-hover", 4.5],
+  ["danger-action-text", "danger-action-pressed", 4.5],
+  // Default input borders remain subtle; focused borders carry the stronger contrast.
   ["focus", "surface", 3],
+  ["field-focus", "surface", 3],
+  ["brand-text", "surface", 4.5],
+  ["brand-text", "muted", 4.5],
+  ["success", "surface", 4.5],
+  ["warning", "surface", 4.5],
+  ["danger", "surface", 4.5],
+  ["info", "surface", 4.5],
   ["success", "success-bg", 4.5],
   ["warning", "warning-bg", 4.5],
   ["danger", "danger-bg", 4.5],
@@ -68,9 +88,7 @@ describe("CSS token source", () => {
         ...Object.keys(componentColors),
       ])
         expect(roles[key]).toMatch(/^var\(--[\w-]+\)$/);
-      expect(roles["--os-card-border"]).toBe(
-        mode === "light" ? "var(--overlay-card)" : "var(--os-border)",
-      );
+      expect(roles["--os-card-border"]).toBe("var(--os-border)");
     }
   });
   it("defines every literal theme reference consumed by the application", () => {
@@ -82,19 +100,22 @@ describe("CSS token source", () => {
           if (entry.name !== "generated") inspect(path);
           continue;
         }
-        if (!/\.(tsx?|css|html)$/.test(entry.name) || entry.name.includes(".test.")) continue;
+        if (!/\.(tsx?|css|html|json)$/.test(entry.name) || entry.name.includes(".test.")) continue;
         const source = readFileSync(path, "utf8");
         for (const [, name] of source.matchAll(/var\((--(?:os|login)-[\w-]+)\)/g))
           expect(defined.has(name), `${path}: ${name}`).toBe(true);
       }
     };
     inspect(fileURLToPath(new URL("../", import.meta.url)));
+    inspect(fileURLToPath(new URL("../../../docs-site/src/", import.meta.url)));
   });
-  it("keeps selected navigation readable on neutral surfaces", () => {
+  it("keeps persistent navigation selection distinct from hover without introducing a separate ink colour", () => {
     const light = themeValues(css, "light"),
       dark = themeValues(css, "dark");
-    expect(light["--os-nav-active-text"]).toBe(light["--os-text"]);
-    expect(dark["--os-nav-active-text"]).toBe(dark["--os-text"]);
+    for (const values of [light, dark]) {
+      expect(values["--os-nav-active"]).not.toBe(values["--os-hover"]);
+      expect(values["--os-nav-active-text"]).toBe(values["--os-text"]);
+    }
     expect(light["--os-nav-count-bg"]).toBe(light["--os-muted"]);
     expect(dark["--os-nav-count-bg"]).toBe(dark["--os-selected"]);
   });
@@ -103,6 +124,22 @@ describe("CSS token source", () => {
     expect(() => themeValues(":root { --a: var(--b); --b: var(--a); }", "light")).toThrow("Cyclic");
   });
   for (const mode of ["light", "dark"] as const) {
+    it(`${mode}: inactive controls stay visibly subdued while retaining discernible labels`, () => {
+      const values = themeValues(css, mode);
+      for (const background of ["disabled-bg", "surface"] as const) {
+        const ratio = contrast(values["--os-disabled-text"], values[`--os-${background}`]);
+        expect(ratio, background).toBeGreaterThanOrEqual(2.5);
+        expect(ratio, background).toBeLessThanOrEqual(3.5);
+      }
+    });
+    it(`${mode}: syntax highlighting stays readable on the code surface`, () => {
+      const values = themeValues(css, mode);
+      for (const role of ["comment", "keyword", "string", "constant", "function"])
+        expect(
+          contrast(values[`--os-code-${role}`], values["--os-muted"]),
+          role,
+        ).toBeGreaterThanOrEqual(4.5);
+    });
     for (const [foreground, background, minimum] of pairs) {
       const exception = contrastExceptions.find(
         (entry) =>

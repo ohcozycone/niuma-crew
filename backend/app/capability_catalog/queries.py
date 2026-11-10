@@ -1,5 +1,3 @@
-"""Read a single ordered page across Skill and MCP definitions."""
-
 from sqlalchemy import case, func, literal, select, union_all
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -8,10 +6,10 @@ from app.auth.permissions import require_permission
 from app.capability_catalog.schemas import CapabilityRead
 from app.errors import InvalidInputError
 from app.infrastructure.database.session import Database
+from app.mcp.models import McpService
 from app.schemas import Page
 from app.skills.definitions import protocol_names
 from app.skills.models import Skill
-from app.tools.models import McpService
 
 
 def list_capabilities(
@@ -23,7 +21,7 @@ def list_capabilities(
     offset: int = 0,
     limit: int = 20,
 ) -> Page[CapabilityRead]:
-    """Apply visibility before counting and paging the combined catalog."""
+    """先过滤可见条目，再对合并目录计数和分页。"""
     require_permission(actor, "skills:read_public")
     if offset < 0 or not 1 <= limit <= 100 or kind not in {"all", "skill", "mcp_http", "mcp_stdio"}:
         raise InvalidInputError("capability_query_invalid", "能力列表筛选或分页无效。")
@@ -50,8 +48,6 @@ def list_capabilities(
     ]
     if kind != "all":
         conditions.append(query.c.kind == kind)
-    if actor.role == "guest":
-        conditions.append(query.c.kind == "skill")
     with database.transaction() as db:
         total = db.scalar(select(func.count()).select_from(query).where(*conditions)) or 0
         rows = list(

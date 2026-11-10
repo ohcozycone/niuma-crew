@@ -1,5 +1,3 @@
-"""Fernet encryption with a stable server-only key outside SQLite."""
-
 import os
 import tempfile
 from pathlib import Path
@@ -8,7 +6,7 @@ from cryptography.fernet import Fernet, InvalidToken
 
 
 class CredentialUnavailableError(Exception):
-    """The configured encryption key or encrypted value cannot be read."""
+    """密钥或密文无法读取。"""
 
 
 class CredentialVault:

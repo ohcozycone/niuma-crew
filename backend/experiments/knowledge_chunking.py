@@ -1,20 +1,19 @@
-"""Repeatable, model-free comparison over existing teaching sources and a synthetic FAQ."""
-
 import json
 import sqlite3
 from pathlib import Path
 
 from app.knowledge.chunking import split_document
-from app.knowledge.contracts import Chunk, KnowledgeDocument, RetrievalPreset
-from app.knowledge.demo import DATASET, sample_files
+from app.knowledge.contracts import Chunk, KnowledgeDocument
 from app.knowledge.lexical import lexical_terms, lexical_version
 from app.knowledge.loading import text_document
+from app.knowledge.samples import DATASET, sample_files
+from experiments.knowledge_poc.contracts import RetrievalPreset
 
 FAQ = Path(__file__).resolve().parents[1] / "datasets/knowledge-chunking/faq.md"
 
 
 def documents() -> tuple[KnowledgeDocument, ...]:
-    """Load published synthetic material only; no answers or questions enter the index."""
+    """仅加载公开合成原件，题目和答案不进入索引。"""
     manifest = json.loads((DATASET / "manifest.json").read_text())
     ids = {Path(item["path"]).name: item["doc_id"] for item in manifest["documents"]}
     return tuple(
@@ -26,7 +25,7 @@ def documents() -> tuple[KnowledgeDocument, ...]:
 
 
 def covered(chunks: list[Chunk], document: KnowledgeDocument, quote: str) -> bool:
-    """Require full literal source coverage, counting overlap only once."""
+    """按原文区间计算完整覆盖，重叠部分只计一次。"""
     assert document.text.count(quote) == 1, "missing or ambiguous scoring quote"
     cursor = document.text.index(quote)
     end = cursor + len(quote)
@@ -59,7 +58,7 @@ def compare(minimum: int, sources: tuple[KnowledgeDocument, ...]) -> dict:
             "INSERT INTO chunks VALUES (?, ?)",
             ((c.id, " ".join(lexical_terms(c.index_text))) for c in chunks),
         )
-        # Reference evidence is deliberately loaded only after all index writes.
+        # 索引全部写入后才加载评分依据，避免泄漏答案。
         references = [
             json.loads(line)
             for line in (DATASET / "evaluation/reference_answers.jsonl").read_text().splitlines()

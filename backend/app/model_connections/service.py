@@ -1,14 +1,12 @@
-"""Configuration CRUD and bounded, explicit provider checks outside transactions."""
-
 import json
 
 import httpx
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
-from app.agents.models import Agent
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
+from app.employees.models import Agent
 from app.errors import ConflictError, InvalidInputError, NotFoundError, ServiceUnavailableError
 from app.execution.models import ACTIVE, Run
 from app.infrastructure.credentials import CredentialUnavailableError, CredentialVault
@@ -80,7 +78,7 @@ class ModelConnectionService:
 
     def _encrypt(self, session, key):
         existing = session.scalar(select(ModelConnection).limit(1))
-        # Verify that the configured key can still read stored credentials before writing more.
+        # 先确认现有密文可解密，再保存新凭据。
         if existing:
             self._decrypt(existing.encrypted_api_key)
         try:
@@ -101,6 +99,7 @@ class ModelConnectionService:
         self.validate_model(preset, model_id)
         try:
             with self.database.transaction() as session:
+                reserve_writer(session, ModelConnection.__table__)
                 row = ModelConnection(
                     enabled=data.enabled,
                     name=data.name,
@@ -294,6 +293,7 @@ class ModelConnectionService:
         return LLMConfig(
             model_id=model_id,
             base_url=PRESETS[preset_id].base_url,
+            provider=PRESETS[preset_id].provider,
             api_key=self._decrypt(encrypted),
         )
 
@@ -326,7 +326,7 @@ class ModelConnectionService:
                     if response.status_code in (401, 403):
                         return ConnectionTestResult(
                             ok=False,
-                            message="服务拒绝访问，请检查 Kimi Code Key、订阅状态及客户端使用权限。",
+                            message="服务拒绝访问，请检查所选预设的 API Key、账户状态及模型访问权限。",
                         )
                     if response.status_code == 429:
                         return ConnectionTestResult(ok=False, message="服务限流，请稍后重试。")

@@ -1,0 +1,554 @@
+{
+  "date": "2026-11-10",
+  "method": "Read-only comparison of actual requests and actions; local reader and budget probes; no new model request",
+  "runs": [
+    {
+      "conversation_id": "100000000165",
+      "run_id": "100000000167",
+      "status": "succeeded",
+      "error": null,
+      "model_calls": 3,
+      "tool_calls": 2,
+      "usage": {
+        "input_tokens": 28623,
+        "output_tokens": 449,
+        "total_tokens": 29072,
+        "cached_input_tokens": null,
+        "reasoning_tokens": 122
+      },
+      "seconds": 18.911,
+      "model_limit": 8,
+      "actions": [
+        {
+          "sequence": 1,
+          "kind": "model_call",
+          "action": "model:1",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "0c0a66ffbc781a5758330df86f443af0340f0d315db22512641686c7536e7fe1",
+          "usage": {
+            "input_tokens": 5168,
+            "output_tokens": 75,
+            "total_tokens": 5243,
+            "input_token_details": {},
+            "output_token_details": {
+              "reasoning": 12
+            }
+          },
+          "tools_requested": [
+            {
+              "name": "search_tools",
+              "arguments": {
+                "query": "Notion search pages articles"
+              }
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "kind": "tool_call",
+          "action": "tool:tool_XGiacygRZfx3x8sWnzLVf05t",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "ed51ea6215675df478c05378d7294870c313d9d4bf6101b3351fcc87cf661371",
+          "arguments": {
+            "query": "Notion search pages articles"
+          },
+          "name": "search_tools"
+        },
+        {
+          "sequence": 3,
+          "kind": "model_call",
+          "action": "model:2",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "702ae725545b02f3abc102853b23bfa0d20de9319fc4063026868adff2ce0a71",
+          "usage": {
+            "input_tokens": 10930,
+            "output_tokens": 97,
+            "total_tokens": 11027,
+            "input_token_details": {
+              "cache_read": 1792
+            },
+            "output_token_details": {
+              "reasoning": 1
+            }
+          },
+          "tools_requested": [
+            {
+              "name": "mcp_a39e335bd4f242478a6e7904d5d9b098_0420310c907319d0",
+              "arguments": {
+                "query": "文章",
+                "page_size": 50
+              }
+            }
+          ]
+        },
+        {
+          "sequence": 4,
+          "kind": "tool_call",
+          "action": "tool:tool_dGI7mcZLfJJ1YRPDDOs05F49",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "2ce4b9c53e288d87169ff9748965bc69133c24908fa2bfe11bde9e7a9d4c3664",
+          "arguments": {
+            "query": "文章",
+            "page_size": 50
+          },
+          "name": "mcp_a39e335bd4f242478a6e7904d5d9b098_0420310c907319d0"
+        },
+        {
+          "sequence": 5,
+          "kind": "model_call",
+          "action": "model:3",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "cc32869ccb6cb248a6607a07249a0c6423aed704a638948eab58e1323929c38e",
+          "usage": {
+            "input_tokens": 12525,
+            "output_tokens": 277,
+            "total_tokens": 12802,
+            "input_token_details": {
+              "cache_read": 10752
+            },
+            "output_token_details": {
+              "reasoning": 109
+            }
+          },
+          "tools_requested": []
+        }
+      ]
+    },
+    {
+      "conversation_id": "100000000171",
+      "run_id": "100000000173",
+      "status": "failed",
+      "error": "tool_arguments_invalid",
+      "model_calls": 8,
+      "tool_calls": 8,
+      "usage": {
+        "input_tokens": 101327,
+        "output_tokens": 2312,
+        "total_tokens": 103639,
+        "cached_input_tokens": null,
+        "reasoning_tokens": 706
+      },
+      "seconds": 77.558,
+      "model_limit": 8,
+      "actions": [
+        {
+          "sequence": 1,
+          "kind": "model_call",
+          "action": "model:1",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "9a2ada4af828ba905e1b70e891a181b17abdd08506326c999bd49a873083086b",
+          "usage": {
+            "input_tokens": 5168,
+            "output_tokens": 93,
+            "total_tokens": 5261,
+            "input_token_details": {
+              "cache_read": 5168
+            },
+            "output_token_details": {
+              "reasoning": 22
+            }
+          },
+          "tools_requested": [
+            {
+              "name": "search_tools",
+              "arguments": {
+                "query": "Notion search pages list databases"
+              }
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "kind": "tool_call",
+          "action": "tool:tool_k510b0QVaZkzOg4LZBWahkry",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "12e160a949cd0143f74e04df9a4db269f9c7802a146988ba5d2461b945429727",
+          "arguments": {
+            "query": "Notion search pages list databases"
+          },
+          "name": "search_tools"
+        },
+        {
+          "sequence": 3,
+          "kind": "model_call",
+          "action": "model:2",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "666c6832515e36f528b7185dfdedac64a1c714637939fa69c5cf21beb77b4097",
+          "usage": {
+            "input_tokens": 10938,
+            "output_tokens": 237,
+            "total_tokens": 11175,
+            "input_token_details": {
+              "cache_read": 1792
+            },
+            "output_token_details": {
+              "reasoning": 96
+            }
+          },
+          "tools_requested": [
+            {
+              "name": "mcp_a39e335bd4f242478a6e7904d5d9b098_0420310c907319d0",
+              "arguments": {
+                "query": "",
+                "sort": "last_edited",
+                "page_size": 50,
+                "telemetry": {
+                  "intent": "Count the user's Notion pages/articles by browsing workspace content"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "sequence": 4,
+          "kind": "tool_call",
+          "action": "tool:tool_G0QMNTh5RB9FJAcTcPJsMyOD",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "6ff8377b83d78f4b9175fe841bd8e3c0da8bfa6f1378f4ec24b355f5eb24b599",
+          "arguments": {
+            "query": "",
+            "sort": "last_edited",
+            "page_size": 50,
+            "telemetry": {
+              "intent": "Count the user's Notion pages/articles by browsing workspace content"
+            }
+          },
+          "name": "mcp_a39e335bd4f242478a6e7904d5d9b098_0420310c907319d0"
+        },
+        {
+          "sequence": 5,
+          "kind": "model_call",
+          "action": "model:3",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "afb570715b41213f10d03c17092906617fcb77501049e8c2a6c8a366e4eedf12",
+          "usage": {
+            "input_tokens": 11345,
+            "output_tokens": 375,
+            "total_tokens": 11720,
+            "input_token_details": {
+              "cache_read": 10752
+            },
+            "output_token_details": {
+              "reasoning": 127
+            }
+          },
+          "tools_requested": [
+            {
+              "name": "mcp_a39e335bd4f242478a6e7904d5d9b098_0420310c907319d0",
+              "arguments": {
+                "page_size": 50,
+                "query": "的",
+                "telemetry": {
+                  "intent": "Count the user's Notion pages with a broad keyword search"
+                }
+              }
+            },
+            {
+              "name": "mcp_a39e335bd4f242478a6e7904d5d9b098_0420310c907319d0",
+              "arguments": {
+                "page_size": 50,
+                "query": "the",
+                "telemetry": {
+                  "intent": "Count the user's Notion pages with a broad keyword search"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "sequence": 6,
+          "kind": "tool_call",
+          "action": "tool:tool_nzS4XUVnWdZCM1OSf7wyC14u",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "4751a45a850acf82fb6578b5f3d1634bbf5e03ee2d40b62b26299e1f63b8409f",
+          "arguments": {
+            "page_size": 50,
+            "query": "的",
+            "telemetry": {
+              "intent": "Count the user's Notion pages with a broad keyword search"
+            }
+          },
+          "name": "mcp_a39e335bd4f242478a6e7904d5d9b098_0420310c907319d0"
+        },
+        {
+          "sequence": 7,
+          "kind": "tool_call",
+          "action": "tool:tool_JdDJz8oiAg1n7sskUSwWZQSX",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "892bfaed37f44a7de13f64bdf3fd7e9867160e0f4bb4f8be36d930381515b006",
+          "arguments": {
+            "page_size": 50,
+            "query": "the",
+            "telemetry": {
+              "intent": "Count the user's Notion pages with a broad keyword search"
+            }
+          },
+          "name": "mcp_a39e335bd4f242478a6e7904d5d9b098_0420310c907319d0"
+        },
+        {
+          "sequence": 8,
+          "kind": "model_call",
+          "action": "model:4",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "e3949f97ac449454fab160ad326e90f4a24d1d150dc7c89b9c5f40a53babbc13",
+          "usage": {
+            "input_tokens": 13800,
+            "output_tokens": 198,
+            "total_tokens": 13998,
+            "input_token_details": {
+              "cache_read": 11264
+            },
+            "output_token_details": {
+              "reasoning": 89
+            }
+          },
+          "tools_requested": [
+            {
+              "name": "read_file",
+              "arguments": {
+                "file_path": "/sources/large_tool_results/tool_nzS4XUVnWdZCM1OSf7wyC14u",
+                "limit": 5
+              }
+            }
+          ]
+        },
+        {
+          "sequence": 9,
+          "kind": "tool_call",
+          "action": "tool:tool_Koj6BPQv0oqgaTneAzbtsuXw",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "4f4dfce74f9bf10e309e1656cfd345e4721362e00e8e26c1f508ea9a720b56ff",
+          "arguments": {
+            "file_path": "/sources/large_tool_results/tool_nzS4XUVnWdZCM1OSf7wyC14u",
+            "limit": 5
+          },
+          "name": "read_file"
+        },
+        {
+          "sequence": 10,
+          "kind": "model_call",
+          "action": "model:5",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "28831c4c0a11c1f5433aa97b1f2820273ebb8bf2483bd4901c21dd0caf850c9a",
+          "usage": {
+            "input_tokens": 21366,
+            "output_tokens": 91,
+            "total_tokens": 21457,
+            "input_token_details": {
+              "cache_read": 13568
+            },
+            "output_token_details": {
+              "reasoning": 1
+            }
+          },
+          "tools_requested": [
+            {
+              "name": "read_tool_result",
+              "arguments": {
+                "result_id": "fad1c39a-8415-4686-86c4-4c470eca1706",
+                "offset": 15000
+              }
+            }
+          ]
+        },
+        {
+          "sequence": 11,
+          "kind": "tool_call",
+          "action": "tool:tool_Odb0CgZifcGj1BXJpzDogFlK",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "f3c372d06b5ebb94fa35e10a9272718a7596a5899906f1e3a33c8ddfe0c8ff6f",
+          "arguments": {
+            "result_id": "fad1c39a-8415-4686-86c4-4c470eca1706",
+            "offset": 15000
+          },
+          "name": "read_tool_result"
+        },
+        {
+          "sequence": 12,
+          "kind": "model_call",
+          "action": "model:6",
+          "status": "succeeded",
+          "error": null,
+          "purpose": "summary",
+          "response_evidence_sha256": "85a02506554866a0e9b64758a15c415ef3402a06626a0f17b99cf8b45e62c903",
+          "usage": {
+            "input_tokens": 11259,
+            "output_tokens": 859,
+            "total_tokens": 12118,
+            "input_token_details": {},
+            "output_token_details": {
+              "reasoning": 122
+            }
+          },
+          "tools_requested": []
+        },
+        {
+          "sequence": 13,
+          "kind": "model_call",
+          "action": "model:7",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "1ca359130c430532c6ce898f535bffe333fea0cca6084b8d19ec75a16122b489",
+          "usage": {
+            "input_tokens": 13646,
+            "output_tokens": 193,
+            "total_tokens": 13839,
+            "input_token_details": {
+              "cache_read": 10240
+            },
+            "output_token_details": {
+              "reasoning": 88
+            }
+          },
+          "tools_requested": [
+            {
+              "name": "grep",
+              "arguments": {
+                "pattern": "\"id\":\"",
+                "path": "/sources/large_tool_results/tool_nzS4XUVnWdZCM1OSf7wyC14u",
+                "output_mode": "count"
+              }
+            }
+          ]
+        },
+        {
+          "sequence": 14,
+          "kind": "tool_call",
+          "action": "tool:tool_ANCY1YiSW9Xsr2yhuBAkbfBA",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "76988d136f976237e04500158fd1183ec99dba9f023c2a1e3dd72eadd9610cf4",
+          "arguments": {
+            "pattern": "\"id\":\"",
+            "path": "/sources/large_tool_results/tool_nzS4XUVnWdZCM1OSf7wyC14u",
+            "output_mode": "count"
+          },
+          "name": "grep",
+          "feedback": "/sources/large_tool_results/tool_nzS4XUVnWdZCM1OSf7wyC14u: 1"
+        },
+        {
+          "sequence": 15,
+          "kind": "model_call",
+          "action": "model:8",
+          "status": "succeeded",
+          "error": null,
+          "purpose": null,
+          "response_evidence_sha256": "c916a4ff4fe7d8ca7aa84a282657b18d507895c9b129c63f9b18295118b0083f",
+          "usage": {
+            "input_tokens": 13805,
+            "output_tokens": 266,
+            "total_tokens": 14071,
+            "input_token_details": {
+              "cache_read": 13568
+            },
+            "output_token_details": {
+              "reasoning": 161
+            }
+          },
+          "tools_requested": [
+            {
+              "name": "read_tool_result",
+              "arguments": {
+                "result_id": "fad1c39a-8415-4686-86c4-4c470eca1706",
+                "offset": 0,
+                "limit": 15000
+              }
+            }
+          ]
+        },
+        {
+          "sequence": 16,
+          "kind": "tool_call",
+          "action": "tool:tool_6tFUAQxUaHApNd1sxW4S0shb",
+          "status": "failed",
+          "error": "tool_arguments_invalid",
+          "purpose": null,
+          "response_evidence_sha256": "d78c412a14a397aae5458b44854c22e98539725d104ed7c9698e7cec3987df8b",
+          "arguments": {
+            "result_id": "fad1c39a-8415-4686-86c4-4c470eca1706",
+            "offset": 0,
+            "limit": 15000
+          },
+          "name": "read_tool_result"
+        }
+      ]
+    }
+  ],
+  "first_requests_equal": true,
+  "first_request_sha256": "c8bb8d119fd210f87f115f60720288acc46ca35f805dfd47ec41b96e2c84fb81",
+  "reader_schema": {
+    "type": "function",
+    "function": {
+      "name": "read_tool_result",
+      "description": "分页读取本轮已保存的工具结果；只接受本轮 result_id 和分页位置，不访问任意文件。",
+      "parameters": {
+        "properties": {
+          "result_id": {
+            "type": "string"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          },
+          "limit": {
+            "default": 6000,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "result_id"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "local_probes": {
+    "requested_limit_15000": "tool_arguments_invalid",
+    "requested_limit_12000": {
+      "returned_text_bytes": 8000,
+      "end": 5237,
+      "next_offset": 5237,
+      "total_chars": 22884
+    },
+    "ninth_model_request_with_count_8": "agent_budget_exceeded"
+  },
+  "limitations": [
+    "Different model choices and returned content; not a controlled performance A/B",
+    "No production changes made in this follow-up audit",
+    "Does not establish that the added feedback hint caused the initial broad query choice"
+  ]
+}

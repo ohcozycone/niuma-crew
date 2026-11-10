@@ -1,5 +1,3 @@
-"""真实 HTTP、SQLite 和新后端进程；模型和工具均为确定性本机替身。"""
-
 import socket
 import sqlite3
 import subprocess
@@ -42,15 +40,19 @@ def server(database: Path, *, pause_after_lookup=False, worker=None, worker_args
             stderr=subprocess.STDOUT,
         )
         try:
-            from scenario_client import RemoteScenarioClient
-
-            client_type = RemoteScenarioClient if worker else httpx.Client
-            with client_type(
-                **({"database": database} if worker else {}),
+            with httpx.Client(
                 base_url=f"http://127.0.0.1:{port}",
                 timeout=2,
                 trust_env=False,
             ) as client:
+                if worker:
+                    from sqlalchemy import URL
+
+                    from app.infrastructure.database.session import Database, DatabaseConfig
+
+                    client.database = Database(
+                        DatabaseConfig(URL.create("sqlite+pysqlite", database=str(database)))
+                    )
                 deadline = time.monotonic() + 15
                 while time.monotonic() < deadline:
                     if process.poll() is not None:
@@ -66,7 +68,11 @@ def server(database: Path, *, pause_after_lookup=False, worker=None, worker_args
                 if process.poll() is not None:
                     log.seek(0)
                     raise AssertionError(log.read())
-                yield client, process
+                try:
+                    yield client, process
+                finally:
+                    if worker:
+                        client.database.close()
         finally:
             if process.poll() is None:
                 process.terminate()

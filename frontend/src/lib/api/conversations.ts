@@ -10,9 +10,21 @@ export type Conversation = {
   version: number;
   active_response_id: string | null;
   last_response_id: string | null;
+  matched_response_id?: string | null;
+  latest_response?: {
+    id: string;
+    status: ReplyStatus;
+    acceptance: "pending" | "accepted" | "failed" | null;
+  } | null;
   created_at: string;
   updated_at: string;
 };
+export type ConversationStats = { completed_rounds: number };
+export const getConversationStats = (agentId: string, signal?: AbortSignal) =>
+  request<ConversationStats>(`conversations/stats?agent_id=${encodeURIComponent(agentId)}`, {
+    signal,
+  });
+
 export type ReplyStatus =
   "queued" | "running" | "cancelling" | "succeeded" | "failed" | "cancelled" | "interrupted";
 /** 后端已选好的助手回复；页面无需解释 SDK 模型轮或工具请求。 */
@@ -26,6 +38,8 @@ export type Reply = {
   retry_of_response_id?: string | null;
   version: number;
   status: ReplyStatus;
+  acceptance?: "pending" | "accepted" | "failed" | null;
+  acceptance_error?: string | null;
   content: string;
   content_state: "empty" | "draft" | "complete" | "partial";
   steps: ReplyStep[];
@@ -34,8 +48,7 @@ export type Reply = {
     output_tokens: number | null;
     total_tokens: number | null;
   } | null;
-  error: { code: string; message: string } | null;
-  context: { pair_count: number; truncated: boolean };
+  error: { code: string; message: string; kind?: string | null } | null;
   can_retry: boolean;
   created_at: string;
   updated_at: string;
@@ -91,7 +104,7 @@ export function readPage(page: WireMessagePage): MessagePage {
     ...page,
     items: page.items.map((message) => ({
       ...message,
-      published: message.role === "user" || !isActive(message.status),
+      published: message.role === "user" || isPublished(message),
       run: message.role === "assistant" ? message : null,
     })),
   };
@@ -105,6 +118,10 @@ export const scopedReply = (snapshot: ResponseSnapshot): Reply => ({
 });
 export const isActive = (status?: string | null) =>
   ["queued", "running", "cancelling"].includes(status ?? "");
+export const isObserving = (reply?: Reply | null) =>
+  !!reply && (isActive(reply.status) || reply.acceptance === "pending");
+export const isPublished = (reply: Reply) =>
+  !isActive(reply.status) && reply.acceptance !== "pending" && reply.acceptance !== "failed";
 export const statusLabel: Record<ReplyStatus, string> = {
   queued: "等待执行",
   running: "执行中",
@@ -116,11 +133,6 @@ export const statusLabel: Record<ReplyStatus, string> = {
 };
 export const getSnapshot = (id: string, signal?: AbortSignal) =>
   request<ConversationSnapshot>(`conversations/${id}/snapshot`, { signal });
-export const createConversation = (agentId: string) =>
-  request<Conversation>("conversations", {
-    method: "POST",
-    body: JSON.stringify({ agent_id: agentId }),
-  });
 export type ConversationQuestion = {
   id: string;
   sequence: number;
@@ -158,15 +170,27 @@ export type ConversationPage = {
   limit: number;
 };
 export function getConversations(
-  { agentId, offset = 0, limit = 20 }: { agentId?: string; offset?: number; limit?: number } = {},
+  {
+    agentId,
+    offset = 0,
+    limit = 20,
+    q = "",
+    status = "",
+  }: {
+    agentId?: string;
+    offset?: number;
+    limit?: number;
+    q?: string;
+    status?: string;
+  } = {},
   signal?: AbortSignal,
 ) {
   const query = new URLSearchParams({ offset: String(offset), limit: String(limit) });
   if (agentId) query.set("agent_id", agentId);
+  if (q) query.set("q", q);
+  if (status) query.set("status", status);
   return request<ConversationPage>(`conversations?${query}`, { signal });
 }
-export const getConversation = (id: string, signal?: AbortSignal) =>
-  request<Conversation>(`conversations/${id}`, { signal });
 export function getMessages(
   id: string,
   before?: number | null,
@@ -209,7 +233,7 @@ export const getResponse = async (
 export const getQuestionPreview = (id: string, questionId: string, signal?: AbortSignal) =>
   request<QuestionPreview>(`conversations/${id}/questions/${questionId}/preview`, { signal });
 export const sendMessage = async (
-  id: string,
+  id: string | null,
   content: string,
   clientRequestId: string,
   selectedSkillIds: readonly string[] = [],
@@ -217,16 +241,19 @@ export const sendMessage = async (
   fileIds?: readonly string[],
 ) =>
   scopedReply(
-    await request<AcceptedSubmission>(`conversations/${id}/messages`, {
-      method: "POST",
-      body: JSON.stringify({
-        content,
-        client_request_id: clientRequestId,
-        selected_skill_ids: selectedSkillIds,
-        ...(agentId ? { agent_id: agentId } : {}),
-        ...(fileIds?.length ? { file_ids: fileIds } : {}),
-      }),
-    }),
+    await request<AcceptedSubmission>(
+      id === null ? "conversations" : `conversations/${id}/messages`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          content,
+          client_request_id: clientRequestId,
+          selected_skill_ids: selectedSkillIds,
+          ...(agentId ? { agent_id: agentId } : {}),
+          ...(fileIds?.length ? { file_ids: fileIds } : {}),
+        }),
+      },
+    ),
   );
 export const stopResponse = async (conversationId: string, responseId: string) =>
   scopedReply(
@@ -248,6 +275,8 @@ export const retryResponse = async (
   );
 export const answerContent = (reply: Reply): string => reply.content;
 export function activityLabel(reply: Reply): string {
+  if (reply.acceptance === "pending") return "执行已完成，正在保存回复";
+  if (reply.acceptance === "failed") return "执行已完成，回复未保存";
   if (reply.status !== "running") return statusLabel[reply.status];
   const action = reply.steps.findLast((item) => item.status === "running");
   if (action?.kind === "tool_call")

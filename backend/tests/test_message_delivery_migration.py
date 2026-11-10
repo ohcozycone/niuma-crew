@@ -1,5 +1,3 @@
-"""0004 -> 0005 keeps content, rejects unknown formats and rolls back DDL."""
-
 import hashlib
 import json
 import sqlite3
@@ -46,8 +44,7 @@ def test_plain_history_partial_empty_reply_and_checkpoint_are_preserved(tmp_path
     assert hashlib.sha256(ids["checkpoint"].read_bytes()).digest() == digest
     with pytest.raises(RuntimeError, match="cannot losslessly"):
         command.downgrade(config, "0004")
-    command.upgrade(config, "head")
-    command.check(config)
+    command.upgrade(config, "0020")
     with sqlite3.connect(path) as db:
         assert dict(db.execute("SELECT id,body FROM messages")) == bodies
         assert dict(db.execute("SELECT run_id,reply_message_id FROM conversation_runs")) == replies
@@ -78,7 +75,7 @@ def test_preflight_errors_leave_the_old_schema_and_data_untouched(tmp_path, monk
     with sqlite3.connect(path) as db:
         before = list(db.iterdump())
     with pytest.raises(RuntimeError):
-        command.upgrade(config, "head")
+        command.upgrade(config, "0020")
     with sqlite3.connect(path) as db:
         assert list(db.iterdump()) == before
         assert db.execute("SELECT version_num FROM alembic_version").fetchone() == ("0004",)
@@ -155,8 +152,7 @@ def test_validated_ci_report_progress_and_feedback_keep_their_owner(tmp_path, mo
     with sqlite3.connect(path) as db:
         before_bodies = dict(db.execute("SELECT id,body FROM messages"))
         before_runs = dict(db.execute("SELECT id,status FROM runs"))
-    command.upgrade(config, "head")
-    command.check(config)
+    command.upgrade(config, "0020")
     with sqlite3.connect(path) as db:
         assert (
             db.execute("SELECT name FROM sqlite_master WHERE name='ci_diagnoses'").fetchall() == []

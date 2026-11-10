@@ -1,31 +1,31 @@
-"""LangChain 产生无重叠切分；平台按原区间增加有出处的重叠。"""
+"""先做无重叠切分，再按原文区间补充重叠。"""
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from app.knowledge.contracts import (
     Chunk,
+    ChunkingRules,
     KnowledgeDocument,
-    RetrievalPreset,
     SourceBlock,
     SourceSpan,
     TokenCount,
-    digest,
 )
+from app.values import digest
 
 
 class ChunkLimitExceeded(ValueError):
-    """Abort bounded product work before allocating an unpublishable chunk set."""
+    pass
 
 
 def split_document(
     document: KnowledgeDocument,
-    preset: RetrievalPreset,
+    preset: ChunkingRules,
     count: TokenCount,
     *,
     min_section_chars: int = 0,
     max_chunks: int | None = None,
 ) -> tuple[Chunk, ...]:
-    """保证正文可逐字符重建；位置检查失败不回退到首次字符串匹配。"""
+    """保留原文区间以便逐字符重建；定位失败不猜测首个匹配位置。"""
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=preset.chunk_tokens - preset.overlap_tokens,
         chunk_overlap=0,
@@ -98,7 +98,7 @@ def split_document(
 def section_groups(
     document: KnowledgeDocument, budget: int, minimum: int, count: TokenCount
 ) -> tuple[tuple[SourceBlock, ...], ...]:
-    """Combine adjacent short siblings; a real parent identity prevents cross-topic joins."""
+    """仅合并同一父节下相邻的短节，避免跨主题拼接。"""
     groups: list[list[SourceBlock]] = []
     for block in document.blocks:
         short = 0 < count(document.text[block.start : block.end]) < minimum

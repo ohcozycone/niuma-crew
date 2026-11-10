@@ -1,5 +1,3 @@
-"""Execution identities, frozen inputs, observed actions and stable outputs."""
-
 from datetime import datetime
 
 from sqlalchemy import (
@@ -17,15 +15,22 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database.base import Base
-from app.infrastructure.database.fields import IdentityTimestamps, UTCDateTime, UUIDText
+from app.infrastructure.database.fields import (
+    IdentityTimestamps,
+    NumericID,
+    NumericIdentityTimestamps,
+    UTCDateTime,
+    UUIDText,
+)
 
 ACTIVE = ("queued", "running", "cancelling")
 TERMINAL = ("succeeded", "failed", "cancelled", "interrupted")
 
 
-class Run(IdentityTimestamps, Base):
+class Run(NumericIdentityTimestamps, Base):
     __tablename__ = "runs"
     __table_args__ = (
+        CheckConstraint("id BETWEEN 100000000000 AND 999999999999", name="numeric_id_range"),
         UniqueConstraint(
             "initiated_by_user_id", "operation", "client_request_id", name="uq_runs_request"
         ),
@@ -55,6 +60,14 @@ class Run(IdentityTimestamps, Base):
         ),
         CheckConstraint("usage IS NULL OR json_valid(usage)", name="usage_valid"),
         Index("ix_runs_status_created", "status", "created_at", "id"),
+        Index(
+            "uq_runs_thread_active",
+            "thread_id",
+            unique=True,
+            sqlite_where=text(
+                "thread_id IS NOT NULL AND status IN ('queued','running','cancelling')"
+            ),
+        ),
     )
     agent_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("agents.id"))
     owner_user_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("users.id"), index=True)
@@ -68,13 +81,18 @@ class Run(IdentityTimestamps, Base):
     mode: Mapped[str] = mapped_column(Text, default="execute")
     client_request_id: Mapped[str] = mapped_column(UUIDText())
     request_hash: Mapped[str] = mapped_column(Text)
-    retry_of_run_id: Mapped[str | None] = mapped_column(UUIDText())
+    retry_of_run_id: Mapped[str | None] = mapped_column(NumericID())
     model_connection_id: Mapped[str | None] = mapped_column(
         UUIDText(), ForeignKey("model_connections.id", ondelete="SET NULL"), index=True
     )
     config_snapshot: Mapped[dict] = mapped_column(JSON)
     input_snapshot: Mapped[list] = mapped_column(JSON)
+    thread_id: Mapped[str] = mapped_column(Text)
+    base_checkpoint_id: Mapped[str | None] = mapped_column(Text)
+    base_run_id: Mapped[str | None] = mapped_column(NumericID(), ForeignKey("runs.id"))
     checkpoint_id: Mapped[str | None] = mapped_column(Text)
+    result_text: Mapped[str | None] = mapped_column(Text)
+    result_data: Mapped[dict | None] = mapped_column(JSON(none_as_null=True))
     status: Mapped[str] = mapped_column(Text, server_default="queued")
     revision: Mapped[int] = mapped_column(Integer, server_default=text("1"))
     actions_revision: Mapped[int] = mapped_column(Integer, server_default=text("1"))
@@ -113,7 +131,7 @@ class RunAction(IdentityTimestamps, Base):
         ),
         CheckConstraint("reasoning_truncated IN (0, 1)", name="reasoning_boolean"),
     )
-    run_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("runs.id"))
+    run_id: Mapped[str] = mapped_column(NumericID(), ForeignKey("runs.id"))
     sequence: Mapped[int] = mapped_column(Integer)
     action_key: Mapped[str] = mapped_column(Text)
     call_key: Mapped[str] = mapped_column(
@@ -133,6 +151,8 @@ class RunAction(IdentityTimestamps, Base):
     )
     result_ref: Mapped[str | None] = mapped_column(Text)
     result_payload: Mapped[dict | None] = mapped_column(JSON(none_as_null=True))
+    request_file_id: Mapped[str | None] = mapped_column(UUIDText(), ForeignKey("stored_files.id"))
+    response_file_id: Mapped[str | None] = mapped_column(UUIDText(), ForeignKey("stored_files.id"))
     error_code: Mapped[str | None] = mapped_column(Text)
     started_at: Mapped[datetime] = mapped_column(UTCDateTime())
     finished_at: Mapped[datetime | None] = mapped_column(UTCDateTime())

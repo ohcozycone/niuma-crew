@@ -19,36 +19,23 @@ import { useSaveOperation } from "@/state/editing/useSaveOperation";
 import { useEditingRegistration } from "@/state/editing/useEditing";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { mutationOutcome } from "@/lib/failures/resolve";
-import { KnowledgeChunkRules, resolveChunkRules } from "./KnowledgeChunkRules";
 
 export function KnowledgeSettings({ library }: { library: KnowledgeBase }) {
   const store = useWorkspaceData().knowledge;
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [size, setSize] = useState("");
-  const [overlap, setOverlap] = useState("");
-  const [minimum, setMinimum] = useState("");
+  const defaults = useRef(library);
   const baseline = useRef("");
   const revision = useRef(1);
   const save = useSaveOperation();
-  const current = JSON.stringify([name, description, size, overlap, minimum]);
+  const current = JSON.stringify([name, description]);
   const dirty = open && current !== baseline.current;
-  const invalid = !!resolveChunkRules({ size, overlap, minimum }).error;
   function load(source = library) {
-    const values = [
-      source.name,
-      source.description,
-      source.chunk_size?.toString() ?? "",
-      source.chunk_overlap?.toString() ?? "",
-      source.min_section_chars?.toString() ?? "",
-    ];
-    setName(values[0]);
-    setDescription(values[1]);
-    setSize(values[2]);
-    setOverlap(values[3]);
-    setMinimum(values[4]);
-    baseline.current = JSON.stringify(values);
+    setName(source.name);
+    setDescription(source.description);
+    defaults.current = source;
+    baseline.current = JSON.stringify([source.name, source.description]);
     revision.current = source.revision ?? 1;
   }
   useEditingRegistration({
@@ -65,9 +52,9 @@ export function KnowledgeSettings({ library }: { library: KnowledgeBase }) {
           expected_revision: revision.current,
           name: name.trim(),
           description: description.trim(),
-          chunk_size: size === "" ? null : Number(size),
-          chunk_overlap: overlap === "" ? null : Number(overlap),
-          min_section_chars: minimum === "" ? null : Number(minimum),
+          chunk_size: defaults.current.chunk_size ?? null,
+          chunk_overlap: defaults.current.chunk_overlap ?? null,
+          min_section_chars: defaults.current.min_section_chars ?? null,
         }),
       );
       setOpen(false);
@@ -95,10 +82,8 @@ export function KnowledgeSettings({ library }: { library: KnowledgeBase }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>知识库设置</DialogTitle>
-          <DialogDescription>
-            维护资料范围与切分规则。修改规则不自动重处理已有文件。
-          </DialogDescription>
         </DialogHeader>
+        <DialogDescription>维护知识库名称和用途说明。分片规则在文档列表中调整。</DialogDescription>
         <form onSubmit={submit} className="space-y-4">
           <FormField label="知识库名称">
             <Input
@@ -123,28 +108,6 @@ export function KnowledgeSettings({ library }: { library: KnowledgeBase }) {
               包含哪些内容、适合回答什么问题？与实际资料保持一致，准确比长度重要。
             </p>
           </FormField>
-          <KnowledgeChunkRules
-            value={{ size, overlap, minimum }}
-            onChange={(next) => {
-              setSize(next.size);
-              setOverlap(next.overlap);
-              setMinimum(next.minimum);
-            }}
-            disabled={save.saving}
-          />
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            disabled={save.saving}
-            onClick={() => {
-              setSize("");
-              setOverlap("");
-              setMinimum("");
-            }}
-          >
-            恢复默认规则
-          </Button>
           <FailureNotice
             failure={save.failure}
             context={{
@@ -173,7 +136,7 @@ export function KnowledgeSettings({ library }: { library: KnowledgeBase }) {
             </Button>
           )}
           <DialogFooter>
-            <Button type="submit" disabled={save.saving || invalid || !name.trim()}>
+            <Button type="submit" disabled={save.saving || !name.trim()}>
               {save.saving ? "正在保存…" : "保存设置"}
             </Button>
           </DialogFooter>

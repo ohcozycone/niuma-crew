@@ -1,11 +1,22 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, expect, it } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { KnowledgeStore } from "@/state/knowledge/knowledgeStore";
 import { Markdown } from "./Markdown";
 
-afterEach(cleanup);
+let knowledge: KnowledgeStore;
+vi.mock("@/state/workspace/useWorkspaceData", () => ({
+  useWorkspaceData: () => ({ knowledge }),
+}));
+beforeEach(() => {
+  knowledge = new KnowledgeStore();
+});
+afterEach(() => {
+  cleanup();
+  knowledge.dispose();
+});
 it("renders exact knowledge evidence links while rejecting other relative answer links", () => {
-  const source = `/knowledge/12345678-1234-1234-1234-123456789abc/documents/22345678-1234-1234-1234-123456789abc?chunk=${"a".repeat(64)}`;
+  const source = `/knowledge/sources/100000000101/K-${"a".repeat(16)}`;
   const { container } = render(
     <Markdown
       text={`[制度依据](${source})\n\n[不允许的入口](/brains)\n\n[外部资料](https://example.com)`}
@@ -23,8 +34,7 @@ it("renders exact knowledge evidence links while rejecting other relative answer
   expect(container.querySelector('a[href="/brains"]')).toBeNull();
 });
 
-const source = (character: string) =>
-  `/knowledge/12345678-1234-1234-1234-123456789abc/documents/22345678-1234-1234-1234-123456789abc?chunk=${character.repeat(64)}`;
+const source = (character: string) => `/knowledge/sources/100000000101/K-${character.repeat(16)}`;
 
 it("numbers knowledge sources across paragraphs and reuses the same source number", () => {
   render(

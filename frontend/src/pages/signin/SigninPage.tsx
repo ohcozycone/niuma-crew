@@ -1,9 +1,9 @@
-import { FailureNotice } from "@/components/failure/FailureNotice";
 import { useEffect } from "react";
 import { brand } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
-import { ButtonBase as Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
+import { ArrowRight, ArrowUpRight, CircleAlert } from "lucide-react";
 import { Form } from "@/components/ui/Form";
 import { Field, FieldLabel, FieldControl } from "@/components/ui/Field";
 import { signinLogo } from "@/components/brand/wordmarkSource";
@@ -119,16 +119,17 @@ export function SigninPage() {
                   />
                 </Field>
                 <div className={styles["feedback-slot"]}>
-                  <div id="signin-feedback" aria-atomic="true">
+                  <div
+                    id="signin-feedback"
+                    className={styles.status}
+                    role="alert"
+                    aria-atomic="true"
+                  >
                     {form.feedback.message && (
-                      <FailureNotice
-                        failure={form.feedback.failure}
-                        error={form.feedback.message}
-                        description={form.feedback.message}
-                        context={{ operation: "mutation", outcome: "rejected" }}
-                        className={cn(styles.status, "error")}
-                        compact
-                      />
+                      <>
+                        <CircleAlert className="mt-0.5 size-3 shrink-0" aria-hidden="true" />
+                        <span>{form.feedback.message}</span>
+                      </>
                     )}
                   </div>
                 </div>
@@ -139,6 +140,7 @@ export function SigninPage() {
                   className={styles.enter}
                   type="submit"
                   disabled={Boolean(form.pending)}
+                  loading={form.pending === "password" || form.pending === "guest"}
                 >
                   <span>
                     {form.pending === "guest"
@@ -147,7 +149,7 @@ export function SigninPage() {
                         ? "正在登录…"
                         : "登录"}
                   </span>
-                  <em aria-hidden="true">↗</em>
+                  <ArrowUpRight aria-hidden="true" />
                 </Button>
                 <div className={styles["other-signin"]} aria-labelledby="other-signin-title">
                   <div className={styles["other-signin-label"]} id="other-signin-title">
@@ -155,13 +157,15 @@ export function SigninPage() {
                   </div>
                   <div className={styles["other-signin-options"]}>
                     <Button
-                      className={cn("github", styles.github)}
+                      className={styles.github}
+                      variant="outline"
+                      size="icon"
                       type="button"
                       aria-label={
                         form.pending === "github" ? "正在前往 GitHub…" : "使用 GitHub 登录"
                       }
                       title={form.githubEnabled ? "使用 GitHub 登录" : "GitHub 登录暂不可用"}
-                      aria-busy={form.pending === "github" || undefined}
+                      loading={form.pending === "github"}
                       disabled={Boolean(form.pending) || !form.githubEnabled}
                       onClick={() => {
                         void form.enter("github");
@@ -172,7 +176,8 @@ export function SigninPage() {
                       </svg>
                     </Button>
                     <Button
-                      className={styles.guest}
+                      variant="ghost"
+                      size="sm"
                       type="button"
                       title="以游客身份浏览"
                       disabled={Boolean(form.pending)}
@@ -180,7 +185,8 @@ export function SigninPage() {
                         void form.enter("guest");
                       }}
                     >
-                      随便看看<span aria-hidden="true">→</span>
+                      随便看看
+                      <ArrowRight aria-hidden="true" />
                     </Button>
                   </div>
                 </div>

@@ -9,7 +9,7 @@ const labels = {
   ready: "等待开始上传",
   queued: "排队中",
   uploading: "上传中，等待保存确认…",
-  done: "原件已保存 · 待手动处理",
+  done: "已上传 · 待分片",
   failed: "上传失败",
   cancelled: "传输已取消，请核对库内是否已保存",
 };

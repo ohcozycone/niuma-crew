@@ -1,5 +1,3 @@
-"""Skill definition HTTP endpoints."""
-
 from typing import Annotated
 from urllib.parse import quote
 from uuid import UUID

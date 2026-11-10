@@ -2,6 +2,7 @@ import { toFailure, clientFailure } from "@/lib/failures/resolve";
 import type { Failure } from "@/lib/failures/types";
 import * as api from "@/lib/api/agents";
 import { ApiError, request } from "@/lib/api/http";
+import { canStartConversation } from "@/lib/models/agentAvailability";
 import type { Agent, AgentSummary } from "@/lib/models/agent";
 import { Atom, batchChanges } from "@/state/shared/atom";
 import { Resource, ResourceCache, queryKey } from "@/state/shared/resource";
@@ -118,6 +119,22 @@ export class AgentStore {
           ids: page.items.map((item) => item.id),
           total: page.total,
           publicAgents: page.items,
+          incoming: page.items.map((item): AgentSummary => ({
+            id: item.id,
+            code: item.code ?? "",
+            name: item.name,
+            avatarId: item.avatar_id,
+            category: item.category,
+            description: item.description,
+            role: item.role_label ?? "",
+            active: item.is_active,
+            favorite: item.is_favorite,
+            skills: item.skill_ids,
+            icon: "custom",
+            modelConfigured: item.model_configured,
+            toolCount: item.resource_counts.tools,
+            knowledgeBaseCount: item.resource_counts.knowledge_bases,
+          })),
         };
       },
       ["agents"],
@@ -153,7 +170,7 @@ export class AgentStore {
       },
       getSnapshot: () => {
         const agents = ids.flatMap((id) => this.records.get(id) ?? []);
-        const available = agents.filter((agent) => agent.active && agent.modelConnectionId).length;
+        const available = agents.filter(canStartConversation).length;
         const categories = [...new Set(agents.map((agent) => agent.category))];
         if (
           available !== snapshot.available ||

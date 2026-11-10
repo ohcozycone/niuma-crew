@@ -1,5 +1,3 @@
-"""Bounded, local JSON Schema validation for non-secret assembly parameters."""
-
 import json
 
 from jsonschema import Draft202012Validator, SchemaError, ValidationError
@@ -56,7 +54,7 @@ def validate_parameters(schema, parameters):
             raise ValidationError("Empty schema permits empty parameters only")
         Draft202012Validator(schema).validate(parameters)
     except (ValidationError, RecursionError):
-        # Never echo parameter values; secrets must not enter this configuration surface.
+        # 校验失败不回显参数值，避免暴露秘密。
         raise InvalidInputError(
             "skill_parameters_invalid", "技能参数不符合当前规范，请检查类型、必填项及未知字段。"
         ) from None

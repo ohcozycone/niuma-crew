@@ -1,5 +1,3 @@
-"""Current wire protocol, atomic reads and durable reply ownership (no adapter)."""
-
 import json
 from concurrent.futures import ThreadPoolExecutor
 from threading import Event
@@ -7,6 +5,7 @@ from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from run_helpers import complete_run, empty_conversation
 from sqlalchemy import inspect, select
 
 from app.bootstrap import create_app
@@ -46,16 +45,9 @@ def submit(client, conversation, agent, key=None, content="原问题"):
     )
 
 
-def run_id(client, reply_id):
-    with client.app.state.database.transaction() as db:
-        return db.scalar(
-            select(ConversationRun.run_id).where(ConversationRun.reply_message_id == reply_id)
-        )
-
-
 def test_accept_replay_confirmation_history_and_sse_share_one_reply(wire):
     agent = employee(wire)
-    conversation, key = str(uuid4()), str(uuid4())
+    conversation, key = empty_conversation(wire, agent["id"])["id"], str(uuid4())
     accepted = submit(wire, conversation, agent, key)
     assert accepted.status_code == 202
     value = accepted.json()
@@ -67,11 +59,9 @@ def test_accept_replay_confirmation_history_and_sse_share_one_reply(wire):
     with wire.app.state.database.transaction() as db:
         assert len(list(db.scalars(select(Message)))) == 2
         assert "run_results" not in inspect(db.bind).get_table_names()
-        binding = db.get(ConversationRun, run_id(wire, response["id"]))
-        assert binding.reply_message_id == response["id"] and binding.active
-    wire.app.state.conversation_commands.publisher(
-        Completion(run_id(wire, response["id"]), "完整回复", "succeeded")
-    )
+        binding = db.get(ConversationRun, response["id"])
+        assert binding.run_id == response["id"] and binding.active
+    complete_run(wire)(Completion(response["id"], "完整回复", "succeeded"))
     replay = submit(wire, conversation, agent, key)
     assert replay.status_code == 200
     replay = replay.json()
@@ -90,19 +80,17 @@ def test_accept_replay_confirmation_history_and_sse_share_one_reply(wire):
         next(line[6:] for line in events.text.splitlines() if line.startswith("data: "))
     )
     assert event == current and wire.app.state.subscriptions == {}
-    assert wire.get(f"/api/runs/{run_id(wire, response['id'])}").status_code == 404
+    assert wire.get(f"/api/runs/{response['id']}").status_code == 404
     assert wire.post(f"/api/conversations/{conversation}/runs", json={}).status_code == 404
 
 
 def test_retry_retains_input_and_failure_and_late_stop_targets_only_its_reply(wire):
     agent = employee(wire)
-    conversation = str(uuid4())
+    conversation = empty_conversation(wire, agent["id"])["id"]
     first = submit(wire, conversation, agent).json()
     first_reply = first["response"]["id"]
-    publisher = wire.app.state.conversation_commands.publisher
-    publisher(
-        Completion(run_id(wire, first_reply), "明确保留的片段", "failed", "output_limit_exceeded")
-    )
+    publisher = complete_run(wire)
+    publisher(Completion(first_reply, "明确保留的片段", "failed", "output_limit_exceeded"))
     path = f"/api/conversations/{conversation}/responses/{first_reply}"
     key = str(uuid4())
     retry = wire.post(path + "/retry", json={"client_request_id": key})
@@ -125,8 +113,8 @@ def test_retry_retains_input_and_failure_and_late_stop_targets_only_its_reply(wi
         == retry["response"]["id"]
     )
     assert wire.post(path + "/retry", json={"client_request_id": str(uuid4())}).status_code == 409
-    # Correct reply identity in the wrong conversation cannot grant access.
-    other = wire.post("/api/conversations", json={"agent_id": agent["id"]}).json()["id"]
+    # 正确的回复 ID 也不能越过对话归属。
+    other = empty_conversation(wire, agent["id"])["id"]
     assert (
         wire.post(f"/api/conversations/{other}/responses/{first_reply}/stop", json={}).status_code
         == 404
@@ -137,7 +125,7 @@ def test_snapshot_remains_one_sqlite_snapshot_when_acceptance_commits_between_re
     wire, monkeypatch
 ):
     agent = employee(wire)
-    conversation = wire.post("/api/conversations", json={"agent_id": agent["id"]}).json()["id"]
+    conversation = empty_conversation(wire, agent["id"])["id"]
     entered, release = Event(), Event()
     original = queries.read_conversation
     paused = False
@@ -168,11 +156,12 @@ def test_snapshot_remains_one_sqlite_snapshot_when_acceptance_commits_between_re
 
 def test_publication_authorization_uses_its_current_session_and_rolls_back_all_outputs(wire):
     agent = employee(wire)
-    conversation = str(uuid4())
+    conversation = empty_conversation(wire, agent["id"])["id"]
     accepted = submit(wire, conversation, agent).json()
-    id = run_id(wire, accepted["response"]["id"])
-    publisher = wire.app.state.conversation_commands.publisher
-    original = publisher.authorize
+    id = accepted["response"]["id"]
+    publisher = complete_run(wire)
+    service = wire.app.state.runs
+    original = service.authorize
     seen = []
 
     def check(row, active=(), db=None):
@@ -180,7 +169,7 @@ def test_publication_authorization_uses_its_current_session_and_rolls_back_all_o
         seen.append(db)
         return original(row, active, db=db)
 
-    publisher.authorize = check
+    service.authorize = check
     publisher(Completion(id, "正式结果", "succeeded"))
     assert len(seen) == 1
     publisher(Completion(id, "迟到结果", "succeeded"))

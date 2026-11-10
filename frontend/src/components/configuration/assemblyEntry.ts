@@ -15,5 +15,7 @@ export type AssemblyCandidate = {
   name: string;
   summary: string;
   disabled?: boolean;
+  selected?: boolean;
+  disabledReason?: string;
   select: () => void;
 };

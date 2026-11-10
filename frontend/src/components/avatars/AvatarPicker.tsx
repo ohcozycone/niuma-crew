@@ -1,12 +1,6 @@
 import { AgentAvatar } from "./AgentAvatar";
 import { Check } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/Dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
 import { defaultAvatarId, agentAvatars, findAvatar } from "../../lib/avatars/registry";
 
 export function AvatarPicker({
@@ -29,9 +23,6 @@ export function AvatarPicker({
       <DialogContent size="wide" className={"flex flex-col gap-4"}>
         <DialogHeader>
           <DialogTitle>选择头像</DialogTitle>
-          <DialogDescription>
-            从已有的 {agentAvatars.length} 个头像中选择，随时可以更换。
-          </DialogDescription>
         </DialogHeader>
         <div
           className={

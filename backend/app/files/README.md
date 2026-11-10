@@ -31,14 +31,16 @@
 ```text
 files/
 ├── models.py                      # 记录稳定文件标识、用户/运行归属、用途、内容摘要和内部存储键，供引用和完整性核对
-├── service.py                     # 可靠写入后返回文件引用，读取时校验内容，捕获输入清单并按保留依据清理过期/孤立对象
+├── service.py                     # 处理元数据、配额和输入捕获，组合可靠字节存储并返回文件引用
+├── storage.py                     # 原子写入本地字节并核对摘要，供元数据事务组合
+├── cleanup.py                     # 按各模块注入的持有依据回收过期和孤立文件
 ├── schemas.py                     # 定义上传及授权列表返回的文件概要，让页面传引用而不是宿主存储路径
 └── config.py                      # 集中定义目录、单文件/用户/运行限额和保留期，供保存与清理使用
 ```
 
 ## 与其他模块协作
 
-API 实施有界上传；[conversations/files.py](../conversations/files.py) 管理列表/下载权限和保留关系，[publication.py](../conversations/publication.py) 建立正式附件关联。[agent_runtime](../agent_runtime/README.md) 通过注入接口读写，[sandboxes](../sandboxes/README.md) 只提供临时工作副本。
+API 实施有界上传；[conversations/files.py](../conversations/files.py) 管理列表/下载权限和保留关系，[acceptance.py](../conversations/acceptance.py) 建立正式附件关联。[execution/context](../execution/README.md) 通过注入接口读写，[environments](../environments/README.md) 只提供临时工作副本。
 
 本模块依赖数据库与受控本地文件系统。共享技能资产由 skills 独立保存，不使用个人文件保留策略。
 
@@ -46,4 +48,10 @@ API 实施有界上传；[conversations/files.py](../conversations/files.py) 管
 
 ## 维护入口
 
-端到端过程见[附件到成果](../../../docs/product/workflows.md#从附件到成果文件)，权限、API 和上限见[工具与文件契约](../../../docs/reference/agent-tools.md)。[基础工具测试](../../tests/test_agent_foundations.py)覆盖保存、完整性、配额、关联与清理；备份与实际磁盘容量仍按部署环境核对。
+权限、API 和上限见[工具与文件契约](../../../docs/reference/files-and-environments.md)。[基础工具测试](../../tests/test_agent_foundations.py)覆盖保存、完整性、配额、关联与清理；备份与实际磁盘容量仍按部署环境核对。
+
+Run 在正式业务接纳之前也持有执行输入及成果文件。执行所属查询与对话、知识所属查询由 bootstrap 组合，清理代码不反向查询业务表；checkpoint 删除不解除成果持有。
+
+## 执行证据文件
+
+`evidence` 是私有诊断用途，与 input/source/output 分开；不进入普通附件、来源列表或模型文件选择。prepare 先写字节，register 使用调用方事务登记，以便与动作引用一起提交。证据单独计量，动作持有引用参与原清理查询；下载由执行查询在业务授权后提供。见[契约](../../../docs/reference/runtime.md)。

@@ -84,3 +84,13 @@ def test_generated_review_cache_is_excluded_but_project_records_are_checked(tmp_
     errors, counts = docs.check(tmp_path)
     assert counts["files"] == 2
     assert errors == ["docs/records/review.md: missing missing.json"]
+
+
+def test_document_site_generated_content_is_excluded(tmp_path):
+    write(tmp_path, "docs/README.md", "[site](../docs-site/README.md)")
+    write(tmp_path, "docs-site/README.md", "# Site\n")
+    for directory in (".generated", ".source", ".next", "out"):
+        write(tmp_path, f"docs-site/{directory}/generated.md", "[site route](/docs/start)")
+    errors, counts = docs.check(tmp_path)
+    assert errors == []
+    assert counts["files"] == 2

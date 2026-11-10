@@ -1,5 +1,3 @@
-"""P1 acceptance through the real SDK, persistence and HTTP boundaries; no paid API calls."""
-
 import asyncio
 from uuid import uuid4
 
@@ -9,7 +7,9 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 from pydantic import Field, PrivateAttr
+from run_helpers import complete_run, empty_conversation, execute_run, read_reply, reply_path
 
+from app.execution.contracts import RUN_SNAPSHOT_VERSION
 from app.execution.models import Run
 
 
@@ -44,6 +44,10 @@ def response(text="完成", tool_calls=None):
     )
 
 
+def discovery_response(query="tavily search 查询", identifier="discover"):
+    return response("", [{"name": "search_tools", "id": identifier, "args": {"query": query}}])
+
+
 def setup(client):
     skill = client.post(
         "/api/skills",
@@ -66,7 +70,7 @@ def setup(client):
             "skill_assignments": [{"skill_id": skill["id"]}],
         },
     ).json()
-    conversation = client.post("/api/conversations", json={"agent_id": agent["id"]}).json()
+    conversation = empty_conversation(client, agent["id"])
     return skill, connection, agent, conversation
 
 
@@ -74,13 +78,14 @@ def submit(client, conversation, selected=None, key=None, content="请审阅文�
     data = {"content": content, "client_request_id": key or str(uuid4())}
     if selected is not None:
         data["selected_skill_ids"] = selected
-    return client.post(f"/api/conversations/{conversation['id']}/runs", json=data)
+    return client.post(f"/api/conversations/{conversation['id']}/messages", json=data)
 
 
 def execute(client, monkeypatch, model, run):
     monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *a, **k: model)
-    asyncio.run(client.app.state.runner.coordinator.run(run["id"]))
-    return client.get(f"/api/runs/{run['id']}").json()
+    asyncio.run(execute_run(client, run["id"]))
+    client.app.state.conversation_acceptance.sweep()
+    return read_reply(client, run["id"])
 
 
 def test_real_sdk_automatic_activation_and_durable_evidence(api_client, monkeypatch):
@@ -94,15 +99,18 @@ def test_real_sdk_automatic_activation_and_durable_evidence(api_client, monkeypa
             response("审阅结果"),
         ]
     )
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     result = execute(api_client, monkeypatch, model, run)
     assert result["status"] == "succeeded", result
-    assert result["assistant_content"] == "审阅结果"
+    assert result["content"] == "审阅结果"
     assert result["usage"]["total_tokens"] == 30
     assert "BODY_MARKER_P1" not in model.prompts[0]
     assert "BODY_MARKER_P1" in model.prompts[1]
-    assert all(tools == ["read_file"] for tools in model.bindings)
-    steps = api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
+    assert all(
+        {"read_file", "write_file"} <= set(tools) and "execute" not in tools
+        for tools in model.bindings
+    )
+    steps = read_reply(api_client, run["id"])["steps"]
     assert [s["kind"] for s in steps] == [
         "model_call",
         "tool_call",
@@ -128,13 +136,13 @@ def test_usage_accumulates_across_tool_rounds(api_client, monkeypatch, missing_m
     if missing_middle_usage:
         responses[1] = responses[1].model_copy(update={"usage_metadata": None})
     model = ScriptedModel(responses=[*responses, response("审阅结果")])
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     result = execute(api_client, monkeypatch, model, run)
     assert result["status"] == "succeeded", result
     assert result["usage"]["total_tokens"] == (None if missing_middle_usage else 45)
     assert len(model.prompts) == 3
     assert all("BODY_MARKER_P1" in prompt for prompt in model.prompts[1:])
-    steps = api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
+    steps = read_reply(api_client, run["id"])["steps"]
     assert [s["action_key"] for s in steps if s["kind"] == "model_call"] == [
         "model:1",
         "model:2",
@@ -145,23 +153,20 @@ def test_usage_accumulates_across_tool_rounds(api_client, monkeypatch, missing_m
 
 def test_explicit_pin_and_unrelated_greeting(api_client, monkeypatch):
     skill, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation, [skill["id"]]).json()
+    run = submit(api_client, conversation, [skill["id"]]).json()["response"]
     model = ScriptedModel(responses=[response("按所选方法回答")])
     assert execute(api_client, monkeypatch, model, run)["status"] == "succeeded"
     assert "BODY_MARKER_P1" in model.prompts[0]
-    assert [
-        s["kind"] for s in api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
-    ] == [
+    assert [s["kind"] for s in read_reply(api_client, run["id"])["steps"]] == [
         "skill_activation",
         "model_call",
     ]
-    greeting = submit(api_client, conversation, content="你好").json()
+    greeting = submit(api_client, conversation, content="你好").json()["response"]
     model = ScriptedModel(responses=[response("你好，我可以帮你审阅文档。")])
     assert execute(api_client, monkeypatch, model, greeting)["status"] == "succeeded"
-    assert "BODY_MARKER_P1" not in model.prompts[0]
-    assert [
-        s["kind"] for s in api_client.get(f"/api/runs/{greeting['id']}/actions").json()["items"]
-    ] == ["model_call"]
+    # 旧 pin 消息仅作线程记忆，不重复激活或计费。
+    assert "BODY_MARKER_P1" in model.prompts[0]
+    assert [s["kind"] for s in read_reply(api_client, greeting["id"])["steps"]] == ["model_call"]
 
 
 @pytest.mark.parametrize("read_limit", [1, 2])
@@ -170,7 +175,7 @@ def test_parallel_skill_loads_share_budget_and_activate_once(api_client, monkeyp
     path = f"/skills/s-{skill['id']}/SKILL.md"
     service = api_client.app.state.conversation_commands
     set_submission_limits(service, max_skill_reads=read_limit)
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     set_submission_limits(service, max_skill_reads=16)
     model = ScriptedModel(
         responses=[
@@ -189,7 +194,7 @@ def test_parallel_skill_loads_share_budget_and_activate_once(api_client, monkeyp
         ]
     )
     result = execute(api_client, monkeypatch, model, run)
-    steps = api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
+    steps = read_reply(api_client, run["id"])["steps"]
     assert sum(s["kind"] == "skill_activation" for s in steps) == 1
     if read_limit == 1:
         assert result["status"] == "failed"
@@ -254,7 +259,7 @@ def test_same_named_skills_keep_pinned_and_automatic_parameters_separate(api_cli
             response("完成两种审阅"),
         ]
     )
-    run = submit(api_client, conversation, [second["id"]]).json()
+    run = submit(api_client, conversation, [second["id"]]).json()["response"]
     result = execute(api_client, monkeypatch, model, run)
     assert result["status"] == "succeeded", result
     assert "SECOND_BODY_MARKER" in model.prompts[0] and "显式参数乙" in model.prompts[0]
@@ -263,7 +268,7 @@ def test_same_named_skills_keep_pinned_and_automatic_parameters_separate(api_cli
         marker in model.prompts[1]
         for marker in ["BODY_MARKER_P1", "SECOND_BODY_MARKER", "自动参数甲", "显式参数乙"]
     )
-    steps = api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
+    steps = read_reply(api_client, run["id"])["steps"]
     assert [
         (step["skill_id"], step["safe_details"]["source"])
         for step in steps
@@ -272,26 +277,28 @@ def test_same_named_skills_keep_pinned_and_automatic_parameters_separate(api_cli
 
 
 def test_explicit_skill_requires_host_loaded_body_before_model(api_client, monkeypatch):
-    from app.agent_runtime.skill_loading import SkillsMiddleware
+    from app.agent.skills import SkillsMiddleware
 
     async def skip_pinning(self, state, runtime):
         return None
 
     monkeypatch.setattr(SkillsMiddleware, "abefore_model", skip_pinning)
     skill, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation, [skill["id"]]).json()
+    run = submit(api_client, conversation, [skill["id"]]).json()["response"]
     model = ScriptedModel(responses=[response("不能调用")])
     result = execute(api_client, monkeypatch, model, run)
     assert result["status"] == "failed" and result["error"]["code"] == "skill_load_failed"
     assert model.prompts == []
-    assert api_client.get(f"/api/runs/{run['id']}/actions").json()["items"] == []
+    assert read_reply(api_client, run["id"])["steps"] == []
 
 
 def test_snapshot_is_fixed_and_selection_is_idempotent(api_client, monkeypatch):
     skill, _, _, conversation = setup(api_client)
     key = str(uuid4())
-    run = submit(api_client, conversation, [skill["id"]], key).json()
-    assert submit(api_client, conversation, [skill["id"]], key).json()["id"] == run["id"]
+    run = submit(api_client, conversation, [skill["id"]], key).json()["response"]
+    assert (
+        submit(api_client, conversation, [skill["id"]], key).json()["response"]["id"] == run["id"]
+    )
     assert submit(api_client, conversation, [], key).status_code == 409
     assert (
         api_client.patch(
@@ -304,12 +311,15 @@ def test_snapshot_is_fixed_and_selection_is_idempotent(api_client, monkeypatch):
     assert "BODY_MARKER_P1" in model.prompts[0] and "NEW_BODY" not in model.prompts[0]
     with api_client.app.state.database.transaction() as db:
         snapshot = db.get(Run, run["id"]).config_snapshot
-    assert snapshot["schema_version"] == 3 and snapshot["skills"][0]["skill_revision"] == 1
+    assert (
+        snapshot["schema_version"] == RUN_SNAPSHOT_VERSION
+        and snapshot["skills"][0]["skill_revision"] == 1
+    )
 
 
 def test_invalid_explicit_selection_has_no_run_or_messages(api_client):
     skill, _, agent, conversation = setup(api_client)
-    path = f"/api/conversations/{conversation['id']}/runs"
+    path = f"/api/conversations/{conversation['id']}/messages"
     for selected in [None, [skill["id"], skill["id"].upper()]]:
         assert (
             api_client.post(
@@ -338,7 +348,7 @@ def test_invalid_explicit_selection_has_no_run_or_messages(api_client):
 
 def test_disabled_assignment_and_credential_rotation_prevent_calls(api_client, monkeypatch):
     skill, connection, agent, conversation = setup(api_client)
-    run = submit(api_client, conversation, [skill["id"]]).json()
+    run = submit(api_client, conversation, [skill["id"]]).json()["response"]
     assert (
         api_client.patch(
             f"/api/agents/{agent['id']}",
@@ -356,7 +366,7 @@ def test_disabled_assignment_and_credential_rotation_prevent_calls(api_client, m
         and result["error"]["code"] == "skill_access_revoked"
     )
     assert model.prompts == []
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     assert (
         api_client.patch(
             f"/api/model-connections/{connection['id']}",
@@ -374,19 +384,17 @@ def test_disabled_assignment_and_credential_rotation_prevent_calls(api_client, m
 
 @pytest.mark.parametrize(
     "path,error_code",
-    [("/etc/passwd", "tool_not_allowed"), ("/skills/not-assigned/SKILL.md", "skill_not_allowed")],
+    [("/etc/passwd", "file_path_denied"), ("/skills/not-assigned/SKILL.md", "skill_not_allowed")],
 )
 def test_unapproved_path_and_false_model_claim_never_create_activation(
     api_client, monkeypatch, path, error_code
 ):
     _, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     model = ScriptedModel(responses=[response("我已执行全部技能")])
     assert execute(api_client, monkeypatch, model, run)["status"] == "succeeded"
-    assert [
-        s["kind"] for s in api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
-    ] == ["model_call"]
-    run = submit(api_client, conversation).json()
+    assert [s["kind"] for s in read_reply(api_client, run["id"])["steps"]] == ["model_call"]
+    run = submit(api_client, conversation).json()["response"]
     model = ScriptedModel(
         responses=[
             response("", [{"name": "read_file", "id": "bad-path", "args": {"file_path": path}}])
@@ -396,8 +404,7 @@ def test_unapproved_path_and_false_model_claim_never_create_activation(
     assert result["status"] == "failed" and result["error"]["code"] == error_code
     assert len(model.prompts) == 1
     assert not any(
-        s["kind"] == "skill_activation"
-        for s in api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
+        s["kind"] == "skill_activation" for s in read_reply(api_client, run["id"])["steps"]
     )
 
 
@@ -406,7 +413,7 @@ def test_model_budget_and_usage_on_failure(api_client, monkeypatch):
     path = f"/skills/s-{skill['id']}/SKILL.md"
     service = api_client.app.state.conversation_commands
     set_submission_limits(service, max_model_calls=2)
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     set_submission_limits(service, max_model_calls=8)
     model = ScriptedModel(
         responses=[
@@ -418,10 +425,7 @@ def test_model_budget_and_usage_on_failure(api_client, monkeypatch):
     assert result["status"] == "failed" and result["error"]["code"] == "agent_budget_exceeded"
     assert len(model.prompts) == 2 and result["usage"]["total_tokens"] == 30
     assert (
-        sum(
-            s["kind"] == "skill_activation"
-            for s in api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
-        )
+        sum(s["kind"] == "skill_activation" for s in read_reply(api_client, run["id"])["steps"])
         == 1
     )
 
@@ -431,7 +435,7 @@ def test_real_sdk_uses_frozen_graph_budget(api_client, monkeypatch, limit):
     _, _, _, conversation = setup(api_client)
     service = api_client.app.state.conversation_commands
     set_submission_limits(service, recursion_limit=limit)
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     set_submission_limits(service, recursion_limit=128)
     model = ScriptedModel(responses=[response("完成")])
     result = execute(api_client, monkeypatch, model, run)
@@ -446,56 +450,57 @@ def test_real_sdk_uses_frozen_graph_budget(api_client, monkeypatch, limit):
 
 def test_restart_action_dedup_pagination_and_guest_scope(api_client, migrated_config):
     import pytest
-    from scenario_client import ScenarioClient as TestClient
+    from fastapi.testclient import TestClient
 
     from app.bootstrap import create_app
     from app.errors import ConflictError
 
     _, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation).json()
-    store = api_client.app.state.runner.store
+    run = submit(api_client, conversation).json()["response"]
+    store = api_client.app.state.run_worker.store
     assert store.claim(run["id"])
     store.start_action(run["id"], "model:1", "model_call", {"round": 1})
     with pytest.raises(ConflictError):
         store.start_action(run["id"], "model:1", "model_call")
     for intent in store.recover():
-        api_client.app.state.conversation_commands.publisher(intent)
-    result = api_client.get(f"/api/runs/{run['id']}").json()
+        complete_run(api_client)(intent)
+    result = read_reply(api_client, run["id"])
     assert result["status"] == "interrupted"
-    page = api_client.get(f"/api/runs/{run['id']}/actions?limit=1").json()
-    assert page["total"] == 1 and page["items"][0]["status"] == "unknown"
-    assert api_client.get(f"/api/runs/{run['id']}/actions?offset=1").json()["items"] == []
+    steps = read_reply(api_client, run["id"])["steps"]
+    assert len(steps) == 1 and steps[0]["status"] == "unknown"
     with TestClient(create_app(migrated_config), headers=api_client.headers) as guest:
         guest.post("/api/auth/guest", json={})
-        assert guest.get(f"/api/runs/{run['id']}/actions").status_code == 403
-        assert guest.get(f"/api/runs/{run['id']}/events").status_code == 403
+        assert guest.get(reply_path(guest, run["id"])).status_code == 200
+        assert guest.get(reply_path(guest, run["id"]) + "/events").status_code == 200
 
 
 def test_step_storage_failure_never_calls_model_or_reports_success(api_client, monkeypatch):
     from sqlalchemy.exc import OperationalError
 
     _, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation).json()
-    store = api_client.app.state.runner.store
+    run = submit(api_client, conversation).json()["response"]
+    store = api_client.app.state.run_worker.store
     model = ScriptedModel(responses=[response()])
 
     def fail(*args, **kwargs):
         raise OperationalError("fixture", {}, Exception("fixture"))
 
     monkeypatch.setattr(store, "_start_action", fail)
-    result = execute(api_client, monkeypatch, model, run)
+    # Task 报告存储失败，持久化重试由 Worker 协调。
+    with pytest.raises(OperationalError):
+        execute(api_client, monkeypatch, model, run)
+    result = read_reply(api_client, run["id"])
     assert result["status"] != "succeeded" and not model.prompts
-    assert run["id"] in api_client.app.state.runner.coordinator.pending_failures
     for intent in store.recover():
-        api_client.app.state.conversation_commands.publisher(intent)
-    assert api_client.get(f"/api/runs/{run['id']}").json()["status"] == "interrupted"
+        complete_run(api_client)(intent)
+    assert read_reply(api_client, run["id"])["status"] == "interrupted"
 
 
 def test_revocation_after_activation_blocks_next_model(api_client, monkeypatch):
     skill, _, agent, conversation = setup(api_client)
     path = f"/skills/s-{skill['id']}/SKILL.md"
-    run = submit(api_client, conversation).json()
-    store = api_client.app.state.runner.store
+    run = submit(api_client, conversation).json()["response"]
+    store = api_client.app.state.run_worker.store
     finish = store.finish_action
 
     def revoke_after_activation(id, key, *args, **kwargs):
@@ -521,7 +526,7 @@ def test_revocation_after_activation_blocks_next_model(api_client, monkeypatch):
         result["status"] in ("failed", "cancelled")
         and result["error"]["code"] == "skill_access_revoked"
     )
-    assert len(model.prompts) == 1 and result["assistant_content"] == ""
+    assert len(model.prompts) == 1 and result["content"] == ""
     assert result["usage"]["total_tokens"] == 15
 
 
@@ -537,30 +542,30 @@ def test_real_sdk_cancel_closes_running_model_step(api_client, monkeypatch):
                 cleaned.set()
 
     _, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     monkeypatch.setattr(
         "app.llm.factory.create_chat_model", lambda *a, **k: WaitingModel(responses=[])
     )
 
     async def cancel():
-        task = asyncio.create_task(api_client.app.state.runner.coordinator.run(run["id"]))
+        task = asyncio.create_task(execute_run(api_client, run["id"]))
         await asyncio.wait_for(started.wait(), 3)
         cancelled = await asyncio.to_thread(
-            api_client.post, f"/api/runs/{run['id']}/cancel", json={}
+            api_client.post, reply_path(api_client, run["id"]) + "/stop", json={}
         )
         assert cancelled.status_code == 200
         await asyncio.wait_for(task, 3)
 
     asyncio.run(cancel())
-    result = api_client.get(f"/api/runs/{run['id']}").json()
+    result = read_reply(api_client, run["id"])
     assert result["status"] == "cancelled" and cleaned.is_set()
-    steps = api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
+    steps = read_reply(api_client, run["id"])["steps"]
     assert len(steps) == 1 and steps[0]["status"] == "unknown" and steps[0]["finished_at"]
 
 
 def test_schema_4_credential_revision_and_unknown_usage(api_client, monkeypatch):
     _, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     model = ScriptedModel(
         responses=[
             AIMessage(content="没有用量的实际响应", response_metadata={"finish_reason": "stop"})
@@ -583,7 +588,7 @@ def test_p1_backup_restore_and_historical_step_reference(api_client, monkeypatch
     import sqlite3
 
     skill, _, agent, conversation = setup(api_client)
-    run = submit(api_client, conversation, [skill["id"]]).json()
+    run = submit(api_client, conversation, [skill["id"]]).json()["response"]
     model = ScriptedModel(responses=[response()])
     assert execute(api_client, monkeypatch, model, run)["status"] == "succeeded"
     source_path = api_client.app.state.database.engine.url.database
@@ -602,7 +607,7 @@ def test_p1_backup_restore_and_historical_step_reference(api_client, monkeypatch
             ) == sorted(restored.execute(f'SELECT * FROM "{table}"').fetchall(), key=repr)
         assert restored.execute("PRAGMA foreign_key_check").fetchall() == []
         assert restored.execute("PRAGMA quick_check").fetchone()[0] == "ok"
-    # Deleting a now-unassigned definition preserves the actual historical action's summary.
+    # 删除未再装配的定义不能抹掉历史动作摘要。
     assert (
         api_client.patch(
             f"/api/agents/{agent['id']}",
@@ -612,16 +617,14 @@ def test_p1_backup_restore_and_historical_step_reference(api_client, monkeypatch
     )
     assert api_client.delete(f"/api/skills/{skill['id']}").status_code == 204
     activation = next(
-        s
-        for s in api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
-        if s["kind"] == "skill_activation"
+        s for s in read_reply(api_client, run["id"])["steps"] if s["kind"] == "skill_activation"
     )
     assert activation["skill_id"] is None and activation["safe_details"]["name"] == skill["name"]
 
 
 def test_explicit_loading_shares_the_method_read_budget(api_client, monkeypatch):
     skill, _, _, conversation = setup(api_client)
-    run = submit(api_client, conversation, [skill["id"]]).json()
+    run = submit(api_client, conversation, [skill["id"]]).json()["response"]
     with api_client.app.state.database.transaction() as db:
         row = db.get(Run, run["id"])
         row.config_snapshot = {**row.config_snapshot, "max_skill_reads": 1}
@@ -640,12 +643,12 @@ def test_explicit_loading_shares_the_method_read_budget(api_client, monkeypatch)
 def test_failed_unreported_model_call_does_not_claim_complete_usage(api_client, monkeypatch):
     skill, _, _, conversation = setup(api_client)
     path = f"/skills/s-{skill['id']}/SKILL.md"
-    run = submit(api_client, conversation).json()
-    # The second real SDK invocation raises before a usage-bearing response exists.
+    run = submit(api_client, conversation).json()["response"]
+    # 第二次调用在返回用量前失败。
     model = ScriptedModel(
         responses=[response("", [{"name": "read_file", "id": "load", "args": {"file_path": path}}])]
     )
     result = execute(api_client, monkeypatch, model, run)
     assert result["status"] == "failed" and result["usage"]["total_tokens"] is None
-    steps = api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
+    steps = read_reply(api_client, run["id"])["steps"]
     assert [s["status"] for s in steps] == ["succeeded", "succeeded", "succeeded", "failed"]

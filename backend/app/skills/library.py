@@ -1,9 +1,4 @@
-"""Editable portable directories; published manifests remain the runtime source.
-
-The file lock serializes platform writers across processes. External installers do
-not share that lock, so writes also compare the current bytes with the last source
-manifest. A database failure restores the prior directory before releasing it.
-"""
+"""目录锁串行化平台写入，外部修改另以源清单比对；数据库失败时在释放锁前恢复目录。"""
 
 from __future__ import annotations
 

@@ -1,5 +1,3 @@
-"""Resource management cannot be reached through trusted execution reads."""
-
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from uuid import uuid4
@@ -8,27 +6,30 @@ import pytest
 from pydantic import ValidationError
 from sqlalchemy import func, select
 
-from app.agents.execution_config import authorize_execution, capture_skills, configured_agent
-from app.agents.models import AgentSkill, AgentToolGrant
-from app.agents.schemas import AgentCreate, AgentPatch, ToolAccountBindingInput
-from app.agents.service import AgentService
-from app.agents.tool_account_bindings import ToolAccountBindingService
-from app.agents.tool_grants import ToolGrantService
 from app.auth.actor import Actor
 from app.auth.models import User
+from app.employees.access import authorize_execution, configured_agent
+from app.employees.assembly import capture_skills
+from app.employees.models import AgentSkill, AgentToolGrant
+from app.employees.organization_rules import OrganizationRulesService, current_rules
+from app.employees.schemas import (
+    AgentCreate,
+    AgentPatch,
+    OrganizationRulesUpdate,
+)
+from app.employees.service import AgentService
+from app.employees.tool_grants import GrantInput
 from app.errors import ConflictError, NotFoundError, PermissionDeniedError, ServiceUnavailableError
 from app.infrastructure.credentials import CredentialUnavailableError, CredentialVault
 from app.infrastructure.database.session import Database
+from app.mcp.models import McpService, ToolConnection
 from app.model_connections.models import ModelConnection
 from app.model_connections.schemas import ConnectionCreate, ConnectionPatch
 from app.model_connections.service import ModelConnectionService
-from app.organization_rules.schemas import OrganizationRulesUpdate
-from app.organization_rules.service import OrganizationRulesService, current_rules
 from app.skills.definitions import definition_from_record, protocol_names, readiness_reason
 from app.skills.models import Skill
 from app.skills.schemas import SkillCreate, SkillImport, SkillPatch
 from app.skills.service import SkillService
-from app.tools.models import McpService, ToolConnection
 
 
 @pytest.fixture
@@ -49,8 +50,6 @@ def resources(migrated_config):
         database=database,
         skills=SkillService(database, migrated_config.skills),
         agents=AgentService(database),
-        grants=ToolGrantService(database),
-        bindings=ToolAccountBindingService(database),
         rules=OrganizationRulesService(database),
         models=ModelConnectionService(
             database, CredentialVault(migrated_config.model_encryption_key_file)
@@ -97,8 +96,6 @@ MISSING = "b3d1b9eb-1d63-4a59-9652-6b08939f0f7e"
         ),
         lambda r: r.agents.get(MISSING, r.member),
         lambda r: r.agents.list(actor=r.member),
-        lambda r: r.grants.get(MISSING, r.member),
-        lambda r: r.agents.get_usage(MISSING, r.guest),
     ],
 )
 def test_management_rejects_before_lookup_filesystem_or_provider_work(resources, operation):
@@ -110,6 +107,12 @@ def test_management_rejects_before_lookup_filesystem_or_provider_work(resources,
         assert current_rules(db).revision == 0
     assert not resources.skills.library.root.exists()
     assert not resources.models.vault.path.exists()
+
+
+def test_guest_employee_usage_is_public_and_still_checks_existence(resources):
+    # 使用配置是公开读取，不属于管理操作。
+    with pytest.raises(NotFoundError):
+        resources.agents.get_usage(MISSING, resources.guest)
 
 
 def test_member_execution_reads_fixed_definitions_without_management_privileges(resources):
@@ -221,74 +224,72 @@ def test_credential_failure_has_model_semantics_and_rolls_back_changes(resources
     assert (saved.name, saved.config_revision, saved.credential_revision) == ("original", 1, 1)
 
 
-def test_account_choice_changes_only_the_users_binding_not_the_employee_grant(resources):
+@pytest.mark.parametrize("operation", ["switch", "remove"])
+def test_member_cannot_replace_or_remove_the_employees_fixed_connection(resources, operation):
     employee = resources.agents.create(
         AgentCreate(name="ticket helper", avatar_id="worker"), resources.admin
     )
     descriptor = {"name": "read_ticket", "descriptor_hash": "confirmed-definition"}
     with resources.database.transaction() as db:
         service = McpService(
-            name="tickets", url="https://tickets.example/mcp", owner_user_id=resources.admin.user_id
+            name="tickets",
+            url="https://tickets.example/mcp",
+            created_by_user_id=resources.admin.user_id,
         )
         db.add(service)
         db.flush()
-        template = ToolConnection(
+        fixed = ToolConnection(
             service_id=service.id,
-            name="creator account",
+            name="fixed organization connection",
             kind="mcp_http",
             auth_type="none",
             public_config={"url": service.url},
             approved_catalog=[descriptor],
             created_by_user_id=resources.admin.user_id,
         )
-        own = ToolConnection(
+        alternative = ToolConnection(
             service_id=service.id,
-            name="member account",
+            name="alternative organization connection",
             kind="mcp_http",
             auth_type="none",
             public_config={"url": service.url},
             approved_catalog=[descriptor],
             created_by_user_id=resources.member.user_id,
         )
-        db.add_all([template, own])
+        db.add_all([fixed, alternative])
         db.flush()
-        grant = AgentToolGrant(
-            agent_id=str(employee.id),
-            tool_connection_id=template.id,
-            account_mode="personal",
-            tools=[descriptor],
+        fixed_id, alternative_id = fixed.id, alternative.id
+
+    def grant(connection_id):
+        return GrantInput(
+            connection_id=connection_id,
+            tools=[descriptor["name"]],
+            expected_descriptors={descriptor["name"]: descriptor["descriptor_hash"]},
             scope_policy={"mode": "provider", "max_calls": 1},
         )
-        db.add(grant)
-        db.flush()
-        grant_id, own_id, creator_id = grant.id, own.id, template.id
-    result = resources.bindings.bind(
+
+    saved = resources.agents.update(
         str(employee.id),
-        grant_id,
-        ToolAccountBindingInput(connection_id=own_id, expected_revision=0),
-        resources.member,
+        AgentPatch(expected_revision=employee.revision, tool_grants=[grant(fixed_id)]),
+        resources.admin,
     )
-    assert result["items"][0]["connected"]
-    assert result["items"][0]["connection_id"] == own_id
-    with pytest.raises(NotFoundError):
-        resources.bindings.bind(
+    before = resources.agents.get_usage(str(employee.id), resources.member).tool_grants
+    assert before[0]["connection_id"] == fixed_id
+    with pytest.raises(PermissionDeniedError):
+        resources.agents.update(
             str(employee.id),
-            grant_id,
-            ToolAccountBindingInput(connection_id=creator_id, expected_revision=1),
+            AgentPatch(
+                expected_revision=saved.revision,
+                tool_grants=[grant(alternative_id)] if operation == "switch" else [],
+            ),
             resources.member,
         )
+    assert resources.agents.get_usage(str(employee.id), resources.member).tool_grants == before
     with resources.database.transaction() as db:
-        assert db.get(AgentToolGrant, grant_id).tools == [descriptor]
-        assert db.get(AgentToolGrant, grant_id).revision == 1
-    resources.bindings.bind(
-        str(employee.id),
-        grant_id,
-        ToolAccountBindingInput(connection_id=None, expected_revision=1),
-        resources.member,
-    )
-    assert not resources.bindings.get(str(employee.id), resources.member)["items"][0]["connected"]
-    creator = resources.bindings.get(str(employee.id), resources.admin)["items"][0]
-    assert creator["connected"] and creator["connection_id"] == creator_id
+        current = db.get(AgentToolGrant, before[0]["id"])
+        assert current.tool_connection_id == fixed_id
+        assert current.tools == [descriptor]
+        assert current.revision == 1
 
 
 @pytest.mark.parametrize("model", [AgentCreate, AgentPatch])
@@ -302,9 +303,14 @@ def test_retired_employee_field_is_rejected(model):
         model.model_validate({**fields, "ci_repository": "owner/repository"})
 
 
-def test_binding_requires_an_explicit_valid_connection_or_null():
+def test_fixed_grant_requires_valid_connection_and_rejects_personal_account_mode():
+    fields = {"tools": [], "scope_policy": {"mode": "provider", "max_calls": 1}}
+    for value in ({}, {"connection_id": None}, {"connection_id": ""}):
+        with pytest.raises(ValidationError):
+            GrantInput.model_validate({**fields, **value})
+    connection = str(uuid4())
+    assert GrantInput(connection_id=connection, **fields).connection_id == connection
     with pytest.raises(ValidationError):
-        ToolAccountBindingInput.model_validate({"expected_revision": 0})
-    with pytest.raises(ValidationError):
-        ToolAccountBindingInput(connection_id="", expected_revision=0)
-    assert ToolAccountBindingInput(connection_id=None, expected_revision=0).connection_id is None
+        GrantInput.model_validate(
+            {**fields, "connection_id": connection, "account_mode": "personal"}
+        )

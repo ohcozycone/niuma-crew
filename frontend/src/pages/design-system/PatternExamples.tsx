@@ -1,3 +1,4 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Card } from "@/components/ui/Card";
 import { SearchInput } from "@/components/common/SearchInput";
@@ -13,7 +14,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
 } from "@/components/ui/Dialog";
 import { Switch } from "@/components/ui/Switch";
@@ -32,7 +32,13 @@ const sampleAgents = fixtureAgents.map((agent) => ({
 const initialAgents = sampleAgents
   .filter((agent) => agent.id === "travel" || agent.id === "knowledge")
   .map(toAgentPresentation);
-export function PatternExamples({ notify: setNotice }: { notify: (message: string) => void }) {
+export function PatternExamples({
+  notify: setNotice,
+  assetBase = "",
+}: {
+  notify: (message: string) => void;
+  assetBase?: string;
+}) {
   const navigate = useNavigate();
   const { number } = useThemeValues();
   const [agents, setAgents] = useState(initialAgents);
@@ -66,8 +72,8 @@ export function PatternExamples({ notify: setNotice }: { notify: (message: strin
         next === "favorite"
           ? "样板的收藏状态已更新"
           : agent.availability === "paused"
-            ? "已返聘这位员工"
-            : "员工已被优化，可随时返聘",
+            ? "已恢复这位员工接单"
+            : "员工已暂停接单，可随时恢复",
       );
       return;
     }
@@ -81,7 +87,7 @@ export function PatternExamples({ notify: setNotice }: { notify: (message: strin
       <section id="agents" aria-label="员工卡片样板">
         <h3 className={"mb-2 font-semibold"}>员工卡片</h3>
         <p className={"mb-5 text-sm leading-relaxed text-text-muted"}>
-          列表与配置预览共用正式组件，收藏与返聘示例只影响本页。
+          列表与配置预览共用正式组件，收藏与启停示例只影响本页。
         </p>
         <div className={styles.agentToolbar}>
           <SearchInput
@@ -132,7 +138,7 @@ export function PatternExamples({ notify: setNotice }: { notify: (message: strin
           <span>
             人物与文字间距 {number("--os-card-gap")}px / 窄屏 {number("--os-card-gap-sm")}px
           </span>
-          <span>技能 / 工具操作 / 知识库分别计数，0 表示未配置</span>
+          <span>技能 / 工具操作 / 知识库分别计数，零数量合并或隐藏</span>
           <span>描述最多两行，保留等高占位</span>
           <span>头像与背板略缩小，保留舒展留白与左右内边距</span>
           <span>边框保持稳定，阴影轻微变化</span>
@@ -200,7 +206,6 @@ export function PatternExamples({ notify: setNotice }: { notify: (message: strin
           <DialogContent layout="side">
             <DialogHeader>
               <DialogTitle>能力配置样板</DialogTitle>
-              <DialogDescription>面板完成更新员工草稿，员工页统一保存才生效。</DialogDescription>
             </DialogHeader>
             <div className="focus-gutter min-h-0 overflow-auto text-sm text-text-muted">
               正式页面根据已确认目录展示工具，或按 Skill 自身声明展示参数，不生成通用业务字段。
@@ -246,11 +251,7 @@ export function PatternExamples({ notify: setNotice }: { notify: (message: strin
             aria-busy="true"
             aria-label="加载状态示例"
           >
-            <div className={styles.skeleton} />
-            <div className={styles.skeletonLine} />
-            <div className={styles.skeletonLine} />
-            <strong>正在读取员工</strong>
-            <p>保留布局位置，避免内容跳动。</p>
+            <LoadingFeedback shape="table" className="w-full" label="正在读取员工…" />
           </Card>
           <Card as="div" variant="outline" radius="panel" className={styles.stateCard}>
             <Users size={24} />
@@ -270,7 +271,7 @@ export function PatternExamples({ notify: setNotice }: { notify: (message: strin
             </Button>
           </Card>
         </div>
-        <FailureExamples />
+        <FailureExamples assetBase={assetBase} />
       </section>
     </div>
   );

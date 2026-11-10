@@ -1,14 +1,11 @@
 import { FailureState } from "@/components/failure/FailureState";
-import { SelectField } from "@/components/ui/SelectField";
-import { SearchInput } from "@/components/common/SearchInput";
 import { PageContainer } from "@/components/common/PageContainer";
 import { AgentDirectoryPagination } from "./AgentDirectoryPagination";
 import { useCallback, useState } from "react";
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
+import { Navigate, Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { useIdentity } from "@/state/auth/useIdentity";
 import { identityKey } from "@/lib/identity";
 import { Button } from "@/components/ui/Button";
-import { EmployeeKnowledge } from "@/components/knowledge/EmployeeKnowledge";
 
 import { PageHeading } from "@/components/common/PageHeading";
 import { ResourceStatus } from "@/components/configuration/ResourceStatus";
@@ -18,7 +15,6 @@ import { useAgentEditor } from "./useAgentEditor";
 import { returnPath, sourceLink } from "@/lib/navigation";
 import { useQueryState } from "@/hooks/useQueryState";
 import { clearDraft, draftKey } from "@/lib/draft";
-import { canStartConversation } from "@/lib/models/agentAvailability";
 import { AgentDirectory } from "./AgentDirectory";
 import { AgentConfiguration, type ConfigurationTab } from "./AgentConfiguration";
 import { AgentCard } from "./AgentCard";
@@ -29,7 +25,7 @@ import { type AgentAction } from "./types";
 export function AgentsPage() {
   const data = useAgentDirectory();
   return (
-    <ResourceStatus data={data} resource="agent">
+    <ResourceStatus data={data} resource="agent" shape="employees">
       <Directory data={data} />
     </ResourceStatus>
   );
@@ -42,7 +38,6 @@ function Directory({ data }: { data: ReturnType<typeof useAgentDirectory> }) {
   const [filter, setFilter] = useQueryState("filter", "all");
   const [category, setCategory] = useQueryState("category", "all");
   const [skill, setSkill] = useQueryState("skill");
-  const admin = identity.permissions.includes("agents:read");
   const shared = useWorkspaceData();
   const action = useCallback(
     (agent: AgentSummary, kind: AgentAction) => {
@@ -54,129 +49,51 @@ function Directory({ data }: { data: ReturnType<typeof useAgentDirectory> }) {
         );
         return;
       }
-      if (kind === "assign") {
-        if (canStartConversation(agent))
-          navigate(sourceLink(`/conversations/new?agent=${agent.id}&resume=1`));
+      if (kind === "assign" || kind === "open") {
+        navigate(sourceLink(`/agents/${agent.id}/home`));
         return;
       }
       navigate(sourceLink(`/agents/${agent.id}${kind === "skills" ? "?tab=capabilities" : ""}`));
     },
     [navigate, shared],
   );
-  if (admin)
-    return (
-      <AgentDirectory
-        pagination={
-          <AgentDirectoryPagination
-            total={data.agentTotal}
-            pageSize={data.pageSize}
-            loading={data.loading}
-          />
-        }
-        saveMessage={location.state?.agentSaved === true ? "员工配置已保存。" : ""}
-        totalAgents={data.directoryTotal}
-        matchedTotal={data.agentTotal}
-        loading={data.loading}
-        loadError={data.listError}
-        ids={data.ids}
-        categories={data.categories}
-        availableCount={data.availableCount}
-        query={query}
-        setQuery={setQuery}
-        filter={filter}
-        setFilter={setFilter}
-        category={category}
-        setCategory={setCategory}
-        agentSkillId={skill || null}
-        setAgentSkillId={setSkill}
-        canEdit={(agent) =>
-          !agent.createdByUserId || agent.createdByUserId === identity.actor.user?.id
-        }
-        onCreate={() => navigate(sourceLink("/agents/new"))}
-        onAction={action}
-      />
-    );
-  const visible = data.publicAgents;
   return (
-    <PageContainer>
-      <PageHeading title="数字员工" description="浏览员工的职责与能力，了解他们能做什么。" />
-      <div className={"flex flex-wrap items-center gap-3 my-5"}>
-        <SearchInput
-          label="搜索员工"
-          debounceMs={300}
-          onChange={(nextValue) => setQuery(nextValue)}
-          value={query}
-          placeholder="搜索员工、岗位或职责…"
-          className="w-77.5"
-        />
-        <SelectField
-          aria-label="员工状态筛选"
-          value={filter}
-          onValueChange={(nextValue) => setFilter(nextValue)}
-          options={[
-            { value: "all", label: "全部员工" },
-            { value: "favorites", label: "已收藏" },
-            { value: "active", label: "可对话" },
-            { value: "paused", label: "已被优化" },
-          ]}
-        />
-        <SelectField
-          aria-label="按岗位分类"
-          value={category}
-          onValueChange={(nextValue) => setCategory(nextValue)}
-          options={[
-            { value: "all", label: "全部岗位" },
-            ...[...new Set(data.publicAgents.map((e) => e.category))].map((c) => ({
-              value: c,
-              label: c,
-            })),
-          ]}
-        />
+    <AgentDirectory
+      pagination={
         <AgentDirectoryPagination
           total={data.agentTotal}
           pageSize={data.pageSize}
           loading={data.loading}
         />
-      </div>
-      {skill && (
-        <Button variant="ghost" onClick={() => setSkill(null)}>
-          清除技能筛选
-        </Button>
-      )}
-      <div aria-busy={data.loading && !data.listError}>
-        <div>
-          <div className={"employee-grid"}>
-            {visible.map((e) => (
-              <AgentCard
-                key={e.id}
-                agent={presentPublicAgent(e)}
-                readOnly
-                usable={identity.permissions.includes("runs:create")}
-                onAction={(_id, kind) =>
-                  navigate(
-                    kind === "assign"
-                      ? `/conversations/new?agent=${e.id}&resume=1`
-                      : sourceLink(`/agents/${e.id}`),
-                  )
-                }
-              />
-            ))}
-          </div>
-          {!visible.length && <p className={"py-12"}>没有找到符合条件的员工</p>}
-        </div>
-      </div>
-      <div
-        role="status"
-        className={
-          "flex items-center justify-between gap-2.5 mt-5 text-text-muted text-[length:var(--os-text-caption)] max-[760px]:text-[length:var(--os-text-caption)] max-[760px]:[&_>_span:last-child]:hidden"
-        }
-      >
-        {`本页显示 ${visible.length} 位员工 · 只读访问`}
-        {data.loading && " · 正在更新…"}
-      </div>
-    </PageContainer>
+      }
+      saveMessage={location.state?.agentSaved === true ? "员工配置已保存。" : ""}
+      totalAgents={data.directoryTotal}
+      matchedTotal={data.agentTotal}
+      loading={data.loading}
+      onRefresh={data.reload}
+      loadError={data.listError}
+      ids={data.ids}
+      categories={data.categories}
+      availableCount={data.availableCount}
+      query={query}
+      setQuery={setQuery}
+      filter={filter}
+      setFilter={setFilter}
+      category={category}
+      setCategory={setCategory}
+      agentSkillId={skill || null}
+      setAgentSkillId={setSkill}
+      canEdit={() => identity.permissions.includes("agents:update")}
+      onCreate={
+        identity.permissions.includes("agents:create")
+          ? () => navigate(sourceLink("/agents/new"))
+          : undefined
+      }
+      onAction={action}
+    />
   );
 }
+
 export function AgentEditorPage() {
   const data = useAgentEditor();
   return (
@@ -220,14 +137,6 @@ function Editor({ data }: { data: ReturnType<typeof useAgentEditor> }) {
             >
               与员工对话
             </Button>
-            <Button
-              variant="outline"
-              render={<Link to={`/agents/${e.id}/connections`} />}
-              nativeButton={false}
-            >
-              我的工具连接
-            </Button>
-            <EmployeeKnowledge agentId={e.id} agentName={e.name} />
           </div>
         )}
         <h2 className={"my-4 font-semibold"}>示例任务</h2>
@@ -252,27 +161,8 @@ function Editor({ data }: { data: ReturnType<typeof useAgentEditor> }) {
       </PageContainer>
     );
   }
-  if (agent && agent.createdByUserId && agent.createdByUserId !== identity.actor.user?.id)
-    return (
-      <PageContainer as="main" className="space-y-6">
-        <PageHeading title={agent.name} description={agent.description} />
-        <p className="type-description">员工配置由创建者维护，你可以直接使用并绑定自己的账号。</p>
-        <Button
-          render={<Link to={`/conversations/new?agent=${agent.id}&resume=1`} />}
-          nativeButton={false}
-        >
-          与员工对话
-        </Button>
-        <Button
-          variant="outline"
-          render={<Link to={`/agents/${agent.id}/connections`} />}
-          nativeButton={false}
-        >
-          我的工具连接
-        </Button>
-        <EmployeeKnowledge agentId={agent.id} agentName={agent.name} />
-      </PageContainer>
-    );
+  if (!id && !identity.permissions.includes("agents:create"))
+    return <Navigate replace to="/agents" />;
   const tab: ConfigurationTab = ["identity", "instructions", "capabilities"].includes(rawTab)
     ? (rawTab as ConfigurationTab)
     : "identity";
@@ -284,13 +174,14 @@ function Editor({ data }: { data: ReturnType<typeof useAgentEditor> }) {
         value={agent ?? "new"}
         skills={data.skills}
         saving={data.saving}
+        readOnly={!identity.permissions.includes("agents:update")}
         initialTab={tab}
         onTabChange={setTab}
         onClose={() => navigate(target)}
         onSave={(value) => data.saveAgent(value, !id)}
         onSaved={() => navigate(listTarget, { replace: true, state: { agentSaved: true } })}
         onDelete={
-          agent
+          agent && identity.permissions.includes("agents:delete")
             ? () => {
                 data.clearMutationError();
                 setDeleteOpen(true);

@@ -1,3 +1,6 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
+import { RefreshButton } from "@/components/common/RefreshButton";
+import { useIdentity } from "@/state/auth/useIdentity";
 import { ResourceIcon } from "@/components/common/ResourceIcon";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { FailureState } from "@/components/failure/FailureState";
@@ -16,10 +19,12 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import { Link } from "react-router";
 import { sourceLink } from "@/lib/navigation";
 import { useQueryState } from "@/hooks/useQueryState";
-import { KeyRound, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { KeyRound, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PageHeading } from "@/components/common/PageHeading";
+import { CollectionToolbar } from "@/components/common/CollectionToolbar";
+import { ButtonGroup } from "@/components/ui/ButtonGroup";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +53,8 @@ export function ModelConnections({
   embedded?: boolean;
   onChanged?: () => void;
 }) {
+  const { permissions } = useIdentity();
+  const writable = permissions.includes("model_connections:update");
   const noun = capability === "embedding" ? "向量模型" : "大脑";
   const Frame = embedded ? "div" : PageContainer;
   const createButton = useRef<HTMLButtonElement>(null);
@@ -56,6 +63,11 @@ export function ModelConnections({
   const [failure, setFailure] = useState<Failure | null>(null);
   const [query, setQuery] = useQueryState("q");
   const [revision, setRevision] = useState(0);
+  const [loading, setLoading] = useState(true);
+  function refresh() {
+    setLoading(true);
+    setRevision((n) => n + 1);
+  }
   const [editing, setEditing] = useState<ModelConnection | "new" | null>(null);
   const [deleting, setDeleting] = useState<ModelConnection | null>(null);
   const [busyDelete, setBusyDelete] = useState(false);
@@ -87,6 +99,9 @@ export function ModelConnections({
             setResults({});
           }
         }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
   }, [revision, capability]);
@@ -151,64 +166,60 @@ export function ModelConnections({
         description={
           capability === "embedding"
             ? "向量连接可供知识库复用，密钥在服务端加密保存。"
-            : "配置数字员工使用的对话模型。密钥在服务端加密保存。"
+            : "配置员工使用的对话模型，再到员工页面选择装配。"
         }
         actions={
-          <Button ref={createButton} onClick={() => setEditing("new")} disabled={!presets.length}>
-            <Plus size={16} />
-            {capability === "chat" ? "新建大脑" : "添加向量模型"}
-          </Button>
+          <ButtonGroup>
+            <Button
+              ref={createButton}
+              onClick={() => setEditing("new")}
+              disabled={!writable || !presets.length}
+            >
+              <Plus size={16} />
+              {capability === "chat" ? "新建大脑" : "添加向量模型"}
+            </Button>
+          </ButtonGroup>
         }
       />
-      <Card
-        as="div"
-        variant="outline"
-        radius="panel"
-        className="mb-6 p-4 text-sm leading-6 text-text-muted"
-      >
-        {capability === "embedding"
-          ? "向量模型把文本转换为向量，用于语义检索。测试连接会发送一段固定短文本。"
-          : "大脑用于数字员工理解问题与生成回答。知识库的向量模型请在检索设置中配置。"}
-      </Card>
+      {capability === "embedding" && (
+        <p className="type-description mb-6">
+          向量模型把文本转换为向量，用于语义检索。测试连接会发送一段固定短文本。
+        </p>
+      )}
       {failure &&
         (connections ? (
           <FailureNotice
             failure={failure}
             context={{ operation: "refresh", resource: "connection", hasUsableData: true }}
-            actions={[
-              { label: "重新加载", kind: "retry", onClick: () => setRevision((n) => n + 1) },
-            ]}
+            actions={[{ label: "重新加载", kind: "retry", onClick: refresh }]}
             className="mb-5"
           />
         ) : (
           <FailureState
             failure={failure}
             context={{ operation: "initial-read", resource: "connection" }}
-            actions={[
-              { label: "重新加载", kind: "retry", onClick: () => setRevision((n) => n + 1) },
-            ]}
+            actions={[{ label: "重新加载", kind: "retry", onClick: refresh }]}
           />
         ))}
       {!connections ? (
-        !failure && <p role="status">正在加载{noun}配置…</p>
+        !failure && <LoadingFeedback shape="connections" label={`正在加载${noun}配置…`} />
       ) : (
         <>
-          <div className={"mb-6 flex gap-3"}>
+          <CollectionToolbar
+            actions={
+              <RefreshButton onClick={refresh} loading={loading} label={`刷新${noun}列表`} />
+            }
+            label={`筛选${noun}`}
+            summary={`${query ? "找到" : "共"} ${visible.length} 个${noun}`}
+          >
             <SearchInput
               label={`搜索${noun}`}
               onChange={(nextValue) => setQuery(nextValue)}
               placeholder="搜索名称或模型…"
               value={query}
-              className="w-full"
+              className="w-80 max-sm:w-full"
             />
-            <Button
-              variant="outline"
-              aria-label={`刷新${noun}列表`}
-              onClick={() => setRevision((n) => n + 1)}
-            >
-              <RefreshCw size={16} />
-            </Button>
-          </div>
+          </CollectionToolbar>
           {!visible.length && (
             <EmptyState
               boxed
@@ -227,7 +238,7 @@ export function ModelConnections({
               }
             >
               {!connections.length && (
-                <Button disabled={!presets.length} onClick={() => setEditing("new")}>
+                <Button disabled={!writable || !presets.length} onClick={() => setEditing("new")}>
                   {capability === "chat" ? "新建大脑" : "添加向量模型"}
                 </Button>
               )}
@@ -319,7 +330,7 @@ export function ModelConnections({
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={results[item.id]?.checking}
+                    disabled={!writable || results[item.id]?.checking}
                     onClick={() => void check(item)}
                   >
                     {results[item.id]?.checking ? "检查中…" : "测试连接"}
@@ -327,16 +338,16 @@ export function ModelConnections({
                   <Button
                     variant="ghost"
                     size="sm"
-                    disabled={results[item.id]?.checking}
+                    disabled={!writable || results[item.id]?.checking}
                     onClick={() => setEditing(item)}
                   >
                     <Pencil size={14} />
                     编辑
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="destructive-ghost"
                     size="sm"
-                    disabled={item.agents.length > 0 || results[item.id]?.checking}
+                    disabled={!writable || item.agents.length > 0 || results[item.id]?.checking}
                     title={item.agents.length ? "请先解除员工装配" : `删除${noun}`}
                     onClick={() => {
                       setDeleteFailure(null);
@@ -380,10 +391,10 @@ export function ModelConnections({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>删除「{deleting?.name}」？</DialogTitle>
-            <DialogDescription>
-              将删除连接配置和保存的 Key。仍有员工或知识库使用时无法删除。
-            </DialogDescription>
           </DialogHeader>
+          <DialogDescription>
+            将删除连接配置和保存的 Key。仍有员工或知识库使用时无法删除。
+          </DialogDescription>
           <FailureNotice
             failure={deleteFailure}
             context={{
@@ -396,7 +407,7 @@ export function ModelConnections({
             <Button variant="outline" disabled={busyDelete} onClick={() => setDeleting(null)}>
               取消
             </Button>
-            <Button variant="destructive" disabled={busyDelete} onClick={() => void remove()}>
+            <Button variant="destructive" loading={busyDelete} onClick={() => void remove()}>
               {busyDelete ? "删除中…" : "确认删除"}
             </Button>
           </DialogFooter>
@@ -470,14 +481,14 @@ function ConnectionEditor({
       <DialogContent finalFocus={returnFocus}>
         <DialogHeader>
           <DialogTitle>{editing ? `编辑${noun}` : `添加${noun}`}</DialogTitle>
-          <DialogDescription>
-            {editing?.agents.length
-              ? `修改后将影响 ${editing.agents.length} 位员工的后续调用：${editing.agents.map((e) => e.name).join("、")}。`
-              : preset.capability === "embedding"
-                ? "保存后可在知识库中选择此连接，建立向量索引。"
-                : "配置一套模型连接，供不同员工复用。"}
-          </DialogDescription>
         </DialogHeader>
+        <DialogDescription>
+          {editing?.agents.length
+            ? `修改后将影响 ${editing.agents.length} 位员工的后续调用：${editing.agents.map((e) => e.name).join("、")}。`
+            : preset.capability === "embedding"
+              ? "保存后可在知识库中选择此连接，建立向量索引。"
+              : "配置一套模型连接，供不同员工复用。"}
+        </DialogDescription>
         <form
           onSubmit={async (event) => {
             event.preventDefault();
@@ -561,11 +572,7 @@ function ConnectionEditor({
                 maxLength={4096}
                 value={key}
                 onChange={(e) => setKey(e.target.value)}
-                placeholder={
-                  editing
-                    ? "已保存，不显示原 Key"
-                    : `输入${preset.capability === "embedding" ? "硅基流动" : " Kimi Code"} API Key`
-                }
+                placeholder={editing ? "已保存，不显示原 Key" : `输入 ${preset.name} API Key`}
               />
             </FormField>
             <div className={"rounded-control bg-canvas p-3 text-xs leading-6"}>
@@ -583,7 +590,7 @@ function ConnectionEditor({
               description={
                 preset.capability === "embedding"
                   ? "已固定为 BAAI/bge-m3，保存 Key 后点击“测试连接”验证。"
-                  : "已按预设填写，可根据订阅支持的模型调整。"
+                  : "已按预设填写，可根据账户支持的模型调整。"
               }
             >
               <Input
@@ -604,7 +611,7 @@ function ConnectionEditor({
               }}
             />
             {confirmClose && (
-              <p role="alert" className={"text-sm text-amber-800"}>
+              <p role="alert" className={"text-sm text-warning"}>
                 {noun}配置尚未保存，是否放弃这次修改？
               </p>
             )}
@@ -623,7 +630,9 @@ function ConnectionEditor({
                   <Button type="button" variant="outline" onClick={close}>
                     取消
                   </Button>
-                  <Button type="submit">{saving ? "保存中…" : `保存${noun}`}</Button>
+                  <Button type="submit" loading={saving}>
+                    {saving ? "保存中…" : `保存${noun}`}
+                  </Button>
                 </>
               )}
             </DialogFooter>

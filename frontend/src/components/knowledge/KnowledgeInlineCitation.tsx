@@ -6,12 +6,43 @@ import { parseKnowledgeSourceLink } from "@/lib/knowledgeSourceLink";
 import { useWorkspaceData } from "@/state/workspace/useWorkspaceData";
 import { useResource } from "@/state/shared/useResource";
 import { CitationContext } from "./citationContext";
+import { useKnowledgeSource } from "./useKnowledgeSource";
 
 function CitationPreview({ href, title }: { href: string; title: string }) {
+  const source = useKnowledgeSource(href);
+  if (!source.target)
+    return (
+      <div className="space-y-3 text-sm">
+        <p role={source.state.failure ? "alert" : "status"}>
+          {source.state.loading
+            ? "正在核对历史来源…"
+            : source.state.failure?.message || "这条历史来源缺少可核验的运行记录。"}
+        </p>
+        <Button size="xs" variant="outline" onClick={source.retry}>
+          重新核对
+        </Button>
+      </div>
+    );
+  const parts = parseKnowledgeSourceLink(source.target);
+  if (parts?.kind !== "evidence") return <p>知识来源地址无效。</p>;
+  return (
+    <EvidencePreview href={source.target} title={title} run={parts.run} evidence={parts.evidence} />
+  );
+}
+
+function EvidencePreview({
+  href,
+  title,
+  run,
+  evidence,
+}: {
+  href: string;
+  title: string;
+  run: string;
+  evidence: string;
+}) {
   const { knowledge } = useWorkspaceData();
-  const parts = parseKnowledgeSourceLink(href)!;
-  const resource = knowledge.citationPreview(parts.library, parts.document, parts.chunk);
-  // Refresh before paint on each reopening; concurrent previews share an active read.
+  const resource = knowledge.evidence(run, evidence);
   useLayoutEffect(() => {
     if (!resource.active) resource.refresh();
   }, [resource]);
@@ -36,24 +67,24 @@ function CitationPreview({ href, title }: { href: string; title: string }) {
         </div>
       ) : state.data ? (
         <>
-          <p className="text-xs leading-relaxed text-text-muted wrap-break-word">
-            {state.data.locator}
-          </p>
+          <p className="text-xs leading-relaxed text-text-muted">{state.data.locator}</p>
           <blockquote className="line-clamp-6 whitespace-pre-wrap text-sm leading-relaxed text-text-muted">
-            {state.data.excerpt || "该片段暂无可展示正文。"}
+            {Array.from(state.data.content).slice(0, 600).join("")}
           </blockquote>
         </>
       ) : null}
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex w-fit items-center gap-1 rounded-small text-xs font-medium underline-offset-4 hover:underline"
-      >
-        查看原文
-        <ArrowUpRight className="size-3.5" aria-hidden="true" />
-        <span className="sr-only">（新标签页）</span>
-      </a>
+      {state.data && !state.loading && !state.failure && (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex w-fit items-center gap-1 rounded-small text-xs font-medium underline-offset-4 hover:underline"
+        >
+          查看来源片段
+          <ArrowUpRight className="size-3.5" aria-hidden="true" />
+          <span className="sr-only">（新标签页）</span>
+        </a>
+      )}
     </div>
   );
 }

@@ -1,48 +1,38 @@
-# 本地开发与统一命令入口
+# 开发命令与排错
 
-本文维护当前行为或操作，历史结果按记录索引查阅；未执行的目标能力不属于本页已实现范围。
+## 分端和生产预览
 
-## 范围与职责
+```bash
+make dev-backend BACKEND_PORT=8001
+make dev-frontend BACKEND_URL=http://127.0.0.1:8001
+make build
+make start
+```
 
-项目操作统一从仓库根目录使用 `make`。Makefile 调用前端包脚本、后端 CLI 与共享开发启动器，工具自身仍维护构建、检查和业务逻辑。不修改数据库、会话或业务接口契约。
+分端端口不避让。start使用已构建静态产物和单个后端同源交付，默认3000；preview只查看静态产物，不提供生产API代理。更改START_PORT时同步来源和OAuth配置。相同数据目录只能有一个后端，端口避让不隔离数据库和运行锁。
 
-- `setup` 安装锁定依赖，仅在不存在时从示例创建后端 `.env`；迁移与管理员初始化分别执行。
-- `dev` 启动完整开发环境；`dev-backend`、`dev-frontend` 供分端排查，使用明确端口，不自动互相发现。
-- `build` 生成静态产物；`start` 直接启动后端同源交付，不再由前端包启动 Python 服务。`preview` 只预览静态产物。
-- `check` 顺序执行静态、类型、格式检查、离线测试和生产构建；提供分端检查、开发启动器测试、头像与脚本检查入口。
-- 数据库和账号命令保持现有 CLI 语义。账号名通过 `ADMIN_USER` 传入，密码仍由终端隐藏输入，不增加密码参数。
+## 开发与文档检查
 
-共享进程管理位于根目录 `scripts/`，前端资源生成继续位于 `frontend/scripts/`；前者由后端 Python 环境运行，后者使用前端包依赖。
+| 目的           | 根命令                                               |
+| -------------- | ---------------------------------------------------- |
+| 静态/类型/格式 | make lint；按需make lint-backend、make lint-frontend |
+| 业务离线验证   | make test；按需make test-backend、make test-frontend |
+| 启动器与头像   | make test-dev、make test-avatars                     |
+| 文档路径与站点 | make check-docs、make check-docs-site                |
+| 完整离线交付   | make check                                           |
 
-后端热重载监听 [app 应用包](../../backend/app)；包入口、工程目录和源码定位约定见[后端架构](../architecture/backend.md#工程目录与应用包)。
+[Makefile](../../Makefile)维护实际命令，包依赖由uv.lock与pnpm锁文件维护。
 
-## 完整开发启动流程
+## 文档站与实验
 
-1. 检查本机 `127.0.0.1:3000` 是否可绑定；占用时明确失败，不结束占用者，不改前端端口。
-2. 从 `BACKEND_PORT`（默认 8000）开始，在连续 100 个端口范围内查找，不超过 65535，跳过前端保留端口；只对端口占用继续尝试，其他错误直接失败。保留绑定套接字，通过文件描述符交给 Uvicorn，保持热重载并消除探测与绑定之间的竞争。
-3. 等待本次后端健康响应，确认进程仍存活。数据库未迁移、Runner 锁冲突等启动失败不会通过换端口绕过。
-4. 向前端子进程注入实际 `BACKEND_URL`，以严格 3000 端口启动 Vite。环境变量优先于前端 `.env`，不改写任何配置文件。
-5. 前端可访问后报告完整环境就绪；持续观察两个子进程。浏览器仍使用 `/api` 相对地址，前端来源与 OAuth 回调不因内部后端端口改变。
+make setup-docs安装文档应用依赖；make dev-docs在3001启动；make build-docs与make preview-docs构建和预览。详细发布机制见[站点说明](../../docs-site/README.md)。
 
-启动有超时；任何一端启动失败或意外退出，都以失败状态退出并清理另一端。子服务不读取终端输入，Ctrl+C 由启动器统一处理；Ctrl+C、SIGTERM 正常结束启动器拥有的两个进程组，给出有限的退出时间，超时再强制结束残留进程。清理包含重载器、工作进程和包管理器子进程，不按端口查杀进程。
+make verify-checkpoint使用临时SQLite、假模型与真实HTTP子进程验证连续对话和恢复；make dev-checkpoint启动[独立实验](../../backend/experiments/sqlite_checkpoint_chat.py)，默认8001及临时存档，CHECKPOINT_DB/CHECKPOINT_PORT可覆盖。make verify-knowledge为独立知识实验验证入口，不是生产检索质量证明。
 
-当前支持 POSIX 环境，与后端现有 macOS/Linux Runner 限制一致。前端端口预检查之后若发生竞争，Vite 的 strictPort 仍会拒绝启动，启动器负责清理本次后端。
+make verify-tool-results运行[正式结果交付隔离测试](../../backend/tests/test_result_delivery.py)及旧读取/工具门回归，使用假模型、独立业务库、文件与checkpoint，不访问开发业务库或远端MCP。早期适配原型已由正式测试替换，原型的时点证据见[验证记录](../records/工具结果官方适配验证.md)。真实模型对照另用[验收脚本](../../scripts/benchmark_result_delivery.py)，会调用当前已授权的Kimi服务，只发送合成问题/结果与已批准工具定义；不执行真实MCP业务操作。
 
-完整开发、分端后端和生产同源交付均通过 `app.main:app` 加载应用；入口位于 [backend/app/main.py](../../backend/app/main.py)，创建与生命周期仍由 bootstrap 负责。
+make verify-evidence-boundary使用仓库固定目录与合成返回，离线捕获六类真实链路末轮上下文，另验证首个429保存后结束；不读取开发库、密钥或调用真实模型。两版未采纳说明及付费复验范围见[证据边界记录](../records/回答证据边界复验.md)。[脚本](../../scripts/benchmark_evidence_boundary.py)通过 --candidate-report 显式选择待比较说明，不修改生产提示；没有候选变化时拒绝发起付费比较。
 
-## 参数与使用边界
+## 启动器定位与失败
 
-| 参数                | 默认值                             | 作用                                                      |
-| ------------------- | ---------------------------------- | --------------------------------------------------------- |
-| `BACKEND_PORT`      | `8000`                             | 完整开发的后端首选端口；分端开发的固定后端端口            |
-| `BACKEND_URL`       | `http://127.0.0.1:$(BACKEND_PORT)` | 分端前端代理地址；完整开发始终替换为实际绑定地址          |
-| `START_PORT`        | `3000`                             | 同源交付端口，不自动避让；修改时同步允许来源和 OAuth 配置 |
-| `DEV_TIMEOUT`       | `30`                               | 每端启动等待上限，单位为秒，须为有限正数                  |
-| `ADMIN_USER`        | `admin`                            | 管理员维护命令的账号名                                    |
-| `MIGRATION_MESSAGE` | 无                                 | 生成迁移时的描述，未提供时拒绝执行                        |
-
-`make dev` 不自动迁移数据库、不创建管理员，启动本身不发起模型调用。端口避让不隔离运行数据：同一数据目录已有后端时，新实例仍会因 Runner 锁冲突而失败；并行环境须分别配置 `APP_DATA_DIR`、`DATABASE_URL`、密钥与锁文件。生产模式、分端模式不使用自动端口避让。
-
-## 历史实施记录
-
-已执行的迁移与检查见[历史记录](../records/local-development.md)。当前操作仍按前文与[后端指南](backend-operations.md)执行。
+[scripts/dev.py](../../scripts/dev.py)负责端口、就绪等待和子进程清理；它保留后端监听套接字直到交给Uvicorn，避免探测与绑定间竞争。3000占用、数据库未迁移、配置缺失或共享运行锁冲突应按首个错误处理。任何一端启动失败或退出会清理本次另一端；超时和进程回收参数以脚本与Makefile为准。

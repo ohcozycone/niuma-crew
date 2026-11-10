@@ -1,3 +1,4 @@
+import { useIdentity } from "@/state/auth/useIdentity";
 import { mutationOutcome } from "@/lib/failures/resolve";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { useState } from "react";
@@ -15,6 +16,7 @@ import { useSaveOperation } from "@/state/editing/useSaveOperation";
 import { KnowledgeFeedback } from "./KnowledgeLibraries";
 
 export function KnowledgeDocumentPage({ kb, id }: { kb: string; id: string }) {
+  const writable = useIdentity().permissions.includes("knowledge:manage");
   const store = useWorkspaceData().knowledge;
   const resource = store.document(kb, id);
   const state = useResource(resource);
@@ -36,6 +38,7 @@ export function KnowledgeDocumentPage({ kb, id }: { kb: string; id: string }) {
   return (
     <PageContainer>
       <KnowledgeFeedback
+        shape="document"
         failure={state.failure}
         hasUsableData={state.data !== undefined}
         resource="document"
@@ -99,7 +102,7 @@ export function KnowledgeDocumentPage({ kb, id }: { kb: string; id: string }) {
             className="max-w-prose whitespace-pre-wrap break-words text-sm leading-8"
           >
             {state.data.document?.text ??
-              "原件已保存，尚未完成正文处理。请返回知识库，确认后点击“处理文档”；也可以下载原件核对。"}
+              "文件已加入知识库，尚未完成分片。请返回文档列表，选择文件并点击“分片并建关键词索引”；也可以下载原件核对。"}
           </article>
           <details className="mt-8 border-t border-border pt-5 text-sm">
             <summary className="cursor-pointer font-medium">
@@ -122,7 +125,7 @@ export function KnowledgeDocumentPage({ kb, id }: { kb: string; id: string }) {
             </div>
           </details>
           <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-border pt-5">
-            <Button variant="ghost" onClick={() => setConfirm(true)}>
+            <Button disabled={!writable} variant="ghost" onClick={() => setConfirm(true)}>
               <Trash2 size={16} />
               移除文档
             </Button>

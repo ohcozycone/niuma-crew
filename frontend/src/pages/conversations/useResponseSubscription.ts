@@ -2,7 +2,7 @@ import type { Failure } from "@/lib/failures/types";
 import { toFailure, clientFailure } from "@/lib/failures/resolve";
 import { useEffect } from "react";
 import { ApiError } from "@/lib/api/http";
-import { isActive, type Reply } from "@/lib/api/conversations";
+import { isObserving, type Reply } from "@/lib/api/conversations";
 import type { ConversationTransport } from "@/lib/api/conversationTransport";
 import type { ConversationError } from "./conversationState";
 
@@ -38,7 +38,7 @@ export function useResponseSubscription(
       }
       onError(null);
       onSnapshot(run);
-      if (!isActive(run.status)) {
+      if (!isObserving(run)) {
         finished = true;
         end();
       }

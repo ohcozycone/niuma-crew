@@ -99,3 +99,12 @@ it("keeps page-tab paint in the complete navigation component instead of per-pag
     expect(source, path).not.toMatch(/<DialogContent\b[^>]*className="overflow-y-auto"/);
   }
 });
+
+it("keeps documentation UI radii connected to the same semantic scale", () => {
+  const source = readFileSync(
+    new URL("../../../docs-site/src/app/global.css", import.meta.url),
+    "utf8",
+  );
+  for (const [, value] of source.matchAll(/border-radius:\s*([^;]+);/g))
+    expect(value.trim()).toMatch(/^(?:var\(--os-radius-[\w-]+\)|50%|0)$/);
+});

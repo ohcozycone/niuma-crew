@@ -1,35 +1,47 @@
-import { ApiError } from "@/lib/api/http";
+import { ApiError, request } from "@/lib/api/http";
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor, act } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, Routes, Route } from "react-router";
 import { ConversationPanel } from "./ConversationPanel";
 import * as api from "@/lib/api/conversations";
-import { runFixture } from "./conversationTestHelpers";
+import { runFixture, snapshotFixture } from "./conversationTestHelpers";
 vi.mock("@/state/auth/useIdentity", () => ({
   useIdentity: () => ({
     actor: { kind: "user", user: { id: "u", username: "tester" } },
-    permissions: ["agents:read"],
+    permissions: ["agents:read", "runs:create"],
     expires_at: "2099",
   }),
 }));
 vi.mock("@/lib/api/http", async (original) => ({
   ...(await original<object>()),
-  request: vi.fn(async (path: string) =>
-    path.endsWith("/messages")
-      ? api.sendMessage("chat", "新问题", "key")
-      : {
-          id: "agent",
-          name: "老赵",
-          avatar_id: "programmer-horse",
-          is_active: true,
-          model_connection_id: "brain",
-          skill_assignments: [],
-        },
-  ),
+  request: vi.fn(async (path: string) => {
+    if (path === "agents/agent")
+      return {
+        id: "agent",
+        name: "老赵",
+        description: "",
+        example_tasks: "",
+        avatar_id: "programmer-horse",
+        is_active: true,
+        model_connection_id: "brain",
+        skill_assignments: [],
+      };
+    if (path === "conversations/chat/files" || path === "conversations/100000000000/files")
+      return [];
+    throw new Error(`Unexpected request: ${path}`);
+  }),
 }));
+const observedReply = vi.hoisted(() => ({ receive: null as ((reply: api.Reply) => void) | null }));
 vi.mock("@/pages/conversations/useResponseSubscription", () => ({
-  useResponseSubscription: () => "",
+  useResponseSubscription: (
+    _id: string,
+    _reply: string | null,
+    _transport: unknown,
+    receive: (reply: api.Reply) => void,
+  ) => {
+    observedReply.receive = receive;
+  },
 }));
 vi.mock("@/components/avatars/index", () => ({ AgentAvatar: () => null }));
 vi.mock("@/components/common/Markdown", () => ({
@@ -37,34 +49,43 @@ vi.mock("@/components/common/Markdown", () => ({
 }));
 vi.mock("@/lib/api/conversations", async (original) => ({
   ...(await original<object>()),
-  getSnapshot: vi.fn(async (id, signal) => {
-    const conversation = await api.getConversation(id, signal);
-    const page = await api.getMessages(id, undefined, signal);
-    return {
-      conversation,
-      agent: { id: "agent", name: "老赵", avatar_id: "admin" },
-      messages: { ...page, items: page.items.map((m) => m.run ?? { ...m, role: "user" as const }) },
-      question_count: page.items.length,
-      latest_question_id: null,
-    };
-  }),
-  getConversation: vi.fn(),
+  getSnapshot: vi.fn(),
   getMessages: vi.fn(),
   getQuestions: vi.fn(async () => ({ items: [], total: 0, next_after_sequence: null })),
   getConversations: vi.fn(async () => ({ items: [], total: 0, offset: 0, limit: 20 })),
-  createConversation: vi.fn(),
   sendMessage: vi.fn(),
 }));
-const message = (sequence: number, content = `消息 ${sequence}`) =>
-  ({ id: String(sequence), sequence, role: "user", content, run: null }) as api.ChatMessage;
+const inputMessage = (sequence: number, content = `消息 ${sequence}`): api.UserMessage => ({
+  id: String(sequence),
+  sequence,
+  role: "user",
+  content,
+  conversation_id: "chat",
+  created_at: "2026-11-04T00:00:00Z",
+  updated_at: "2026-11-04T00:00:00Z",
+});
+const message = (sequence: number, content = `消息 ${sequence}`): api.ChatMessage => ({
+  ...inputMessage(sequence, content),
+  run: null,
+  published: true,
+});
 const latest = { items: [message(51), message(52)], next_before_sequence: 51, has_more: true };
 beforeEach(() => {
-  vi.mocked(api.getConversation).mockResolvedValue({
-    id: "chat",
-    agent_id: "agent",
-    title: "已有对话",
-  } as api.Conversation);
-  vi.mocked(api.getMessages).mockResolvedValueOnce(latest);
+  vi.mocked(api.getSnapshot).mockResolvedValue({
+    conversation: {
+      ...snapshotFixture(runFixture()).conversation,
+      title: "已有对话",
+      last_response_id: null,
+      active_response_id: null,
+    },
+    agent: { id: "agent", name: "老赵", avatar_id: "admin" },
+    messages: {
+      ...latest,
+      items: latest.items.map((item) => inputMessage(item.sequence, item.content)),
+    },
+    question_count: 2,
+    latest_question_id: "52",
+  });
   Element.prototype.scrollTo = vi.fn();
 });
 afterEach(() => {
@@ -78,6 +99,70 @@ const open = () =>
       <ConversationPanel id="chat" />
     </MemoryRouter>,
   );
+it("keeps the draft identity local and loads files only after the first message creates a conversation", async () => {
+  const id = "100000000000";
+  const uploaded = {
+    id: "00000000-0000-4000-8000-000000000001",
+    name: "input.csv",
+    size: 3,
+    media_type: "text/csv",
+    content_hash: "hash",
+    purpose: "input",
+  };
+  const run = runFixture({ conversation_id: id });
+  const snapshot = snapshotFixture(run);
+  vi.mocked(api.sendMessage).mockResolvedValue({ ...run, scope: snapshot.conversation });
+  vi.mocked(api.getSnapshot).mockResolvedValue(snapshot);
+  render(
+    <MemoryRouter initialEntries={["/conversations/new?agent=agent"]}>
+      <Routes>
+        <Route
+          path="/conversations/new"
+          element={<ConversationPanel key="draft" id="draft:entry:agent" agentId="agent" />}
+        />
+        <Route path="/conversations/:id" element={<ConversationPanel key={id} id={id} />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+  await screen.findByRole("textbox", { name: "消息" });
+  expect(vi.mocked(request).mock.calls.filter(([path]) => path.endsWith("/files"))).toEqual([]);
+  expect(api.getSnapshot).not.toHaveBeenCalled();
+  expect(screen.queryByRole("alert")).toBeNull();
+
+  vi.mocked(request).mockResolvedValueOnce(uploaded);
+  fireEvent.change(screen.getByLabelText("上传输入文件"), {
+    target: { files: [new File(["a,b"], uploaded.name, { type: "text/csv" })] },
+  });
+  await screen.findByText(uploaded.name);
+  expect(request).toHaveBeenCalledWith("files?name=input.csv", {
+    method: "POST",
+    headers: { "Content-Type": "text/csv" },
+    body: expect.any(File),
+    signal: expect.any(AbortSignal),
+  });
+  fireEvent.change(screen.getByRole("textbox", { name: "消息" }), {
+    target: { value: "检查附件" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "发送" }));
+  await waitFor(() =>
+    expect(api.sendMessage).toHaveBeenCalledWith(
+      null,
+      "检查附件",
+      expect.any(String),
+      [],
+      "agent",
+      [uploaded.id],
+    ),
+  );
+  await waitFor(() =>
+    expect(request).toHaveBeenCalledWith(`conversations/${id}/files`, {
+      signal: expect.any(AbortSignal),
+    }),
+  );
+  await waitFor(() => expect(api.getSnapshot).toHaveBeenCalledWith(id, expect.any(AbortSignal)));
+  expect(vi.mocked(request).mock.calls.some(([path]) => path.includes("draft:"))).toBe(false);
+  expect(screen.queryByRole("alert")).toBeNull();
+});
 it("opens the sidebar by default and preserves the conversation when switching or closing it", async () => {
   open();
   await screen.findByText("消息 52");
@@ -106,8 +191,8 @@ it("locks overlapping history loads, deduplicates prepended rows and retains cur
   const load = await screen.findByRole("button", { name: "加载更早消息" });
   fireEvent.click(load);
   fireEvent.click(load);
-  expect(api.getMessages).toHaveBeenCalledTimes(2);
-  expect(vi.mocked(api.getMessages).mock.calls[1][1]).toBe(51);
+  expect(api.getMessages).toHaveBeenCalledTimes(1);
+  expect(vi.mocked(api.getMessages).mock.calls[0][1]).toBe(51);
   await act(async () =>
     resolve({
       items: [message(50), message(51, "过期的重复消息")],
@@ -144,18 +229,13 @@ it("keeps the current page on a history error and retries the same cursor", asyn
   });
   fireEvent.click(screen.getByRole("button", { name: "加载失败，点击重试" }));
   await screen.findByText("消息 50");
-  expect(
-    vi
-      .mocked(api.getMessages)
-      .mock.calls.slice(1)
-      .map((call) => call[1]),
-  ).toEqual([51, 51]);
+  expect(vi.mocked(api.getMessages).mock.calls.map((call) => call[1])).toEqual([51, 51]);
 });
 it("aborts an older-page request when leaving the conversation", async () => {
   vi.mocked(api.getMessages).mockImplementationOnce(() => new Promise(() => {}));
   const view = open();
   fireEvent.click(await screen.findByRole("button", { name: "加载更早消息" }));
-  const signal = vi.mocked(api.getMessages).mock.calls[1][2];
+  const signal = vi.mocked(api.getMessages).mock.calls[0][2];
   view.unmount();
   expect(signal?.aborted).toBe(true);
 });
@@ -176,7 +256,6 @@ it("requests older messages near the top without creating a conversation", async
   });
   fireEvent.scroll(viewport);
   await screen.findByText("消息 50");
-  expect(api.createConversation).not.toHaveBeenCalled();
 });
 it("cancels in-flight history when sending so a stale page cannot replace the new cursor", async () => {
   let resolve!: (page: api.MessagePage) => void;
@@ -197,7 +276,7 @@ it("cancels in-flight history when sending so a stale page cannot replace the ne
   );
   open();
   fireEvent.click(await screen.findByRole("button", { name: "加载更早消息" }));
-  const signal = vi.mocked(api.getMessages).mock.calls[1][2];
+  const signal = vi.mocked(api.getMessages).mock.calls[0][2];
   fireEvent.change(screen.getByRole("textbox", { name: "消息" }), { target: { value: "新问题" } });
   fireEvent.click(screen.getByRole("button", { name: "发送" }));
   await screen.findByText("新问题");
@@ -207,21 +286,6 @@ it("cancels in-flight history when sending so a stale page cannot replace the ne
   );
   expect(screen.queryByText("迟到的历史")).toBeNull();
   expect(screen.getByRole("button", { name: "加载更早消息" })).toBeTruthy();
-});
-
-it("retires the old mode URL without offering a diagnostic form or submitting work", async () => {
-  render(
-    <MemoryRouter initialEntries={["/conversations/chat?work=ci"]}>
-      <ConversationPanel id="chat" />
-    </MemoryRouter>,
-  );
-  expect(
-    await screen.findByText("CI 诊断入口已移除，旧草稿已清理。请重新输入普通消息。"),
-  ).toBeTruthy();
-  expect(screen.queryByRole("textbox", { name: "失败运行链接" })).toBeNull();
-  expect(screen.queryByRole("combobox", { name: "工作方式" })).toBeNull();
-  expect(screen.getByRole("textbox", { name: "消息" })).toHaveProperty("value", "");
-  expect(api.sendMessage).not.toHaveBeenCalled();
 });
 
 it("shows an initial snapshot failure without presenting an empty new conversation", async () => {
@@ -234,5 +298,99 @@ it("shows an initial snapshot failure without presenting an empty new conversati
   expect(screen.getByText("返回对话记录").closest("a")?.getAttribute("href")).toBe(
     "/conversations",
   );
+  expect(api.sendMessage).not.toHaveBeenCalled();
+});
+
+it("clears the sidebar running badge when the same reply is accepted", async () => {
+  const running: api.Conversation = {
+    id: "chat",
+    agent_id: "agent",
+    agent_name: "老赵",
+    owner_user_id: "u",
+    title: "部署验证话题",
+    version: 7,
+    active_response_id: "a1",
+    last_response_id: "a1",
+    created_at: "2026-11-04T00:00:00Z",
+    updated_at: "2026-11-04T00:00:00Z",
+  };
+  const completed = { ...running, version: 8, active_response_id: null };
+  let saved = running;
+  vi.mocked(api.getConversations).mockImplementation(async () => ({
+    items: [saved],
+    total: 1,
+    offset: 0,
+    limit: 20,
+  }));
+  vi.mocked(api.getSnapshot).mockResolvedValueOnce({
+    conversation: running,
+    agent: { id: "agent", name: "老赵", avatar_id: "admin" },
+    messages: {
+      items: [
+        {
+          id: "u1",
+          conversation_id: "chat",
+          sequence: 1,
+          role: "user",
+          content: "测试问题",
+          created_at: running.created_at,
+          updated_at: running.updated_at,
+        },
+        runFixture({ scope: running, content: "", status: "running" }),
+      ],
+      next_before_sequence: null,
+      has_more: false,
+    },
+    question_count: 1,
+    latest_question_id: "u1",
+  });
+  open();
+  const history = await screen.findByRole("link", { name: /部署验证话题/ });
+  expect(history.textContent).toContain("执行中");
+  saved = completed;
+  act(() =>
+    observedReply.receive?.(
+      runFixture({
+        scope: completed,
+        version: 2,
+        status: "succeeded",
+        acceptance: "accepted",
+        content: "正式回答",
+      }),
+    ),
+  );
+  await screen.findByText("正式回答");
+  await waitFor(() =>
+    expect(screen.getByRole("link", { name: /部署验证话题/ }).textContent).not.toContain("执行中"),
+  );
+});
+
+it("moves a saved server identity and pending stop together before replacing the draft route", async () => {
+  const { identityKey } = await import("@/lib/identity");
+  const { conversationSessionKey } = await import("./conversationDraft");
+  const { readConversationSession, saveConversationSession } =
+    await import("./pendingSubmissionStorage");
+  const owner = identityKey({
+    actor: { kind: "user", user: { id: "u", username: "tester" } },
+    permissions: ["agents:read", "runs:create"],
+    expires_at: "2099",
+  });
+  const id = "100000000000";
+  const session = {
+    persisted: true,
+    conversationId: id,
+    pending: { key: "first-request", input: { content: "第一问" }, stopRequested: true },
+  };
+  saveConversationSession(conversationSessionKey(owner, "draft:entry"), session);
+  render(
+    <MemoryRouter initialEntries={["/new"]}>
+      <Routes>
+        <Route path="/new" element={<ConversationPanel id="draft:entry" agentId="agent" />} />
+        <Route path="/conversations/:id" element={<p>真实对话页面</p>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+  await screen.findByText("真实对话页面");
+  expect(readConversationSession(conversationSessionKey(owner, id))).toEqual(session);
   expect(api.sendMessage).not.toHaveBeenCalled();
 });

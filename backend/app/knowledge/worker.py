@@ -1,5 +1,3 @@
-"""Lifespan-owned, single-file scanner for durable keyword jobs."""
-
 import asyncio
 import fcntl
 import logging
@@ -27,6 +25,7 @@ class KnowledgeWorker:
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             os.chmod(lock.name, 0o600)
+            await asyncio.to_thread(self.processing.knowledge.vectors.reconcile)
             await asyncio.to_thread(self.processing.recover)
         except BaseException:
             lock.close()
@@ -38,7 +37,7 @@ class KnowledgeWorker:
         self.stopping = True
         try:
             if self.task:
-                # Cancelling to_thread does not stop its writer; join before closing the DB/lock.
+                # 取消不会停止写线程，须等其结束后再关闭数据库和释放锁。
                 await self.task
         finally:
             self.task = None

@@ -1,28 +1,5 @@
 import { request } from "./http";
 
-export type EmployeeKnowledgeSettings = {
-  agent_id: string;
-  revision: number;
-  knowledge_base_ids: string[];
-  mode: "on_demand" | "always";
-  strategy: "auto" | "bm25" | "vector" | "hybrid";
-  top_k: number;
-  libraries: KnowledgeBase[];
-};
-export type EmployeeKnowledgeInput = Pick<
-  EmployeeKnowledgeSettings,
-  "knowledge_base_ids" | "mode" | "strategy" | "top_k"
-> & {
-  expected_revision: number;
-};
-export const getEmployeeKnowledge = (agentId: string, signal?: AbortSignal) =>
-  request<EmployeeKnowledgeSettings>(`knowledge-bases/employee-bindings/${agentId}`, { signal });
-export const saveEmployeeKnowledge = (agentId: string, data: EmployeeKnowledgeInput) =>
-  request<EmployeeKnowledgeSettings>(`knowledge-bases/employee-bindings/${agentId}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-
 export type KnowledgeBase = {
   id: string;
   name: string;
@@ -58,6 +35,7 @@ export type KnowledgeDocument = {
   processing_error?: string | null;
   keyword_ready?: boolean;
   vector_ready?: boolean;
+  processing_reusable?: boolean;
   processing_rules?: Partial<ChunkingRules> & { split_version?: number };
 };
 export type KnowledgeChunk = {
@@ -75,26 +53,15 @@ export type DocumentDetail = KnowledgeDocument & {
   document: { text: string; version: string; parser: string } | null;
   chunks: KnowledgeChunk[];
 };
-export type CitationPreview = {
-  title: string;
-  locator: string;
-  excerpt: string;
-  has_more: boolean;
-  source_url: string;
-};
-export const getKnowledgeCitation = (
-  library: string,
-  document: string,
-  chunk: string,
-  signal?: AbortSignal,
-) =>
-  request<CitationPreview>(`knowledge-bases/${library}/documents/${document}/chunks/${chunk}`, {
-    signal,
-  });
 export type SearchResult = {
   knowledge_base_id: string;
   strategy: "bm25" | "vector" | "hybrid";
-  hits: { rank: number; score: number; chunk: KnowledgeChunk }[];
+  hits: {
+    rank: number;
+    score: number | null;
+    score_kind: "fts5_bm25_lower_better" | "cosine_distance_lower_better" | "rank_only";
+    chunk: KnowledgeChunk;
+  }[];
 };
 export const listKnowledgeBases = (signal?: AbortSignal) =>
   request<KnowledgeBase[]>("knowledge-bases", { signal });
@@ -130,7 +97,7 @@ export const searchKnowledge = (
   kb: string,
   question: string,
   signal?: AbortSignal,
-  strategy: "bm25" | "vector" | "hybrid" = "bm25",
+  strategy: "auto" | "bm25" | "vector" | "hybrid" = "auto",
 ) =>
   request<SearchResult>(`knowledge-bases/${kb}/search`, {
     method: "POST",
@@ -220,16 +187,14 @@ export const listKnowledgeProcessing = (kb: string, signal?: AbortSignal) =>
 export const processKnowledgeDocuments = (
   kb: string,
   clientRequestId: string,
-  documentIds?: string[],
-  reprocess = false,
-  rules?: ChunkingRules,
+  documentIds: string[],
+  rules: ChunkingRules,
 ) =>
   request<ProcessingBatch>(`knowledge-bases/${kb}/processing`, {
     method: "POST",
     body: JSON.stringify({
       client_request_id: clientRequestId,
       document_ids: documentIds,
-      reprocess,
       rules,
     }),
   });
@@ -238,3 +203,32 @@ export const cancelKnowledgeProcessing = (kb: string, batchId: string) =>
     method: "POST",
     body: "{}",
   });
+
+export type KnowledgeEvidence = {
+  evidence_id: string;
+  title: string;
+  locator: string;
+  content: string;
+  document_version: string;
+  offset: number;
+  next_offset: number | null;
+  total_chars: number;
+  source_url: string;
+};
+export type KnowledgeEvidenceReference = {
+  evidence_id: string;
+  title: string;
+  source_url: string;
+  legacy_source_url: string;
+};
+export const getKnowledgeEvidence = (
+  run: string,
+  evidence: string,
+  offset: number,
+  signal?: AbortSignal,
+) =>
+  request<KnowledgeEvidence>(`runs/${run}/knowledge-evidence/${evidence}?offset=${offset}`, {
+    signal,
+  });
+export const listKnowledgeEvidence = (run: string, signal?: AbortSignal) =>
+  request<KnowledgeEvidenceReference[]>(`runs/${run}/knowledge-evidence`, { signal });

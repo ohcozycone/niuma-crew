@@ -94,7 +94,6 @@ export function McpCatalogManager({
       name: accountName.trim(),
       kind: "mcp_http",
       service_id: null,
-      account_scope: "personal",
       created_by_user_id: null,
       tool_annotations: {},
       annotations_revision: 1,

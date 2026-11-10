@@ -103,7 +103,7 @@ export function useSigninForm(onInteract: () => void) {
       if (!alive.current) return;
       setPassword("");
       notifyIdentityChange();
-      location.replace(kind === "guest" ? "/" : next);
+      location.replace(next);
     } catch (failure) {
       if (!alive.current) return;
       if (kind !== "github") setPassword("");

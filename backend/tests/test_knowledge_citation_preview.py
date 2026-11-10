@@ -1,14 +1,12 @@
-"""Citation cards read one current authorized fragment, never an entire source document."""
-
 from datetime import timedelta
 
 import pytest
 from test_knowledge_library import create, process, upload
 
 from app.auth.actor import Actor
-from app.errors import NotFoundError
-from app.infrastructure.database.fields import utc_now
+from app.errors import PermissionDeniedError
 from app.knowledge.models import KnowledgeBase, LibraryChunk
+from app.values import utc_now
 
 
 def fixture(client):
@@ -67,20 +65,20 @@ def test_citation_preview_rejects_mismatched_document_and_library(api_client):
     )
 
 
-def test_citation_preview_checks_owner_and_current_fragment(api_client):
+def test_citation_preview_checks_management_permission_and_current_fragment(api_client):
     base, document, chunk = fixture(api_client)
     service = api_client.app.state.knowledge
     with service.database.transaction() as db:
-        owner = db.get(KnowledgeBase, base["id"]).owner_user_id
+        owner = db.get(KnowledgeBase, base["id"]).created_by_user_id
     other = Actor(
         "user",
         "",
         "00000000-0000-0000-0000-000000000000",
         "other",
-        "admin",
+        "member",
         utc_now() + timedelta(hours=1),
     )
-    with pytest.raises(NotFoundError):
+    with pytest.raises(PermissionDeniedError):
         service.citation_preview(other, base["id"], document["id"], chunk["id"])
     with service.database.transaction() as db:
         row = db.get(LibraryChunk, chunk["id"])

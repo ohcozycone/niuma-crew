@@ -1,37 +1,43 @@
-"""Register all persistent models for migrations and database tooling."""
+"""为迁移注册业务模型；业务代码仍从所属模块导入模型。"""
 
-from app.agents.models import Agent, AgentSkill, AgentToolGrant, PersonalToolBinding
 from app.auth.models import AuthSession, ExternalIdentity, User
 from app.conversations.models import Conversation, ConversationRun, Message, MessageFile
+from app.employees.models import (
+    Agent,
+    AgentKnowledgeLibrary,
+    AgentSkill,
+    AgentToolGrant,
+    OrganizationRules,
+)
+from app.environments.models import SandboxResource
+from app.evaluations.models import EvaluationBatch, EvaluationCase
 from app.execution.models import Run, RunAction
 from app.files.models import StoredFile
 from app.infrastructure.database.base import Base
+from app.infrastructure.database.identifiers import IdentifierSequence
 from app.knowledge.models import (
-    EmployeeKnowledgeLibrary,
-    EmployeeKnowledgeSettings,
     KnowledgeBase,
     LibraryChunk,
     LibraryDocument,
-    LibraryVector,
     LibraryVectorIndex,
+    LibraryVectorMembership,
     ProcessingBatch,
     ProcessingItem,
     RunKnowledgeEvidence,
 )
+from app.mcp.models import McpService, ToolConnection
 from app.model_connections.models import ModelConnection
-from app.organization_rules.models import OrganizationRules
-from app.sandboxes.models import SandboxResource
 from app.skills.models import Skill
-from app.tools.models import McpService, ToolConnection
 
 __all__ = [
-    "EmployeeKnowledgeSettings",
-    "EmployeeKnowledgeLibrary",
+    "EvaluationBatch",
+    "EvaluationCase",
+    "IdentifierSequence",
     "RunKnowledgeEvidence",
     "KnowledgeBase",
     "LibraryDocument",
     "LibraryChunk",
-    "LibraryVector",
+    "LibraryVectorMembership",
     "LibraryVectorIndex",
     "ProcessingBatch",
     "ProcessingItem",
@@ -52,7 +58,7 @@ __all__ = [
     "AgentToolGrant",
     "ToolConnection",
     "McpService",
-    "PersonalToolBinding",
+    "AgentKnowledgeLibrary",
     "StoredFile",
     "MessageFile",
     "SandboxResource",

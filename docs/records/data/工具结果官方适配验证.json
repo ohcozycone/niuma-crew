@@ -1,0 +1,274 @@
+{
+  "stage": "official-adaptation-isolated-probe",
+  "production_code_changed": false,
+  "remote_calls": 0,
+  "real_model_calls": 0,
+  "cases": [
+    {
+      "name": "small_10988_json_inline",
+      "status": "passed",
+      "seconds": 0.0111,
+      "details": {
+        "delivered_chars": 10988,
+        "offloaded": false,
+        "raw_archives": 1,
+        "model_calls": 2,
+        "full_json_valid": true,
+        "artifact_preserved": true
+      }
+    },
+    {
+      "name": "existing_backend_default_path_rejected",
+      "status": "passed",
+      "seconds": 0.0078,
+      "details": {
+        "expected_failure": "file_path_denied",
+        "raw_archives": 1,
+        "reason": "SDK default artifact path outside existing write roots"
+      }
+    },
+    {
+      "name": "large_native_offload_read_and_download",
+      "status": "passed",
+      "seconds": 0.0151,
+      "details": {
+        "raw_chars": 207999,
+        "preview_chars": 1985,
+        "read_middle": true,
+        "raw_archives": 1,
+        "alias_count": 1,
+        "new_plaintext_files": 0,
+        "business_calls": 1,
+        "source_hash": "645154b7333f3ba2a1e04849b0e7fef8fbd5a627e5c8e9ac2e4f4f195b18ae1b",
+        "model_calls": 3,
+        "recorded_feedback_matches_model_view": true
+      }
+    },
+    {
+      "name": "parallel_two_large_results",
+      "status": "passed",
+      "seconds": 0.0502,
+      "details": {
+        "archives": 2,
+        "aliases": 2,
+        "model_input_bytes": 9051,
+        "tool_results": 2,
+        "business_calls": 2,
+        "read_second_result_origin_correct": true
+      }
+    },
+    {
+      "name": "multimodal_and_structured_original_preserved",
+      "status": "passed",
+      "seconds": 0.0106,
+      "details": {
+        "non_text_blocks_preserved": true,
+        "structured_payload_preserved": true,
+        "artifact_preserved": true,
+        "offloaded": true,
+        "provider_image_rendering_tested": false
+      }
+    },
+    {
+      "name": "read_file_excluded_from_recursive_offload",
+      "status": "passed",
+      "seconds": 0.0155,
+      "details": {
+        "read_chars": 79975,
+        "alias_count": 1,
+        "read_reoffloaded": false
+      }
+    },
+    {
+      "name": "native_grep_reuses_original_storage",
+      "status": "passed",
+      "seconds": 0.0131,
+      "details": {
+        "match_observed": true,
+        "alias_count": 1,
+        "grep_reoffloaded": false
+      }
+    },
+    {
+      "name": "source_readonly_model_and_backend",
+      "status": "passed",
+      "seconds": 0.0134,
+      "details": {
+        "model_write_denied": "file_path_denied",
+        "direct_untrusted_backend_write_denied": true
+      }
+    },
+    {
+      "name": "revocation_all_native_read_paths",
+      "status": "passed",
+      "seconds": 0.01,
+      "details": {
+        "read_grep_download_denied_after_revocation": true
+      }
+    },
+    {
+      "name": "cross_run_denied",
+      "status": "passed",
+      "seconds": 0.0102,
+      "details": {
+        "cross_run_denied": "cross_run_denied",
+        "same_physical_storage_not_authority": true
+      }
+    },
+    {
+      "name": "checkpoint_and_backend_recreation",
+      "status": "passed",
+      "seconds": 0.0141,
+      "details": {
+        "checkpoint_reference_preserved": true,
+        "backend_recreated_read_ok": true,
+        "new_business_calls": 0,
+        "mcp_execution_replay_tested": false
+      }
+    },
+    {
+      "name": "legacy_character_reader_compatibility",
+      "status": "passed",
+      "seconds": 0.0018,
+      "details": {
+        "format_version": 2,
+        "old_character_cursor_preserved": true,
+        "business_calls": 0
+      }
+    },
+    {
+      "name": "raw_archive_failure_stops_delivery",
+      "status": "passed",
+      "seconds": 0.0073,
+      "details": {
+        "archive_failure_stops_delivery": true,
+        "aliases": 0,
+        "model_received_result": false
+      }
+    },
+    {
+      "name": "offload_failure_final_capacity_guard",
+      "status": "passed",
+      "seconds": 0.0099,
+      "details": {
+        "sdk_falls_back_to_original": true,
+        "final_capacity_guard_rejected": true,
+        "archive_preserved": true
+      }
+    },
+    {
+      "name": "cancel_before_alias_delivery",
+      "status": "passed",
+      "seconds": 0.0525,
+      "details": {
+        "delivery_cancelled": true,
+        "aliases": 0,
+        "raw_archive_may_already_exist": 1,
+        "blocking_io_or_remote_cancellation_tested": false
+      }
+    },
+    {
+      "name": "sdk_filename_not_source_identity",
+      "status": "passed",
+      "seconds": 0.0107,
+      "details": {
+        "sdk_alias": "/source:section_001",
+        "origin_from_trusted_context": true,
+        "origin_guessed_from_filename": false
+      }
+    },
+    {
+      "name": "aggregate_capacity_is_separate_from_offloading",
+      "status": "passed",
+      "seconds": 0.01,
+      "details": {
+        "individual_below_sdk_threshold": true,
+        "combined_over_test_capacity": true,
+        "final_request_rejected": true,
+        "sdk_does_not_allocate_whole_request_budget": true,
+        "test_capacity_is_not_model_window": true
+      }
+    },
+    {
+      "name": "single_line_json_original_and_cursor_preserved",
+      "status": "passed",
+      "seconds": 0.0111,
+      "details": {
+        "archived_json_valid": true,
+        "upstream_cursor_preserved": true,
+        "backend_total_reading_lines": 1,
+        "source_character_ranges_not_inferred": true
+      }
+    },
+    {
+      "name": "native_citation_and_current_result_boundary",
+      "status": "passed",
+      "seconds": 0.0,
+      "details": {
+        "native_blocks_retain_annotation": true,
+        "current_production_result_is_text_only": true,
+        "candidate_answer_shape_preserves_blocks": true,
+        "real_provider_annotation_tested": false
+      }
+    },
+    {
+      "name": "public_projection_against_mock_provider_wire",
+      "status": "gap_confirmed",
+      "seconds": 0.0313,
+      "details": {
+        "http_transport": "MockTransport",
+        "network_requests": 0,
+        "public_projection_matches_chatopenai_request": false,
+        "difference": "SDK serializes empty assistant tool-call content as null; public converter keeps empty string.",
+        "tool_result_projection_matches": true,
+        "artifact_excluded_from_actual_request": true,
+        "impact": "Reference view is useful but is not byte-exact provider input or token-window accounting.",
+        "platform_message_bytes": 140176,
+        "actual_tool_message_bytes": 52,
+        "model_profile_or_token_budget_verified": false
+      }
+    },
+    {
+      "name": "legacy_without_frozen_text_field",
+      "status": "passed",
+      "seconds": 0.0016,
+      "details": {
+        "format_version": null,
+        "old_frozen_projection_unchanged": true,
+        "business_calls": 0
+      }
+    }
+  ],
+  "source_sha256": {
+    "app/agent/model_calls.py": "d018abb9851f2b049a2bc7cd19c1ea917a57d195b883b11725b374a9a3055c1c",
+    "app/agent/tool_calls.py": "01e6514e213ed65519bef458e582c155ca80d992ec3d1e74843833102563d715",
+    "app/agent/tool_discovery.py": "53f3a22f35911fd3d7ff096a3dc6a4ffafaadf3dcd11f21ed56f4c8b452d4ba8",
+    "app/agent/engine.py": "ea89fb8ea020f936079cd8cf375f7f74c352cbf2866e55d4df46dff204e3cbcc",
+    "app/builtin_tools/results.py": "e5a2652fa3e3e9a4fc34b4556b68130219a652e259652ea8ba24c3230d345e68",
+    "app/builtin_tools/workspace.py": "ffb856680c20480a5d3a7d889a3718bf5e9a243986206f4f526ee3f79c699ceb",
+    "app/execution/tool_results.py": "6706ae82d0425a35934537c76cc145ced473f684d0721c2de7d1a85832791651",
+    "app/llm/factory.py": "1095f8c29cb4ebcad409a27ebc5e84ce423600a3eae82bef96881cc84d8d7121"
+  },
+  "script_sha256": "44d01bf4ad9c0d3a60a6bd88f1e5fc965e401701707da979a5a6100cf8e0f990",
+  "recorded_at_utc": "2026-11-10T03:18:36.038671+00:00",
+  "versions": {
+    "langchain": "1.4.7",
+    "langgraph": "1.2.16",
+    "deepagents": "0.7.30",
+    "langchain-core": "1.6.13",
+    "langchain-openai": "1.7.2"
+  },
+  "limitations": [
+    "真实SDK图、现有工具中间件及原始结果保存参与验证；平台身份、权限服务和MCP客户端使用替身，不启动应用或读取业务库。",
+    "模型为脚本式假模型；不验收自然语言答案质量、token、费用或生产时延。",
+    "没有验证真实远端MCP、真实沙箱、上游图片渲染或进程崩溃恢复。",
+    "持久化使用隔离目录和SQLite；别名与内容映射验证通过不等于生产DAO和事务已经实现。",
+    "公开消息投影与实际provider负载有已确认的小格式差异；本次不把参考投影作为精确字节或token容量验收。"
+  ],
+  "production_source_hashes_unchanged": true,
+  "summary": {
+    "passed": 20,
+    "known_gaps": 1,
+    "failed": 0
+  }
+}

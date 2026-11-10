@@ -50,10 +50,10 @@ export function DemoInvocationDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>模拟调用检查</DialogTitle>
-          <DialogDescription>
-            使用{employee.agent.name}已保存的许可。只演示校验，不请求服务或执行程序。
-          </DialogDescription>
         </DialogHeader>
+        <DialogDescription>
+          使用{employee.agent.name}已保存的许可。只演示校验，不请求服务或执行程序。
+        </DialogDescription>
         <FormField label={<>MCP 能力</>}>
           <SelectField
             value={selected}

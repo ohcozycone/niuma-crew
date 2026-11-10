@@ -1,5 +1,3 @@
-"""Unexpected failures remain diagnosable without exposing exception values."""
-
 import asyncio
 import logging
 import traceback

@@ -16,7 +16,7 @@ const typeClasses = {
 } as const;
 
 export function TypographyCatalog() {
-  const [smoothPreview, setSmoothPreview] = useState(true);
+  const [smoothPreview, setSmoothPreview] = useState(false);
   const supportsSmoothCorners =
     typeof CSS !== "undefined" && CSS.supports("corner-shape", "squircle");
   const { values, declarations } = useThemeValues();

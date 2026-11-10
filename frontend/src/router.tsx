@@ -1,3 +1,4 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
 import { createBrowserRouter, Navigate, Outlet, useSearchParams } from "react-router";
 import { AuthBoundary } from "./components/auth/AuthBoundary";
 import { safeReturnPath } from "@/lib/navigation";
@@ -32,7 +33,7 @@ function ProtectedPreview() {
 function InitialLoading() {
   return (
     <main className="page-frame py-6" aria-busy="true">
-      <p role="status">正在打开页面…</p>
+      <LoadingFeedback shape="document" label="正在打开页面…" />
     </main>
   );
 }
@@ -69,6 +70,14 @@ export const router = createBrowserRouter([
         },
       ]
     : []),
+  {
+    path: "/design-system",
+    lazy: routeModule(async () => ({
+      Component: (await import("./pages/help/DesignSystemRedirectPage")).DesignSystemRedirectPage,
+    })),
+    hydrateFallbackElement: <InitialLoading />,
+    errorElement: <RouteFailure />,
+  },
   { path: "/", element: <LegacyEntry />, errorElement: <RouteFailure /> },
   { path: "/login", Component: LoginAlias },
   {
@@ -87,6 +96,12 @@ export const router = createBrowserRouter([
         errorElement: <RouteFailure layout="section" />,
         children: [
           { path: "/agents", lazy: routeModule(() => import("./pages/agents/AgentsPage")) },
+          {
+            path: "/agents/:id/home",
+            lazy: routeModule(async () => ({
+              Component: (await import("./pages/agents/EmployeeHomePage")).EmployeeHomePage,
+            })),
+          },
           {
             path: "/agents/new",
             lazy: routeModule(async () => ({
@@ -112,16 +127,22 @@ export const router = createBrowserRouter([
               Component: (await import("./pages/skills/SkillEditorPage")).SkillEditorPage,
             })),
           },
-          { path: "/rules", element: <Navigate replace to="/knowledge?tab=rules" /> },
-          { path: "/brains", lazy: routeModule(() => import("./pages/brains/BrainsPage")) },
           {
-            path: "/agents/:id/connections",
-            lazy: routeModule(() => import("./pages/tools/PersonalConnectionsPage")),
+            path: "/rules",
+            lazy: routeModule(() => import("./pages/organization-rules/OrganizationRulesPage")),
           },
+          { path: "/brains", lazy: routeModule(() => import("./pages/brains/BrainsPage")) },
           { path: "/tools", lazy: routeModule(() => import("./pages/tools/ToolsPage")) },
           {
             path: "/knowledge",
             lazy: routeModule(() => import("./pages/knowledge/KnowledgePage")),
+          },
+          {
+            path: "/knowledge/sources/:runId/:evidenceId",
+            lazy: routeModule(async () => ({
+              Component: (await import("./pages/knowledge/KnowledgeEvidencePage"))
+                .KnowledgeEvidencePage,
+            })),
           },
           {
             path: "/knowledge/:id",
@@ -142,6 +163,20 @@ export const router = createBrowserRouter([
             })),
           },
           {
+            path: "/conversations/:id/trace",
+            lazy: routeModule(async () => ({
+              Component: (await import("./pages/conversations/ExecutionTracePage"))
+                .ExecutionTracePage,
+            })),
+          },
+          {
+            path: "/agents/:id/evaluations/:batchId/cases/:caseId/trace",
+            lazy: routeModule(async () => ({
+              Component: (await import("./pages/conversations/ExecutionTracePage"))
+                .ExecutionTracePage,
+            })),
+          },
+          {
             path: "/conversations/:id",
             lazy: routeModule(async () => ({
               Component: (await import("./pages/conversations/ConversationsPage")).ConversationPage,
@@ -152,22 +187,25 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "/help/:topic?",
-    errorElement: <RouteFailure />,
-    lazy: routeModule(() => import("./pages/help/HelpPage")),
-    hydrateFallbackElement: <InitialLoading />,
+    element: (
+      <AuthBoundary>
+        <Outlet />
+      </AuthBoundary>
+    ),
+    children: [
+      {
+        path: "/help/:topic?",
+        errorElement: <RouteFailure />,
+        lazy: routeModule(() => import("./pages/help/HelpPage")),
+        hydrateFallbackElement: <InitialLoading />,
+      },
+    ],
   },
   {
     element: <ProtectedPreview />,
     errorElement: <RouteFailure />,
     hydrateFallbackElement: <InitialLoading />,
     children: [
-      {
-        path: "/design-system",
-        lazy: routeModule(async () => ({
-          Component: (await import("./pages/design-system/DesignSystemPage")).DesignSystemPage,
-        })),
-      },
       {
         path: "/avatars/svg",
         lazy: routeModule(async () => ({
@@ -182,5 +220,15 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  { path: "*", Component: RouteNotFound },
+  {
+    path: "*",
+    element: (
+      <AuthBoundary>
+        <RouteNotFound />
+      </AuthBoundary>
+    ),
+  },
 ]);
+
+// 路由模块替换后，旧实例不应继续监听浏览器历史或处理在途导航。
+if (import.meta.hot) import.meta.hot.dispose(() => router.dispose());

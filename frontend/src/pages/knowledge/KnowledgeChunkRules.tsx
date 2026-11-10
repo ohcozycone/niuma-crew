@@ -71,7 +71,7 @@ export function KnowledgeChunkRules({
         留空继承平台默认。仅合并同一父标题下相邻且短于阈值的章节，保留标题与来源；0关闭合并。
       </p>
       <p className={`text-xs ${error ? "text-danger" : "text-text-muted"}`} role="status">
-        生效规则：{rules.chunk_size}字符 / 重叠{rules.chunk_overlap}字符 / 短章节阈值
+        本次设置：{rules.chunk_size}字符 / 重叠{rules.chunk_overlap}字符 / 短章节阈值
         {rules.min_section_chars}字符
         {error && `；${error}`}
       </p>

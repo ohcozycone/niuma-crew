@@ -1,19 +1,18 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
 import { useFailureState } from "@/state/shared/useFailureState";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { PageContainer } from "@/components/common/PageContainer";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { Button } from "@/components/ui/Button";
 import { getConversations } from "@/lib/api/conversations";
 import { useIdentity } from "@/state/auth/useIdentity";
 import { PageHeading } from "@/components/common/PageHeading";
-import { ConversationHistory } from "./ConversationHistory";
+import { ConversationHistory } from "@/components/conversations/ConversationHistory";
 import { ConversationPanel } from "./ConversationPanel";
-import { identityKey } from "@/lib/identity";
-import { createLocalConversation, localConversationAgent } from "./conversationDraft";
 export function ConversationsPage() {
   const identity = useIdentity();
-  return identity.permissions.includes("runs:create") ? (
+  return identity.permissions.includes("conversations:read") ? (
     <ConversationHistory />
   ) : (
     <PageContainer>
@@ -27,39 +26,20 @@ export function ConversationPage() {
   const identity = useIdentity();
   const agent = params.get("agent") || undefined;
   const location = useLocation();
-  if (!identity.permissions.includes("runs:create"))
+  if (!id && !identity.permissions.includes("runs:create"))
     return <div className="conversation-page-frame py-6">请登录账号后使用员工对话。</div>;
   if (!id && !agent)
     return <div className="conversation-page-frame py-6">请先从员工目录选择员工。</div>;
   if (!id && agent && params.get("resume") === "1")
     return <RecentConversation key={agent} agentId={agent} />;
   if (!id && agent) return <NewConversation key={location.key} agentId={agent} />;
-  const draftAgent = id
-    ? (localConversationAgent(identityKey(identity), id) ?? location.state?.draftAgentId)
-    : undefined;
-  return <ConversationPanel key={id} id={id!} agentId={draftAgent} />;
+  return <ConversationPanel key={id} id={id!} />;
 }
 
 function NewConversation({ agentId }: { agentId: string }) {
-  const identity = useIdentity();
-  const owner = identityKey(identity);
   const location = useLocation();
-  const navigate = useNavigate();
-  const [params] = useSearchParams();
-  const query = params.toString();
-  const allocated = useRef<string | null>(null);
-  useEffect(() => {
-    allocated.current ??= createLocalConversation(owner, agentId, location.key);
-    navigate(`/conversations/${allocated.current}?${query}`, {
-      replace: true,
-      state: { draftAgentId: agentId },
-    });
-  }, [owner, agentId, location.key, navigate, query]);
-  return (
-    <p role="status" className="conversation-page-frame py-6">
-      正在打开新对话…
-    </p>
-  );
+  // This identifies local storage only; it is never sent as a conversation ID.
+  return <ConversationPanel id={`draft:${location.key}:${agentId}`} agentId={agentId} />;
 }
 
 function RecentConversation({ agentId }: { agentId: string }) {
@@ -104,7 +84,7 @@ function RecentConversation({ agentId }: { agentId: string }) {
           </Button>
         </div>
       ) : (
-        <p role="status">正在打开最近对话…</p>
+        <LoadingFeedback shape="conversation" label="正在打开最近对话…" />
       )}
     </div>
   );

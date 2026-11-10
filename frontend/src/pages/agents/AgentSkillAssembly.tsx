@@ -1,3 +1,4 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
 import { useFailureState } from "@/state/shared/useFailureState";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { toFailure, clientFailure } from "@/lib/failures/resolve";
@@ -28,12 +29,14 @@ export function useSkillAssembly({
   ids,
   skills,
   settings,
+  readOnly = false,
   onChange,
   onSelectionChange,
 }: {
   ids: string[];
   skills: SkillListItem[];
   settings: Settings;
+  readOnly?: boolean;
   onChange: (settings: Settings) => void;
   onSelectionChange: (ids: string[]) => void;
 }) {
@@ -46,6 +49,7 @@ export function useSkillAssembly({
   const [offset, setOffset] = useState(0);
   const [total, setTotal] = useState(0);
   const [optionsLoading, setOptionsLoading] = useState(false);
+  const [optionsRevision, setOptionsRevision] = useState(0);
   const { failure: optionsFailure, setError: setOptionsError } = useFailureState();
   const [editing, setEditing] = useState<string | null>(null);
   const [parameters, setParameters] = useState("{}");
@@ -94,7 +98,7 @@ export function useSkillAssembly({
         }
       });
     return () => controller.abort();
-  }, [chooser, query, offset, setOptionsError]);
+  }, [chooser, query, offset, optionsRevision, setOptionsError]);
   function configure(id: string) {
     setEditing(id);
     setParameters(settings[id]?.parameters ?? "{}");
@@ -117,6 +121,7 @@ export function useSkillAssembly({
       summary: skill?.description ?? "可复用工作方法",
       element: (
         <AssemblyItem
+          readOnly={readOnly}
           key={id}
           name={skill?.name ?? "正在读取已装配技能…"}
           icon={<ResourceIcon kind="skill" size={18} className="text-text-muted" />}
@@ -143,20 +148,15 @@ export function useSkillAssembly({
       ),
     };
   });
-  const candidateItems: AssemblyCandidate[] = options
-    .filter(
-      (skill) =>
-        !ids.includes(skill.id) &&
-        `${skill.name} ${skill.description}`.toLowerCase().includes(query.toLowerCase()),
-    )
-    .map((skill) => ({
-      key: `skill:${skill.id}`,
-      kind: "skill",
-      name: skill.name,
-      summary: skill.description,
-      disabled: optionsLoading,
-      select: () => onSelectionChange([...ids, skill.id]),
-    }));
+  const candidateItems: AssemblyCandidate[] = options.map((skill) => ({
+    key: `skill:${skill.id}`,
+    kind: "skill",
+    name: skill.name,
+    summary: skill.description,
+    disabled: optionsLoading || ids.includes(skill.id),
+    selected: ids.includes(skill.id),
+    select: () => onSelectionChange([...ids, skill.id]),
+  }));
   return {
     items,
     candidateItems,
@@ -181,6 +181,16 @@ export function useSkillAssembly({
         compact
         failure={optionsFailure}
         context={{ operation: "refresh", resource: "skill", hasUsableData: !!options.length }}
+        actions={[
+          {
+            label: "重新读取技能",
+            kind: "retry",
+            onClick: () => {
+              setOptionsLoading(true);
+              setOptionsRevision((n) => n + 1);
+            },
+          },
+        ]}
       />
     ) : null,
     openChooser,
@@ -191,7 +201,6 @@ export function useSkillAssembly({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>添加技能</DialogTitle>
-              <DialogDescription>选择技能后加入员工草稿，保存员工配置才生效。</DialogDescription>
             </DialogHeader>
             <SearchInput
               label="搜索技能"
@@ -289,11 +298,11 @@ export function useSkillAssembly({
           <DialogContent layout="side">
             <DialogHeader>
               <DialogTitle>{current?.name ?? "技能配置"}</DialogTitle>
+            </DialogHeader>
+            <div className="focus-gutter min-h-0 space-y-4 overflow-auto">
               <DialogDescription>
                 参数规范由该能力作者声明。取消或关闭丢弃面板修改，完成后由员工页统一保存。
               </DialogDescription>
-            </DialogHeader>
-            <div className="focus-gutter min-h-0 space-y-4 overflow-auto">
               {editing && failures[editing] ? (
                 <FailureNotice
                   compact
@@ -301,7 +310,7 @@ export function useSkillAssembly({
                   context={{ operation: "initial-read", resource: "skill" }}
                 />
               ) : !current ? (
-                <p role="status">正在读取技能详情…</p>
+                <LoadingFeedback shape="form" label="正在读取技能详情…" />
               ) : (
                 <>
                   <p className="text-sm text-text-muted">{current.description}</p>
@@ -309,6 +318,7 @@ export function useSkillAssembly({
                     <>
                       <FormField label={<>装配参数（JSON，不含密钥）</>}>
                         <Textarea
+                          readOnly={readOnly}
                           rows={10}
                           className="font-mono text-xs"
                           value={parameters}
@@ -349,7 +359,7 @@ export function useSkillAssembly({
               </Button>
               <Button
                 type="button"
-                disabled={!current}
+                disabled={readOnly || !current}
                 onClick={() => {
                   try {
                     const parsed: unknown = JSON.parse(hasParameters ? parameters : "{}");

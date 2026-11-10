@@ -15,6 +15,9 @@ vi.mock("@/lib/api/modelConnections", () => ({
   testModelConnection: vi.fn(),
   deleteModelConnection: vi.fn(),
 }));
+vi.mock("@/state/auth/useIdentity", () => ({
+  useIdentity: () => ({ permissions: ["model_connections:read", "model_connections:update"] }),
+}));
 beforeEach(() => vi.resetAllMocks());
 afterEach(cleanup);
 
@@ -204,3 +207,63 @@ it("keeps embedding connections and presets out of employee brains", async () =>
   await screen.findByRole("heading", { name: "研发大脑" });
   expect(screen.queryByRole("heading", { name: "知识库专用" })).toBeNull();
 });
+
+it.each([
+  ["zhipu", "智谱 GLM", "https://open.bigmodel.cn/api/paas/v4", "glm-5.3"],
+  ["deepseek", "DeepSeek", "https://api.deepseek.com", "deepseek-flash"],
+])(
+  "selects and saves the %s preset with its own defaults and key prompt",
+  async (id, name, url, model) => {
+    const preset = {
+      ...readPreset,
+      id,
+      name,
+      provider: id,
+      base_url: url,
+      default_model_id: model,
+    };
+    vi.mocked(api.loadModelPresets).mockResolvedValue([readPreset, preset]);
+    vi.mocked(api.loadModelConnections).mockResolvedValue([]);
+    vi.mocked(api.saveModelConnection).mockResolvedValue({
+      ...readConnection,
+      id,
+      name,
+      preset_id: id,
+      provider: id,
+      base_url: url,
+      model_id: model,
+    });
+    render(
+      <MemoryRouter>
+        <EditingProvider>
+          <BrainWorkspace />
+        </EditingProvider>
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getAllByRole("button", { name: "新建大脑" })[0].hasAttribute("disabled")).toBe(
+        false,
+      ),
+    );
+    fireEvent.click(screen.getAllByRole("button", { name: "新建大脑" })[0]);
+    fireEvent.click(screen.getByRole("combobox", { name: "模型预设" }));
+    fireEvent.keyDown(await screen.findByRole("option", { name }), { key: "Enter" });
+    expect(screen.getByRole("textbox", { name: "Model ID" })).toHaveProperty("value", model);
+    expect(screen.getByText(`Base URL：${url}`)).toBeTruthy();
+    expect(screen.getByPlaceholderText(`输入 ${name} API Key`)).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("API Key"), { target: { value: "test-only-key" } });
+    fireEvent.click(screen.getByRole("button", { name: "保存大脑" }));
+    await screen.findByRole("heading", { name });
+    expect(api.saveModelConnection).toHaveBeenCalledWith(
+      {
+        name,
+        model_id: model,
+        api_key: "test-only-key",
+        preset_id: id,
+        enabled: true,
+      },
+      undefined,
+    );
+    expect(screen.queryByDisplayValue("test-only-key")).toBeNull();
+  },
+);

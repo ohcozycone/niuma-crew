@@ -1,7 +1,7 @@
 export default {
-  page: "m-0 min-h-[100svh] py-4 px-3 grid [place-items:center] bg-(--login-bg) [color-scheme:inherit] text-text leading-[normal] [font-family:-apple-system,_BlinkMacSystemFont,_'PingFang_SC',_sans-serif] [-webkit-font-smoothing:antialiased] [-webkit-user-select:none] select-none [&_:where(button,_input)]:[font:inherit] [&_input]:[-webkit-user-select:text] [&_input]:select-text [&_textarea]:[-webkit-user-select:text] [&_textarea]:select-text [&_button]:cursor-pointer [&_button:disabled]:cursor-wait [&_button:disabled]:[opacity:0.65] [&_[hidden]]:hidden! [&_button:focus-visible]:[outline:3px_solid_var(--login-ring)] [&_button:focus-visible]:[outline-offset:4px] [&_.github:disabled]:cursor-not-allowed [&_.github:disabled]:[opacity:0.45] [&_.github[aria-busy='true']]:cursor-wait [&_.github[aria-busy='true']]:[opacity:0.65] [&_input::selection]:bg-(--login-selection) [&_input::selection]:text-text",
+  page: "m-0 min-h-[100svh] py-4 px-3 grid [place-items:center] bg-(--login-bg) [color-scheme:inherit] text-text leading-[normal] [font-family:-apple-system,_BlinkMacSystemFont,_'PingFang_SC',_sans-serif] [-webkit-font-smoothing:antialiased] [-webkit-user-select:none] select-none [&_input]:[font:inherit] [&_input]:[-webkit-user-select:text] [&_input]:select-text [&_textarea]:[-webkit-user-select:text] [&_textarea]:select-text [&_[hidden]]:hidden! [&_input::selection]:bg-(--login-selection) [&_input::selection]:text-text",
   shell:
-    "[--w:820px] [--h:560px] [--scale:1] [--box-w:822px] [--box-h:562px] [--floor:218px] [--body-y:244px] relative w-(--box-w) h-(--box-h) [border:1px_solid_var(--login-border)] rounded-[14px] overflow-hidden bg-(--login-scene)",
+    "[--w:820px] [--h:560px] [--scale:1] [--box-w:822px] [--box-h:562px] [--floor:218px] [--body-y:244px] relative w-(--box-w) h-(--box-h) [border:1px_solid_var(--login-border)] rounded-card overflow-hidden bg-(--login-scene)",
   canvas:
     "relative w-(--w) h-(--h) [transform:scale(var(--scale))] [transform-origin:0_0] overflow-hidden isolate",
   "scene-header":
@@ -19,20 +19,16 @@ export default {
   "form-heading": "mb-3 max-[700px]:mb-3",
   credentials: "min-w-0 border-0 m-0 p-0",
   field:
-    "flex items-center gap-3 min-h-9 [border-bottom:1px_solid_var(--login-input)] text-[length:11px] leading-[14px] text-text-muted mt-0 mx-0 mb-1.5 [&_>_span]:[flex:0_0_auto] [&_input]:block [&_input]:min-w-0 [&_input]:flex-1 [&_input]:w-full [&_input]:m-0 [&_input]:h-8 [&_input]:border-0 [&_input]:rounded-none [&_input]:bg-transparent [&_input]:py-0 [&_input]:px-0.5 [&_input]:text-text [&_input]:text-[length:13px] [&_input:focus-visible]:[outline:0] rounded-small [corner-shape:round] transition-[border-color,box-shadow] focus-within:ring-[3px] focus-within:ring-field-focus/50 [&:focus-within]:border-field-focus [&:last-of-type]:mb-0 [&:has(input[aria-invalid='true'])]:border-danger has-[[aria-invalid=true]]:focus-within:ring-danger/20 max-[700px]:text-[length:11px] max-[700px]:leading-[15px] max-[700px]:min-h-10 max-[700px]:mb-1.5 max-[700px]:[&_input]:text-[length:16px] max-[700px]:[&_input]:h-9.5",
-  enter:
-    "flex items-center justify-between w-full h-9 border-0 rounded-control bg-action text-action-text py-0 px-3 mt-0 text-[length:13px] font-[500] [&:hover]:bg-action-hover [&_em]:text-[length:18px] [&_em]:[font-style:normal] max-[700px]:text-[length:14px] max-[700px]:h-10",
+    "flex items-center gap-3 min-h-9 [border-bottom:1px_solid_var(--login-input)] text-[length:11px] leading-[14px] text-text-muted mt-0 mx-0 mb-1.5 [&_>_span]:[flex:0_0_auto] [&_input]:block [&_input]:min-w-0 [&_input]:flex-1 [&_input]:w-full [&_input]:m-0 [&_input]:h-8 [&_input]:border-0 [&_input]:rounded-none [&_input]:bg-transparent [&_input]:py-0 [&_input]:px-0.5 [&_input]:text-text [&_input]:text-[length:13px] [&_input:focus-visible]:[outline:0] rounded-none transition-[border-color,box-shadow] focus-within:shadow-[0_1px_0_var(--os-field-focus)] [&:focus-within]:border-field-focus [&:last-of-type]:mb-0 [&:has(input[aria-invalid='true'])]:border-danger has-[[aria-invalid=true]]:focus-within:shadow-[0_1px_0_var(--os-danger)] max-[700px]:text-[length:11px] max-[700px]:leading-[15px] max-[700px]:min-h-10 max-[700px]:mb-1.5 max-[700px]:[&_input]:text-[length:16px] max-[700px]:[&_input]:h-9.5",
+  enter: "w-full justify-between max-[700px]:h-(--os-control-large)",
   "other-signin": "mt-3.5 text-center",
   "other-signin-label":
     "flex items-center gap-3 text-text-muted text-[length:10px] leading-[14px] [&::before]:[content:''] [&::before]:flex-1 [&::before]:[border-top:1px_solid_var(--os-border)] [&::after]:[content:''] [&::after]:flex-1 [&::after]:[border-top:1px_solid_var(--os-border)]",
   "other-signin-options": "flex items-center justify-between gap-4 mt-2",
   github:
-    "github relative grid [place-items:center] w-9 h-9 p-0 m-0 rounded-full bg-transparent text-text [border:1px_solid_var(--os-border)] [&_svg]:w-5 [&_svg]:h-5 [&_svg]:[fill:currentColor] [&:hover:not(:disabled)]:bg-muted [&:hover:not(:disabled)]:[border-color:var(--login-input)] [&[aria-busy='true']_svg]:invisible [&[aria-busy='true']::after]:[content:''] [&[aria-busy='true']::after]:absolute [&[aria-busy='true']::after]:w-4 [&[aria-busy='true']::after]:h-4 [&[aria-busy='true']::after]:[border:2px_solid_var(--os-border)] [&[aria-busy='true']::after]:[border-top-color:currentColor] [&[aria-busy='true']::after]:rounded-full [&[aria-busy='true']::after]:[animation:github-pending_0.8s_linear_infinite] motion-reduce:[&[aria-busy='true']::after]:[animation:none] max-[700px]:w-10 max-[700px]:h-10 [@media(pointer:_coarse)]:w-11 [@media(pointer:_coarse)]:h-11",
-  guest:
-    "block border-0 bg-transparent text-text-muted m-0 py-1 px-2.5 text-[length:11px] leading-[16px] [&_span]:pl-1.5 max-[700px]:text-[length:12px]",
-  "feedback-slot": "h-(--login-feedback) pt-0.5",
-  status:
-    "text-[length:10px] leading-[12px] text-action m-0 [&.error]:text-danger [overflow-wrap:anywhere]",
+    "[&>svg:not([data-slot=button-spinner])]:size-5 [&>svg:not([data-slot=button-spinner])]:fill-current",
+  "feedback-slot": "min-h-(--login-feedback) py-1.5",
+  status: "flex items-start gap-1.5 text-xs leading-4 text-danger [overflow-wrap:anywhere]",
   caption:
     "absolute bottom-[19px] left-[max(38px,_calc((100%_-_624px)_/_2))] text-[length:9px] tracking-[0.03em] text-text-muted [z-index:3] max-[700px]:hidden",
 };

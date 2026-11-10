@@ -5,10 +5,10 @@ import { afterEach, expect, it, vi } from "vitest";
 import { ApiError } from "@/lib/api/http";
 import { useConversationController } from "@/pages/conversations/useConversationController";
 import {
-  messageFixture,
   runFixture,
   actionFixture,
   transportFixture,
+  snapshotFixture,
 } from "./conversationTestHelpers";
 afterEach(() => {
   cleanup();
@@ -21,12 +21,12 @@ it("opens a local draft without requests and accepts a first send with stable me
   transport.create = { agentId: "agent" };
   const { result } = renderHook(() => useConversationController({ id: "chat", transport }));
   expect(result.current.phase).toBe("ready");
-  expect(transport.getConversation).not.toHaveBeenCalled();
+  expect(transport.getSnapshot).not.toHaveBeenCalled();
   await act(async () => {
     await result.current.sendMessage({ content: " 新问题 " });
   });
   expect(transport.send).toHaveBeenCalledWith(
-    "chat",
+    null,
     expect.objectContaining({ content: "新问题" }),
     expect.any(String),
   );
@@ -52,7 +52,7 @@ it("replaces snapshots, rejects duplicate revisions and keeps history references
   expect(result.current.messages[0]).toBe(user);
   expect(result.current.messages[1].content).toBe("回答更新");
   expect(transport.subscribe).toHaveBeenCalledTimes(1);
-  expect(transport.getMessages).toHaveBeenCalledTimes(1);
+  expect(transport.getSnapshot).toHaveBeenCalledTimes(1);
 });
 it("keeps unknown submission busy and retries exactly the same immutable request", async () => {
   const { transport } = transportFixture();
@@ -142,11 +142,7 @@ it("reconnects by reading saved state and never resubmits or cancels work", asyn
     version: 3,
     content: "完成",
   });
-  vi.mocked(transport.getMessages).mockResolvedValue({
-    items: [messageFixture("u1", "user", completed), messageFixture("a1", "assistant", completed)],
-    next_before_sequence: null,
-    has_more: false,
-  });
+  vi.mocked(transport.getSnapshot).mockResolvedValue(snapshotFixture(completed));
   act(() => result.current.reconnect());
   await waitFor(() => expect(result.current.phase).toBe("ready"));
   expect(result.current.messages[1].content).toBe("完成");
@@ -173,12 +169,11 @@ it("recovers an unknown request on mount using GET only", async () => {
     }),
   );
   await waitFor(() => expect(result.current.phase).toBe("streaming"));
-  expect(transport.findRequest).toHaveBeenCalledWith(
-    "chat",
-    "original-key",
-    expect.any(AbortSignal),
+  expect(transport.findRequest).toHaveBeenCalledWith(null, "original-key", expect.any(AbortSignal));
+  expect(accepted).toHaveBeenCalledWith(
+    input,
+    expect.objectContaining({ conversation_id: "chat" }),
   );
-  expect(accepted).toHaveBeenCalledWith(input);
   expect(transport.send).not.toHaveBeenCalled();
 });
 it("keeps one live subscription in StrictMode and closes resources on unmount", async () => {
@@ -320,7 +315,7 @@ it("hydrates body and steps from history without a separate run read", async () 
   await waitFor(() => expect(result.current.phase).toBe("ready"));
   expect(result.current.messages[1].content).toBe("历史正文");
   expect(result.current.messages[1].run?.steps).toEqual([saved]);
-  expect(transport.getMessages).toHaveBeenCalledOnce();
+  expect(transport.getSnapshot).toHaveBeenCalledOnce();
   expect(transport.getResponse).not.toHaveBeenCalled();
 });
 it("updates body and steps together, reuses old rows and rejects stale/terminal regressions", async () => {
@@ -365,8 +360,8 @@ it("does not let a late history response overwrite newer SSE text or steps", asy
   const { transport, listeners } = transportFixture(initial);
   const { result } = renderHook(() => useConversationController({ id: "chat", transport }));
   await waitFor(() => expect(result.current.phase).toBe("streaming"));
-  let resolve!: (page: Awaited<ReturnType<typeof transport.getMessages>>) => void;
-  vi.mocked(transport.getMessages).mockImplementationOnce(
+  let resolve!: (snapshot: Awaited<ReturnType<typeof transport.getSnapshot>>) => void;
+  vi.mocked(transport.getSnapshot).mockImplementationOnce(
     () =>
       new Promise((done) => {
         resolve = done;
@@ -378,15 +373,9 @@ it("does not let a late history response overwrite newer SSE text or steps", asy
     content: "更晚的正文",
     steps: [actionFixture({ output_text: "更晚的正文", reasoning_text: "更晚的步骤" })],
   });
-  await waitFor(() => expect(transport.getMessages).toHaveBeenCalledTimes(2));
+  await waitFor(() => expect(transport.getSnapshot).toHaveBeenCalledTimes(2));
   act(() => listeners.at(-1)!.snapshot(newer));
-  await act(async () =>
-    resolve({
-      items: [messageFixture("u1", "user", initial), messageFixture("a1", "assistant", initial)],
-      next_before_sequence: null,
-      has_more: false,
-    }),
-  );
+  await act(async () => resolve(snapshotFixture(initial)));
   expect(result.current.messages[1].content).toBe("更晚的正文");
   expect(result.current.messages[1].run?.steps[0].reasoning_text).toBe("更晚的步骤");
 });
@@ -405,53 +394,8 @@ it("recovers all final steps with the same snapshot when the SSE connection drop
   expect(result.current.messages[1].content).toBe("恢复的答案");
   expect(result.current.messages[1].run?.steps).toEqual(final.steps);
   expect(result.current.phase).toBe("ready");
-  expect(transport.getMessages).toHaveBeenCalledOnce();
+  expect(transport.getSnapshot).toHaveBeenCalledOnce();
   expect(transport.send).not.toHaveBeenCalled();
-});
-
-it("checks a retired pending input without resending it as an ordinary conversation", async () => {
-  const { transport } = transportFixture();
-  transport.create = { agentId: "agent" };
-  sessionStorage.setItem(
-    "retired",
-    JSON.stringify({
-      version: 2,
-      persisted: false,
-      pending: {
-        key: "original-key",
-        input: {
-          content: "旧诊断输入",
-          work: { kind: "github_ci_diagnosis", run_url: "https://example.test/run" },
-        },
-      },
-    }),
-  );
-  const { result } = renderHook(() =>
-    useConversationController({
-      id: "chat",
-      transport,
-      storageKey: "retired",
-    }),
-  );
-  await waitFor(() => expect(result.current.phase).toBe("ready"));
-  expect(transport.findRequest).toHaveBeenCalledWith(
-    "chat",
-    "original-key",
-    expect.any(AbortSignal),
-  );
-  expect(transport.send).not.toHaveBeenCalled();
-  expect(transport.retry).not.toHaveBeenCalled();
-  expect(result.current.submissionError?.message).toContain("入口已移除");
-  expect(result.current.submissionError?.recovery).toBeNull();
-  expect(JSON.parse(sessionStorage.getItem("retired")!).pending).toBeNull();
-  await act(async () => {
-    await result.current.sendMessage({ content: "新普通消息" });
-  });
-  expect(transport.send).toHaveBeenCalledWith(
-    "chat",
-    expect.objectContaining({ content: "新普通消息" }),
-    expect.any(String),
-  );
 });
 
 it("rejects retrying a historical reply that the server marks read-only", async () => {
@@ -470,35 +414,4 @@ it("can stop active work even when retry is unavailable", async () => {
     await result.current.stopMessage("a1");
   });
   expect(transport.cancel).toHaveBeenCalledWith("chat", "a1");
-});
-
-it("only reconciles an already accepted retired input and never resubmits it", async () => {
-  const historical = runFixture({ status: "interrupted", can_retry: false });
-  const { transport } = transportFixture(historical);
-  vi.mocked(transport.findRequest).mockResolvedValue(historical);
-  const onAccepted = vi.fn();
-  sessionStorage.setItem(
-    "retired-accepted",
-    JSON.stringify({
-      version: 2,
-      persisted: true,
-      pending: {
-        key: "old-key",
-        input: { content: "旧输入", work: { kind: "github_ci_diagnosis" } },
-      },
-    }),
-  );
-  const { result } = renderHook(() =>
-    useConversationController({
-      id: "chat",
-      transport,
-      storageKey: "retired-accepted",
-      onAccepted,
-    }),
-  );
-  await waitFor(() => expect(result.current.phase).toBe("ready"));
-  expect(transport.send).not.toHaveBeenCalled();
-  expect(transport.retry).not.toHaveBeenCalled();
-  expect(onAccepted).not.toHaveBeenCalled();
-  expect(JSON.parse(sessionStorage.getItem("retired-accepted")!).pending).toBeNull();
 });

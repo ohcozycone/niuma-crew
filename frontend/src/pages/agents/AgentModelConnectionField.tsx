@@ -1,3 +1,5 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
+import { useDelayedPending } from "@/hooks/useDelayedPending";
 import { useFailureState } from "@/state/shared/useFailureState";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { useEffect, useState } from "react";
@@ -19,6 +21,8 @@ export function AgentModelConnectionField({
   const [connections, setConnections] = useState<ModelConnection[]>([]);
   const [revision, setRevision] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loaded, setLoaded] = useState(false);
+  const showRefresh = useDelayedPending(loading && loaded);
   const { failure, error, setError } = useFailureState();
   useEffect(() => {
     const controller = new AbortController();
@@ -26,6 +30,7 @@ export function AgentModelConnectionField({
       .then((items) => {
         if (!controller.signal.aborted) {
           setConnections(items);
+          setLoaded(true);
           setLoading(false);
         }
       })
@@ -51,7 +56,7 @@ export function AgentModelConnectionField({
       ? "当前大脑未加载，请刷新确认；已有选择会保留。"
       : "";
   const status = loading
-    ? "加载中"
+    ? ""
     : error
       ? "加载失败"
       : selected
@@ -65,15 +70,14 @@ export function AgentModelConnectionField({
         : value
           ? "待确认"
           : "未装配";
-  const feedback = loading
-    ? "正在获取模型连接，已有选择会保留。"
-    : error ||
-      selectionProblem ||
-      (selected
-        ? "凭证已配置"
-        : connections.some((item) => item.enabled && item.capability === "chat")
-          ? "未装配时可保存草稿，暂不能对话。"
-          : "暂无可用的对话连接，可先配置大脑，再刷新列表。");
+  const feedback =
+    error ||
+    selectionProblem ||
+    (selected
+      ? "凭证已配置"
+      : connections.some((item) => item.enabled && item.capability === "chat")
+        ? "未装配时可保存草稿，暂不能对话。"
+        : "暂无可用的对话连接，可先配置大脑，再刷新列表。");
 
   const ready = !loading && !error && !!selected && !selectionProblem;
   useEffect(() => onReadinessChange?.(ready), [ready, onReadinessChange]);
@@ -113,36 +117,32 @@ export function AgentModelConnectionField({
       <p id="agent-brain-description" className="sr-only">
         选择这位员工使用的模型连接
       </p>
-      <SelectField
-        options={[
-          { value: "none", label: "暂不装配" },
-          ...(value && !selected ? [{ value, label: "当前大脑（待确认）" }] : []),
-          ...connections.map((item) => ({
-            value: item.id,
-            label: `${item.name} · ${item.model_id}${!item.enabled ? "（已停用）" : item.capability !== "chat" ? "（仅用于向量）" : ""}`,
-            disabled: !item.enabled || item.capability !== "chat",
-          })),
-        ]}
-        value={value || "none"}
-        onValueChange={(id) => onChange(id === "none" ? null : id)}
-        disabled={loading || Boolean(error)}
-        displayValue={
-          loading
-            ? "正在加载大脑…"
-            : selected
-              ? selected.name
-              : value
-                ? "当前大脑（待确认）"
-                : "选择一个大脑"
-        }
-        contentProps={{
-          className: "min-w-(--anchor-width) max-w-[calc(100vw-2rem)]",
-        }}
-        id="agent-brain"
-        aria-label="装配大脑"
-        aria-describedby="agent-brain-description agent-brain-feedback"
-        className="mt-1 h-auto min-h-9 w-fit max-w-full gap-3 border-transparent bg-transparent px-0 py-1 text-section font-semibold hover:text-action"
-      />
+      {loading && !loaded ? (
+        <LoadingFeedback shape="field" label="正在加载大脑…" className="mt-1" />
+      ) : (
+        <SelectField
+          options={[
+            { value: "none", label: "暂不装配" },
+            ...(value && !selected ? [{ value, label: "当前大脑（待确认）" }] : []),
+            ...connections.map((item) => ({
+              value: item.id,
+              label: `${item.name} · ${item.model_id}${!item.enabled ? "（已停用）" : item.capability !== "chat" ? "（仅用于向量）" : ""}`,
+              disabled: !item.enabled || item.capability !== "chat",
+            })),
+          ]}
+          value={value || "none"}
+          onValueChange={(id) => onChange(id === "none" ? null : id)}
+          disabled={loading || Boolean(error)}
+          displayValue={selected ? selected.name : value ? "当前大脑（待确认）" : "选择一个大脑"}
+          contentProps={{
+            className: "min-w-(--anchor-width) max-w-[calc(100vw-2rem)]",
+          }}
+          id="agent-brain"
+          aria-label="装配大脑"
+          aria-describedby="agent-brain-description agent-brain-feedback"
+          className="mt-1 h-auto min-h-9 w-fit max-w-full gap-3 border-border bg-raised px-3 py-2 text-section font-semibold hover:text-action"
+        />
+      )}
       {failure ? (
         <div id="agent-brain-feedback">
           <FailureNotice
@@ -155,7 +155,7 @@ export function AgentModelConnectionField({
             }}
           />
         </div>
-      ) : (
+      ) : loaded ? (
         <p
           id="agent-brain-feedback"
           role="status"
@@ -166,37 +166,35 @@ export function AgentModelConnectionField({
         >
           {ready && <Check className="mt-0.5 size-3.5 shrink-0 text-success" aria-hidden="true" />}
           <span>
-            {selected && !selectionProblem && !loading && `${selected.model_id} · `}
+            {selected && !selectionProblem && `${selected.model_id} · `}
             {feedback}
           </span>
           {!loading && !error && revision > 0 && <span className="sr-only">。列表已更新。</span>}
         </p>
-      )}
+      ) : null}
       <div className="mt-1 flex flex-wrap items-center gap-1">
-        <a
-          href="/brains"
-          target="_blank"
-          rel="noopener noreferrer"
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          nativeButton={false}
+          render={<a href="/brains" target="_blank" rel="noopener noreferrer" />}
           title="配置大脑"
           aria-label="配置大脑（新标签页）"
-          className="inline-flex size-7 items-center justify-center rounded-control text-text-muted transition-colors hover:bg-muted hover:text-text focus-visible:ring-focus focus-visible:ring-2 [@media(pointer:coarse)]:size-11"
         >
-          <ArrowUpRight className="size-3.5" aria-hidden="true" />
-        </a>
+          <ArrowUpRight aria-hidden="true" />
+        </Button>
         <Button
           type="button"
-          size="icon-xs"
+          size="icon-sm"
           variant="ghost"
-          className="size-7 text-text-muted hover:text-text"
           aria-label="刷新大脑列表"
           title="刷新大脑列表"
+          loading={showRefresh}
           disabled={loading}
+          aria-busy={loading}
           onClick={refresh}
         >
-          <RefreshCw
-            className={cn("size-3.5", loading && "motion-safe:animate-spin")}
-            aria-hidden="true"
-          />
+          <RefreshCw aria-hidden="true" />
         </Button>
       </div>
     </section>

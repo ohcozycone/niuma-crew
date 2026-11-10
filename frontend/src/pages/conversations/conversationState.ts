@@ -1,5 +1,5 @@
 import type { Failure } from "@/lib/failures/types";
-import { answerContent, isActive } from "@/lib/api/conversations";
+import { answerContent, isActive, isPublished } from "@/lib/api/conversations";
 import type { ChatMessage, Conversation, Reply } from "@/lib/api/conversations";
 import type { ConversationInput } from "@/lib/api/conversationTransport";
 import type { FileRef } from "@/lib/api/files";
@@ -32,9 +32,6 @@ export type PendingCommand = {
   input?: ConversationInput;
   /** 重试所针对的原 Reply。 */
   retryId?: string;
-  legacyRetryTarget?: boolean;
-  /** 旧版本已下线的输入，只允许核对是否接受，禁止重新发送。 */
-  retiredInput?: boolean;
   /** 提交未确认时收到的停止意图。 */
   stopRequested?: boolean;
 };
@@ -164,7 +161,14 @@ function mergePage(current: ConversationMessage[], incoming: ChatMessage[], prep
 }
 
 function withRun(state: ConversationState, run: Reply): ConversationState {
-  if (run.conversation_id !== state.id) return state;
+  if (
+    run.conversation_id !== state.id &&
+    !(
+      state.id.startsWith("draft:") &&
+      (!state.conversation || state.conversation.id === run.conversation_id)
+    )
+  )
+    return state;
   const messageRun = state.messages.find((message) => message.id === run.id)?.run;
   if (
     messageRun &&
@@ -188,7 +192,7 @@ function withRun(state: ConversationState, run: Reply): ConversationState {
           content: answerContent(run),
           files: run.files,
           conversationId: run.conversation_id,
-          published: !isActive(run.status),
+          published: isPublished(run),
           run: shared,
         }
       : message,
@@ -336,6 +340,7 @@ export function conversationReducer(state: ConversationState, action: Action): C
 export function conversationPhase(state: ConversationState): ConversationPhase {
   if (state.loading) return "loading";
   if (
+    state.run?.acceptance === "pending" ||
     state.pending ||
     state.submitting ||
     state.run?.status === "queued" ||

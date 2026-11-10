@@ -1,5 +1,3 @@
-"""Business operations remain safe without HTTP, and routes keep transport responsibilities."""
-
 import ast
 from contextlib import contextmanager
 from dataclasses import replace
@@ -9,17 +7,17 @@ from uuid import uuid4
 
 import pytest
 from fastapi.routing import APIRoute
+from fastapi.sse import EventSourceResponse
 from sqlalchemy import event, select
 from starlette.responses import Response, StreamingResponse
 from test_configuration_api import create_agent, create_skill
 
-from app.agents.models import Agent
-from app.agents.schemas import AgentCreate, AgentPatch
-from app.agents.service import AgentService
-from app.agents.tool_grants import GrantsInput
 from app.api.router import router
 from app.capability_catalog.queries import list_capabilities
 from app.capability_catalog.schemas import CapabilityRead
+from app.employees.models import Agent
+from app.employees.schemas import AgentCreate, AgentPatch
+from app.employees.service import AgentService
 from app.errors import InvalidInputError, PermissionDeniedError
 from app.skills.service import SkillService
 
@@ -29,20 +27,29 @@ def current_actor(client):
 
 
 @pytest.mark.parametrize("operation", ["update", "delete", "grants"])
-def test_direct_employee_write_rejects_non_creator_and_preserves_data(api_client, operation):
+def test_direct_employee_write_rejects_member_and_preserves_data(api_client, operation):
     agent = create_agent(api_client, system_prompt="原始岗位指令")
-    actor = replace(current_actor(api_client), user_id=str(uuid4()))
+    actor = replace(current_actor(api_client), role="member")
     commands = api_client.app.state.agents
-    with pytest.raises(PermissionDeniedError, match="创建者"):
+    with pytest.raises(PermissionDeniedError):
         if operation == "update":
             commands.update(agent["id"], AgentPatch(expected_revision=1, name="不得保存"), actor)
         elif operation == "delete":
             commands.delete(agent["id"], actor)
         else:
-            api_client.app.state.tool_grants.replace(
-                agent["id"], GrantsInput(expected_revision=1, grants=[]), actor
+            api_client.app.state.agents.update(
+                agent["id"], AgentPatch(expected_revision=1, tool_grants=[]), actor
             )
     assert api_client.get(f"/api/agents/{agent['id']}").json() == agent
+
+
+def test_other_admin_can_maintain_organization_employee(api_client):
+    agent = create_agent(api_client)
+    actor = replace(current_actor(api_client), user_id=str(uuid4()))
+    updated = api_client.app.state.agents.update(
+        agent["id"], AgentPatch(expected_revision=1, name="组织员工"), actor
+    )
+    assert updated.name == "组织员工" and updated.revision == 2
 
 
 def test_direct_employee_creation_requires_operation_permission(api_client):
@@ -74,8 +81,8 @@ def test_employee_edit_checks_and_writes_share_one_transaction(api_client, monke
     elif operation == "delete":
         api_client.app.state.agents.delete(agent["id"], actor)
     else:
-        api_client.app.state.tool_grants.replace(
-            agent["id"], GrantsInput(expected_revision=1, grants=[]), actor
+        api_client.app.state.agents.update(
+            agent["id"], AgentPatch(expected_revision=1, tool_grants=[]), actor
         )
     assert len(transactions) == 1
 
@@ -86,7 +93,7 @@ def test_employee_write_failure_rolls_back_fields_and_revision(api_client, monke
     def fail(*args):
         raise InvalidInputError("injected_grant_failure", "装配拒绝。")
 
-    monkeypatch.setattr("app.agents.service.apply_grants", fail)
+    monkeypatch.setattr("app.employees.service.apply_grants", fail)
     with pytest.raises(InvalidInputError):
         api_client.app.state.agents.update(
             agent["id"],
@@ -176,8 +183,8 @@ def test_catalog_visibility_applies_before_global_count_and_pagination(api_clien
     assert first.items[0].id != second.items[0].id
     guest, _ = api_client.app.state.auth.guest(None)
     visible = list_capabilities(database, guest, q="目录", limit=1)
-    assert visible.total == 1 and visible.items[0].kind == "skill"
-    assert list_capabilities(database, guest, kind="mcp_http").total == 0
+    assert visible.total == 2 and len(visible.items) == 1
+    assert list_capabilities(database, guest, kind="mcp_http").total == 1
     with pytest.raises(InvalidInputError) as failure:
         list_capabilities(database, admin, kind="unexpected")
     assert failure.value.code == "capability_query_invalid"
@@ -199,7 +206,11 @@ def test_catalog_timestamp_keeps_existing_wire_format():
 def test_connection_reference_guard_runs_in_the_deleting_transaction(api_client):
     result = api_client.post(
         "/api/tool-connections",
-        json={"name": "原生工作区", "kind": "native", "provider_key": "workspace"},
+        json={
+            "name": "工具连接",
+            "kind": "mcp_http",
+            "public_config": {"url": "https://example.com/mcp"},
+        },
     )
     assert result.status_code == 201, result.text
     connection = result.json()
@@ -229,7 +240,7 @@ def test_json_endpoints_declare_response_models_and_protocols_keep_own_responses
             or route.status_code == 204
         ):
             continue
-        if route.response_class in (Response, StreamingResponse):
+        if route.response_class in (Response, StreamingResponse, EventSourceResponse):
             continue
         assert route.response_model is not None, route.path
 
@@ -238,7 +249,7 @@ def test_routes_delegate_business_transactions_and_use_typed_dependencies():
     root = Path(__file__).resolve().parents[1] / "app/api/routes"
     for path in root.glob("*.py"):
         if path.name == "configuration_summary.py":
-            continue  # The fixed shell count is intentionally a local, read-only aggregate.
+            continue  # 固定外壳计数仅作本机只读聚合。
         tree = ast.parse(path.read_text())
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom):

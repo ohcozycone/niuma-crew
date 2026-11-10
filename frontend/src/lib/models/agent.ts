@@ -1,5 +1,11 @@
 import type { ToolGrantInput } from "@/lib/api/tools";
+export type AgentKnowledge = {
+  knowledge_base_ids: string[];
+  mode: "on_demand" | "always";
+  top_k: number;
+};
 export type Agent = {
+  knowledge?: AgentKnowledge;
   id: string;
   createdByUserId?: string | null;
   toolGrants?: ToolGrantInput[];
@@ -23,6 +29,7 @@ export type Agent = {
     readinessReason?: string | null;
   }[];
   modelConnectionId?: string | null;
+  modelConfigured?: boolean;
   skills: string[];
   toolCount: number;
   knowledgeBaseCount: number;

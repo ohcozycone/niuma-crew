@@ -1,3 +1,4 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
 import { ResourceIcon } from "@/components/common/ResourceIcon";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { Button } from "@/components/ui/Button";
@@ -26,8 +27,11 @@ export function GlobalSearch({
           actions={[{ label: "重新搜索", kind: "retry", onClick: resource.refresh }]}
         />
       )}
-      {!results && !error && <p role="status">正在搜索…</p>}
-      {results && result.loading && <p role="status">正在搜索…</p>}
+      <LoadingFeedback
+        pending={result.loading && !error}
+        refreshing={!!results}
+        label="正在搜索…"
+      />
       {results?.agents.map((item) => (
         <Button
           className="flex w-full justify-start"

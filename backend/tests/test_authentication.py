@@ -1,12 +1,10 @@
-"""Authentication, projection and authorization boundaries against real migrated SQLite."""
-
 from dataclasses import replace
 from datetime import timedelta
 from uuid import uuid4
 
 import pytest
 from configuration_helpers import patch_current
-from scenario_client import ScenarioClient as TestClient
+from fastapi.testclient import TestClient
 from sqlalchemy import func, select, update
 
 from app.api.rate_limit import RateLimiter
@@ -16,7 +14,7 @@ from app.auth.permissions import ROLE_PERMISSIONS
 from app.auth.service import AuthService, token_digest
 from app.bootstrap import create_app
 from app.errors import AuthenticationError, RateLimitError
-from app.infrastructure.database.fields import utc_now
+from app.values import utc_now
 
 HEADERS = {"Origin": "http://localhost:3000", "Content-Type": "application/json"}
 PASSWORD = "test-password-auth"
@@ -79,7 +77,7 @@ def test_session_cookie_logout_rotation_and_restart(api_client, migrated_config)
             )
             assert stored.revoked_at is not None
             assert db.scalar(select(User)).password_hash.startswith("$argon2id$")
-        # Guest entry never downgrades an already signed-in account.
+        # 游客入口不能将已登录账号降级。
         assert guest.post("/api/auth/guest", json={}).json()["actor"]["kind"] == "user"
         current = guest.cookies.get("app_session")
         assert guest.post("/api/auth/logout", json={}).status_code == 204
@@ -179,7 +177,8 @@ def test_all_management_entrypoints_deny_unprivileged_access(
             visitor.post("/api/auth/guest", json={})
         for method, path, payload in calls:
             response = visitor.request(method, path, json=payload)
-            assert response.status_code == status, (method, path, response.text)
+            expected = 200 if kind == "guest" and method == "GET" else status
+            assert response.status_code == expected, (method, path, response.text)
     assert api_client.get(agent_path).json() == agent
     assert api_client.get(skill_path).json() == skill
 
@@ -231,7 +230,7 @@ def test_csrf_protection_includes_login_guest_logout_and_business_writes(api_cli
     headers = {"Content-Type": "application/json"}
     if origin is not None:
         headers["Origin"] = origin
-    # Replace, rather than merge, the fixture's trusted Origin.
+    # 替换而非合并夹具的受信任 Origin。
     api_client.headers.clear()
     for path, payload in [
         ("/api/auth/login", {"username": "admin", "password": PASSWORD}),
@@ -291,7 +290,7 @@ def test_absolute_idle_revocation_and_account_maintenance(api_client, migrated_c
     assert login(api_client, "new-test-password").status_code == 200
     with pytest.raises(ValueError, match="已经初始化"):
         fixed.initialize_admin("another", PASSWORD)
-    # Absolute expiry still applies when activity was recorded just before it.
+    # 刚记录活动仍不能延长绝对期限。
     fresh, short = fixed.login("admin", "new-test-password", None)
     now = fresh.expires_at
     with service.database.transaction() as db:
@@ -320,7 +319,7 @@ def test_guest_absolute_expiry_and_user_idle_touch(api_client):
     now += timedelta(seconds=5)
     assert service.resolve(token).user_id == user.user_id
     now += timedelta(seconds=6)
-    assert service.resolve(token).user_id == user.user_id  # idle activity was persisted
+    assert service.resolve(token).user_id == user.user_id
     assert service.resolve(guest_token).session_id == guest.session_id
     now += timedelta(seconds=5)
     with pytest.raises(AuthenticationError):

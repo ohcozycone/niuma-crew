@@ -1,5 +1,3 @@
-"""Build a real pre-0004 database without using the new ORM against an old schema."""
-
 import json
 import sqlite3
 from uuid import uuid4
@@ -8,7 +6,7 @@ from alembic import command
 from checkpoint_helpers import publication_graph
 from langchain_core.messages import AIMessage, HumanMessage
 
-from app.agent_runtime.checkpoints import CheckpointStore, checkpoint_config
+from app.agent.checkpoints import CheckpointStore, checkpoint_config
 
 
 def seed_legacy(config, path, revision="0003"):
@@ -17,6 +15,8 @@ def seed_legacy(config, path, revision="0003"):
     first, failed, active = (str(uuid4()) for _ in range(3))
     user, answer, partial, next_user, next_answer = (str(uuid4()) for _ in range(5))
     store = CheckpointStore(str(path))
+    # 历史迁移使用冻结的输入文件名。
+    store.path = path.with_suffix(".checkpoints.sqlite")
     with store.reader() as saver:
         graph = publication_graph(saver)
         state = graph.update_state(

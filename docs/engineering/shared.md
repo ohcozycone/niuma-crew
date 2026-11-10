@@ -10,7 +10,7 @@
 
 ## 运行与依赖
 
-公共命令统一在仓库根执行 `make`，完整参数见[本地开发](../guides/local-development.md)及[后端操作](../guides/backend-operations.md)。跨端运行脚本放根 scripts，前端构建与资源脚本放 frontend/scripts。依赖分别由 uv、pnpm 与提交的锁文件管理；修改清单须同步锁文件。
+公共命令统一在仓库根执行 `make`，完整参数见[开发命令](../guides/local-development.md)及[后端操作](../guides/backend-operations.md)。跨端运行脚本放根 scripts，前端构建与资源脚本放 frontend/scripts。依赖分别由 uv、pnpm 与提交的锁文件管理；修改清单须同步锁文件。
 
 生成文件的事实来源是生成器、元数据及正式源资源。修改来源后重新生成；已有生成文件豁免与源码检查范围以工具配置为准，不因排除产物而排除生成器。教学数据、设计展示 fixtures、验证替身与正式业务数据保持明确来源。
 

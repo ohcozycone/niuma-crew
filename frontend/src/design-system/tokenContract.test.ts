@@ -49,6 +49,27 @@ describe("public token contract", () => {
     }
   });
 
+  it("keeps authored UI colours in the shared theme, including gallery and docs controls", () => {
+    const consumers = [
+      ...sources(fileURLToPath(new URL("../", import.meta.url)), /\.(tsx?|css|json)$/),
+      ...sources(fileURLToPath(new URL("../../scripts/", import.meta.url)), /\.(mjs|css|html)$/),
+      ...sources(
+        fileURLToPath(new URL("../../../docs-site/src/", import.meta.url)),
+        /\.(tsx?|css)$/,
+      ),
+    ];
+    for (const [path, original] of consumers) {
+      // Original SVG artwork and its fallback ink are assets, not UI surfaces.
+      if (/\/generated\/|\/svg\/|\/theme\.css$|\/wordmarkSource\.ts$/.test(path)) continue;
+      const source = original.replace("var(--logo-ink, #202126)", "var(--logo-ink)");
+      expect(source, path).not.toMatch(/#[\da-f]{3,8}\b|\b(?:rgb|hsl|oklch)a?\(/i);
+      expect(source, path).not.toMatch(
+        /(?:bg|text|border|ring|fill|stroke)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|pink|rose)-\d/,
+      );
+      expect(source, path).not.toMatch(/(?:bg|text|border|fill|stroke)-(?:white|black)\b/);
+    }
+  });
+
   it("maps the installed Markdown renderer's theme colours in both modes", () => {
     const directory = fileURLToPath(
       new URL("../../node_modules/streamdown/dist/", import.meta.url),

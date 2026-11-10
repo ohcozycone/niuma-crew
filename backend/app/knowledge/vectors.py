@@ -1,28 +1,29 @@
-"""Atomic vector snapshots and bounded exact cosine search for small libraries."""
-
 from __future__ import annotations
 
-import heapq
-import math
+import logging
 import time
+from collections.abc import Callable
+from contextlib import ExitStack
+from pathlib import Path
 from threading import BoundedSemaphore
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
+from app.auth.permissions import require_permission
 from app.errors import ConflictError, InvalidInputError, ServiceUnavailableError
-from app.infrastructure.database.fields import new_uuid, utc_now
 from app.infrastructure.database.transactions import reserve_writer
-from app.knowledge.contracts import Chunk, digest
+from app.knowledge.contracts import Chunk
 from app.knowledge.models import (
     KnowledgeBase,
     LibraryChunk,
     LibraryDocument,
-    LibraryVector,
     LibraryVectorIndex,
+    LibraryVectorMembership,
 )
+from app.knowledge.retrieval import fuse_rankings
 from app.knowledge.schemas import (
     EmbeddingConnectionRead,
     LibraryRead,
@@ -30,9 +31,13 @@ from app.knowledge.schemas import (
     SearchRequest,
     SearchResult,
 )
-from app.llm.embeddings import embed_texts
+from app.knowledge.vector_store import PREFIX, KnowledgeVectorStore
+from app.llm.embeddings import VECTOR_DIMENSIONS, embed_texts
 from app.model_connections.models import ModelConnection
 from app.model_connections.service import ModelConnectionService
+from app.values import digest, new_uuid, utc_now
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from app.knowledge.service import KnowledgeService
@@ -60,8 +65,11 @@ def index_summary(session: Session, kb: str, chunk_count: int) -> dict[str, Any]
     vector_count = (
         session.scalar(
             select(func.count())
-            .select_from(LibraryVector)
-            .where(LibraryVector.knowledge_base_id == kb)
+            .select_from(LibraryVectorMembership)
+            .where(
+                LibraryVectorMembership.knowledge_base_id == kb,
+                LibraryVectorMembership.generation == index.generation,
+            )
         )
         or 0
     )
@@ -82,13 +90,19 @@ def index_summary(session: Session, kb: str, chunk_count: int) -> dict[str, Any]
 
 
 class KnowledgeVectorService:
-    def __init__(self, knowledge: KnowledgeService, connections: ModelConnectionService):
+    def __init__(
+        self, knowledge: KnowledgeService, connections: ModelConnectionService, directory: Path
+    ):
         self.knowledge, self.connections = knowledge, connections
-        # One build per application process bounds CPU/memory and duplicate upstream charges.
+        self.store = KnowledgeVectorStore(directory)
+        # 每进程只构建一项，限制资源及重复向量请求费用。
         self.build_slot = BoundedSemaphore(1)
 
     def options(self, actor: Actor) -> list[EmbeddingConnectionRead]:
-        self.knowledge.owner(actor)
+        if actor.kind == "guest":
+            require_permission(actor, "knowledge:read")
+        else:
+            self.knowledge.manager(actor)
         with self.knowledge.database.transaction() as session:
             return [
                 EmbeddingConnectionRead(id=row.id, name=row.name, model_id=row.model_id)
@@ -102,10 +116,12 @@ class KnowledgeVectorService:
             ]
 
     def build(self, actor: Actor, kb: str, connection_id: str) -> LibraryRead:
+        self.knowledge.manager(actor)
         self.knowledge.get(actor, kb)
         if not self.build_slot.acquire(blocking=False):
             raise ConflictError("knowledge_build_busy", "正在建立向量索引，请稍后重试。")
         try:
+            self.store.client  # 发起计费请求前先排除另一构建进程。
             return self._build(actor, kb, connection_id)
         finally:
             self.build_slot.release()
@@ -142,134 +158,221 @@ class KnowledgeVectorService:
             )
 
         vectors = embed_texts(config, [chunk.text for chunk in chunks], guard)
-        with self.knowledge.database.transaction() as session:
-            reserve_writer(session, KnowledgeBase.__table__)
-            base = self.knowledge.require_base(session, kb, actor)
-            self.connections.resolve_embedding(
-                connection_id, config.config_revision, config.credential_revision, db=session
-            )
-            current = session.get(LibraryVectorIndex, kb)
-            if (
-                base.updated_at != base_revision
-                or source_digest(session, kb) != source
-                or (current.generation if current else None) != generation
-            ):
-                raise ConflictError(
-                    "knowledge_build_changed", "构建期间资料或索引已变化，请重新建立索引。"
-                )
-            session.execute(delete(LibraryVector).where(LibraryVector.knowledge_base_id == kb))
-            if current is None:
-                current = LibraryVectorIndex(knowledge_base_id=kb)
-                session.add(current)
-            current.connection_id = connection_id
-            current.config_revision = config.config_revision
-            current.source_digest = source
-            current.chunk_count = len(chunks)
-            current.generation = new_uuid()
-            session.add_all(
-                [
-                    LibraryVector(chunk_id=chunk.id, knowledge_base_id=kb, vector=vector)
-                    for chunk, vector in zip(chunks, vectors, strict=True)
-                ]
-            )
-            session.flush()
-            return self.knowledge.base_read(session, base)
+        new_generation = new_uuid()
+        name = PREFIX + digest([kb, new_generation])[:48]
+        published = False
+        old_name = None
+        with self.store.use(name):
+            try:
+                self.store.build(name, chunks, vectors)
+                guard()
+                # 仅在获取或退役索引指针时持锁，网络请求和索引构建不占用 SQLite 写锁。
+                with self.store.lock, self.knowledge.database.transaction() as session:
+                    reserve_writer(session, KnowledgeBase.__table__)
+                    base = self.knowledge.require_base(session, kb, actor)
+                    self.connections.resolve_embedding(
+                        connection_id,
+                        config.config_revision,
+                        config.credential_revision,
+                        db=session,
+                    )
+                    current = session.get(LibraryVectorIndex, kb)
+                    if (
+                        base.updated_at != base_revision
+                        or source_digest(session, kb) != source
+                        or (current.generation if current else None) != generation
+                    ):
+                        raise ConflictError(
+                            "knowledge_build_changed", "构建期间资料或索引已变化，请重新建立索引。"
+                        )
+                    old_name = current.collection_name if current else None
+                    session.execute(
+                        delete(LibraryVectorMembership).where(
+                            LibraryVectorMembership.knowledge_base_id == kb
+                        )
+                    )
+                    if current is None:
+                        current = LibraryVectorIndex(knowledge_base_id=kb)
+                        session.add(current)
+                    current.connection_id = connection_id
+                    current.config_revision = config.config_revision
+                    current.source_digest = source
+                    current.chunk_count = len(chunks)
+                    current.generation = new_generation
+                    current.collection_name = name
+                    current.embedding_fingerprint = digest(
+                        [config.base_url, config.model_id, VECTOR_DIMENSIONS, "cosine"]
+                    )
+                    session.add_all(
+                        [
+                            LibraryVectorMembership(
+                                chunk_id=chunk.id,
+                                knowledge_base_id=kb,
+                                generation=new_generation,
+                                document_id=chunk.document_id,
+                                document_version=chunk.document_version,
+                            )
+                            for chunk in chunks
+                        ]
+                    )
+                    session.flush()
+                    result = self.knowledge.base_read(session, base)
+                published = True
+            finally:
+                if not published:
+                    self.store.retire(name)
+        if old_name:
+            self.store.retire(old_name)
+        return result
 
     def clear(self, actor: Actor, kb: str) -> None:
-        with self.knowledge.database.transaction() as session:
-            reserve_writer(session, KnowledgeBase.__table__)
-            self.knowledge.require_base(session, kb, actor).updated_at = utc_now()
-            session.execute(delete(LibraryVector).where(LibraryVector.knowledge_base_id == kb))
-            session.execute(
-                delete(LibraryVectorIndex).where(LibraryVectorIndex.knowledge_base_id == kb)
-            )
+        self.knowledge.manager(actor)
+        with self.store.lock:
+            with self.knowledge.database.transaction() as session:
+                reserve_writer(session, KnowledgeBase.__table__)
+                self.knowledge.require_base(session, kb, actor).updated_at = utc_now()
+                current = session.get(LibraryVectorIndex, kb)
+                name = current.collection_name if current else None
+                session.execute(
+                    delete(LibraryVectorMembership).where(
+                        LibraryVectorMembership.knowledge_base_id == kb
+                    )
+                )
+                session.execute(
+                    delete(LibraryVectorIndex).where(LibraryVectorIndex.knowledge_base_id == kb)
+                )
+            if name:
+                self.store.retire(name)
 
-    def search(self, actor: Actor, kb: str, data: SearchRequest) -> SearchResult:
-        with self.knowledge.database.transaction() as session:
-            status = self.knowledge.base_read(
-                session, self.knowledge.require_base(session, kb, actor)
-            )
-            if status.vector_status not in {"ready", "partial"}:
-                raise ConflictError(
-                    "knowledge_vector_not_ready",
-                    "向量索引尚未建立、已过期或连接已停用，请先检查并重建索引。",
+    def query(
+        self, kb: str, data: SearchRequest, authorize: Callable[[Session], KnowledgeBase]
+    ) -> SearchResult:
+        with ExitStack() as lease:
+            with self.store.lock, self.knowledge.database.transaction() as session:
+                status = self.knowledge.base_read(session, authorize(session))
+                if status.vector_status not in {"ready", "partial"}:
+                    raise ConflictError(
+                        "knowledge_vector_not_ready",
+                        "向量索引尚未建立、已过期或连接已停用，请先检查并重建索引。",
+                    )
+                index = session.get(LibraryVectorIndex, kb)
+                assert index is not None
+                generation, name = index.generation, index.collection_name
+                source = source_digest(session, kb)
+                ids = list(
+                    session.scalars(
+                        select(LibraryVectorMembership.chunk_id).where(
+                            LibraryVectorMembership.knowledge_base_id == kb,
+                            LibraryVectorMembership.generation == generation,
+                        )
+                    )
                 )
-            index = session.get(LibraryVectorIndex, kb)
-            assert index is not None
-            generation = index.generation
-            source = source_digest(session, kb)
-            config = self.connections.resolve_embedding(
-                index.connection_id, index.config_revision, db=session
-            )
-        query = embed_texts(config, [data.question])[0]
-        with self.knowledge.database.transaction() as session:
-            base = self.knowledge.require_base(session, kb, actor)
-            current = session.get(LibraryVectorIndex, kb)
-            if (
-                current is None
-                or current.generation != generation
-                or source_digest(session, kb) != source
-                or self.knowledge.base_read(session, base).vector_status not in {"ready", "partial"}
-            ):
-                raise ConflictError(
-                    "knowledge_index_changed", "检索期间索引或资料已变化，请重新检索。"
+                config = self.connections.resolve_embedding(
+                    index.connection_id, index.config_revision, db=session
                 )
-            self.connections.resolve_embedding(
-                config.connection_id, config.config_revision, config.credential_revision, db=session
-            )
-            rows = session.execute(
-                select(LibraryVector.vector, LibraryChunk.snapshot)
-                .join(LibraryChunk, LibraryChunk.id == LibraryVector.chunk_id)
-                .join(LibraryDocument, LibraryDocument.id == LibraryChunk.document_id)
-                .where(
-                    LibraryVector.knowledge_base_id == kb, LibraryDocument.knowledge_base_id == kb
-                )
-                .execution_options(yield_per=32)
-            )
-            scored = (
-                (
-                    max(
-                        -1.0,
-                        min(
-                            1.0,
-                            math.fsum(
-                                a * b for a, b in zip(query, cast(list[float], vector), strict=True)
-                            ),
-                        ),
-                    ),
-                    Chunk.model_validate(snapshot),
-                )
-                for vector, snapshot in rows
-            )
+                lease.enter_context(self.store.use(name))
+            query = embed_texts(config, [data.question])[0]
             limit = 30 if data.strategy == "hybrid" else data.top_k
-            best = heapq.nsmallest(limit, scored, key=lambda item: (-item[0], item[1].id))
-            hits = [
-                SearchHit(rank=i, score=score, score_kind="cosine_higher_better", chunk=chunk)
-                for i, (score, chunk) in enumerate(best, 1)
-            ]
-            if data.strategy == "hybrid":
-                lexical = self.knowledge.lexical_search(session, kb, data.question, limit)
-                hits = reciprocal_rank_fusion(lexical, hits, data.top_k)
-            return SearchResult(
-                knowledge_base_id=kb,
-                strategy=data.strategy,
-                hits=hits,
-            )
+            candidates = self.store.query(name, query, ids, limit)
+            with self.knowledge.database.transaction() as session:
+                base = authorize(session)
+                current = session.get(LibraryVectorIndex, kb)
+                if (
+                    current is None
+                    or current.generation != generation
+                    or source_digest(session, kb) != source
+                    or self.knowledge.base_read(session, base).vector_status
+                    not in {"ready", "partial"}
+                ):
+                    raise ConflictError(
+                        "knowledge_index_changed", "检索期间索引或资料已变化，请重新检索。"
+                    )
+                self.connections.resolve_embedding(
+                    config.connection_id,
+                    config.config_revision,
+                    config.credential_revision,
+                    db=session,
+                )
+                rows: dict[str, dict] = dict(
+                    session.execute(
+                        select(LibraryChunk.id, LibraryChunk.snapshot)
+                        .join(
+                            LibraryVectorMembership,
+                            LibraryVectorMembership.chunk_id == LibraryChunk.id,
+                        )
+                        .where(
+                            LibraryVectorMembership.knowledge_base_id == kb,
+                            LibraryVectorMembership.generation == generation,
+                            LibraryChunk.id.in_([id for id, _ in candidates]),
+                        )
+                    ).all()
+                )
+                if set(rows) != {id for id, _ in candidates}:
+                    raise ConflictError(
+                        "knowledge_index_changed", "检索期间片段已变化，请重新检索。"
+                    )
+                hits = [
+                    SearchHit(
+                        rank=rank,
+                        score=distance,
+                        score_kind="cosine_distance_lower_better",
+                        chunk=Chunk.model_validate(rows[id]),
+                    )
+                    for rank, (id, distance) in enumerate(candidates, 1)
+                ]
+                if data.strategy == "hybrid":
+                    lexical = self.knowledge.lexical_search(session, kb, data.question, limit)
+                    hits = fuse_rankings([lexical, hits], data.top_k)
+                return SearchResult(
+                    knowledge_base_id=kb,
+                    strategy="hybrid" if data.strategy == "hybrid" else "vector",
+                    hits=hits,
+                )
 
+    def prune(self, kb: str) -> None:
+        """立即移除可见关系，物理清理失败可重试。"""
+        with self.store.lock:
+            with self.knowledge.database.transaction() as db:
+                index = db.get(LibraryVectorIndex, kb)
+                if index is None:
+                    return
+                name = index.collection_name
+                ids = set(
+                    db.scalars(
+                        select(LibraryVectorMembership.chunk_id).where(
+                            LibraryVectorMembership.knowledge_base_id == kb,
+                            LibraryVectorMembership.generation == index.generation,
+                        )
+                    )
+                )
+            try:
+                self.store.prune(name, ids)
+            except Exception:
+                logger.warning("Knowledge vector pruning deferred: %s", name)
 
-def reciprocal_rank_fusion(
-    lexical: list[SearchHit], semantic: list[SearchHit], top_k: int
-) -> list[SearchHit]:
-    """Fuse ranks, since BM25 and cosine scores have different scales."""
-    scores: dict[str, float] = {}
-    chunks: dict[str, Chunk] = {}
-    for candidates in (lexical, semantic):
-        for rank, hit in enumerate(candidates, 1):
-            id = hit.chunk.id
-            scores[id] = scores.get(id, 0.0) + 1 / (60 + rank)
-            chunks[id] = hit.chunk
-    ordered = sorted(scores, key=lambda id: (-scores[id], id))[:top_k]
-    return [
-        SearchHit(rank=rank, score=scores[id], score_kind="rrf_higher_better", chunk=chunks[id])
-        for rank, id in enumerate(ordered, 1)
-    ]
+    def reconcile(self) -> None:
+        """持有进程锁后、开始服务前执行一次。"""
+        with self.store.lock:
+            names = self.store.names()
+            with self.knowledge.database.transaction() as db:
+                indexes = list(db.scalars(select(LibraryVectorIndex)))
+                published = {index.collection_name for index in indexes}
+                libraries = []
+                for index in indexes:
+                    if index.collection_name not in names:
+                        db.execute(
+                            delete(LibraryVectorMembership).where(
+                                LibraryVectorMembership.knowledge_base_id == index.knowledge_base_id
+                            )
+                        )
+                        db.delete(index)
+                        logger.warning(
+                            "Knowledge vector index missing; rebuild required: %s",
+                            index.knowledge_base_id,
+                        )
+                    else:
+                        libraries.append(index.knowledge_base_id)
+            for name in names - published:
+                self.store.retire(name)
+            for kb in libraries:
+                self.prune(kb)

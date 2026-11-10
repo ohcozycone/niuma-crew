@@ -42,6 +42,7 @@ export function AgentDirectoryPagination({
       { preventScrollReset: true },
     );
   }
+  if (count < 2) return null;
   return (
     <div
       className="ml-auto flex max-w-full flex-wrap items-center justify-end gap-3"

@@ -3,6 +3,7 @@ import { Dialog as Primitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./Button";
+import { ButtonGroup } from "./ButtonGroup";
 import type { StyledProps } from "./styledProps";
 const Dialog = Primitive.Root;
 const DialogTrigger = Primitive.Trigger;
@@ -26,7 +27,7 @@ function DialogContent({
   ...props
 }: StyledProps<Primitive.Popup.Props> & {
   showCloseButton?: boolean;
-  size?: "small" | "standard" | "wide";
+  size?: "small" | "standard" | "wide" | "workspace";
   layout?: "center" | "side";
 }) {
   return (
@@ -35,15 +36,18 @@ function DialogContent({
       <Primitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "dialog-surface fixed z-50 grid min-w-0 gap-4 border border-border bg-surface shadow-popover outline-none",
+          "fixed z-50 grid min-w-0 gap-4 border border-border bg-surface shadow-popover outline-none",
+          !(layout === "center" && size === "workspace") && "dialog-surface",
           layout === "center" &&
-            "dialog-center overflow-y-auto top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-card",
+            "dialog-center top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-card",
           layout === "center" &&
             (size === "small"
               ? "dialog-small"
-              : size === "wide"
-                ? "dialog-wide"
-                : "dialog-standard"),
+              : size === "workspace"
+                ? "dialog-workspace"
+                : size === "wide"
+                  ? "dialog-wide"
+                  : "dialog-standard"),
           layout === "side" &&
             "dialog-side top-0 right-0 left-auto h-dvh translate-x-0 translate-y-0 grid-rows-[auto_minmax(0,1fr)_auto] rounded-none",
           className,
@@ -53,9 +57,7 @@ function DialogContent({
         {children}
         {showCloseButton && (
           <DialogClose
-            className={
-              "absolute top-2 right-2 grid size-9 place-items-center rounded-control [@media(pointer:coarse)]:size-11 opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
-            }
+            render={<Button variant="ghost" size="icon" className="absolute top-2 right-2" />}
           >
             <XIcon />
             <span className={"sr-only"}>关闭</span>
@@ -69,7 +71,10 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex min-w-0 flex-col gap-2 pr-8 text-left", className)}
+      className={cn(
+        "flex min-w-0 flex-col gap-2 border-b border-border pb-4 pr-8 text-left",
+        className,
+      )}
       {...props}
     />
   );
@@ -81,14 +86,10 @@ function DialogFooter({
   ...props
 }: React.ComponentProps<"div"> & { showCloseButton?: boolean }) {
   return (
-    <div
-      data-slot="dialog-footer"
-      className={cn("flex flex-wrap justify-end gap-2", className)}
-      {...props}
-    >
+    <ButtonGroup data-slot="dialog-footer" className={className} {...props}>
       {children}
       {showCloseButton && <DialogClose render={<Button variant="outline" />}>关闭</DialogClose>}
-    </div>
+    </ButtonGroup>
   );
 }
 function DialogTitle({ className, ...props }: StyledProps<Primitive.Title.Props>) {

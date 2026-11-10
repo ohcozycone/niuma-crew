@@ -1,5 +1,3 @@
-"""Bounded uploads and conversation-authorized downloads."""
-
 import asyncio
 from urllib.parse import quote
 from uuid import UUID
@@ -16,6 +14,7 @@ from app.api.dependencies import (
 from app.auth.permissions import require_permission
 from app.errors import InvalidInputError
 from app.files.schemas import FileRead
+from app.schemas import RecordID
 
 router = APIRouter(tags=["files"])
 
@@ -46,7 +45,7 @@ async def upload(
 
 
 @router.get("/api/conversations/{conversation_id}/files", response_model=list[FileRead])
-def listing(conversation_id: UUID, actor: ActorDependency, files: ConversationFilesDependency):
+def listing(conversation_id: RecordID, actor: ActorDependency, files: ConversationFilesDependency):
     return files.list(actor, str(conversation_id))
 
 
@@ -62,7 +61,10 @@ def listing(conversation_id: UUID, actor: ActorDependency, files: ConversationFi
     },
 )
 def download(
-    conversation_id: UUID, file_id: UUID, actor: ActorDependency, files: ConversationFilesDependency
+    conversation_id: RecordID,
+    file_id: UUID,
+    actor: ActorDependency,
+    files: ConversationFilesDependency,
 ):
     ref, content = files.download(actor, str(conversation_id), str(file_id))
     return Response(

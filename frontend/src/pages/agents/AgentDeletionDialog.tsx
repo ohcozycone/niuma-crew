@@ -2,7 +2,7 @@ import { mutationOutcome } from "@/lib/failures/resolve";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import type { Failure } from "@/lib/failures/types";
 import { useState } from "react";
-import { LoaderCircle, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
@@ -53,10 +53,10 @@ export function AgentDeletionDialog({
       >
         <DialogHeader className={"min-w-0 text-left"}>
           <DialogTitle>删除员工？</DialogTitle>
-          <DialogDescription className={"leading-relaxed [overflow-wrap:anywhere]"}>
-            即将永久删除「{agentName}」的员工配置，此操作无法撤销。
-          </DialogDescription>
         </DialogHeader>
+        <DialogDescription className={"leading-relaxed [overflow-wrap:anywhere]"}>
+          即将永久删除「{agentName}」的员工配置，此操作无法撤销。
+        </DialogDescription>
         <div className={"space-y-3 text-sm text-text-muted"}>
           <ul className={"list-disc space-y-1 pl-5"}>
             <li>一并移除该员工的技能装配关系。</li>
@@ -91,16 +91,13 @@ export function AgentDeletionDialog({
           <Button
             type="button"
             variant="destructive"
+            loading={saving}
             disabled={!canDelete}
             onClick={() => {
               if (canDelete) onConfirm();
             }}
           >
-            {saving ? (
-              <LoaderCircle aria-hidden="true" className={"animate-spin"} />
-            ) : (
-              <Trash2 aria-hidden="true" />
-            )}
+            <Trash2 aria-hidden="true" />
             {saving ? "删除中…" : "永久删除"}
           </Button>
         </DialogFooter>

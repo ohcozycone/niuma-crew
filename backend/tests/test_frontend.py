@@ -1,10 +1,8 @@
-"""Shared React entry and static delivery, independently of application storage."""
-
 import gzip
 
 import pytest
 from fastapi import FastAPI
-from scenario_client import ScenarioClient as TestClient
+from fastapi.testclient import TestClient
 
 from app.api.frontend_delivery import mount_frontend
 
@@ -38,6 +36,7 @@ def web(tmp_path):
         "/agents/new",
         "/agents/abc?tab=instructions",
         "/agents/abc/connections",
+        "/agents/abc/home?section=evaluations",
         "/skills/new",
         "/brains",
         "/tools",

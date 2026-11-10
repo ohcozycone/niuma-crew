@@ -813,10 +813,8 @@ export function CapabilityDemoPage() {
         <DialogContent size="wide">
           <DialogHeader>
             <DialogTitle>添加能力</DialogTitle>
-            <DialogDescription>
-              为{draft.agent.name}选择能力，账号与权限分别配置。
-            </DialogDescription>
           </DialogHeader>
+          <DialogDescription>为{draft.agent.name}选择能力，账号与权限分别配置。</DialogDescription>
           <div className="divide-y divide-border">
             {capabilities.map((capability) => {
               const exists = draft.assignments.some((item) => item.capabilityId === capability.id);
@@ -852,10 +850,10 @@ export function CapabilityDemoPage() {
         <DialogContent size="wide">
           <DialogHeader>
             <DialogTitle>{current?.name}</DialogTitle>
-            <DialogDescription>
-              配置{draft.agent.name}的装配。共享能力正文不在这里修改。
-            </DialogDescription>
           </DialogHeader>
+          <DialogDescription>
+            配置{draft.agent.name}的装配。共享能力正文不在这里修改。
+          </DialogDescription>
           {current && assignment && (
             <div className="space-y-6">
               <div className="flex items-center justify-between gap-3">
@@ -1134,8 +1132,8 @@ export function CapabilityDemoPage() {
         <DialogContent size="wide">
           <DialogHeader>
             <DialogTitle>新增能力</DialogTitle>
-            <DialogDescription>新增只进入共享能力库，不自动装配给员工。</DialogDescription>
           </DialogHeader>
+          <DialogDescription>新增只进入共享能力库，不自动装配给员工。</DialogDescription>
           <Tabs
             value={newKind}
             onValueChange={(value) => {
@@ -1220,8 +1218,8 @@ export function CapabilityDemoPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>当前员工有未保存修改</DialogTitle>
-            <DialogDescription>切换前可以保存演示配置，或放弃本次草稿。</DialogDescription>
           </DialogHeader>
+          <DialogDescription>切换前可以保存演示配置，或放弃本次草稿。</DialogDescription>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPending(null)}>
               继续编辑

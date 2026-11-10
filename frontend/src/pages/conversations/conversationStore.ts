@@ -15,7 +15,6 @@ export type ConversationView = Pick<
   | "submissionError"
   | "connectionError"
   | "hasPendingSubmission"
-  | "canResendPending"
   | "canCancelPending"
   | "submitting"
   | "sendMessage"
@@ -205,7 +204,6 @@ export function createConversationStore(initial: ConversationModel) {
       submissionError: model.submissionError,
       connectionError: model.connectionError,
       hasPendingSubmission: model.hasPendingSubmission,
-      canResendPending: model.canResendPending,
       canCancelPending: model.canCancelPending,
       submitting: model.submitting,
       ...actions,

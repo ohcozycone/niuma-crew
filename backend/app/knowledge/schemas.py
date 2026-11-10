@@ -1,5 +1,3 @@
-"""HTTP shapes for libraries, originals and explicit BM25 diagnostics."""
-
 from datetime import datetime
 from typing import Annotated, Literal, Self
 from uuid import UUID
@@ -27,7 +25,6 @@ class ChunkingRules(RequestModel):
 
 
 def effective_rules(size: int | None, overlap: int | None, minimum: int | None) -> ChunkingRules:
-    """Resolve inherited defaults once for settings, preview and durable submission."""
     size, overlap = size or 800, 120 if overlap is None else overlap
     return ChunkingRules(
         chunk_size=size,
@@ -88,6 +85,7 @@ class DocumentRead(BaseModel):
     keyword_ready: bool = True
     vector_ready: bool = False
     processing_rules: dict = {}
+    processing_reusable: bool = False
 
 
 class DocumentDetail(DocumentRead):
@@ -148,13 +146,13 @@ class ProcessingBatchRead(BaseModel):
 class SearchRequest(RequestModel):
     question: Annotated[NonBlankText, Field(max_length=1000)]
     top_k: int = Field(default=6, ge=1, le=20)
-    strategy: Literal["bm25", "vector", "hybrid"] = "bm25"
+    strategy: Literal["auto", "bm25", "vector", "hybrid"] = "auto"
 
 
 class SearchHit(BaseModel):
     rank: int
-    score: float
-    score_kind: Literal["fts5_bm25_lower_better", "cosine_higher_better", "rrf_higher_better"] = (
+    score: float | None
+    score_kind: Literal["fts5_bm25_lower_better", "cosine_distance_lower_better", "rank_only"] = (
         "fts5_bm25_lower_better"
     )
     chunk: Chunk
@@ -181,29 +179,42 @@ class EmbeddingConnectionRead(BaseModel):
     model_id: str
 
 
-class EmployeeKnowledgeInput(RequestModel):
-    expected_revision: int = Field(ge=0)
-    knowledge_base_ids: list[UUID] = Field(default_factory=list, max_length=10)
-    mode: Literal["on_demand", "always"] = "on_demand"
-    strategy: Literal["auto", "bm25", "vector", "hybrid"] = "auto"
-    top_k: int = Field(default=6, ge=1, le=12)
-
-
-class EmployeeKnowledgeRead(BaseModel):
-    agent_id: str
-    revision: int
-    knowledge_base_ids: list[str]
-    mode: Literal["on_demand", "always"]
-    strategy: Literal["auto", "bm25", "vector", "hybrid"]
-    top_k: int
-    libraries: list[LibraryRead]
-
-
 class KnowledgeSearchInput(RequestModel):
-    query: Annotated[NonBlankText, Field(max_length=1000)]
-    library_ids: list[UUID] | None = Field(default=None, min_length=1, max_length=10)
+    query: Annotated[
+        NonBlankText, Field(max_length=1000, description="要核实的问题或关键词，可结合上下文改写。")
+    ]
+    library_ids: list[UUID] | None = Field(
+        default=None,
+        min_length=1,
+        max_length=10,
+        description="可选，仅收窄本轮挂载的知识库；省略或 null 时搜索全部挂载库。",
+    )
 
 
 class KnowledgeReadInput(RequestModel):
-    evidence_id: str = Field(pattern=r"^K-[0-9a-f]{16}$")
-    offset: int = Field(default=0, ge=0, le=2000)
+    evidence_id: str = Field(
+        pattern=r"^K-[0-9a-f]{16}$",
+        description="本轮已登记来源的证据编号，原样使用检索结果中的 evidence_id。",
+    )
+    offset: int = Field(
+        default=0, ge=0, le=2000, description="片段内的起始字符位置，省略时从开头读取。"
+    )
+
+
+class KnowledgeEvidenceRead(BaseModel):
+    evidence_id: str
+    title: str
+    locator: str
+    content: str
+    document_version: str
+    offset: int
+    next_offset: int | None
+    total_chars: int
+    source_url: str
+
+
+class KnowledgeEvidenceReference(BaseModel):
+    evidence_id: str
+    title: str
+    source_url: str
+    legacy_source_url: str

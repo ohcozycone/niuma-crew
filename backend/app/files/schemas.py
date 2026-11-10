@@ -1,5 +1,3 @@
-"""Safe file references returned by upload and authorized listing."""
-
 from pydantic import BaseModel
 
 

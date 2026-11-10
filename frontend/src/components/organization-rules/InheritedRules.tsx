@@ -1,9 +1,10 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { FailureState } from "@/components/failure/FailureState";
 import { Card } from "@/components/ui/Card";
 import { ResourceIcon } from "@/components/common/ResourceIcon";
 import { Link } from "react-router";
-import { KNOWLEDGE_RULES_URL } from "@/lib/navigation";
+import { ORGANIZATION_RULES_URL } from "@/lib/navigation";
 import { useIdentity } from "@/state/auth/useIdentity";
 import { Button } from "@/components/ui/Button";
 import { useOrganizationRules } from "./useOrganizationRules";
@@ -28,7 +29,7 @@ function RulesSummary({ compact }: { compact: boolean }) {
           type="button"
           variant="ghost"
           size="sm"
-          render={<Link to={KNOWLEDGE_RULES_URL} />}
+          render={<Link to={ORGANIZATION_RULES_URL} />}
           nativeButton={false}
         >
           查看与管理
@@ -50,7 +51,7 @@ function RulesSummary({ compact }: { compact: boolean }) {
           />
         ))}
       {!rules ? (
-        !failure && <p role="status">正在读取全局规则…</p>
+        !failure && <LoadingFeedback shape="document" label="正在读取全局规则…" />
       ) : rules.instructions ? (
         <>
           <p className={"text-text-muted"}>已自动继承 · 版本 {rules.revision} · 无需单独装配</p>
@@ -73,13 +74,15 @@ function RulesSummary({ compact }: { compact: boolean }) {
         <ResourceIcon kind="rules" className="text-text-muted" />
         <span>公司规章制度</span>
         <span className="type-caption ml-auto">
-          {failure
-            ? "读取失败 · 查看"
-            : !rules
-              ? "正在读取…"
-              : rules.instructions
-                ? "已自动继承 · 查看"
-                : "尚未配置 · 查看"}
+          {failure ? (
+            "读取失败 · 查看"
+          ) : !rules ? (
+            <span className="sr-only">正在读取…</span>
+          ) : rules.instructions ? (
+            "已自动继承 · 查看"
+          ) : (
+            "尚未配置 · 查看"
+          )}
         </span>
       </summary>
       <div className="mt-3">{content}</div>

@@ -12,6 +12,7 @@ export type AgentResourceCountsDTO = {
 export type AgentDTO = {
   id: string;
   created_by_user_id?: string | null;
+  knowledge?: import("@/lib/models/agent").AgentKnowledge;
   tool_grants?: ToolGrant[];
   code: string | null;
   name: string;
@@ -44,6 +45,7 @@ type Page<T> = { items: T[]; total: number; offset: number; limit: number };
 export function fromAgent(data: AgentDTO): Agent {
   return {
     configurationLoaded: true,
+    knowledge: data.knowledge ?? { knowledge_base_ids: [], mode: "on_demand", top_k: 6 },
     createdByUserId: data.created_by_user_id,
     toolGrants: (data.tool_grants ?? []).map((grant) => ({
       connection_id: grant.connection_id,
@@ -52,7 +54,6 @@ export function fromAgent(data: AgentDTO): Agent {
         grant.tools.map((tool) => [tool.name, tool.descriptor_hash]),
       ),
       scope_policy: grant.scope_policy,
-      account_mode: grant.account_mode ?? "personal",
       enabled: grant.enabled,
     })),
     id: data.id,
@@ -86,7 +87,18 @@ export function fromAgent(data: AgentDTO): Agent {
 }
 export function agentInput(data: Agent, create = false) {
   return {
-    ...(data.toolGrants !== undefined ? { tool_grants: data.toolGrants } : {}),
+    ...(data.knowledge !== undefined ? { knowledge: data.knowledge } : {}),
+    ...(data.toolGrants !== undefined
+      ? {
+          tool_grants: data.toolGrants.map((grant) => ({
+            connection_id: grant.connection_id,
+            tools: grant.tools,
+            expected_descriptors: grant.expected_descriptors,
+            scope_policy: grant.scope_policy,
+            enabled: grant.enabled,
+          })),
+        }
+      : {}),
     name: data.name,
     avatar_id: findAvatar(data.avatarId)?.id ?? data.avatarId,
     code: data.code || null,
@@ -198,6 +210,11 @@ export type AgentUsageDTO = Pick<
   AgentDTO,
   "id" | "name" | "description" | "avatar_id" | "is_active" | "example_tasks"
 > & {
+  knowledge?: {
+    libraries: { id: string; name: string; description: string }[];
+    mode: "on_demand" | "always";
+    top_k: number;
+  } | null;
   tool_grants?: ToolGrant[];
   model_configured?: boolean;
   model_connection_id?: string | null;

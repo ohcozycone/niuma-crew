@@ -1,22 +1,23 @@
-"""Conversation lookups, history, context selection and chat read projections."""
-
 import re
+from collections.abc import Iterable
+from datetime import datetime
 from typing import cast
 
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy import and_, func, or_, select
+from sqlalchemy.orm import Session
 
-from app.agent_runtime.contracts import InputMessage
-from app.agents.models import Agent
 from app.auth.actor import Actor
-from app.auth.permissions import permissions_for, require_permission, require_resource_access
+from app.auth.permissions import can_read_all_resources, require_permission
+from app.conversations.access import require_binding, require_conversation, require_response
 from app.conversations.models import Conversation, ConversationRun, Message, MessageFile
 from app.conversations.schemas import (
     AcceptedSubmission,
     AssistantMessageView,
-    ContextRead,
     ConversationRead,
+    ConversationReplySummary,
     ConversationSnapshot,
+    ConversationStats,
+    ConversationStatusFilter,
     MessagePage,
     PublicError,
     PublicStep,
@@ -26,29 +27,16 @@ from app.conversations.schemas import (
     ResponseSnapshot,
     UserMessageView,
 )
+from app.employees.models import Agent
 from app.errors import InvalidInputError, NotFoundError
-from app.execution.errors import ERROR_MESSAGES
+from app.execution.errors import failure_kind
 from app.execution.models import ACTIVE, Run, RunAction
 from app.files.models import StoredFile
 from app.files.service import file_ref
 from app.infrastructure.database.session import Database
 from app.llm.usage import TokenUsage
+from app.public_errors import public_error_message
 from app.schemas import Page
-
-
-def require_conversation(db: Session, id: str, actor: Actor) -> Conversation:
-    row = db.get(Conversation, id)
-    if not row:
-        raise NotFoundError("conversation_not_found", "对话不存在。")
-    require_resource_access(actor, row.owner_user_id)
-    return row
-
-
-def require_binding(db: Session, row: Run) -> ConversationRun:
-    binding = db.get(ConversationRun, row.id)
-    if row.origin_kind != "conversation" or binding is None:
-        raise NotFoundError("conversation_run_not_found", "对话执行记录不存在。")
-    return binding
 
 
 def message_files(db: Session, id: str) -> list[dict]:
@@ -80,7 +68,7 @@ def read_response(
     db: Session, row: Run, *, actions: list[RunAction] | None = None
 ) -> AssistantMessageView:
     binding = require_binding(db, row)
-    reply = db.get(Message, binding.reply_message_id)
+    reply = db.get(Message, binding.run_id)
     if reply is None:
         raise ValueError("回复记录不存在。")
     if actions is None:
@@ -90,6 +78,8 @@ def read_response(
             )
         )
     content = reply.body or ""
+    if row.status == "succeeded" and binding.handled_at is None:
+        content = row.result_text or ""
     if row.status in ACTIVE:
         latest_model = next((item for item in reversed(actions) if item.kind == "model_call"), None)
         content = (
@@ -97,16 +87,11 @@ def read_response(
             if latest_model and not latest_model.safe_details.get("has_tool_calls")
             else ""
         )
-    retired = bool(
-        row.config_snapshot.get("retired_work")
-        or row.config_snapshot.get("work")
-        or row.config_snapshot.get("ci")
-    )
     can_retry = False
-    if not retired and row.status in {"failed", "cancelled", "interrupted"}:
+    if row.status in {"failed", "cancelled", "interrupted"}:
         latest = db.scalar(
             select(ConversationRun.run_id)
-            .join(Message, Message.id == ConversationRun.reply_message_id)
+            .join(Message, Message.id == ConversationRun.run_id)
             .where(ConversationRun.conversation_id == binding.conversation_id)
             .order_by(Message.sequence.desc())
             .limit(1)
@@ -123,18 +108,24 @@ def read_response(
         conversation_id=reply.conversation_id,
         sequence=reply.sequence,
         reply_to_message_id=binding.input_message_id,
-        retry_of_response_id=cast(
-            ConversationRun, db.get(ConversationRun, row.retry_of_run_id)
-        ).reply_message_id
-        if row.retry_of_run_id
-        else None,
-        version=row.revision,
+        retry_of_response_id=row.retry_of_run_id,
+        version=row.revision + binding.acceptance_attempts + (1 if binding.handled_at else 0),
         status=row.status,
+        acceptance=(
+            "pending"
+            if binding.handled_at is None
+            else "failed"
+            if binding.acceptance_error
+            else "accepted"
+        )
+        if row.status not in ACTIVE
+        else None,
+        acceptance_error=binding.acceptance_error,
         content=content,
         content_state="empty"
         if not content
         else "draft"
-        if row.status in ACTIVE
+        if row.status in ACTIVE or binding.handled_at is None
         else "complete"
         if row.status == "succeeded"
         else "partial",
@@ -142,19 +133,12 @@ def read_response(
         usage=TokenUsage.model_validate(row.usage) if row.usage is not None else None,
         error=PublicError(
             code=row.error_code,
-            message=(
-                "此历史功能已移除，仅可查看原记录。"
-                if retired
-                else ERROR_MESSAGES.get(row.error_code, "执行失败，请重试。")
-            )
+            kind=failure_kind(row.error_code),
+            message=public_error_message(row.error_code)
             + ("已保留未完成的输出。" if content and row.status == "failed" else ""),
         )
         if row.error_code
         else None,
-        context=ContextRead(
-            pair_count=row.config_snapshot.get("context_pair_count", 0),
-            truncated=row.config_snapshot.get("context_truncated", False),
-        ),
         can_retry=can_retry,
         created_at=reply.created_at,
         updated_at=row.finished_at or row.updated_at,
@@ -182,71 +166,31 @@ def read_submission(db: Session, row: Run) -> AcceptedSubmission:
     )
 
 
-def require_response(db: Session, actor: Actor, conversation_id: str, response_id: str) -> Run:
-    require_conversation(db, conversation_id, actor)
-    binding = db.scalar(
-        select(ConversationRun).where(
-            ConversationRun.conversation_id == conversation_id,
-            ConversationRun.reply_message_id == response_id,
-        )
+def reply_summary(
+    id: str, status: str, handled_at: datetime | None, error: str | None
+) -> ConversationReplySummary:
+    return ConversationReplySummary(
+        id=id,
+        status=status,
+        acceptance=None
+        if status in ACTIVE
+        else "pending"
+        if handled_at is None
+        else "failed"
+        if error
+        else "accepted",
     )
-    if not binding:
-        raise NotFoundError("response_not_found", "回复不存在。")
-    return cast(Run, db.get(Run, binding.run_id))
-
-
-def select_context(
-    db: Session, conversation_id: str, *, context_pairs: int, context_bytes: int, size: int
-) -> tuple[list[InputMessage], bool]:
-    reply_alias = aliased(Message)
-    successes = list(
-        db.execute(
-            select(ConversationRun, Message, reply_alias)
-            .join(Run, Run.id == ConversationRun.run_id)
-            .join(Message, Message.id == ConversationRun.input_message_id)
-            .join(reply_alias, reply_alias.id == ConversationRun.reply_message_id)
-            .where(ConversationRun.conversation_id == conversation_id, Run.status == "succeeded")
-            .order_by(reply_alias.sequence.desc())
-            .limit(context_pairs + 1)
-        )
-    )
-    pairs: list[list[InputMessage]] = []
-    for binding, user, reply in successes[:context_pairs]:
-        if user.body is None or reply.body is None:
-            raise ValueError("成功问答缺少正文。")
-        pair_size = len(user.body.encode()) + len(reply.body.encode())
-        if size + pair_size > context_bytes:
-            break
-        pairs.append(
-            [
-                {"id": user.id, "role": "user", "content": user.body},
-                {"id": binding.reply_message_id, "role": "assistant", "content": reply.body},
-            ]
-        )
-        size += pair_size
-    return [message for pair in reversed(pairs) for message in pair], len(successes) > len(pairs)
-
-
-def context_sources(
-    db: Session, conversation_id: str, messages: list[InputMessage]
-) -> list[tuple[str, str]]:
-    """Only the host can connect a selected assistant message to its successful Run."""
-    ids = [item["id"] for item in messages if item["role"] == "assistant"]
-    runs = dict(
-        db.execute(
-            select(ConversationRun.reply_message_id, ConversationRun.run_id)
-            .join(Run, Run.id == ConversationRun.run_id)
-            .where(
-                ConversationRun.conversation_id == conversation_id,
-                ConversationRun.reply_message_id.in_(ids),
-                Run.status == "succeeded",
-            )
-        ).all()
-    )
-    return [(runs[item["id"]], item["content"]) for item in messages if item["id"] in runs]
 
 
 def read_conversation(db: Session, row: Conversation) -> ConversationRead:
+    latest = db.execute(
+        select(Run.id, Run.status, ConversationRun.handled_at, ConversationRun.acceptance_error)
+        .join(ConversationRun, ConversationRun.run_id == Run.id)
+        .join(Message, Message.id == ConversationRun.run_id)
+        .where(ConversationRun.conversation_id == row.id)
+        .order_by(Message.sequence.desc())
+        .limit(1)
+    ).first()
     return ConversationRead(
         id=row.id,
         agent_id=row.agent_id,
@@ -254,15 +198,10 @@ def read_conversation(db: Session, row: Conversation) -> ConversationRead:
         owner_user_id=row.owner_user_id,
         title=row.title,
         version=row.revision,
-        last_response_id=db.scalar(
-            select(ConversationRun.reply_message_id)
-            .join(Message, Message.id == ConversationRun.reply_message_id)
-            .where(ConversationRun.conversation_id == row.id)
-            .order_by(Message.sequence.desc())
-            .limit(1)
-        ),
+        last_response_id=latest.id if latest else None,
+        latest_response=reply_summary(*latest) if latest else None,
         active_response_id=db.scalar(
-            select(ConversationRun.reply_message_id).where(
+            select(ConversationRun.run_id).where(
                 ConversationRun.conversation_id == row.id, ConversationRun.active.is_(True)
             )
         ),
@@ -272,45 +211,224 @@ def read_conversation(db: Session, row: Conversation) -> ConversationRead:
 
 
 def preview_text(text: str) -> str:
-    """Lightweight plain-text excerpt, not a generated summary or Markdown render."""
+    """只截取纯文本，不生成摘要或渲染 Markdown。"""
     text = re.sub(r"^\s{0,3}(?:#{1,6}|>|[-*])\s+", "", text, flags=re.MULTILINE)
     text = re.sub(r"(\*\*|__|`)(.*?)\1", r"\2", text)
     return " ".join(text.split())[:480]
 
 
 class ConversationQueries:
+    def trace_context(self, actor: Actor, conversation_id: str, response_id: str) -> dict:
+        require_permission(actor, "conversations:read")
+        require_permission(actor, "runs:read")
+        with self.database.transaction() as db:
+            run = require_response(db, actor, conversation_id, response_id)
+            binding = require_binding(db, run)
+            question = db.get(Message, binding.input_message_id)
+            reply = db.get(Message, binding.run_id)
+            attempts = list(
+                db.scalars(
+                    select(Run)
+                    .join(ConversationRun, ConversationRun.run_id == Run.id)
+                    .where(
+                        ConversationRun.conversation_id == conversation_id,
+                        ConversationRun.input_message_id == binding.input_message_id,
+                    )
+                    .order_by(Run.id.desc())
+                    .limit(20)
+                )
+            )
+            return {
+                "question": question.body if question else None,
+                "input_message_id": binding.input_message_id,
+                "delivery": {
+                    "status": "failed"
+                    if binding.acceptance_error
+                    else "accepted"
+                    if binding.handled_at
+                    else "pending",
+                    "error_code": binding.acceptance_error,
+                    "content": reply.body if reply else None,
+                },
+                "attempts": [
+                    {"id": attempt.id, "status": attempt.status} for attempt in reversed(attempts)
+                ],
+            }
+
+    def trace_run(self, actor: Actor, conversation_id: str, response_id: str | None = None) -> str:
+        require_permission(actor, "conversations:read")
+        require_permission(actor, "runs:read")
+        with self.database.transaction() as db:
+            require_conversation(db, conversation_id, actor)
+            if response_id is None:
+                response_id = db.scalar(
+                    select(ConversationRun.run_id)
+                    .where(ConversationRun.conversation_id == conversation_id)
+                    .order_by(ConversationRun.run_id.desc())
+                    .limit(1)
+                )
+            if response_id is None:
+                raise NotFoundError("response_not_found", "这段对话尚无执行记录。")
+            return require_response(db, actor, conversation_id, response_id).id
+
     def __init__(self, database: Database) -> None:
         self.database = database
 
     def list(
-        self, actor: Actor, agent_id: str | None = None, offset: int = 0, limit: int = 20
+        self,
+        actor: Actor,
+        agent_id: str | None = None,
+        offset: int = 0,
+        limit: int = 20,
+        *,
+        q: str = "",
+        status: ConversationStatusFilter | None = None,
     ) -> Page[ConversationRead]:
         require_permission(actor, "conversations:read")
         conditions = []
-        if "resources:all" not in permissions_for(actor):
+        if not can_read_all_resources(actor):
             conditions.append(Conversation.owner_user_id == actor.user_id)
         if agent_id:
             conditions.append(Conversation.agent_id == agent_id)
+        # 按可见对话关联精确 Run，旧尝试同样受归属限制。
+        id_query = bool(re.fullmatch(r"[1-9][0-9]{11}", q.strip()))
+        matching_response = (
+            select(ConversationRun.run_id)
+            .where(
+                ConversationRun.conversation_id == Conversation.id,
+                ConversationRun.run_id == (q.strip() if id_query else None),
+            )
+            .correlate(Conversation)
+            .scalar_subquery()
+        )
+        if q.strip():
+            conditions.append(
+                or_(
+                    Conversation.id == q.strip(),
+                    matching_response.is_not(None),
+                )
+                if id_query
+                else Conversation.title.contains(q.strip(), autoescape=True)
+            )
+        # 筛选最新尝试，不匹配该问题的任意历史失败。
+        latest_id = (
+            select(ConversationRun.run_id)
+            .join(Message, Message.id == ConversationRun.run_id)
+            .where(ConversationRun.conversation_id == Conversation.id)
+            .order_by(Message.sequence.desc())
+            .limit(1)
+            .correlate(Conversation)
+            .scalar_subquery()
+        )
+        accepted = and_(
+            ConversationRun.handled_at.is_not(None), ConversationRun.acceptance_error.is_(None)
+        )
+        if status == "processing":
+            conditions.append(
+                and_(
+                    Run.id.is_not(None),
+                    or_(Run.status.in_(ACTIVE), ConversationRun.handled_at.is_(None)),
+                )
+            )
+        elif status == "replied":
+            conditions.append(and_(Run.status == "succeeded", accepted))
+        elif status == "attention":
+            conditions.append(
+                or_(
+                    and_(Run.status.in_(["failed", "interrupted"]), accepted),
+                    ConversationRun.acceptance_error.is_not(None),
+                )
+            )
+        elif status == "stopped":
+            conditions.append(and_(Run.status == "cancelled", accepted))
+        query = (
+            select(
+                Conversation,
+                Agent.name,
+                Run.id,
+                Run.status,
+                ConversationRun.active,
+                ConversationRun.handled_at,
+                ConversationRun.acceptance_error,
+                matching_response.label("matched_response_id"),
+            )
+            .join(Agent, Agent.id == Conversation.agent_id)
+            .outerjoin(ConversationRun, ConversationRun.run_id == latest_id)
+            .outerjoin(Run, Run.id == ConversationRun.run_id)
+            .where(*conditions)
+        )
         with self.database.transaction() as db:
-            total = db.scalar(select(func.count()).select_from(Conversation).where(*conditions))
-            rows = db.scalars(
-                select(Conversation)
-                .where(*conditions)
-                .order_by(Conversation.updated_at.desc(), Conversation.id.desc())
-                .offset(offset)
-                .limit(limit)
+            total = db.scalar(select(func.count()).select_from(query.subquery()))
+            rows = cast(
+                Iterable[
+                    tuple[
+                        Conversation,
+                        str,
+                        str | None,
+                        str | None,
+                        bool | None,
+                        datetime | None,
+                        str | None,
+                        str | None,
+                    ]
+                ],
+                db.execute(
+                    query.order_by(Conversation.updated_at.desc(), Conversation.id.desc())
+                    .offset(offset)
+                    .limit(limit)
+                ),
             )
             return Page(
-                items=[read_conversation(db, row) for row in rows],
+                items=[
+                    ConversationRead(
+                        id=conversation.id,
+                        agent_id=conversation.agent_id,
+                        agent_name=agent_name,
+                        owner_user_id=conversation.owner_user_id,
+                        title=conversation.title,
+                        version=conversation.revision,
+                        active_response_id=response_id if active else None,
+                        last_response_id=response_id,
+                        matched_response_id=matched_response_id,
+                        latest_response=reply_summary(
+                            response_id, response_status, handled_at, acceptance_error
+                        )
+                        if response_id is not None and response_status is not None
+                        else None,
+                        created_at=conversation.created_at,
+                        updated_at=conversation.updated_at,
+                    )
+                    for conversation, agent_name, response_id, response_status, active, handled_at, acceptance_error, matched_response_id in rows
+                ],
                 total=cast(int, total),
                 offset=offset,
                 limit=limit,
             )
 
-    def get(self, actor: Actor, id: str) -> ConversationRead:
+    def stats(self, actor: Actor, agent_id: str) -> ConversationStats:
+        """只计成功接纳的轮次，重试不重复计数。"""
         require_permission(actor, "conversations:read")
+        require_permission(actor, "runs:read")
+        conditions = [
+            Conversation.agent_id == agent_id,
+            Run.status == "succeeded",
+            ConversationRun.handled_at.is_not(None),
+            ConversationRun.acceptance_error.is_(None),
+        ]
+        if not can_read_all_resources(actor):
+            conditions.append(Conversation.owner_user_id == actor.user_id)
         with self.database.transaction() as db:
-            return read_conversation(db, require_conversation(db, id, actor))
+            if db.get(Agent, agent_id) is None:
+                raise NotFoundError("agent_not_found", "员工不存在。")
+            # 重试共用输入 ID；考核等独立执行没有 ConversationRun，不计入问答。
+            total = db.scalar(
+                select(func.count(func.distinct(ConversationRun.input_message_id)))
+                .select_from(ConversationRun)
+                .join(Conversation, Conversation.id == ConversationRun.conversation_id)
+                .join(Run, Run.id == ConversationRun.run_id)
+                .where(*conditions)
+            )
+            return ConversationStats(completed_rounds=cast(int, total))
 
     def questions(
         self,
@@ -387,7 +505,7 @@ class ConversationQueries:
             row = db.scalar(
                 select(Run)
                 .join(ConversationRun, ConversationRun.run_id == Run.id)
-                .join(Message, Message.id == ConversationRun.reply_message_id)
+                .join(Message, Message.id == ConversationRun.run_id)
                 .where(
                     ConversationRun.conversation_id == id,
                     ConversationRun.input_message_id == question_id,
@@ -408,7 +526,7 @@ class ConversationQueries:
                     )
                 ),
                 answer=preview_text(read_run_content(db, row)),
-                response_id=require_binding(db, row).reply_message_id,
+                response_id=require_binding(db, row).run_id,
                 version=row.revision,
                 status=row.status,
             )
@@ -431,11 +549,10 @@ class ConversationQueries:
                 return self.messages(actor, id, before, limit, after, around, session)
         require_conversation(db, id, actor)
         require_permission(actor, "runs:read")
-        # 只对业务引用分页，截取窗口后才读取正文。原始输入仅出现一次，
-        # 避免大量重试挤掉旧输入，也避免跨页定位遍历中间 checkpoint。
+        # 先分页业务引用再读正文，避免重试挤掉旧输入或遍历 checkpoint。
         refs = (
             select(ConversationRun.run_id, Message.id, Message.sequence, Message.role)
-            .outerjoin(ConversationRun, ConversationRun.reply_message_id == Message.id)
+            .outerjoin(ConversationRun, ConversationRun.run_id == Message.id)
             .where(Message.conversation_id == id)
             .subquery()
         )
@@ -491,7 +608,7 @@ class ConversationQueries:
         )
         run_ids = {ref.run_id for ref in selected if ref.run_id is not None}
         rows = {row.id: row for row in db.scalars(select(Run).where(Run.id.in_(run_ids)))}
-        # 仅加载当前助手消息页的步骤，整页共用一次查询；正文和步骤属于同一读事务。
+        # 整页步骤共用一次查询，与正文保持同一读事务。
         assistant_ids = {ref.run_id for ref in selected if ref.role == "assistant"}
         steps_by_run: dict[str, list[RunAction]] = {run_id: [] for run_id in assistant_ids}
         if assistant_ids:
@@ -547,16 +664,19 @@ class ConversationQueries:
             )
 
     def find_request(
-        self, actor: Actor, conversation_id: str, request_id: str
+        self, actor: Actor, conversation_id: str | None, request_id: str
     ) -> AcceptedSubmission | None:
         require_permission(actor, "runs:read")
         with self.database.transaction() as db:
-            require_conversation(db, conversation_id, actor)
+            if conversation_id is not None:
+                require_conversation(db, conversation_id, actor)
             row = db.scalar(
                 select(Run)
                 .join(ConversationRun, ConversationRun.run_id == Run.id)
                 .where(
-                    ConversationRun.conversation_id == conversation_id,
+                    (ConversationRun.conversation_id == conversation_id)
+                    if conversation_id is not None
+                    else (Run.operation == "conversation.create"),
                     Run.initiated_by_user_id == actor.user_id,
                     Run.client_request_id == request_id,
                 )

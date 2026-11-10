@@ -1,23 +1,75 @@
-"""Worker-facing persistence. No HTTP identities or provider objects cross this boundary."""
+import json
+from collections.abc import Callable, Iterable
+from datetime import datetime
+from typing import Any, cast
 
 from sqlalchemy import func, select
+from sqlalchemy.orm import Session
 
-from app.agent_runtime.contracts import ContentUpdate
-from app.errors import ConflictError, PermissionDeniedError
+from app.agent.contracts import ContentUpdate, InputMessage
+from app.auth.actor import Actor
+from app.auth.permissions import require_resource_access
+from app.builtin_tools.contracts import ModelExposure, ToolInvocation, ToolPermit
+from app.errors import ConflictError, NotFoundError, PermissionDeniedError
 from app.execution.contracts import SUPPORTED_SNAPSHOT_VERSIONS, Completion
 from app.execution.errors import ExecutionFailure
+from app.execution.evidence import document
 from app.execution.models import ACTIVE, TERMINAL, Run, RunAction
-from app.execution.queries import require_run
-from app.infrastructure.database.fields import utc_now
+from app.files.models import StoredFile
+from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
-from app.tools.contracts import ToolPermit
+from app.values import utc_now
 
 
 class RunStore:
-    def __init__(self, database):
+    def __init__(self, database: Database, *, files: Any = None) -> None:
+        self.files = files
         self.database = database
 
-    def recover(self, resume=False):
+    def tool_result_aliases(self, id: str) -> dict:
+        """只读本 Run 已可靠完成的动作元数据，不扫描正文推导来源。"""
+        with self.database.transaction() as db:
+            aliases = {}
+            for action in db.scalars(
+                select(RunAction).where(
+                    RunAction.run_id == id,
+                    RunAction.kind == "tool_call",
+                    RunAction.result_payload.is_not(None),
+                )
+            ):
+                aliases.update(
+                    (action.result_payload or {})
+                    .get("data", {})
+                    .get("artifact", {})
+                    .get("result_aliases", {})
+                )
+            return aliases
+
+    def save_evidence(self, id: str, key: str, direction: str, evidence: dict) -> None:
+        """在同一事务登记不可变字节及动作引用。"""
+        if direction not in ("request", "response") or self.files is None:
+            raise ValueError("evidence_store_not_configured")
+        prepared = self.files.prepare(
+            f"{direction}.json", json.dumps(evidence, ensure_ascii=False, default=str).encode()
+        )
+        with self.database.transaction() as db:
+            reserve_writer(db, Run.__table__)
+            row = require_run(db, id)
+            if row.status not in ("running", "cancelling"):
+                raise ExecutionFailure("runtime_interrupted")
+            action = db.scalar(
+                select(RunAction).where(RunAction.run_id == id, RunAction.action_key == key)
+            )
+            if action is None:
+                raise ExecutionFailure("runtime_interrupted")
+            file = self.files.register(
+                db, row.owner_user_id, prepared, purpose="evidence", run_id=id
+            )
+            setattr(action, direction + "_file_id", file.id)
+            row.revision += 1
+            row.actions_revision += 1
+
+    def recover(self, resume: bool = False) -> list[Completion]:
         terminal = []
         with self.database.transaction() as db:
             reserve_writer(db, Run.__table__)
@@ -36,12 +88,47 @@ class RunStore:
                     terminal.append(Completion(row.id, None, "interrupted", "runtime_interrupted"))
         return terminal
 
-    def load(self, id: str):
+    @staticmethod
+    def record_history(db: Session, run: Run) -> None:
+        evidence = run.config_snapshot.get("knowledge", {}).get("history_evidence", [])
+        if evidence:
+            now = utc_now()
+            db.add(
+                RunAction(
+                    run_id=run.id,
+                    sequence=1,
+                    action_key="knowledge:history",
+                    kind="knowledge",
+                    status="succeeded",
+                    safe_details={
+                        "operation": "history_reuse",
+                        "source_count": len(evidence),
+                        "sources": [
+                            {
+                                "title": item["title"],
+                                "url": item["source_url"],
+                                "status": "succeeded",
+                            }
+                            for item in evidence
+                        ],
+                    },
+                    started_at=now,
+                    finished_at=now,
+                )
+            )
+            run.actions_revision += 1
+
+    def load(self, id: str) -> tuple[Run, list[InputMessage]]:
         with self.database.transaction() as db:
             row = require_run(db, id)
             return row, row.input_snapshot
 
-    def queued_metadata(self):
+    def remaining_model_calls(self, id: str) -> int:
+        with self.database.transaction() as db:
+            row = require_run(db, id)
+            return max(0, int(row.config_snapshot["max_model_calls"]) - row.model_calls)
+
+    def queued_metadata(self) -> list[tuple[str, datetime | None]]:
         with self.database.transaction() as db:
             return [
                 (row.id, row.created_at if row.started_at is None else None)
@@ -50,7 +137,7 @@ class RunStore:
                 )
             ]
 
-    def claim(self, id):
+    def claim(self, id: str) -> bool:
         with self.database.transaction() as db:
             reserve_writer(db, Run.__table__)
             row = require_run(db, id)
@@ -60,14 +147,14 @@ class RunStore:
             row.revision += 1
             return True
 
-    def checkpoint_saved(self, id, checkpoint_id):
+    def checkpoint_saved(self, id: str, checkpoint_id: str) -> None:
         with self.database.transaction() as db:
             reserve_writer(db, Run.__table__)
             row = require_run(db, id)
             if row.status in ACTIVE:
                 row.checkpoint_id = checkpoint_id
 
-    def restore_control(self, id):
+    def restore_control(self, id: str) -> dict[str, Any]:
         with self.database.transaction() as db:
             row = require_run(db, id)
             steps = list(db.scalars(select(RunAction).where(RunAction.run_id == id)))
@@ -91,17 +178,17 @@ class RunStore:
                 "usage": row.usage if row.started_at else None,
             }
 
-    def state(self, id):
+    def state(self, id: str) -> tuple[str, str | None]:
         with self.database.transaction() as db:
             row = require_run(db, id)
             return row.status, row.initiated_by_session_id
 
-    def active_ids(self):
+    def active_ids(self) -> list[str]:
         with self.database.transaction() as db:
             return list(db.scalars(select(Run.id).where(Run.status.in_(ACTIVE))))
 
     @classmethod
-    def finish(cls, db, row: Run, intent: Completion) -> None:
+    def finish(cls, db: Session, row: Run, intent: Completion) -> None:
         if intent.status not in TERMINAL:
             raise ValueError("Invalid terminal execution status")
         cls._write_progress(db, row, intent.progress)
@@ -121,7 +208,7 @@ class RunStore:
         row.revision += 1
 
     @staticmethod
-    def _close_actions(db, row, status, error):
+    def _close_actions(db: Session, row: Run, status: str, error: str | None) -> bool:
         unfinished_model = False
         changed = False
         for step in db.scalars(
@@ -130,7 +217,7 @@ class RunStore:
             changed = True
             if step.kind == "model_call":
                 unfinished_model = True
-                # An unfinished request may have consumed tokens without reporting usage.
+                # 未完成请求可能已消耗 token，未报告用量仍须保持未知。
                 row.usage = {
                     key: None
                     for key in (
@@ -148,14 +235,14 @@ class RunStore:
         return unfinished_model
 
     @staticmethod
-    def _set_content(step, content: ContentUpdate):
+    def _set_content(step: Any, content: ContentUpdate) -> None:
         step.output_text = content.output_text
         step.reasoning_text = content.reasoning_text
         step.reasoning_truncated = content.reasoning_truncated
         step.safe_details = {**step.safe_details, "has_tool_calls": content.has_tool_calls}
 
     @classmethod
-    def _write_progress(cls, db, row, contents):
+    def _write_progress(cls, db: Session, row: Run, contents: Iterable[ContentUpdate]) -> bool:
         changed = False
         for content in contents:
             step = db.scalar(
@@ -168,7 +255,7 @@ class RunStore:
                 changed = True
         return changed
 
-    def update_progress(self, id: str, contents: list[ContentUpdate]):
+    def update_progress(self, id: str, contents: list[ContentUpdate]) -> None:
         with self.database.transaction() as db:
             reserve_writer(db, Run.__table__)
             row = require_run(db, id)
@@ -176,8 +263,16 @@ class RunStore:
                 row.revision += 1
 
     def start_action(
-        self, id, key, kind, details=None, skill_id=None, *, budget=None, authorize=None
-    ):
+        self,
+        id: str,
+        key: str,
+        kind: str,
+        details: dict[str, Any] | None = None,
+        skill_id: str | None = None,
+        *,
+        budget: str | None = None,
+        authorize: Callable[[Session], Any] | None = None,
+    ) -> str:
         with self.database.transaction() as db:
             reserve_writer(db, Run.__table__)
             row = require_run(db, id)
@@ -188,45 +283,71 @@ class RunStore:
             return self._start_action(db, row, key, kind, details, skill_id)
 
     @staticmethod
-    def _reserve(row, counter):
+    def _reserve(row: Run, counter: str) -> int:
         limit = {
             "model_calls": "max_model_calls",
             "skill_reads": "max_skill_reads",
             "tool_calls": "max_tool_calls",
         }[counter]
-        count = getattr(row, counter) + 1
+        count = int(getattr(row, counter)) + 1
         if count > row.config_snapshot[limit]:
             raise ExecutionFailure("agent_budget_exceeded")
         setattr(row, counter, count)
         return count
 
-    def start_model(self, id, authorize):
+    def start_model(
+        self, id: str, authorize: Callable[[Session], Any], *, exposure: ModelExposure
+    ) -> tuple[int, str]:
         with self.database.transaction() as db:
             reserve_writer(db, Run.__table__)
             row = require_run(db, id)
             authorize(db)
+            expected = row.config_snapshot.get("tool_catalog", {}).get("catalog_hash")
+            ids = exposure.get("exposed_tool_ids")
+            allowed = {item["binding_id"] for item in row.config_snapshot.get("tools", [])}
+            if (
+                exposure.get("catalog_hash") != expected
+                or not isinstance(ids, list)
+                or any(not isinstance(key, str) or key not in allowed for key in ids)
+            ):
+                raise ExecutionFailure("tool_not_allowed")
             number = self._reserve(row, "model_calls")
             key = f"model:{number}"
-            return number, self._start_action(db, row, key, "model_call", {"round": number})
+            return number, self._start_action(
+                db,
+                row,
+                key,
+                "model_call",
+                {
+                    "round": number,
+                    "catalog_hash": expected,
+                    "exposed_tool_ids": list(dict.fromkeys(ids)),
+                },
+            )
 
-    def _start_action(self, db, row, key, kind, details=None, skill_id=None):
+    def _start_action(
+        self,
+        db: Session,
+        row: Run,
+        key: str,
+        kind: str,
+        details: dict[str, Any] | None = None,
+        skill_id: str | None = None,
+    ) -> str:
         id = row.id
         if row.status != "running":
-            raise ConflictError("runtime_interrupted", "执行已停止。")
+            raise ConflictError("runtime_interrupted")
         existing = db.scalar(
             select(RunAction)
             .where(RunAction.run_id == id, RunAction.call_key == key)
             .order_by(RunAction.sequence.desc())
             .limit(1)
         )
-        retry_read = (details or {}).get("recovery") == "readonly" or (
-            row.config_snapshot.get("schema_version") == 2
-            and (details or {}).get("tool") == "read_file"
-        )
+        retry_read = (details or {}).get("recovery") == "readonly"
         if existing and not (kind == "tool_call" and retry_read):
-            raise ConflictError("runtime_interrupted", "Action already recorded")
+            raise ConflictError("runtime_interrupted")
         if skill_id and skill_id not in row.config_snapshot.get("authorized_skill_ids", []):
-            raise PermissionDeniedError("skill_not_allowed", "Skill is not authorized")
+            raise PermissionDeniedError("skill_not_allowed")
         sequence = (
             db.scalar(select(func.max(RunAction.sequence)).where(RunAction.run_id == id)) or 0
         ) + 1
@@ -248,7 +369,7 @@ class RunStore:
         return key if existing is None else f"{key}:attempt:{sequence}"
 
     @staticmethod
-    def _parent_action(db, id, key):
+    def _parent_action(db: Session, id: str, key: str) -> str | None:
         tool_id = key.removeprefix("tool:")
         for item in db.scalars(
             select(RunAction)
@@ -261,21 +382,21 @@ class RunStore:
 
     def finish_action(
         self,
-        id,
-        key,
-        status="succeeded",
-        error=None,
-        details=None,
-        usage=None,
-        content=None,
+        id: str,
+        key: str,
+        status: str = "succeeded",
+        error: str | None = None,
+        details: dict[str, Any] | None = None,
+        usage: dict[str, Any] | None = None,
+        content: ContentUpdate | None = None,
         *,
-        result_payload=None,
-    ):
+        result_payload: dict[str, Any] | None = None,
+    ) -> None:
         with self.database.transaction() as db:
             reserve_writer(db, Run.__table__)
             row = require_run(db, id)
             if row.status not in ("running", "cancelling"):
-                raise ConflictError("runtime_interrupted", "执行已停止。")
+                raise ConflictError("runtime_interrupted")
             step = db.scalar(
                 select(RunAction).where(RunAction.run_id == id, RunAction.action_key == key)
             )
@@ -287,11 +408,14 @@ class RunStore:
             ):
                 return
             if not step or step.status != "running":
-                raise ConflictError("runtime_interrupted", "步骤已结束，不覆盖记录。")
-            if row.status == "cancelling":
-                status = "cancelled"
+                raise ConflictError("runtime_interrupted")
+            # 取消不抹掉已确认动作结果，但 Run 终态仍阻止交付和新动作。
             step.status, step.error_code, step.finished_at = status, error, utc_now()
             if details:
+                if step.kind == "model_call" and any(
+                    key in details for key in ("catalog_hash", "exposed_tool_ids")
+                ):
+                    raise ExecutionFailure("runtime_interrupted")
                 step.safe_details = {**step.safe_details, **details}
             if content is not None:
                 self._set_content(step, content)
@@ -303,13 +427,19 @@ class RunStore:
             row.revision += 1
             row.actions_revision += 1
 
-    def begin_tool(self, id, invocation, authorize):
+    def begin_tool(
+        self, id: str, invocation: ToolInvocation, authorize: Callable[[Session], Any]
+    ) -> ToolPermit:
         with self.database.transaction() as db:
             reserve_writer(db, Run.__table__)
             row = require_run(db, id)
             if row.status != "running":
                 raise ExecutionFailure("runtime_interrupted")
+            parent = assert_tool_exposure(db, row, invocation)
             binding = authorize(db)
+            if binding.get("kind") == "workspace" and binding.get("recovery") != "readonly":
+                # 工具动作和 LangGraph 文件状态分开提交，修改开始后不能自动重放。
+                row.config_snapshot = {**row.config_snapshot, "checkpoint_resumable": False}
             prior = db.scalar(
                 select(RunAction)
                 .where(RunAction.run_id == id, RunAction.call_key == invocation.key)
@@ -317,7 +447,11 @@ class RunStore:
                 .limit(1)
             )
             if prior is not None:
-                if prior.safe_details.get("fingerprint") != invocation.fingerprint:
+                if prior.safe_details.get(
+                    "fingerprint"
+                ) != invocation.fingerprint or prior.safe_details.get(
+                    "catalog_hash"
+                ) != row.config_snapshot.get("tool_catalog", {}).get("catalog_hash"):
                     raise ExecutionFailure("runtime_interrupted")
                 if (
                     binding.get("recovery") == "readonly"
@@ -329,15 +463,20 @@ class RunStore:
                     )
                 if binding.get("recovery") != "readonly":
                     raise ExecutionFailure("tool_result_unknown")
-            count = sum(
-                1
-                for action in db.scalars(
-                    select(RunAction).where(RunAction.run_id == id, RunAction.kind == "tool_call")
+            max_calls = binding["scope_policy"].get("max_calls")
+            if max_calls is not None:
+                count = sum(
+                    1
+                    for action in db.scalars(
+                        select(RunAction).where(
+                            RunAction.run_id == id, RunAction.kind == "tool_call"
+                        )
+                    )
+                    if action.safe_details.get("binding_id") == invocation.binding_id
+                    and action.safe_details.get("executed") is not False
                 )
-                if action.safe_details.get("binding_id") == invocation.binding_id
-            )
-            if count >= binding["scope_policy"].get("max_calls", 32):
-                raise ExecutionFailure("agent_budget_exceeded")
+                if count >= max_calls:
+                    raise ExecutionFailure("agent_budget_exceeded")
             self._reserve(row, "tool_calls")
             if invocation.skill_id:
                 self._reserve(row, "skill_reads")
@@ -348,8 +487,159 @@ class RunStore:
                 "binding_id": invocation.binding_id,
                 "fingerprint": invocation.fingerprint,
                 "recovery": binding.get("recovery", "never"),
+                "catalog_hash": row.config_snapshot.get("tool_catalog", {}).get("catalog_hash"),
+                "origin": invocation.origin,
+                **({"category": "tool_discovery"} if invocation.name == "search_tools" else {}),
             }
             key = self._start_action(
                 db, row, invocation.key, "tool_call", details, invocation.skill_id
             )
+            db.flush()
+            action = db.scalar(
+                select(RunAction).where(RunAction.run_id == id, RunAction.action_key == key)
+            )
+            assert action is not None
+            if parent is not None:
+                action.parent_action_id = parent.id
             return ToolPermit(key, invocation.fingerprint)
+
+    def reject_tool(self, id: str, invocation: ToolInvocation, error: str) -> None:
+        """记录拒绝，不扣工具预算或执行工具。"""
+        prepared = (
+            self.files.prepare(
+                "tool-request.json",
+                json.dumps(
+                    document(
+                        "tool_request",
+                        {
+                            "name": invocation.name,
+                            "requested_arguments": invocation.arguments,
+                            "authorization_status": "denied",
+                            "error_code": error,
+                        },
+                    ),
+                    ensure_ascii=False,
+                ).encode(),
+            )
+            if self.files
+            else None
+        )
+        with self.database.transaction() as db:
+            reserve_writer(db, Run.__table__)
+            row = require_run(db, id)
+            if row.status != "running":
+                return
+            if db.scalar(
+                select(RunAction.id).where(
+                    RunAction.run_id == id, RunAction.call_key == invocation.key
+                )
+            ):
+                return
+            self._start_action(
+                db,
+                row,
+                invocation.key,
+                "tool_call",
+                {
+                    "tool": invocation.name,
+                    "binding_id": invocation.binding_id,
+                    "authorization_status": "denied",
+                    "executed": False,
+                },
+            )
+            db.flush()
+            action = db.scalar(
+                select(RunAction).where(
+                    RunAction.run_id == id, RunAction.action_key == invocation.key
+                )
+            )
+            assert action is not None
+            action.status, action.error_code, action.finished_at = "failed", error, utc_now()
+            if prepared:
+                file = self.files.register(
+                    db, row.owner_user_id, prepared, purpose="evidence", run_id=id
+                )
+                action.request_file_id = file.id
+
+
+def assert_tool_exposure(db: Session, row: Run, invocation: ToolInvocation) -> RunAction | None:
+    snapshot = row.config_snapshot
+    if invocation.origin == "host_presearch":
+        if (
+            invocation.key != "knowledge:presearch"
+            or invocation.name != "search_knowledge"
+            or snapshot.get("knowledge", {}).get("mode") != "always"
+            or invocation.model_action_key is not None
+        ):
+            raise ExecutionFailure("tool_not_allowed")
+        return None
+    if invocation.origin != "model" or not invocation.model_action_key:
+        raise ExecutionFailure("tool_not_allowed")
+    parent = db.scalar(
+        select(RunAction).where(
+            RunAction.run_id == row.id,
+            RunAction.action_key == invocation.model_action_key,
+            RunAction.kind == "model_call",
+        )
+    )
+    binding = next(
+        (item for item in snapshot.get("tools", []) if item["exposed_name"] == invocation.name),
+        None,
+    )
+    if (
+        parent is None
+        or parent.status != "succeeded"
+        or binding is None
+        or parent.safe_details.get("catalog_hash")
+        != snapshot.get("tool_catalog", {}).get("catalog_hash")
+        or binding["binding_id"] not in parent.safe_details.get("exposed_tool_ids", [])
+        or {"id": invocation.key.removeprefix("tool:"), "name": invocation.name}
+        not in parent.safe_details.get("tool_calls", [])
+    ):
+        raise ExecutionFailure("tool_not_allowed")
+    return parent
+
+
+def require_run(db: Session, id: str, actor: Actor | None = None) -> Run:
+    row = db.get(Run, id)
+    if not row:
+        raise NotFoundError("run_not_found")
+    if actor:
+        require_resource_access(actor, row.owner_user_id)
+    return row
+
+
+def retained_file_ids(db: Session, candidates: list[StoredFile]) -> set[str]:
+    """按执行引用保留输入与成果，不依赖消息关系。"""
+    ids = {row.id for row in candidates}
+    origins = {row.origin_run_id for row in candidates if row.origin_run_id}
+    retained: set[str] = set()
+    for request_id, response_id in db.execute(
+        select(RunAction.request_file_id, RunAction.response_file_id).where(
+            RunAction.run_id.in_(origins)
+        )
+    ):
+        retained.update(value for value in (request_id, response_id) if value in ids)
+    active = set(db.scalars(select(Run.id).where(Run.id.in_(origins), Run.status.in_(ACTIVE))))
+    retained.update(row.id for row in candidates if row.origin_run_id in active)
+    for record in db.execute(
+        select(Run.config_snapshot, Run.result_data).execution_options(yield_per=128)
+    ):
+        snapshot = cast(dict, record[0])
+        result = cast(dict | None, record[1])
+        refs = [*snapshot.get("input_files", []), *(result or {}).get("output_files", [])]
+        retained.update(ref["id"] for ref in refs if ref["id"] in ids)
+    details: dict
+    for details in db.scalars(
+        select(RunAction.safe_details).where(
+            RunAction.run_id.in_(origins), RunAction.kind == "tool_call"
+        )
+    ):
+        if details.get("result_file_id") in ids:
+            retained.add(details["result_file_id"])
+        retained.update(
+            source["file_id"]
+            for source in cast(list[dict], details.get("sources", []))
+            if source.get("file_id") in ids
+        )
+    return retained & ids

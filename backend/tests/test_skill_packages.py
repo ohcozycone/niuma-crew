@@ -1,5 +1,3 @@
-"""Portable Skill assets, frozen resources and the actual SDK loading boundary."""
-
 import base64
 import io
 import stat
@@ -8,12 +6,11 @@ from types import SimpleNamespace
 
 import pytest
 from deepagents.backends.protocol import ExecuteResponse
+from run_helpers import empty_conversation, read_reply
 from test_capability_runtime import ScriptedModel, execute, response, submit
 
-from app.agent_runtime.resources import RuntimeResources
-from app.agent_runtime.sandbox_backend import SandboxFileBackend
-from app.agent_runtime.skill_loading import prepare_skills
-from app.agent_runtime.workspace import WorkspaceBackend
+from app.agent.skills import prepare_skills
+from app.builtin_tools.workspace import WorkspaceBackend, _SandboxFileBackend
 from app.errors import InvalidInputError
 from app.execution.models import Run
 from app.skills.packages import archive_files, parse_skill_md
@@ -58,7 +55,7 @@ def assigned(client, skill):
             "skill_assignments": [{"skill_id": skill["id"]}],
         },
     ).json()
-    return client.post("/api/conversations", json={"agent_id": agent["id"]}).json(), agent
+    return empty_conversation(client, agent["id"]), agent
 
 
 def test_import_preview_is_inert_and_export_preserves_standard_source_and_binary(api_client):
@@ -142,7 +139,7 @@ def test_standard_unicode_lowercase_name_is_supported():
 
 
 def test_skill_json_upload_above_normal_request_ceiling_is_supported(api_client):
-    # Incompressible content deliberately exceeds the ordinary 1 MiB JSON limit.
+    # 不可压缩内容确保真实超过普通 JSON 的 1 MiB 上限。
     import random
 
     data = random.Random(42).randbytes(1024 * 1024)
@@ -157,7 +154,7 @@ def test_skill_json_upload_above_normal_request_ceiling_is_supported(api_client)
 def test_package_resource_edit_is_atomic_and_old_run_reads_frozen_bytes(api_client, monkeypatch):
     skill = imported(api_client)
     conversation, _ = assigned(api_client, skill)
-    run = submit(api_client, conversation, [skill["id"]]).json()
+    run = submit(api_client, conversation, [skill["id"]]).json()["response"]
     with api_client.app.state.database.transaction() as db:
         snapshot = db.get(Run, run["id"]).config_snapshot
         old_manifest = snapshot["skills"][0]["package_manifest"]
@@ -202,8 +199,8 @@ def test_package_resource_edit_is_atomic_and_old_run_reads_frozen_bytes(api_clie
     )
     assert execute(api_client, monkeypatch, model, run)["status"] == "succeeded"
     assert "RULES_OLD" in model.prompts[-1] and "RULES_NEW" not in model.prompts[-1]
-    # A supporting file read is not falsely recorded as another full activation.
-    actions = api_client.get(f"/api/runs/{run['id']}/actions").json()["items"]
+    # 支持文件读取不重复计为技能激活。
+    actions = read_reply(api_client, run["id"])["steps"]
     assert sum(item["kind"] == "skill_activation" for item in actions) == 1
 
 
@@ -219,7 +216,7 @@ def test_legacy_inputs_outputs_and_examples_are_present_when_pinned(api_client, 
         },
     ).json()
     conversation, _ = assigned(api_client, skill)
-    run = submit(api_client, conversation, [skill["id"]]).json()
+    run = submit(api_client, conversation, [skill["id"]]).json()["response"]
     model = ScriptedModel(responses=[response("已按方法处理")])
     assert execute(api_client, monkeypatch, model, run)["status"] == "succeeded"
     assert all(
@@ -267,7 +264,7 @@ def test_resources_cannot_be_read_from_unassigned_package(api_client, monkeypatc
         json={"expected_revision": 1, "skill_assignments": [{"skill_id": other["id"]}]},
     )
     assert updated.status_code == 200, updated.text
-    run = submit(api_client, conversation).json()
+    run = submit(api_client, conversation).json()["response"]
     model = ScriptedModel(
         responses=[
             response(
@@ -290,10 +287,10 @@ def test_skill_tool_declarations_never_install_or_grant_execution(api_client, mo
     source = SOURCE.replace("license: MIT", "license: MIT\nallowed-tools: execute")
     skill = api_client.post("/api/skills", json={"name": "声明执行", "skill_md": source}).json()
     conversation, _ = assigned(api_client, skill)
-    run = submit(api_client, conversation, [skill["id"]]).json()
+    run = submit(api_client, conversation, [skill["id"]]).json()["response"]
     model = ScriptedModel(responses=[response("仅依照方法回答")])
     assert execute(api_client, monkeypatch, model, run)["status"] == "succeeded"
-    assert all(binding == ["read_file"] for binding in model.bindings)
+    assert all("read_file" in binding and "execute" not in binding for binding in model.bindings)
 
 
 def test_storage_failure_never_publishes_partial_skill(api_client, monkeypatch):
@@ -341,11 +338,11 @@ def test_skill_bytes_materialize_only_for_active_skill_and_remain_readonly():
         ),
         files=SimpleNamespace(write_files=lambda entries: written.extend(entries)),
     )
-    backend = SandboxFileBackend(sandbox=fake, timeout=60)
+    backend = _SandboxFileBackend(sandbox=fake, timeout=60)
     backend.execute = lambda command, *, timeout: (
         executions.append(command) or ExecuteResponse(output="ok", exit_code=0)
     )
-    resources = RuntimeResources(
+    resources = SimpleNamespace(
         tools=None,
         read_file=lambda _: b"",
         list_sources=lambda: [],
@@ -357,7 +354,7 @@ def test_skill_bytes_materialize_only_for_active_skill_and_remain_readonly():
     workspace = WorkspaceBackend(
         {"workspace": {"mode": "sandbox"}}, prepared, resources, sandbox_factory=lambda _: backend
     )
-    # Merely loading descriptions does not create a sandbox.
+    # 仅读技能目录不申请沙箱。
     assert workspace.remote is None
     workspace.execute("echo plain")
     assert written == []

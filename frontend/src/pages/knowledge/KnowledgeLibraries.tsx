@@ -1,3 +1,6 @@
+import { LoadingFeedback, type LoadingShape } from "@/components/common/LoadingFeedback";
+import { RefreshButton } from "@/components/common/RefreshButton";
+import { useIdentity } from "@/state/auth/useIdentity";
 import { ResourceIcon } from "@/components/common/ResourceIcon";
 import { mutationOutcome } from "@/lib/failures/resolve";
 import { FailureNotice } from "@/components/failure/FailureNotice";
@@ -6,7 +9,9 @@ import type { Failure, FailureAction, FailureResource } from "@/lib/failures/typ
 import { FormField } from "@/components/common/FormField";
 import { useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
-import { RefreshCw } from "lucide-react";
+import { Plus } from "lucide-react";
+import { CollectionToolbar } from "@/components/common/CollectionToolbar";
+import { ButtonGroup } from "@/components/ui/ButtonGroup";
 import { Button } from "@/components/ui/Button";
 import { KnowledgeCard } from "./KnowledgeCard";
 import { Input } from "@/components/ui/Input";
@@ -29,6 +34,7 @@ export function KnowledgeFeedback({
   resource = "knowledge",
   returnTo,
   actions = [],
+  shape = "table",
 }: {
   failure: Failure | null;
   loading: boolean;
@@ -37,6 +43,7 @@ export function KnowledgeFeedback({
   resource?: FailureResource;
   returnTo?: string;
   actions?: readonly FailureAction[];
+  shape?: LoadingShape;
 }) {
   if (failure) {
     const Feedback = hasUsableData ? FailureNotice : FailureState;
@@ -54,12 +61,11 @@ export function KnowledgeFeedback({
     );
   }
   return loading ? (
-    <p role="status" className="my-4 text-sm text-text-muted">
-      正在加载…
-    </p>
+    <LoadingFeedback refreshing={hasUsableData} shape={shape} className="my-4" />
   ) : null;
 }
 export function KnowledgeLibraries() {
+  const writable = useIdentity().permissions.includes("knowledge:manage");
   const store = useWorkspaceData().knowledge;
   const resource = store.libraries();
   const state = useResource(resource);
@@ -69,23 +75,48 @@ export function KnowledgeLibraries() {
   );
   return (
     <section aria-label="知识库列表">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <PageHeading
+        title="知识库"
+        description="按业务整理资料，为员工检索和回答提供依据。"
+        actions={
+          <ButtonGroup>
+            <Button
+              disabled={!writable}
+              nativeButton={false}
+              role="link"
+              render={<Link to="/knowledge/new" />}
+            >
+              <Plus />
+              新建知识库
+            </Button>
+          </ButtonGroup>
+        }
+      />
+      <CollectionToolbar
+        actions={
+          <RefreshButton
+            onClick={store.refresh}
+            loading={state.loading}
+            showProgress={state.data !== undefined}
+            label="刷新知识库列表"
+          />
+        }
+        label="筛选知识库"
+        summary={state.data && `${query ? "找到" : "共"} ${libraries?.length ?? 0} 个知识库`}
+      >
         <SearchInput
           label="查找知识库"
           placeholder="搜索库名称或用途…"
           value={query}
           onChange={setQuery}
+          className="w-80 max-sm:w-full"
         />
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" onClick={store.refresh} aria-label="刷新知识库">
-            <RefreshCw size={16} />
-          </Button>
-        </div>
-      </div>
+      </CollectionToolbar>
       <KnowledgeFeedback
+        shape="cards"
         failure={state.failure}
         hasUsableData={state.data !== undefined}
-        loading={state.loading}
+        loading={state.loading && state.data === undefined}
         retry={() => resource.invalidate()}
       />
       {!!libraries?.length && (

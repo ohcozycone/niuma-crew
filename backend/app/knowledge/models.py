@@ -1,19 +1,17 @@
-"""User-owned libraries and immutable ingested documents; original bytes belong to files."""
-
 from sqlalchemy import JSON, CheckConstraint, ForeignKey, Integer, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database.base import Base
-from app.infrastructure.database.fields import IdentityTimestamps, UUIDText
+from app.infrastructure.database.fields import IdentityTimestamps, NumericID, UUIDText
 
 
 class KnowledgeBase(IdentityTimestamps, Base):
     __tablename__ = "knowledge_bases"
     __table_args__ = (
         CheckConstraint("length(trim(name)) BETWEEN 1 AND 100", name="name_valid"),
-        UniqueConstraint("owner_user_id", "client_request_id"),
+        UniqueConstraint("created_by_user_id", "client_request_id"),
     )
-    owner_user_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("users.id"), index=True)
+    created_by_user_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("users.id"), index=True)
     client_request_id: Mapped[str] = mapped_column(UUIDText())
     name: Mapped[str] = mapped_column(Text)
     description: Mapped[str] = mapped_column(Text, default="")
@@ -23,40 +21,17 @@ class KnowledgeBase(IdentityTimestamps, Base):
     min_section_chars: Mapped[int | None] = mapped_column(Integer)
 
 
-class EmployeeKnowledgeSettings(IdentityTimestamps, Base):
-    __tablename__ = "knowledge_employee_settings"
-    __table_args__ = (UniqueConstraint("user_id", "agent_id"),)
-    user_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("users.id", ondelete="CASCADE"))
-    agent_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("agents.id", ondelete="CASCADE"))
-    revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
-    mode: Mapped[str] = mapped_column(Text, default="on_demand", server_default="on_demand")
-    strategy: Mapped[str] = mapped_column(Text, default="auto", server_default="auto")
-    top_k: Mapped[int] = mapped_column(Integer, default=6, server_default="6")
-
-
-class EmployeeKnowledgeLibrary(Base):
-    __tablename__ = "knowledge_employee_libraries"
-    settings_id: Mapped[str] = mapped_column(
-        UUIDText(),
-        ForeignKey("knowledge_employee_settings.id", ondelete="CASCADE"),
-        primary_key=True,
-    )
-    knowledge_base_id: Mapped[str] = mapped_column(
-        UUIDText(), ForeignKey("knowledge_bases.id", ondelete="RESTRICT"), primary_key=True
-    )
-
-
 class RunKnowledgeEvidence(Base):
     __tablename__ = "knowledge_run_evidence"
     run_id: Mapped[str] = mapped_column(
-        UUIDText(), ForeignKey("runs.id", ondelete="CASCADE"), primary_key=True
+        NumericID(), ForeignKey("runs.id", ondelete="CASCADE"), primary_key=True
     )
     evidence_id: Mapped[str] = mapped_column(Text, primary_key=True)
     knowledge_base_id: Mapped[str] = mapped_column(UUIDText())
     document_id: Mapped[str] = mapped_column(UUIDText())
     document_version: Mapped[str] = mapped_column(Text)
     chunk_id: Mapped[str] = mapped_column(Text)
-    # No live document/chunk FK: history survives deletion, but every use checks live identity.
+    # 不建实时文档外键以保留历史；使用时仍检查当前来源。
     snapshot: Mapped[dict] = mapped_column(JSON)
 
 
@@ -104,7 +79,7 @@ class ProcessingItem(IdentityTimestamps, Base):
     batch_id: Mapped[str] = mapped_column(
         UUIDText(), ForeignKey("knowledge_processing_batches.id"), index=True
     )
-    # Keep the history after deletion; commit guards recheck the live document.
+    # 删除来源后保留历史，提交时复核当前文档。
     document_id: Mapped[str] = mapped_column(UUIDText(), index=True)
     filename: Mapped[str] = mapped_column(Text)
     source_hash: Mapped[str] = mapped_column(Text)
@@ -141,18 +116,16 @@ class LibraryVectorIndex(Base):
     generation: Mapped[str] = mapped_column(UUIDText())
     source_digest: Mapped[str] = mapped_column(Text)
     chunk_count: Mapped[int] = mapped_column(Integer)
+    collection_name: Mapped[str] = mapped_column(Text, unique=True, index=True)
+    embedding_fingerprint: Mapped[str] = mapped_column(Text)
 
 
-class LibraryVector(Base):
-    __tablename__ = "knowledge_vectors"
-    __table_args__ = (
-        CheckConstraint(
-            "json_valid(vector) AND json_type(vector) = 'array' AND json_array_length(vector) = 1024",
-            name="vector_valid",
-        ),
-    )
+class LibraryVectorMembership(Base):
+    __tablename__ = "knowledge_vector_memberships"
     chunk_id: Mapped[str] = mapped_column(Text, ForeignKey("knowledge_chunks.id"), primary_key=True)
     knowledge_base_id: Mapped[str] = mapped_column(
         UUIDText(), ForeignKey("knowledge_bases.id"), index=True
     )
-    vector: Mapped[list[float]] = mapped_column(JSON)
+    generation: Mapped[str] = mapped_column(UUIDText())
+    document_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("knowledge_documents.id"))
+    document_version: Mapped[str] = mapped_column(Text)

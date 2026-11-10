@@ -22,7 +22,7 @@ vi.mock("@/state/auth/useIdentity", () => ({
   useIdentity: () => ({
     actor: { kind: "user", user: { id: userId, username: "admin" } },
     expires_at: "2099",
-    permissions: ["agents:read", "skills:read"],
+    permissions: ["agents:read", "agents:update", "agents:create", "skills:read"],
   }),
 }));
 vi.mock("@/lib/api/agents", async (original) => ({
@@ -131,7 +131,7 @@ it("loads the global count independently when opening a filtered URL directly", 
 it("keeps search focus and resets pagination while a search request is pending", async () => {
   directory("/agents?offset=20");
   await screen.findByRole("tab", { name: "全部员工 45" });
-  const search = screen.getByRole("textbox", { name: "搜索员工" });
+  const search = screen.getByRole("textbox", { name: "筛选员工" });
   const next = deferred<Awaited<ReturnType<typeof agentPage>>>();
   vi.mocked(agentPage).mockReturnValueOnce(next.promise);
   vi.useFakeTimers();
@@ -144,7 +144,7 @@ it("keeps search focus and resets pagination while a search request is pending",
   await act(async () => vi.advanceTimersByTimeAsync(1));
   expect(agentPage).toHaveBeenCalledTimes(2);
   expect(screen.getByLabelText("员工列表").getAttribute("aria-busy")).toBe("true");
-  expect(screen.getByRole("textbox", { name: "搜索员工" })).toBe(search);
+  expect(screen.getByRole("textbox", { name: "筛选员工" })).toBe(search);
   expect(document.activeElement).toBe(search);
   const query = vi.mocked(agentPage).mock.lastCall?.[0];
   expect(query?.get("q")).toBe("财务");
@@ -168,7 +168,7 @@ it("keeps tabs and search mounted and separates global, filtered and page counts
   );
   directory();
   const all = await screen.findByRole("tab", { name: "全部员工 45" });
-  const search = screen.getByRole("textbox", { name: "搜索员工" });
+  const search = screen.getByRole("textbox", { name: "筛选员工" });
   const favorites = screen.getByRole("tab", { name: "已收藏" });
   expect(screen.getByText("共 45 位员工 · 本页 15 位可对话")).toBeTruthy();
   const next = deferred<Awaited<ReturnType<typeof agentPage>>>();
@@ -178,11 +178,14 @@ it("keeps tabs and search mounted and separates global, filtered and page counts
   await waitFor(() =>
     expect(screen.getByLabelText("员工列表").getAttribute("aria-busy")).toBe("true"),
   );
-  expect(screen.getByText(/正在更新…/)).toBeTruthy();
+  const refresh = screen.getByRole("button", { name: "刷新员工列表" });
+  expect(refresh.getAttribute("aria-busy")).toBe("true");
+  expect(screen.queryByText(/正在更新…/)).toBeNull();
+  await waitFor(() => expect(refresh.querySelector("[data-slot=button-spinner]")).not.toBeNull());
   const retainedCard = screen.getByRole("article", { name: "员工0" });
   expect(retainedCard.closest("[inert], [aria-hidden='true'], .opacity-0")).toBeNull();
   expect(screen.getByRole("tab", { name: "全部员工 45" })).toBe(all);
-  expect(screen.getByRole("textbox", { name: "搜索员工" })).toBe(search);
+  expect(screen.getByRole("textbox", { name: "筛选员工" })).toBe(search);
   expect(document.activeElement).toBe(favorites);
   expect(screen.getByRole("heading", { name: "员工0" })).toBeTruthy();
   expect((screen.getByRole("button", { name: "下一页" }) as HTMLButtonElement).disabled).toBe(true);
@@ -204,13 +207,13 @@ it("ignores late results after rapid tab changes and preserves the global count"
   fireEvent.click(screen.getByRole("tab", { name: "已收藏" }));
   await waitFor(() => expect(agentPage).toHaveBeenCalledTimes(2));
   const olderSignal = vi.mocked(agentPage).mock.calls[1][1];
-  fireEvent.click(screen.getByRole("tab", { name: "已被优化" }));
+  fireEvent.click(screen.getByRole("tab", { name: "已暂停" }));
   await waitFor(() => expect(agentPage).toHaveBeenCalledTimes(3));
   expect(olderSignal?.aborted).toBe(true);
   await act(async () => latest.resolve(page([], 0)));
   await act(async () => older.resolve(page([employee("迟到员工")], 8)));
   expect(screen.queryByRole("heading", { name: "迟到员工" })).toBeNull();
-  expect(screen.getByRole("tab", { name: "已被优化" }).getAttribute("aria-selected")).toBe("true");
+  expect(screen.getByRole("tab", { name: "已暂停" }).getAttribute("aria-selected")).toBe("true");
   expect(screen.getByRole("tab", { name: "全部员工 45" })).toBeTruthy();
   expect(screen.getByText("没有找到符合条件的员工")).toBeTruthy();
   expect(screen.getByText("共 0 位员工 · 本页 0 位可对话")).toBeTruthy();
@@ -279,9 +282,9 @@ it("updates one card immediately and synchronizes the shared favorites page with
   fireEvent.click(favorite);
   expect(favorite.getAttribute("aria-pressed")).toBe("true");
   expect((favorite as HTMLButtonElement).disabled).toBe(true);
-  expect((screen.getByRole("button", { name: "优化员工A" }) as HTMLButtonElement).disabled).toBe(
-    true,
-  );
+  expect(
+    (screen.getByRole("button", { name: "暂停员工A接单" }) as HTMLButtonElement).disabled,
+  ).toBe(true);
   expect((screen.getByRole("button", { name: "收藏员工B" }) as HTMLButtonElement).disabled).toBe(
     false,
   );
@@ -397,7 +400,7 @@ it("moves to the last valid page after removing the last favorite on a final pag
   fireEvent.click(favorite);
   await screen.findByRole("heading", { name: "上一页员工" });
   expect(vi.mocked(agentPage).mock.lastCall?.[0].get("offset")).toBe("0");
-  expect(screen.getByRole("button", { name: "第 1 页" })).toBeTruthy();
+  expect(screen.queryByRole("navigation", { name: "员工分页" })).toBeNull();
 });
 
 it("discards a stale refresh that overlaps a completed write", async () => {
@@ -494,15 +497,15 @@ it.each([0, 503])(
 
 it("confirms an active-status change and refills the active filter using the same local path", async () => {
   directory("/agents?filter=active");
-  const toggle = await screen.findByRole("button", { name: "优化原始员工" });
+  const pause = await screen.findByRole("button", { name: "暂停原始员工接单" });
   const write = deferred<Agent>();
   vi.mocked(patchAgent).mockReturnValueOnce(write.promise);
-  fireEvent.click(toggle);
+  fireEvent.click(pause);
   expect(patchAgent).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole("button", { name: "取消" }));
+  fireEvent.click(await screen.findByRole("button", { name: "取消" }));
   expect(patchAgent).not.toHaveBeenCalled();
-  fireEvent.click(toggle);
-  fireEvent.click(screen.getByRole("button", { name: "确认暂停接单" }));
+  fireEvent.click(pause);
+  fireEvent.click(await screen.findByRole("button", { name: "确认暂停接单" }));
   expect(patchAgent).toHaveBeenCalledWith("原始员工", { is_active: false }, 1);
   expect(screen.getByRole("article", { name: "原始员工" })).toBeTruthy();
   vi.mocked(agentPage).mockResolvedValueOnce(page([employee("补位员工")], 44));
@@ -556,10 +559,9 @@ it("keeps long pagination bounded while providing direct access to both ends", a
   expect(screen.getByRole("button", { name: "第 1 页" })).toBeTruthy();
   expect(screen.getByRole("button", { name: "第 10 页" })).toBeTruthy();
   vi.mocked(agentPage).mockResolvedValueOnce(page([], 0));
-  fireEvent.click(screen.getByRole("tab", { name: "已被优化" }));
+  fireEvent.click(screen.getByRole("tab", { name: "已暂停" }));
   await screen.findByText("没有找到符合条件的员工");
   expect(vi.mocked(agentPage).mock.lastCall?.[0].get("offset")).toBe("0");
-  expect(screen.getByRole("button", { name: "上一页" }).hasAttribute("disabled")).toBe(true);
-  expect(screen.getByRole("button", { name: "下一页" }).hasAttribute("disabled")).toBe(true);
+  expect(screen.queryByRole("navigation", { name: "员工分页" })).toBeNull();
   expect(screen.queryByRole("button", { name: "第 0 页" })).toBeNull();
 });

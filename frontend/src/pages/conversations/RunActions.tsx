@@ -1,6 +1,5 @@
 import { ResourceIcon, type ResourceKind } from "@/components/common/ResourceIcon";
-import { memo, useEffect, useState } from "react";
-import { Check, CircleAlert, CircleStop, LoaderCircle } from "lucide-react";
+import { memo, useState } from "react";
 import {
   Trace,
   TraceLine,
@@ -12,7 +11,8 @@ import {
   TraceCollapsibleContent,
 } from "@/components/ui/Trace";
 import { Button } from "@/components/ui/Button";
-import { isActive, statusLabel, type Reply, type ReplyStep } from "@/lib/api/conversations";
+import { isActive, type Reply, type ReplyStep } from "@/lib/api/conversations";
+import { RunProgress } from "./RunProgress";
 import { useStepPagination } from "./actionPagination";
 import { fileDownloadUrl } from "@/lib/api/files";
 import { isKnowledgeSourceLink } from "@/lib/knowledgeSourceLink";
@@ -32,36 +32,6 @@ const statuses: Record<string, string> = {
   interrupted: "已中断",
   unknown: "结果未确认",
 };
-
-function RunDuration({ run }: { run: Reply }) {
-  const [now, setNow] = useState(Date.now);
-  const active = isActive(run.status);
-  useEffect(() => {
-    if (!active || !run.started_at) return;
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, [active, run.started_at]);
-  const end = run.finished_at ? Date.parse(run.finished_at) : now;
-  const seconds = run.started_at
-    ? Math.max(0, Math.floor((end - Date.parse(run.started_at)) / 1000))
-    : null;
-  const duration =
-    seconds === null
-      ? ""
-      : seconds >= 60
-        ? `${Math.floor(seconds / 60)}分${seconds % 60}秒`
-        : `${seconds}秒`;
-  return (
-    <TraceTitle>
-      {active
-        ? statusLabel[run.status]
-        : run.status === "succeeded"
-          ? "用时"
-          : statusLabel[run.status]}
-      {duration ? ` ${duration}` : ""}
-    </TraceTitle>
-  );
-}
 
 const StepRow = memo(function StepRow({
   step,
@@ -123,6 +93,9 @@ const StepRow = memo(function StepRow({
       <TraceTitle>
         {title}
         {round ? ` · 第 ${round} 轮` : ""}
+        {step.kind === "tool_call" && !knowledgeTool && tool !== "read_file" && tool
+          ? ` · ${tool}`
+          : ""}
         {name ? ` · ${name}` : ""}
       </TraceTitle>
       <TraceDescription>{statuses[status] ?? status}</TraceDescription>
@@ -246,30 +219,24 @@ export const RunActions = memo(function RunActions({
   const [open, setOpen] = useState(false);
   const page = useStepPagination(run);
   if (page.total === 0) return null;
-  const ResultIcon = isActive(run.status)
-    ? LoaderCircle
-    : run.status === "failed"
-      ? CircleAlert
-      : ["cancelled", "interrupted"].includes(run.status)
-        ? CircleStop
-        : Check;
   return (
     <Trace>
       <TraceCollapsible open={open} onOpenChange={(value) => setOpen(value)}>
         <TraceCollapsibleTrigger aria-label="执行过程">
           <TraceLine
+            className="flex-wrap gap-y-1"
             status={
-              isActive(run.status) ? "running" : run.status === "failed" ? "error" : undefined
+              run.status === "failed" || run.acceptance === "failed"
+                ? "error"
+                : isActive(run.status)
+                  ? "running"
+                  : undefined
             }
           >
-            <TraceIcon>
-              <ResultIcon />
-            </TraceIcon>
-            <RunDuration run={run} />
-            <TraceDescription>{page.total} 项记录</TraceDescription>
+            <RunProgress run={run} total={page.total} />
           </TraceLine>
         </TraceCollapsibleTrigger>
-        <TraceCollapsibleContent keepMounted>
+        <TraceCollapsibleContent keepMounted className="ml-2 border-l border-border pl-4">
           {page.items.map((step) => {
             const text = step.output_text;
             const hasTools = step.safe_details.has_tool_calls === true;

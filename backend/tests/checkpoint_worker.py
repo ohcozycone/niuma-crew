@@ -1,5 +1,3 @@
-"""正式应用的进程测试入口，只把模型供应商替换为离线替身。"""
-
 import argparse
 import asyncio
 import socket
@@ -94,14 +92,14 @@ def main():
     async def lifespan(app):
         async with original(app):
             if args.pause_before_commit:
-                complete = app.state.runner.coordinator.publish
+                complete = app.state.run_worker.runs.complete
 
                 def blocked(intent):
                     if intent.status == "succeeded":
                         threading.Event().wait()
                     return complete(intent)
 
-                app.state.runner.coordinator.publish = blocked
+                app.state.run_worker.runs.complete = blocked
             yield
 
     app.router.lifespan_context = lifespan

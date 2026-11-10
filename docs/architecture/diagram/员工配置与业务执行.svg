@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 410" role="img" aria-labelledby="title desc">
+<title id="title">从员工配置到业务结果</title>
+<desc id="desc">员工配置供业务应用选择。对话使用岗位装配，考核使用专项配置，通过共用执行取得成果，分别保存正式回复或接纳答卷并评分。技能、知识、工具和文件等共用资源独立维护，支撑配置装配及执行使用。</desc>
+<metadata>沿用平台整体技术架构的字体、日夜配色与线型；颜色来源为 frontend/src/design-system/theme.css。</metadata>
+<defs>
+<marker id="flow-arrow" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" class="flow-head"/></marker>
+<marker id="resource-arrow" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" class="resource-head"/></marker>
+<style>
+text{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;fill:#292923}
+.title{font-size:28px;font-weight:600;letter-spacing:-.4px}.name{font-size:23px;font-weight:600}.body{font-size:18px;fill:#6b675d}.caption{font-size:16px;fill:#6b675d}
+.canvas{fill:#eeebe5}.card{fill:#fffefb;stroke:#e6e3dc;stroke-width:1.2}.region{fill:#f7f6f2;stroke:#e6e3dc;stroke-width:1.2}
+.flow{fill:none;stroke:#aa542c;stroke-width:1.5;marker-end:url(#flow-arrow)}.flow-head{fill:#aa542c}.resource{fill:none;stroke:#6b675d;stroke-width:1.4;stroke-dasharray:5 5;marker-end:url(#resource-arrow)}.resource-head{fill:#6b675d}
+@media(prefers-color-scheme:dark){text{fill:#f2eee5}.body,.caption{fill:#b9b4a8}.canvas{fill:#1b1a18}.card{fill:#2a2824;stroke:#464239}.region{fill:#242321;stroke:#464239}.flow{stroke:#eea379}.flow-head{fill:#eea379}.resource{stroke:#b9b4a8}.resource-head{fill:#b9b4a8}}
+</style>
+</defs>
+<rect class="canvas" width="1160" height="410"/>
+<text class="title" x="36" y="48">从员工配置到业务结果</text>
+<rect class="card" x="36" y="100" width="240" height="124" rx="12"/>
+<text class="name" x="56" y="137">员工配置</text>
+<text class="body" x="56" y="173">岗位、模型与方法</text>
+<text class="body" x="56" y="201">选用知识和工具</text>
+<path class="flow" d="M276 162H320"/>
+<text class="caption" x="298" y="149" text-anchor="middle">选择</text>
+<rect class="card" x="320" y="100" width="240" height="124" rx="12"/>
+<text class="name" x="340" y="137">业务应用</text>
+<text class="body" x="340" y="173">对话：使用岗位装配</text>
+<text class="body" x="340" y="201">考核：使用专项配置</text>
+<path class="flow" d="M560 162H604"/>
+<text class="caption" x="582" y="149" text-anchor="middle">提交</text>
+<rect class="card" x="604" y="100" width="240" height="124" rx="12"/>
+<text class="name" x="624" y="137">共用执行</text>
+<text class="body" x="624" y="173">按本次配置运行</text>
+<text class="body" x="624" y="201">保存动作与成果</text>
+<path class="flow" d="M844 162H888"/>
+<text class="caption" x="866" y="149" text-anchor="middle">成果</text>
+<rect class="card" x="888" y="100" width="236" height="124" rx="12"/>
+<text class="name" x="908" y="137">业务结果</text>
+<text class="body" x="908" y="173">对话：保存正式回复</text>
+<text class="body" x="908" y="201">考核：接纳答卷并评分</text>
+<path class="resource" d="M156 314V224"/>
+<text class="caption" x="170" y="277">装配时关联</text>
+<path class="resource" d="M724 314V224"/>
+<text class="caption" x="738" y="277">执行时取用</text>
+<rect class="region" x="36" y="314" width="808" height="66" rx="12"/>
+<text class="name" x="56" y="355">共用资源</text>
+<text class="body" x="190" y="355">技能、知识、工具、文件等，独立维护并供多个员工使用</text>
+</svg>

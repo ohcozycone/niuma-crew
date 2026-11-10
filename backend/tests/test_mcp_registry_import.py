@@ -1,5 +1,3 @@
-"""Registry metadata is inert input, never a vendor-specific executable adapter."""
-
 import json
 from dataclasses import replace
 

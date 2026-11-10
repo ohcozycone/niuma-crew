@@ -1,11 +1,9 @@
-"""Small shell aggregates, independent of current directory pages or detail payloads."""
-
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy import func, select
 
-from app.agents.models import Agent
 from app.api.dependencies import DatabaseDependency, require_capability
+from app.employees.models import Agent
 from app.skills.models import Skill
 
 router = APIRouter(tags=["configuration"])
@@ -33,7 +31,7 @@ class ConfigurationSummary(BaseModel):
         Depends(require_capability("skills:read_public")),
     ],
 )
-def summary(database: DatabaseDependency):
+def summary(database: DatabaseDependency) -> ConfigurationSummary:
     with database.transaction() as db:
         values = db.execute(
             select(

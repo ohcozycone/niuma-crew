@@ -1,5 +1,3 @@
-"""Bounded text ingestion: parse outside transactions, publish original/chunks/FTS together."""
-
 from __future__ import annotations
 
 import hashlib
@@ -15,21 +13,20 @@ from app.auth.permissions import require_permission
 from app.errors import ConflictError, InvalidInputError, NotFoundError, ServiceUnavailableError
 from app.files.models import StoredFile
 from app.files.service import FileService, safe_name
-from app.infrastructure.database.fields import new_uuid, utc_now
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
 from app.knowledge.contracts import Chunk, KnowledgeDocument
-from app.knowledge.demo import sample_files
-from app.knowledge.lexical import lexical_terms, lexical_version
 from app.knowledge.loading import validate_text_upload
 from app.knowledge.models import (
     KnowledgeBase,
     LibraryChunk,
     LibraryDocument,
-    LibraryVector,
     LibraryVectorIndex,
+    LibraryVectorMembership,
     ProcessingItem,
 )
+from app.knowledge.processing import RULE_FIELDS, can_reuse
+from app.knowledge.samples import sample_files
 from app.knowledge.schemas import (
     CitationPreviewRead,
     DocumentDetail,
@@ -46,6 +43,7 @@ from app.knowledge.schemas import (
 from app.knowledge.vectors import KnowledgeVectorService, index_summary
 from app.model_connections.models import ModelConnection
 from app.model_connections.service import ModelConnectionService
+from app.values import new_uuid, utc_now
 
 MAX_DOCUMENT_BYTES = 128 * 1024
 MAX_LIBRARY_DOCUMENTS = 200
@@ -53,7 +51,6 @@ MAX_LIBRARY_CHUNKS = 5000
 
 
 def retained_file_ids(session: Session, candidates: list[StoredFile]) -> set[str]:
-    """Called by bootstrap's combined retention policy, not by conversation business."""
     return set(
         session.scalars(
             select(LibraryDocument.file_id).where(
@@ -64,21 +61,37 @@ def retained_file_ids(session: Session, candidates: list[StoredFile]) -> set[str
 
 
 class KnowledgeService:
-    """Owner-scoped knowledge operations; even administrators cannot cross owners."""
-
     def __init__(
         self,
         database: Database,
         files: FileService,
         connections: ModelConnectionService | None = None,
+        vector_directory: Path | None = None,
     ):
         self.database, self.files = database, files
-        self._vectors = KnowledgeVectorService(self, connections) if connections else None
-        from app.knowledge.employee import EmployeeKnowledgeService
+        self._vectors = (
+            KnowledgeVectorService(
+                self,
+                connections,
+                vector_directory
+                or Path(str(database.engine.url.database)).parent / "knowledge-vectors",
+            )
+            if connections
+            else None
+        )
+        from app.knowledge.access import KnowledgeAccess
+        from app.knowledge.evidence import KnowledgeEvidence
         from app.knowledge.processing import KnowledgeProcessingService
+        from app.knowledge.search import KnowledgeSearch
 
         self.processing = KnowledgeProcessingService(self)
-        self.employee = EmployeeKnowledgeService(self)
+        self.access = KnowledgeAccess(self)
+        self.evidence = KnowledgeEvidence(self)
+        self.retrieval = KnowledgeSearch(self)
+
+    def close(self) -> None:
+        if self._vectors is not None:
+            self._vectors.store.close()
 
     @property
     def vectors(self) -> KnowledgeVectorService:
@@ -87,16 +100,20 @@ class KnowledgeService:
         return self._vectors
 
     @staticmethod
-    def owner(actor: Actor) -> str:
-        require_permission(actor, "knowledge:use")
+    def manager(actor: Actor) -> str:
+        require_permission(actor, "knowledge:manage")
         if actor.user_id is None:
             raise NotFoundError("knowledge_not_found", "知识库不存在。")
         return actor.user_id
 
     def require_base(self, session: Session, id: str, actor: Actor) -> KnowledgeBase:
-        owner = self.owner(actor)
+        guest = actor.kind == "guest"
+        if guest:
+            require_permission(actor, "knowledge:read")
+        else:
+            self.manager(actor)
         row = session.get(KnowledgeBase, id)
-        if row is None or row.owner_user_id != owner:
+        if row is None:
             raise NotFoundError("knowledge_not_found", "知识库不存在。")
         return row
 
@@ -184,11 +201,12 @@ class KnowledgeService:
                 count
                 and session.scalar(
                     select(func.count())
-                    .select_from(LibraryVector)
-                    .join(LibraryChunk, LibraryChunk.id == LibraryVector.chunk_id)
+                    .select_from(LibraryVectorMembership)
+                    .join(LibraryChunk, LibraryChunk.id == LibraryVectorMembership.chunk_id)
                     .join(
                         LibraryVectorIndex,
-                        LibraryVectorIndex.knowledge_base_id == LibraryVector.knowledge_base_id,
+                        LibraryVectorIndex.knowledge_base_id
+                        == LibraryVectorMembership.knowledge_base_id,
                     )
                     .join(ModelConnection, ModelConnection.id == LibraryVectorIndex.connection_id)
                     .where(
@@ -196,22 +214,29 @@ class KnowledgeService:
                         ModelConnection.enabled.is_(True),
                         ModelConnection.capability == "embedding",
                         ModelConnection.config_revision == LibraryVectorIndex.config_revision,
+                        LibraryVectorMembership.generation == LibraryVectorIndex.generation,
                     )
                 )
                 == count
             ),
-            processing_rules=row.processing_rules,
+            processing_rules={
+                key: value for key, value in row.processing_rules.items() if key in RULE_FIELDS
+            },
+            processing_reusable=can_reuse(session, row, row.processing_rules),
         )
 
     def libraries(self, actor: Actor) -> list[LibraryRead]:
-        owner = self.owner(actor)
+        if actor.kind == "guest":
+            require_permission(actor, "knowledge:read")
+        else:
+            self.manager(actor)
         with self.database.transaction() as session:
             return [
                 self.base_read(session, row)
                 for row in session.scalars(
-                    select(KnowledgeBase)
-                    .where(KnowledgeBase.owner_user_id == owner)
-                    .order_by(KnowledgeBase.updated_at.desc(), KnowledgeBase.id)
+                    select(KnowledgeBase).order_by(
+                        KnowledgeBase.updated_at.desc(), KnowledgeBase.id
+                    )
                 )
             ]
 
@@ -220,12 +245,12 @@ class KnowledgeService:
             return self.base_read(session, self.require_base(session, id, actor))
 
     def create(self, actor: Actor, data: LibraryCreate) -> LibraryRead:
-        owner = self.owner(actor)
+        owner = self.manager(actor)
         with self.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
             old = session.scalar(
                 select(KnowledgeBase).where(
-                    KnowledgeBase.owner_user_id == owner,
+                    KnowledgeBase.created_by_user_id == owner,
                     KnowledgeBase.client_request_id == str(data.client_request_id),
                 )
             )
@@ -239,7 +264,7 @@ class KnowledgeService:
                 session.scalar(
                     select(func.count())
                     .select_from(KnowledgeBase)
-                    .where(KnowledgeBase.owner_user_id == owner)
+                    .where(KnowledgeBase.created_by_user_id == owner)
                 )
                 or 0
             ) >= 100:
@@ -247,7 +272,7 @@ class KnowledgeService:
                     "knowledge_quota_exceeded", "每个账号最多创建 100 个知识库。"
                 )
             row = KnowledgeBase(
-                owner_user_id=owner,
+                created_by_user_id=owner,
                 client_request_id=str(data.client_request_id),
                 name=data.name,
                 description=data.description,
@@ -269,7 +294,8 @@ class KnowledgeService:
             ]
 
     def update(self, actor: Actor, id: str, data: LibraryUpdate) -> LibraryRead:
-        """Save metadata and validated overrides without rebuilding existing files."""
+        """仅更新元数据及规则，不重建已入库文件。"""
+        self.manager(actor)
         try:
             effective_rules(data.chunk_size, data.chunk_overlap, data.min_section_chars)
         except ValueError:
@@ -316,7 +342,7 @@ class KnowledgeService:
     def upload(
         self, actor: Actor, kb_id: str, request_id: str, name: str, data: bytes
     ) -> DocumentRead:
-        owner = self.owner(actor)
+        owner = self.manager(actor)
         name = safe_name(name)
         validate_text_upload(data, name)
         sha = hashlib.sha256(data).hexdigest()
@@ -331,7 +357,7 @@ class KnowledgeService:
             base = self.require_base(session, kb_id, actor)
             old = self.existing(session, kb_id, request_id, sha)
             if old:
-                # The unreferenced staging file follows normal files retention, never an exposed orphan.
+                # 未引用暂存文件由文件保留策略回收，不对用户暴露。
                 return self.document_read(session, old)
             status = self.base_read(session, base)
             if status.document_count >= MAX_LIBRARY_DOCUMENTS:
@@ -384,7 +410,6 @@ class KnowledgeService:
     def citation_preview(
         self, actor: Actor, kb_id: str, id: str, chunk_id: str
     ) -> CitationPreviewRead:
-        """Read one current, owner-scoped source fragment without loading a full document."""
         with self.database.transaction() as session:
             document = self.require_document(session, actor, kb_id, id)
             row = session.get(LibraryChunk, chunk_id)
@@ -411,6 +436,7 @@ class KnowledgeService:
         return name, self.files.read(file_id)
 
     def remove(self, actor: Actor, kb_id: str, id: str) -> None:
+        self.manager(actor)
         with self.database.transaction() as session:
             reserve_writer(session, KnowledgeBase.__table__)
             row = self.require_document(session, actor, kb_id, id)
@@ -423,8 +449,8 @@ class KnowledgeService:
                 item.status = "cancelled"
                 item.error = "文件已删除，处理已取消。"
             session.execute(
-                delete(LibraryVector).where(
-                    LibraryVector.chunk_id.in_(
+                delete(LibraryVectorMembership).where(
+                    LibraryVectorMembership.chunk_id.in_(
                         select(LibraryChunk.id).where(LibraryChunk.document_id == id)
                     )
                 )
@@ -438,6 +464,8 @@ class KnowledgeService:
             session.execute(delete(LibraryChunk).where(LibraryChunk.document_id == id))
             session.delete(row)
             self.require_base(session, kb_id, actor).updated_at = utc_now()
+        if self._vectors is not None:
+            self._vectors.prune(kb_id)
 
     def import_demo(
         self, actor: Actor, kb_id: str, preset: str, request_id: str
@@ -449,49 +477,10 @@ class KnowledgeService:
         ]
 
     def search(self, actor: Actor, kb_id: str, data: SearchRequest) -> SearchResult:
-        if data.strategy in {"vector", "hybrid"}:
-            return self.vectors.search(actor, kb_id, data)
-        with self.database.transaction() as session:
-            self.require_base(session, kb_id, actor)
-            hits = self.lexical_search(session, kb_id, data.question, data.top_k)
-            return SearchResult(knowledge_base_id=kb_id, hits=hits)
+        return self.retrieval.search_library(actor, kb_id, data)
 
     @staticmethod
     def lexical_search(session: Session, kb_id: str, question: str, top_k: int) -> list[SearchHit]:
-        """Caller checks ownership; hybrid uses the same snapshot as its vector candidates."""
-        terms = tuple(dict.fromkeys(lexical_terms(question)))[:64]
-        query = " OR ".join('"' + word.replace('"', '""') + '"' for word in terms)
-        lexical = lexical_version()
-        incompatible = session.scalar(
-            select(LibraryDocument.id)
-            .where(
-                LibraryDocument.knowledge_base_id == kb_id,
-                LibraryDocument.lexical_version != "",
-                LibraryDocument.lexical_version != lexical,
-            )
-            .limit(1)
-        )
-        if incompatible:
-            raise ConflictError(
-                "knowledge_index_outdated", "分词规则已变化，请重新导入资料后检索。"
-            )
-        hits = []
-        if query:
-            rows = session.execute(
-                text("""SELECT knowledge_chunks.snapshot, bm25(knowledge_fts) AS score
-                FROM knowledge_fts JOIN knowledge_chunks ON knowledge_chunks.id=knowledge_fts.chunk_id
-                JOIN knowledge_documents ON knowledge_documents.id=knowledge_chunks.document_id
-                WHERE knowledge_fts MATCH :query AND knowledge_fts.knowledge_base_id=:kb
-                AND knowledge_documents.knowledge_base_id=:kb
-                ORDER BY score, knowledge_fts.chunk_id LIMIT :limit"""),
-                {"query": query, "kb": kb_id, "limit": top_k},
-            ).all()
-            for i, (snapshot, score) in enumerate(rows, 1):
-                hits.append(
-                    SearchHit(
-                        rank=i,
-                        score=cast(float, score),
-                        chunk=Chunk.model_validate_json(cast(str, snapshot)),
-                    )
-                )
-        return hits
+        from app.knowledge.search import KnowledgeSearch
+
+        return KnowledgeSearch.lexical_search(session, kb_id, question, top_k)

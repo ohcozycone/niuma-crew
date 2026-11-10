@@ -141,7 +141,6 @@ export function createDemoConnections(): DemoConnection[] {
     name: index === 0 ? "团队检索连接" : "研发检索连接",
     kind: "mcp_http",
     service_id: null,
-    account_scope: "personal",
     created_by_user_id: null,
     tool_annotations: {},
     annotations_revision: 1,

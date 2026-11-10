@@ -2,7 +2,8 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ConversationFiles } from "./ConversationFiles";
-import { uploadFile } from "@/lib/api/files";
+import { ApiError } from "@/lib/api/http";
+import { uploadFile, listConversationFiles } from "@/lib/api/files";
 
 vi.mock("@/lib/api/files", () => ({ uploadFile: vi.fn(), listConversationFiles: vi.fn() }));
 afterEach(() => {
@@ -36,5 +37,22 @@ it("rejects an oversized file before starting a request", () => {
   Object.defineProperty(file, "size", { value: 10 * 1024 * 1024 + 1 });
   fireEvent.change(screen.getByLabelText("上传输入文件"), { target: { files: [file] } });
   expect(screen.getByRole("alert").textContent).toContain("10 MiB");
+  expect(uploadFile).not.toHaveBeenCalled();
+});
+
+it("shows a missing saved conversation instead of treating its file list as empty", async () => {
+  vi.mocked(listConversationFiles).mockRejectedValue(
+    new ApiError("对话不存在", 404, "conversation_not_found"),
+  );
+  render(
+    <ConversationFiles
+      conversationId="100000000000"
+      selected={[]}
+      onChange={vi.fn()}
+      disabled={false}
+      onBusy={vi.fn()}
+    />,
+  );
+  expect(await screen.findByRole("alert")).toBeTruthy();
   expect(uploadFile).not.toHaveBeenCalled();
 });

@@ -99,7 +99,7 @@ export function ToolCatalogEditor({
             </Button>
           </div>
         )}
-        {editable && connection.kind !== "native" && (
+        {editable && (
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
@@ -150,8 +150,7 @@ export function ToolCatalogEditor({
         )}
       </div>
       <p className="type-description">
-        当前已保存 {approved.length}{" "}
-        项。检查只读取工具清单，不执行工具；新列表需确认后才用于员工装配。
+        {`当前已保存 ${approved.length} 项。检查只读取工具清单，不执行工具；新列表需确认后才用于员工装配。`}
       </p>
       {notice && (
         <p role="status" className="type-caption">
@@ -254,26 +253,30 @@ export function ToolCatalogEditor({
                   </FormField>
                 </div>
               )}
-              <details className="text-sm">
-                <summary className="cursor-pointer text-text-muted">查看原始工具说明</summary>
-                <p className="mt-2 whitespace-pre-wrap break-words text-text-muted">
-                  {tool.description || "服务未提供说明"}
-                </p>
-              </details>
-              <details className="text-sm">
-                <summary className="cursor-pointer text-text-muted">查看原始参数定义</summary>
-                <pre className="mt-2 max-h-64 overflow-auto rounded-small bg-muted p-3 text-xs">
-                  {JSON.stringify(tool.input_schema ?? {}, null, 2)}
-                </pre>
-                {candidate && prior && prior.descriptor_hash !== tool.descriptor_hash && (
-                  <>
-                    <p className="mt-2">原批准定义：</p>
-                    <pre className="max-h-48 overflow-auto p-3 text-xs">
-                      {JSON.stringify(prior.input_schema ?? {}, null, 2)}
-                    </pre>
-                  </>
-                )}
-              </details>
+              {
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-text-muted">查看原始工具说明</summary>
+                  <p className="mt-2 whitespace-pre-wrap break-words text-text-muted">
+                    {tool.description || "服务未提供说明"}
+                  </p>
+                </details>
+              }
+              {
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-text-muted">查看原始参数定义</summary>
+                  <pre className="mt-2 max-h-64 overflow-auto rounded-small bg-muted p-3 text-xs">
+                    {JSON.stringify(tool.input_schema ?? {}, null, 2)}
+                  </pre>
+                  {candidate && prior && prior.descriptor_hash !== tool.descriptor_hash && (
+                    <>
+                      <p className="mt-2">原批准定义：</p>
+                      <pre className="max-h-48 overflow-auto p-3 text-xs">
+                        {JSON.stringify(prior.input_schema ?? {}, null, 2)}
+                      </pre>
+                    </>
+                  )}
+                </details>
+              }
             </Card>
           );
         })}

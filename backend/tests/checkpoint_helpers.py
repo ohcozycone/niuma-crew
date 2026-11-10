@@ -1,8 +1,6 @@
-"""Construct and inspect SDK state for migration and crash-recovery tests."""
-
 from langgraph.graph import END, START, StateGraph
 
-from app.agent_runtime.checkpoints import AgentRunState, checkpoint_config
+from app.agent.checkpoints import AgentRunState, checkpoint_config
 
 
 def publication_graph(saver):
@@ -13,9 +11,9 @@ def publication_graph(saver):
     return graph.compile(checkpointer=saver)
 
 
-def checkpoint_values(store, run_id, checkpoint_id):
+def checkpoint_values(store, run_id, checkpoint_id, *, thread_id=None):
     with store.reader() as saver:
-        entry = saver.get_tuple(checkpoint_config(run_id, checkpoint_id))
+        entry = saver.get_tuple(checkpoint_config(thread_id or run_id, checkpoint_id))
     if entry is None:
         raise RuntimeError("Missing checkpoint")
     return entry.checkpoint["channel_values"]

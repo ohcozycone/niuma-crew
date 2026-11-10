@@ -1,0 +1,556 @@
+{
+  "rows": 40,
+  "groups": [
+    {
+      "case": "complete",
+      "variant": "A",
+      "n": 5,
+      "succeeded": 5,
+      "seconds_median": 12.396896333084442,
+      "seconds_p90": 16.154536624904722,
+      "model_calls_median": 3,
+      "reads_median": 0,
+      "stage_seconds": {
+        "model_sum_mean": 12.329402,
+        "tool_sum_mean": 0.021165,
+        "final_model_mean": 4.3949212,
+        "run_mean": 12.431320858211256
+      }
+    },
+    {
+      "case": "complete",
+      "variant": "C",
+      "n": 5,
+      "succeeded": 5,
+      "seconds_median": 8.222851792001165,
+      "seconds_p90": 12.93242550001014,
+      "model_calls_median": 3,
+      "reads_median": 0,
+      "stage_seconds": {
+        "model_sum_mean": 8.9124732,
+        "tool_sum_mean": 0.0208544,
+        "final_model_mean": 2.342631,
+        "run_mean": 9.01150370822288
+      }
+    },
+    {
+      "case": "recent",
+      "variant": "A",
+      "n": 10,
+      "succeeded": 10,
+      "seconds_median": 21.02718781249132,
+      "seconds_p90": 26.509226666996256,
+      "model_calls_median": 4.5,
+      "reads_median": 1.0,
+      "stage_seconds": {
+        "model_sum_mean": 20.8918289,
+        "tool_sum_mean": 0.0391653,
+        "final_model_mean": 6.8303750999999995,
+        "run_mean": 21.069788433390205
+      }
+    },
+    {
+      "case": "recent",
+      "variant": "C",
+      "n": 10,
+      "succeeded": 10,
+      "seconds_median": 11.316303625004366,
+      "seconds_p90": 15.95179416704923,
+      "model_calls_median": 3.0,
+      "reads_median": 0.0,
+      "stage_seconds": {
+        "model_sum_mean": 12.7122019,
+        "tool_sum_mean": 0.0279381,
+        "final_model_mean": 4.4415587,
+        "run_mean": 12.819425058318302
+      }
+    },
+    {
+      "case": "tail",
+      "variant": "A",
+      "n": 5,
+      "succeeded": 4,
+      "seconds_median": 13.700271166977473,
+      "seconds_p90": 28.37802920897957,
+      "model_calls_median": 4,
+      "reads_median": 1,
+      "stage_seconds": {
+        "model_sum_mean": 16.7994082,
+        "tool_sum_mean": 0.0453234,
+        "final_model_mean": 2.2024728000000002,
+        "run_mean": 16.953083516983316
+      }
+    },
+    {
+      "case": "tail",
+      "variant": "C",
+      "n": 5,
+      "succeeded": 5,
+      "seconds_median": 11.287467374932021,
+      "seconds_p90": 13.548785582999699,
+      "model_calls_median": 4,
+      "reads_median": 1,
+      "stage_seconds": {
+        "model_sum_mean": 10.9751902,
+        "tool_sum_mean": 0.040665599999999996,
+        "final_model_mean": 2.2161372,
+        "run_mean": 11.103918857965619
+      }
+    }
+  ],
+  "primary_reductions": {
+    "tokens": 0.3980741962077494,
+    "median_seconds": 0.4618251510417455,
+    "p90_seconds": 0.39825501635967875
+  },
+  "conditional_cost_reductions": [
+    {
+      "cached_weight": 0,
+      "output_weight": 1,
+      "reduction": 0.2875310925441674
+    },
+    {
+      "cached_weight": 0,
+      "output_weight": 3,
+      "reduction": 0.28104506140897423
+    },
+    {
+      "cached_weight": 0.1,
+      "output_weight": 1,
+      "reduction": 0.3308626974483597
+    },
+    {
+      "cached_weight": 0.1,
+      "output_weight": 3,
+      "reduction": 0.3208854398863542
+    },
+    {
+      "cached_weight": 0.5,
+      "output_weight": 1,
+      "reduction": 0.3818234665366512
+    },
+    {
+      "cached_weight": 0.5,
+      "output_weight": 3,
+      "reduction": 0.37422110535002995
+    },
+    {
+      "cached_weight": 1,
+      "output_weight": 1,
+      "reduction": 0.3980741962077494
+    },
+    {
+      "cached_weight": 1,
+      "output_weight": 3,
+      "reduction": 0.3929469642785134
+    }
+  ],
+  "quality_review": [
+    {
+      "case": "recent",
+      "block": 1,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": false,
+      "issues": [
+        {
+          "severity": "critical",
+          "code": "page_as_article",
+          "note": "将50个page称为文章或文章/页面数量；总量免责声明不能消除类型错误。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 1,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "unsupported_probability",
+          "note": "用很可能描述截断或更多结果；仍缺乏概率依据。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 2,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "recent",
+      "block": 2,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": false,
+      "issues": [
+        {
+          "severity": "critical",
+          "code": "page_as_article",
+          "note": "将50个page称为文章或文章/页面数量；总量免责声明不能消除类型错误。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 3,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": false,
+      "issues": [
+        {
+          "severity": "critical",
+          "code": "page_as_article",
+          "note": "将50个page称为文章或文章/页面数量；总量免责声明不能消除类型错误。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 3,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "recent",
+      "block": 4,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "recent",
+      "block": 4,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": false,
+      "issues": [
+        {
+          "severity": "critical",
+          "code": "page_as_article",
+          "note": "将50个page称为文章或文章/页面数量；总量免责声明不能消除类型错误。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 5,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": false,
+      "issues": [
+        {
+          "severity": "critical",
+          "code": "page_as_article",
+          "note": "将50个page称为文章或文章/页面数量；总量免责声明不能消除类型错误。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 5,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "recent",
+      "block": 6,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "unsupported_probability",
+          "note": "用很可能描述截断或更多结果；仍缺乏概率依据。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 6,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": false,
+      "issues": [
+        {
+          "severity": "critical",
+          "code": "page_as_article",
+          "note": "将50个page称为文章或文章/页面数量；总量免责声明不能消除类型错误。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 7,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "recent",
+      "block": 7,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "recent",
+      "block": 8,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "recent",
+      "block": 8,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": false,
+      "issues": [
+        {
+          "severity": "critical",
+          "code": "page_as_article",
+          "note": "将50个page称为文章或文章/页面数量；总量免责声明不能消除类型错误。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 9,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": false,
+      "issues": [
+        {
+          "severity": "critical",
+          "code": "page_as_article",
+          "note": "将50个page称为文章或文章/页面数量；总量免责声明不能消除类型错误。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 9,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "unverified_pagination_offer",
+          "note": "提出尝试分页遍历完整列表，但当前目录未验证该能力。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 10,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": [
+        {
+          "severity": "critical",
+          "code": "unconfirmed_truncation",
+          "quote": "返回的50条只是上限截断的结果",
+          "note": "原文未给出has_more/游标/总量，不能将达到上限写成已证实截断。文章总数未知的核心结论仍正确。"
+        }
+      ]
+    },
+    {
+      "case": "recent",
+      "block": 10,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": false,
+      "issues": [
+        {
+          "severity": "critical",
+          "code": "page_as_article",
+          "note": "将50个page称为文章或文章/页面数量；总量免责声明不能消除类型错误。"
+        }
+      ]
+    },
+    {
+      "case": "complete",
+      "block": 1,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "complete",
+      "block": 1,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "complete",
+      "block": 2,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "complete",
+      "block": 2,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "complete",
+      "block": 3,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "complete",
+      "block": 3,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "complete",
+      "block": 4,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "complete",
+      "block": 4,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "complete",
+      "block": 5,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "complete",
+      "block": 5,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "tail",
+      "block": 1,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "tail",
+      "block": 1,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "tail",
+      "block": 2,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "tail",
+      "block": 2,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "tail",
+      "block": 3,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "tail",
+      "block": 3,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "tail",
+      "block": 4,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "tail",
+      "block": 4,
+      "variant": "A",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    },
+    {
+      "case": "tail",
+      "block": 5,
+      "variant": "A",
+      "status": "failed",
+      "core_count_correct": false,
+      "issues": []
+    },
+    {
+      "case": "tail",
+      "block": 5,
+      "variant": "C",
+      "status": "succeeded",
+      "core_count_correct": true,
+      "issues": []
+    }
+  ],
+  "quality_scope": "人工逐份审阅最终40份答案及工具轨迹，程序仅整理已审阅标签，不以关键词自动判定。核心计数与严格证据边界分别记录。",
+  "strict_quality_passed": false,
+  "cost_is_actual_bill": false,
+  "known_interrupted_exploration_request_usage": "unknown",
+  "fixture_hashes_equal_within_case": true,
+  "final_source_hashes_match": true,
+  "tool_discovery_unchanged": true
+}

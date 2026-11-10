@@ -1,5 +1,3 @@
-"""Process liveness endpoint."""
-
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -22,7 +20,7 @@ class ReadinessResponse(BaseModel):
 
 @router.get("/health", response_model=HealthResponse)
 async def health() -> HealthResponse:
-    """Report process liveness, not downstream dependency readiness."""
+    """仅报告进程存活，不检查下游就绪。"""
     return HealthResponse(status="ok", service="backend", version=__version__)
 
 

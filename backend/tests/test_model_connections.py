@@ -1,20 +1,23 @@
-"""Model connection lifecycle, credential boundaries and provider failure behavior."""
-
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
+from datetime import timedelta
+from threading import Event
 from uuid import uuid4
 
 import httpx
 import pytest
 from configuration_helpers import patch_current
 from cryptography.fernet import Fernet
-from scenario_client import ScenarioClient as TestClient
+from fastapi.testclient import TestClient
 from sqlalchemy.exc import IntegrityError
 
+from app.auth.models import AuthSession
 from app.auth.permissions import ROLE_PERMISSIONS
 from app.bootstrap import create_app
 from app.infrastructure.credentials import CredentialUnavailableError, CredentialVault
+from app.infrastructure.database.transactions import reserve_writer
 from app.model_connections.models import ModelConnection
+from app.values import utc_now
 
 KEY = "test-only-key-not-a-real-credential"
 
@@ -25,9 +28,47 @@ def create(client, **overrides):
     )
 
 
+def test_creation_survives_another_writer_between_credential_read_and_insert(
+    api_client, monkeypatch
+):
+    service = api_client.app.state.model_connections
+    actor = api_client.app.state.auth.resolve(api_client.cookies.get("app_session"))
+    prepared, release = Event(), Event()
+    original = service._encrypt
+
+    def paused_encrypt(session, key):
+        value = original(session, key)
+        prepared.set()
+        assert release.wait(5)
+        return value
+
+    def background_write():
+        with service.database.transaction() as db:
+            reserve_writer(db, AuthSession.__table__)
+            row = db.get(AuthSession, actor.session_id)
+            row.last_seen_at = utc_now() + timedelta(seconds=1)
+
+    monkeypatch.setattr(service, "_encrypt", paused_encrypt)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        creating = pool.submit(create, api_client)
+        try:
+            assert prepared.wait(5)
+            writing = pool.submit(background_write)
+            # 未预占写锁时，竞争提交会使创建者快照过期；预占后竞争写须等待。
+            try:
+                writing.result(timeout=0.25)
+            except TimeoutError:
+                pass
+        finally:
+            release.set()
+        response = creating.result(timeout=5)
+        writing.result(timeout=5)
+    assert response.status_code == 201, response.text
+
+
 def test_crud_encrypts_never_returns_secret_and_survives_restart(api_client, migrated_config):
     presets = api_client.get("/api/model-presets").json()
-    assert [p["id"] for p in presets] == ["kimi-code", "siliconflow-embedding"]
+    assert [p["id"] for p in presets] == ["kimi-code", "zhipu", "deepseek", "siliconflow-embedding"]
     response = create(api_client)
     assert response.status_code == 201
     item = response.json()
@@ -68,6 +109,57 @@ def test_crud_encrypts_never_returns_secret_and_survives_restart(api_client, mig
     assert api_client.get("/api/model-connections?limit=1").json()["total"] == 1
     assert api_client.delete(f"/api/model-connections/{item['id']}").status_code == 204
     assert api_client.get(f"/api/model-connections/{item['id']}").status_code == 404
+
+
+@pytest.mark.parametrize(
+    "preset_id,base_url,model_id",
+    [
+        ("zhipu", "https://open.bigmodel.cn/api/paas/v4", "glm-5.3"),
+        ("deepseek", "https://api.deepseek.com", "deepseek-flash"),
+    ],
+)
+def test_new_chat_presets_save_resolve_bind_and_check(
+    api_client, monkeypatch, preset_id, base_url, model_id
+):
+    response = create(api_client, name=preset_id, preset_id=preset_id)
+    assert response.status_code == 201, response.text
+    item = response.json()
+    assert (item["model_id"], item["base_url"], item["provider"], item["capability"]) == (
+        model_id,
+        base_url,
+        preset_id,
+        "chat",
+    )
+    assert KEY not in response.text
+    config = api_client.app.state.model_connections.resolve(item["id"])
+    assert (config.model_id, config.base_url, config.provider) == (model_id, base_url, preset_id)
+    assert config.api_key.get_secret_value() == KEY
+    agent = api_client.post(
+        "/api/agents",
+        json={"name": preset_id, "avatar_id": "admin", "model_connection_id": item["id"]},
+    )
+    assert agent.status_code == 201, agent.text
+    original_client = httpx.Client
+    status = 200
+
+    def handle(request):
+        assert request.method == "GET"
+        assert str(request.url) == base_url + "/models"
+        assert request.headers["authorization"] == "Bearer " + KEY
+        return httpx.Response(status, json={"data": [{"id": model_id}]})
+
+    monkeypatch.setattr(
+        "app.model_connections.service.httpx.Client",
+        lambda **kwargs: original_client(transport=httpx.MockTransport(handle), **kwargs),
+    )
+    check = api_client.post(f"/api/model-connections/{item['id']}/test", json={})
+    assert check.json()["ok"] is True
+    status = 401
+    rejected = api_client.post(f"/api/model-connections/{item['id']}/test", json={})
+    assert rejected.json()["ok"] is False
+    assert "Kimi" not in rejected.text and KEY not in rejected.text
+    custom = create(api_client, name="自定义", preset_id=preset_id, model_id="custom-model")
+    assert custom.status_code == 201 and custom.json()["model_id"] == "custom-model"
 
 
 def test_binding_reuse_preserves_agent_context_and_prevents_deletion(api_client):
@@ -161,7 +253,9 @@ def test_auth_permissions_public_projection_and_assignment_capability(
             assert visitor.request(method, path, json={}).status_code == 401
         visitor.post("/api/auth/guest", json={})
         for method, path in routes:
-            assert visitor.request(method, path, json={}).status_code == 403
+            assert visitor.request(method, path, json={}).status_code == (
+                200 if method == "GET" else 403
+            )
         public = visitor.get(f"/api/public/agents/{agent['id']}").json()
         assert public["model_configured"] is True
         assert "model_connection_id" not in public

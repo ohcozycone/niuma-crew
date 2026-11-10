@@ -8,7 +8,19 @@ import unicodedata
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-IGNORED = {".git", ".venv", ".impeccable", "node_modules", "dist", "__pycache__", ".pytest_cache"}
+IGNORED = {
+    ".git",
+    ".venv",
+    ".impeccable",
+    ".generated",
+    ".source",
+    ".next",
+    "node_modules",
+    "dist",
+    "out",
+    "__pycache__",
+    ".pytest_cache",
+}
 LINK = re.compile(r'!?\[(?:[^\]\\]|\\.)*\]\(\s*(<[^>]+>|[^\s)]+)(?:\s+["\'][^\n]*?["\'])?\s*\)')
 REFERENCE = re.compile(r"^\s{0,3}\[[^\]]+\]:\s*(<[^>]+>|\S+)", re.MULTILINE)
 

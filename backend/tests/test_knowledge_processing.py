@@ -1,21 +1,17 @@
-"""Durability, atomic file publication, cancellation and scope, with no model calls."""
-
 import asyncio
 from datetime import timedelta
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
 from alembic import command
-from alembic.config import Config
 from sqlalchemy import select, text
-from test_knowledge_library import create, library_owner, process, upload
+from test_knowledge_library import create, library_creator, process, upload
 
 from app.auth.actor import Actor
-from app.errors import NotFoundError
-from app.infrastructure.database.fields import utc_now
+from app.errors import PermissionDeniedError
 from app.knowledge.models import LibraryDocument, ProcessingItem
 from app.knowledge.worker import KnowledgeWorker
+from app.values import utc_now
 
 
 def detail(client, kb, doc):
@@ -79,7 +75,8 @@ def test_effective_rule_validation_revision_guard_and_frozen_job(api_client):
     assert api_client.patch(f"/api/knowledge-bases/{kb}", json=payload).status_code == 200
     api_client.app.state.knowledge.processing.run_next()
     result = detail(api_client, kb, doc["id"])
-    assert result["processing_rules"] == job["rules"]
+    assert {key: result["processing_rules"][key] for key in job["rules"]} == job["rules"]
+    assert result["processing_reusable"]
     assert max(len(c["text"]) for c in result["chunks"]) <= 100
 
 
@@ -130,7 +127,13 @@ def test_failed_reprocess_keeps_active_text_and_fts(api_client, monkeypatch):
         "split_document",
         lambda *args, **kwargs: (_ for _ in ()).throw(ValueError("secret")),
     )
-    result = process(api_client, kb, [doc["id"]], reprocess=True).json()
+    result = process(
+        api_client,
+        kb,
+        [doc["id"]],
+        reprocess=True,
+        rules={"chunk_size": 900, "chunk_overlap": 120, "min_section_chars": 200},
+    ).json()
     assert result["status"] == "failed"
     after = detail(api_client, kb, doc["id"])
     assert after["processing_state"] == "failed" and after["keyword_ready"]
@@ -146,7 +149,7 @@ def test_delete_during_work_prevents_late_republication(api_client, monkeypatch)
     target = upload(api_client, kb).json()
     service = api_client.app.state.knowledge
     actor = Actor(
-        "user", "", library_owner(service, kb), "admin", "admin", utc_now() + timedelta(hours=1)
+        "user", "", library_creator(service, kb), "admin", "admin", utc_now() + timedelta(hours=1)
     )
     native = processing.split_document
 
@@ -166,12 +169,19 @@ def test_cancel_has_no_side_effect_on_published_content_and_scope_is_enforced(ap
     kb = create(api_client)["id"]
     doc = upload(api_client, kb).json()
     process(api_client, kb)
-    queued = process(api_client, kb, [doc["id"]], reprocess=True, run=False).json()
+    queued = process(
+        api_client,
+        kb,
+        [doc["id"]],
+        reprocess=True,
+        run=False,
+        rules={"chunk_size": 900, "chunk_overlap": 120, "min_section_chars": 200},
+    ).json()
     service = api_client.app.state.knowledge
-    stranger = Actor("user", "", str(uuid4()), "other", "admin", utc_now() + timedelta(hours=1))
-    with pytest.raises(NotFoundError):
+    stranger = Actor("user", "", str(uuid4()), "other", "member", utc_now() + timedelta(hours=1))
+    with pytest.raises(PermissionDeniedError):
         service.processing.get(stranger, kb, queued["id"])
-    with pytest.raises(NotFoundError):
+    with pytest.raises(PermissionDeniedError):
         service.processing.cancel(stranger, kb, queued["id"])
     result = api_client.post(f"/api/knowledge-bases/{kb}/processing/{queued['id']}/cancel", json={})
     assert result.json()["status"] == "cancelled"
@@ -211,16 +221,125 @@ def test_worker_restart_interrupts_uncertain_item_and_continues_queued(api_clien
     assert process(api_client, kb, [first["id"]]).json()["status"] == "succeeded"
 
 
-def test_upgrade_preserves_existing_keyword_snapshot(api_client):
+def test_upgrade_preserves_existing_keyword_snapshot(app_config, monkeypatch):
+    from legacy_knowledge_helpers import seed_text_library
+
+    from app.knowledge.search import KnowledgeSearch
+
+    database, files, config, actor, kb, doc, chunks = seed_text_library(
+        app_config, monkeypatch, "0014"
+    )
+    try:
+        command.upgrade(config, "0020")
+        with database.transaction() as db:
+            state = db.scalar(
+                text("SELECT processing_state FROM knowledge_documents WHERE id=:id"), {"id": doc}
+            )
+            assert state == "ready"
+            assert KnowledgeSearch.lexical_search(db, kb, "高铁", 6)[0].chunk == chunks[0]
+            assert db.execute(text("PRAGMA foreign_key_check")).all() == []
+    finally:
+        database.close()
+
+
+@pytest.mark.parametrize(
+    "damage",
+    [
+        "fts_missing",
+        "fts_changed",
+        "chunk_missing",
+        "chunk_changed",
+        "parser",
+        "lexical",
+        "rules",
+        "rule_metadata",
+    ],
+)
+def test_only_intact_current_results_are_reused(api_client, damage):
+    from app.knowledge.models import LibraryChunk
+
+    kb = create(api_client)["id"]
+    doc = upload(api_client, kb, "# 规则\n" + "高铁特别批准。" * 150).json()
+    process(api_client, kb, [doc["id"]])
+    assert detail(api_client, kb, doc["id"])["processing_reusable"]
+    with api_client.app.state.knowledge.database.transaction() as session:
+        row = session.get(LibraryDocument, doc["id"])
+        if damage.startswith("fts"):
+            sql = (
+                "DELETE FROM knowledge_fts WHERE chunk_id IN (SELECT id FROM knowledge_chunks WHERE document_id=:doc)"
+                if damage == "fts_missing"
+                else "UPDATE knowledge_fts SET tokens='damaged' WHERE chunk_id IN (SELECT id FROM knowledge_chunks WHERE document_id=:doc)"
+            )
+            session.execute(text(sql), {"doc": doc["id"]})
+        elif damage.startswith("chunk"):
+            chunk = session.scalar(
+                select(LibraryChunk).where(LibraryChunk.document_id == doc["id"])
+            )
+            if damage == "chunk_missing":
+                session.delete(chunk)
+            else:
+                chunk.snapshot = {**chunk.snapshot, "text": "损坏的正文"}
+        elif damage == "parser":
+            row.snapshot = {**row.snapshot, "parser": "old-parser"}
+        elif damage == "lexical":
+            row.lexical_version = "old-lexical"
+        elif damage == "rule_metadata":
+            row.processing_rules = {**row.processing_rules, "chunk_size": 900}
+        else:
+            row.processing_rules = {**row.processing_rules, "split_version": 1}
+    assert not detail(api_client, kb, doc["id"])["processing_reusable"]
+    rebuilt = process(api_client, kb, [doc["id"]]).json()
+    assert rebuilt["status"] == "succeeded" and rebuilt["items"][0]["status"] == "succeeded"
+    assert detail(api_client, kb, doc["id"])["processing_reusable"]
+
+
+def test_new_request_reuses_identical_results_without_parsing_or_splitting(api_client, monkeypatch):
     kb = create(api_client)["id"]
     doc = upload(api_client, kb).json()
-    process(api_client, kb)
+    process(api_client, kb, [doc["id"]])
     before = detail(api_client, kb, doc["id"])
-    config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
-    command.downgrade(config, "0014")
-    command.upgrade(config, "head")
-    after = detail(api_client, kb, doc["id"])
-    assert after["processing_state"] == "ready" and after["chunks"] == before["chunks"]
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("同条件不应重新计算")
+
+    monkeypatch.setattr("app.knowledge.processing.text_document", forbidden)
+    monkeypatch.setattr("app.knowledge.processing.split_document", forbidden)
+    monkeypatch.setattr("app.knowledge.processing.lexical_terms", forbidden)
+    batch = process(api_client, kb, [doc["id"]]).json()
+    assert batch["status"] == "succeeded" and batch["items"][0]["status"] == "reused"
+    assert detail(api_client, kb, doc["id"]) == before
     assert hits(api_client, kb)
-    with api_client.app.state.database.transaction() as db:
-        assert db.execute(text("PRAGMA foreign_key_check")).all() == []
+
+
+@pytest.mark.parametrize("already_processed", [False, True])
+def test_missing_original_reports_recovery_action_and_keeps_published_content(
+    api_client, already_processed
+):
+    from app.files.models import StoredFile
+
+    kb = create(api_client)["id"]
+    doc = upload(api_client, kb).json()
+    if already_processed:
+        process(api_client, kb, [doc["id"]])
+    before = detail(api_client, kb, doc["id"])
+    knowledge = api_client.app.state.knowledge
+    with knowledge.database.transaction() as session:
+        document = session.get(LibraryDocument, doc["id"])
+        original = session.get(StoredFile, document.file_id)
+        path = knowledge.files.directory / original.storage_key
+    path.unlink()
+    batch = process(
+        api_client,
+        kb,
+        [doc["id"]],
+        rules={"chunk_size": 900, "chunk_overlap": 120, "min_section_chars": 200},
+    ).json()
+    assert batch["status"] == "failed"
+    assert "原始文件缺失" in batch["items"][0]["error"]
+    assert "恢复存储" in batch["items"][0]["error"]
+    after = detail(api_client, kb, doc["id"])
+    assert after["chunks"] == before["chunks"]
+    assert after["keyword_ready"] == before["keyword_ready"]
+    download = api_client.get(f"/api/knowledge-bases/{kb}/documents/{doc['id']}/original")
+    assert download.status_code == 422
+    assert download.json()["detail"]["code"] == "file_content_missing"

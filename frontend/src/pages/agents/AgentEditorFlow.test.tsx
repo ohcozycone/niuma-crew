@@ -17,7 +17,7 @@ import { AgentEditorPage, AgentsPage } from "./AgentsPage";
 const identity = {
   actor: { kind: "user" as const, user: { id: "owner", username: "admin" } },
   expires_at: "2099",
-  permissions: ["agents:read", "agents:create", "agents:update", "skills:read"],
+  permissions: ["agents:read", "agents:create", "agents:update", "agents:delete", "skills:read"],
 };
 vi.mock("@/state/auth/useIdentity", () => ({ useIdentity: () => identity }));
 vi.mock("@/components/auth/AuthBoundary", () => ({
@@ -215,16 +215,18 @@ it.each([
   },
 );
 
-it("only offers save for changed employees, including reverting a change across tabs", async () => {
+it("shows saved until changes require saving, including reverting across tabs", async () => {
   editor("/agents/employee-a");
   const name = await screen.findByRole("textbox", { name: "员工名称" });
   expect(screen.getByRole("button", { name: "删除员工" })).toBeTruthy();
   expect(screen.getByRole("button", { name: "返回" })).toBeTruthy();
-  expect(screen.queryByRole("button", { name: "保存配置" })).toBeNull();
+  expect((screen.getByRole("button", { name: "已保存" }) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.submit(name.closest("form")!);
   expect(api.saveAgent).not.toHaveBeenCalled();
   fireEvent.change(name, { target: { value: "编辑中的员工" } });
-  expect(screen.getByRole("button", { name: "保存配置" })).toBeTruthy();
+  expect((screen.getByRole("button", { name: "保存配置" }) as HTMLButtonElement).disabled).toBe(
+    false,
+  );
   fireEvent.click(screen.getByRole("tab", { name: "指令与知识" }));
   await screen.findByRole("textbox", { name: "工作指令" });
   expect(screen.getByRole("button", { name: "保存配置" })).toBeTruthy();
@@ -232,7 +234,7 @@ it("only offers save for changed employees, including reverting a change across 
   fireEvent.change(await screen.findByRole("textbox", { name: "员工名称" }), {
     target: { value: persisted.name },
   });
-  expect(screen.queryByRole("button", { name: "保存配置" })).toBeNull();
+  expect((screen.getByRole("button", { name: "已保存" }) as HTMLButtonElement).disabled).toBe(true);
 });
 
 it("returns directly when unchanged and protects unsaved changes on return", async () => {

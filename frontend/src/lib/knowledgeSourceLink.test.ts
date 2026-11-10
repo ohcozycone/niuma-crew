@@ -20,3 +20,17 @@ it("allows only the exact platform evidence path", () => {
     expect(isKnowledgeSourceLink(value)).toBe(false);
   }
 });
+
+it("accepts only the exact run evidence page path", () => {
+  const source = "/knowledge/sources/100000000101/K-1234567812345678";
+  expect(isKnowledgeSourceLink(source)).toBe(true);
+  for (const invalid of [
+    source + "?file=private",
+    source + "#extra",
+    "https://evil.test" + source,
+    source.replace("100000000101", "100"),
+    source.replace("K-", "k-"),
+    source.replace("/sources/", "/../sources/"),
+  ])
+    expect(isKnowledgeSourceLink(invalid)).toBe(false);
+});

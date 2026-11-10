@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-05",
+  "generator": "内置 image_gen",
+  "asset": "平台介绍.png",
+  "dimensions": [1860, 846],
+  "purpose": "文档站平台介绍页横版产品介绍图；工作台为界面示意。",
+  "references": [
+    "介绍图上一版（仅作布局底图）",
+    "frontend/public/avatars/svg/programmer-horse.svg（正式程序员马，转为 PNG 输入）",
+    "frontend/public/avatars/svg/intern-bull.svg（正式实习生牛，转为 PNG 输入）"
+  ],
+  "prompt": "Edit the first image, a NiumaCrew introduction banner, to CORRECT ITS ART DIRECTION to our actual existing 2D character artwork. Images 2 and 3 are the authoritative character designs, not loose mood references. Replace the two 3D clay animal characters in image1 with the EXACT FLAT 2D VECTOR-STYLE characters of images2 and3: the long slender warm-brown exhausted programmer horse with asymmetric floppy ears, long ivory nose, dark spiky mane, heavy mauve eye bags, teal hoodie and plum laptop from image2, and the cream intern bull with pale horns, dark hair, coral muzzle, teal T-shirt and '实习' badge from image3. Preserve these distinguishing silhouettes, facial anatomy, expressions, proportions, color blocking, angular hand-drawn cartoon contours and clothes. They must look like cutouts taken straight from the existing SVG artwork, not redrawn as a new mascot family. No 3D, no clay, no toy-like rounded plastic bodies, no volumetric shading, no glossy highlights, no airbrushed modeling, no soft sculptural folds, no chunky generic chibi proportions. Use simple flat colored shapes and a few deliberate darker flat shapes exactly like the provided artwork. Horse on the right working on the original plum laptop, bull behind the app window to its left; let their actual half-body silhouettes remain recognizable. Also replace the small character avatars in the product window with matching flat avatars from these same reference characters. Keep the first image's overall left headline/right workbench composition, warm ivory background, muted coral color block, charcoal app UI and exact existing Chinese text and NiumaCrew brand spelling. The final whole banner must be crisp restrained flat editorial graphic design, no photographic lighting, no texture or invented stroke outlines. Keep a wide 2.2:1 canvas. User wants their existing website illustration style accurately preserved. Keep product-window '界面示意' label. Do not include LobeHub branding or other unrelated characters.",
+  "style": "沿用现行彩色 SVG 角色的平面色块、比例与神态。"
+}

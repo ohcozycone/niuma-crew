@@ -1,14 +1,16 @@
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-const SOURCE = new RegExp(`^/knowledge/${UUID}/documents/${UUID}\\?chunk=[0-9a-f]{64}$`, "i");
+const LEGACY = new RegExp(`^/knowledge/(${UUID})/documents/(${UUID})\\?chunk=([0-9a-f]{64})$`, "i");
+const EVIDENCE = /^\/knowledge\/sources\/([1-9][0-9]{11})\/(K-[0-9a-f]{16})$/;
 
-/** Only platform-produced knowledge evidence paths are eligible as internal answer links. */
 export function isKnowledgeSourceLink(value: unknown): value is string {
-  return typeof value === "string" && SOURCE.test(value);
+  return typeof value === "string" && (LEGACY.test(value) || EVIDENCE.test(value));
 }
 
 export function parseKnowledgeSourceLink(value: string) {
-  if (!isKnowledgeSourceLink(value)) return null;
-  const [path, query] = value.split("?");
-  const [, , library, , document] = path.split("/");
-  return { library, document, chunk: query.slice("chunk=".length) };
+  const evidence = EVIDENCE.exec(value);
+  if (evidence) return { kind: "evidence" as const, run: evidence[1], evidence: evidence[2] };
+  const legacy = LEGACY.exec(value);
+  return legacy
+    ? { kind: "legacy" as const, library: legacy[1], document: legacy[2], chunk: legacy[3] }
+    : null;
 }

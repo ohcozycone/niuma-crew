@@ -1,5 +1,3 @@
-"""Shared skill assets have a lifetime separate from personal attachments."""
-
 from dataclasses import dataclass
 from pathlib import Path
 

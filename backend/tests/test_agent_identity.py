@@ -1,12 +1,11 @@
-"""Employee identity is composed once and passed unchanged to the real SDK."""
-
 import json
 
 import pytest
 from configuration_helpers import patch_current, set_submission_limits
+from run_helpers import reply_path
 from test_capability_runtime import ScriptedModel, execute, response, setup, submit
 
-from app.conversations.preparation import compose_system_prompt
+from app.agent.prompts import compose_system_prompt
 
 
 @pytest.mark.parametrize("rules", ["", "禁止编造执行结果。"])
@@ -31,12 +30,14 @@ def test_rename_freezes_identity_per_run_and_sdk_uses_name_only(api_client, monk
     _, _, agent, conversation = setup(api_client)
     url = f"/api/agents/{agent['id']}"
     patch_current(api_client, url, json={"name": "老赵", "role_label": "ROLE_NOT_IN_PROMPT"})
-    first = submit(api_client, conversation, key="00000000-0000-4000-8000-000000000001").json()
-    store = api_client.app.state.execution_store
+    first = submit(api_client, conversation, key="00000000-0000-4000-8000-000000000001").json()[
+        "response"
+    ]
+    store = api_client.app.state.run_worker.store
     original = store.load(first["id"])[0].config_snapshot
     patch_current(api_client, url, json={"name": "小李"})
     replay = submit(api_client, conversation, key="00000000-0000-4000-8000-000000000001")
-    assert replay.status_code == 200 and replay.json()["id"] == first["id"]
+    assert replay.status_code == 200 and replay.json()["response"]["id"] == first["id"]
     assert store.load(first["id"])[0].config_snapshot == original
     assert original["agent_name"] == "老赵"
     assert '你的姓名是 "老赵"' in original["system_prompt"]
@@ -47,17 +48,19 @@ def test_rename_freezes_identity_per_run_and_sdk_uses_name_only(api_client, monk
     assert execute(api_client, monkeypatch, model, first)["status"] == "succeeded"
     assert '你的姓名是 "老赵"' in model.prompts[0]
     assert '你的姓名是 "小李"' not in model.prompts[0]
-    second = submit(api_client, conversation).json()
+    second = submit(api_client, conversation).json()["response"]
     assert store.load(second["id"])[0].config_snapshot["agent_name"] == "小李"
     assert '你的姓名是 "小李"' in store.load(second["id"])[0].config_snapshot["system_prompt"]
-    assert api_client.post(f"/api/runs/{second['id']}/cancel", json={}).status_code == 200
+    assert (
+        api_client.post(reply_path(api_client, second["id"]) + "/stop", json={}).status_code == 200
+    )
     patch_current(api_client, url, json={"name": "小王"})
     retried = api_client.post(
-        f"/api/runs/{second['id']}/retry",
+        reply_path(api_client, second["id"]) + "/retry",
         json={"client_request_id": "00000000-0000-4000-8000-000000000002"},
     )
     assert retried.status_code == 202
-    snapshot = store.load(retried.json()["id"])[0].config_snapshot
+    snapshot = store.load(retried.json()["response"]["id"])[0].config_snapshot
     assert snapshot["agent_name"] == "小王" and '你的姓名是 "小王"' in snapshot["system_prompt"]
 
 

@@ -1,3 +1,4 @@
+import { LoadingFeedback, type LoadingShape } from "@/components/common/LoadingFeedback";
 import { PageContainer } from "@/components/common/PageContainer";
 import { FailureState } from "@/components/failure/FailureState";
 import { FailureNotice } from "@/components/failure/FailureNotice";
@@ -8,6 +9,7 @@ export function ResourceStatus({
   data,
   resource,
   returnTo,
+  shape = "form",
 }: {
   children: React.ReactNode;
   data: {
@@ -18,6 +20,7 @@ export function ResourceStatus({
   };
   resource?: FailureResource;
   returnTo?: string;
+  shape?: LoadingShape;
 }) {
   const actions = [
     { label: "重新加载", kind: "retry" as const, onClick: data.reload },
@@ -33,7 +36,7 @@ export function ResourceStatus({
       />
     ) : (
       <PageContainer aria-busy>
-        <p role="status">正在加载…</p>
+        <LoadingFeedback shape={shape} page />
       </PageContainer>
     );
   return (

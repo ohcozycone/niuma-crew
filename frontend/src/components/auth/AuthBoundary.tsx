@@ -1,3 +1,4 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
 import { useNavigate } from "react-router";
 import { FailureState } from "@/components/failure/FailureState";
 import { clientFailure } from "@/lib/failures/resolve";
@@ -22,7 +23,7 @@ function AuthGate({ children, permission }: AuthBoundaryProps) {
   if (!identity)
     return (
       <main className="page-frame py-6" aria-busy="true">
-        <p role="status">正在确认登录状态…</p>
+        <LoadingFeedback shape="document" label="正在确认登录状态…" />
       </main>
     );
   if (permission && !identity.permissions.includes(permission))

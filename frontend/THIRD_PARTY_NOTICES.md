@@ -1,10 +1,16 @@
 # Third-party components
 
+Execution evidence uses the unmodified MIT-licensed
+[`@uiw/react-json-view`](https://github.com/uiwjs/react-json-view) package through
+`src/components/ui/JsonInspector.tsx`. The read-only adapter maps its public theme
+variables to product tokens and provides keyboard-accessible node controls and
+JSON copying. The upstream license remains in the installed package.
+
 Markdown is rendered by unmodified Streamdown with its CJK and code plugins
 through `src/components/common/Markdown.tsx`. Its public theme
 variables map to the product's semantic tokens, with limited styling through
 official `data-streamdown` attributes; see
-[`src/design-system/colors.md`](src/design-system/colors.md#markdown-渲染器主题).
+[`src/design-system/colors.md`](../docs/design/colors.md).
 Its upstream license is retained in the installed package.
 
 `src/components/ui/` contains components from the official

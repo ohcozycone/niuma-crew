@@ -1,5 +1,3 @@
-"""Local account maintenance. Passwords are never command-line arguments."""
-
 import argparse
 import getpass
 

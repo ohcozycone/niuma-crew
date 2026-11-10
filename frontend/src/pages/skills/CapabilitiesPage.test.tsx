@@ -3,14 +3,20 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
 import { request } from "@/lib/api/http";
+import { skillLibrary } from "@/lib/api/skills";
 import { WorkspaceDataProvider } from "@/state/workspace/WorkspaceDataProvider";
 import { CapabilitiesPage } from "./CapabilitiesPage";
 
+let management = false;
 vi.mock("@/state/auth/useIdentity", () => ({
   useIdentity: () => ({
     actor: { kind: "user", user: { id: "owner" } },
-    permissions: ["agents:read"],
+    permissions: management ? ["tools:read", "skills:create", "skills:update"] : ["agents:read"],
   }),
+}));
+vi.mock("@/lib/api/skills", async (original) => ({
+  ...(await original<object>()),
+  skillLibrary: vi.fn(),
 }));
 vi.mock("@/lib/api/http", async (original) => ({
   ...(await original<object>()),
@@ -20,6 +26,28 @@ afterEach(() => {
   cleanup();
   vi.useRealTimers();
   vi.resetAllMocks();
+  management = false;
+});
+
+it("opens directory maintenance from more without syncing or losing the dialog", async () => {
+  management = true;
+  vi.mocked(request).mockResolvedValue({ items: [], total: 0 });
+  vi.mocked(skillLibrary).mockResolvedValue({ directory: "/data/.agents/skills" });
+  render(
+    <MemoryRouter>
+      <WorkspaceDataProvider>
+        <CapabilitiesPage />
+      </WorkspaceDataProvider>
+    </MemoryRouter>,
+  );
+  await screen.findByText("没有找到能力，可从“添加能力”新建技能或接入 MCP。");
+  expect(skillLibrary).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "能力库更多操作" }));
+  expect(screen.queryByRole("menuitem", { name: "内置文件与代码工具" })).toBeNull();
+  fireEvent.click(screen.getByRole("menuitem", { name: "从服务器目录同步技能" }));
+  await screen.findByRole("dialog", { name: "从服务器目录同步技能" });
+  await screen.findByText("/data/.agents/skills");
+  expect(request).toHaveBeenCalledTimes(1);
 });
 
 it("requests only the final search, resets its page, retains its type and flushes Enter", async () => {

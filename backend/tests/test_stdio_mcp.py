@@ -1,5 +1,3 @@
-"""Trusted SDK stdio sessions: real processes, account boundary and cleanup."""
-
 import asyncio
 import json
 import os
@@ -9,15 +7,16 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.tools.adapters.stdio import StdioMCPClient
-from app.tools.config import ToolConfig
-from app.tools.contracts import digest
+from app.execution.contracts import RUN_SNAPSHOT_VERSION
+from app.mcp.adapters.stdio import StdioMCPClient
+from app.mcp.config import ToolConfig
+from app.values import digest
 
 
 @pytest.mark.anyio
 async def test_sandbox_release_failure_still_closes_run_mcp_caller():
-    from app.agent_runtime.contracts import AgentOutput
-    from app.conversations.preparation import ConversationPreparation
+    from app.agent.contracts import AgentOutput
+    from app.execution.runner import RunTask
 
     closed = []
 
@@ -33,11 +32,19 @@ async def test_sandbox_release_failure_still_closes_run_mcp_caller():
 
     row = SimpleNamespace(
         id="run",
+        thread_id="run",
         checkpoint_id=None,
+        base_checkpoint_id=None,
+        base_run_id=None,
+        input_snapshot=[],
         model_calls=0,
         owner_user_id="owner",
         config_snapshot={
-            "schema_version": 3,
+            "schema_version": RUN_SNAPSHOT_VERSION,
+            "summary_trigger_tokens": 100,
+            "summary_keep_tokens": 20,
+            "memory_scope": "test",
+            "memory_reset": False,
             "agent_id": "employee",
             "connection_id": "model",
             "connection_config_revision": 1,
@@ -56,23 +63,31 @@ async def test_sandbox_release_failure_still_closes_run_mcp_caller():
             "workspace": {"mode": "sandbox"},
         },
     )
-    preparation = ConversationPreparation(
+    context = RunTask(
+        row.id,
         None,
+        settings=None,
+        agent=None,
+        store=SimpleNamespace(
+            load=lambda _: (row, []),
+            restore_control=lambda run_id: {"active_skills": set(), "contents": [], "usage": None},
+        ),
+        runs=None,
         connections=SimpleNamespace(resolve=lambda *args: None),
-        checkpoints=SimpleNamespace(for_run=lambda *args: None),
-        execute_agent=execute_agent,
+        checkpoints=SimpleNamespace(for_run=lambda *args, **kwargs: None),
         tools=SimpleNamespace(for_run=lambda run_id: Caller()),
         files=SimpleNamespace(
             read=lambda id: b"", sources=lambda id: [], save=lambda *args, **kwargs: {}
         ),
-        sandboxes=SimpleNamespace(for_run=lambda *args: SimpleNamespace(release=fail_release)),
-    )
-    strategy = preparation.execution(row, [])
-    control = SimpleNamespace(
-        recovered_usage=None, active_skills=[], progress=SimpleNamespace(contents={})
+        sandboxes=SimpleNamespace(
+            for_run=lambda *args, **kwargs: SimpleNamespace(release=fail_release)
+        ),
+        skills=None,
+        knowledge=None,
     )
     with pytest.raises(RuntimeError, match="injected sandbox cleanup failure"):
-        await strategy.execute(control)
+        async with context:
+            pass
     assert closed == ["mcp-closed"]
 
 
@@ -231,6 +246,7 @@ def test_stdio_registration_is_admin_only_and_import_is_inert(api_client):
     assert created.status_code == 201, created.text
     from test_mcp_accounts import member
 
+    cookies = dict(api_client.cookies)
     member(api_client)
     denied = api_client.post("/api/mcp-services", json=definition)
     assert denied.status_code == 403, denied.text
@@ -238,7 +254,21 @@ def test_stdio_registration_is_admin_only_and_import_is_inert(api_client):
     connection = api_client.post(
         "/api/tool-connections",
         json={
-            "name": "Own env",
+            "name": "Organization env",
+            "service_id": service["id"],
+            "kind": "mcp_stdio",
+            "auth_type": "env",
+            "public_config": {key: service[key] for key in ("command", "args", "env_keys")},
+            "environment": {"API_KEY": "personal fixture secret"},
+        },
+    )
+    assert connection.status_code == 403, connection.text
+    api_client.cookies.clear()
+    api_client.cookies.update(cookies)
+    connection = api_client.post(
+        "/api/tool-connections",
+        json={
+            "name": "Organization env",
             "service_id": service["id"],
             "kind": "mcp_stdio",
             "auth_type": "env",
@@ -318,7 +348,7 @@ def test_stdio_account_catalog_snapshot_and_run_caller_are_integrated(
 ):
     from test_capability_runtime import setup
 
-    from app.agents.tool_grants import capture_tools
+    from app.employees.assembly import capture_tools
 
     enable_stdio(api_client)
     _, _, agent, _ = setup(api_client)
@@ -363,11 +393,11 @@ def test_stdio_account_catalog_snapshot_and_run_caller_are_integrated(
     assert approved.status_code == 200, approved.text
     account = approved.json()
     assert account["approved_instructions"] == "Fixture account instructions"
-    assigned = api_client.put(
-        f"/api/agents/{agent['id']}/tool-grants",
+    assigned = api_client.patch(
+        f"/api/agents/{agent['id']}",
         json={
             "expected_revision": agent["revision"],
-            "grants": [
+            "tool_grants": [
                 {
                     "connection_id": row["id"],
                     "tools": ["inspect_context"],
@@ -380,9 +410,8 @@ def test_stdio_account_catalog_snapshot_and_run_caller_are_integrated(
         },
     )
     assert assigned.status_code == 200, assigned.text
-    actor = api_client.app.state.auth.resolve(api_client.cookies.get("app_session"))
     with api_client.app.state.database.transaction() as db:
-        bindings, _, _ = capture_tools(db, agent["id"], actor.user_id)
+        bindings, _ = capture_tools(db, agent["id"])
     assert bindings[0]["kind"] == "mcp_stdio"
     assert bindings[0]["server_instructions"] == "Fixture account instructions"
     assert token not in json.dumps(bindings)

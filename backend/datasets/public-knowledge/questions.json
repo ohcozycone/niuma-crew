@@ -1,0 +1,65 @@
+[
+  {
+    "id": "fastapi-path",
+    "library": "fastapi",
+    "question": "/users/me 和 /users/{user_id} 应当按什么顺序声明？",
+    "expected_document": "fastapi/路径参数.txt",
+    "top_k": 6
+  },
+  {
+    "id": "fastapi-query",
+    "library": "fastapi",
+    "question": "查询参数如何设置默认值和可选参数？",
+    "expected_document": "fastapi/查询参数.txt",
+    "top_k": 6
+  },
+  {
+    "id": "fastapi-body",
+    "library": "fastapi",
+    "question": "FastAPI 怎样通过 Pydantic 模型接收请求体？",
+    "expected_document": "fastapi/请求体.txt",
+    "top_k": 6
+  },
+  {
+    "id": "k8s-namespace",
+    "library": "kubernetes",
+    "question": "Kubernetes 命名空间有什么作用，哪些对象不受命名空间限制？",
+    "expected_document": "kubernetes/命名空间.txt",
+    "top_k": 6
+  },
+  {
+    "id": "k8s-configmap",
+    "library": "kubernetes",
+    "question": "Pod 可以通过哪些方式使用 ConfigMap？",
+    "expected_document": "kubernetes/ConfigMap.txt",
+    "top_k": 6
+  },
+  {
+    "id": "k8s-pod",
+    "library": "kubernetes",
+    "question": "Pod 的 restartPolicy 有哪些取值？",
+    "expected_document": "kubernetes/Pod-生命周期.txt",
+    "top_k": 6
+  },
+  {
+    "id": "ml-regression",
+    "library": "machine-learning",
+    "question": "回归模型用于预测什么类型的数据？",
+    "expected_document": "machine-learning/回归简介.txt",
+    "top_k": 6
+  },
+  {
+    "id": "ml-tools",
+    "library": "machine-learning",
+    "question": "Scikit-learn 的 diabetes 糖尿病数据集如何用于回归？",
+    "expected_document": "machine-learning/回归工具.txt",
+    "top_k": 6
+  },
+  {
+    "id": "ml-classification",
+    "library": "machine-learning",
+    "question": "分类和回归有什么区别，分类模型用来预测什么？",
+    "expected_document": "machine-learning/分类简介.txt",
+    "top_k": 6
+  }
+]

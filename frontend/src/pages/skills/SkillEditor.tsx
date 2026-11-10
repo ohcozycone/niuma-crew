@@ -1,3 +1,4 @@
+import { LoadingFeedback } from "@/components/common/LoadingFeedback";
 import { mutationOutcome } from "@/lib/failures/resolve";
 import { useFailureState } from "@/state/shared/useFailureState";
 import { FailureNotice } from "@/components/failure/FailureNotice";
@@ -29,10 +30,12 @@ const template =
   "---\nname: custom-skill\ndescription: Describe when this skill should be used.\n---\n\n# 工作指引\n\n在这里编写工作步骤，使用相对路径引用 scripts/、references/ 和 assets/ 文件。\n";
 export function SkillEditor({
   value,
+  readOnly = false,
   onSave,
   onClose,
 }: {
   value: Skill | "new";
+  readOnly?: boolean;
   onSave: (skill: Skill) => Promise<void>;
   onClose: () => void;
 }) {
@@ -135,6 +138,7 @@ export function SkillEditor({
   }
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (readOnly) return;
     if (busy.current || assetsLoading || assetsError) return;
     busy.current = true;
     setSaving(true);
@@ -183,7 +187,7 @@ export function SkillEditor({
   return (
     <PageContainer as="section" className="space-y-6">
       <PageHeading
-        title={value === "new" ? "新建技能" : "编辑技能"}
+        title={readOnly ? "技能详情" : value === "new" ? "新建技能" : "编辑技能"}
         description="以标准 SKILL.md 和支持文件组织工作方法。上传不执行代码，脚本由获准的沙箱工具运行。"
         actions={
           <>
@@ -193,9 +197,10 @@ export function SkillEditor({
             <Button
               type="submit"
               form="skill-editor"
-              disabled={saving || assetsLoading || !!assetsError || !!recovery.stale}
+              disabled={readOnly || assetsLoading || !!assetsError || !!recovery.stale}
+              loading={saving}
             >
-              {saving ? "正在保存…" : "保存技能"}
+              {readOnly ? "只读浏览" : saving ? "正在保存…" : "保存技能"}
             </Button>
           </>
         }
@@ -232,6 +237,7 @@ export function SkillEditor({
             <div className="form-grid">
               <FormField htmlFor="skill-name" label={<>展示别名（可选）</>}>
                 <Input
+                  readOnly={readOnly}
                   id="skill-name"
                   placeholder="留空使用技能包的标准名称"
                   value={draft.name}
@@ -240,6 +246,7 @@ export function SkillEditor({
               </FormField>
               <FormField htmlFor="skill-category" label={<>分类（平台设置）</>}>
                 <Input
+                  readOnly={readOnly}
                   id="skill-category"
                   value={draft.category}
                   onChange={(e) => setDraft({ ...draft, category: e.target.value })}
@@ -294,6 +301,7 @@ export function SkillEditor({
                     </div>
                     <FormField label={<>新文件路径</>}>
                       <Input
+                        readOnly={readOnly}
                         placeholder="scripts/analyze.py"
                         value={newPath}
                         onChange={(e) => setNewPath(e.target.value)}
@@ -303,7 +311,7 @@ export function SkillEditor({
                       type="button"
                       size="sm"
                       variant="outline"
-                      disabled={assetsLoading}
+                      disabled={readOnly || assetsLoading}
                       onClick={addText}
                     >
                       <FilePlus2 />
@@ -320,8 +328,9 @@ export function SkillEditor({
                       }
                     >
                       <Input
+                        readOnly={readOnly}
                         type="file"
-                        disabled={assetsLoading}
+                        disabled={readOnly || assetsLoading}
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           e.target.value = "";
@@ -365,6 +374,7 @@ export function SkillEditor({
                       type="button"
                       size="icon-sm"
                       variant="ghost"
+                      disabled={readOnly}
                       aria-label={`删除${selected}`}
                       onClick={() => setRemovingPath(selected)}
                     >
@@ -373,7 +383,7 @@ export function SkillEditor({
                   )}
                 </div>
                 {assetsLoading ? (
-                  <p role="status">正在读取支持文件…</p>
+                  <LoadingFeedback shape="document" label="正在读取支持文件…" />
                 ) : assetsError ? (
                   <FailureNotice
                     failure={assetsFailure}
@@ -393,6 +403,7 @@ export function SkillEditor({
                   />
                 ) : selected === "SKILL.md" ? (
                   <Textarea
+                    readOnly={readOnly}
                     aria-label="SKILL.md 内容"
                     rows={22}
                     className="min-h-96 font-mono text-sm"
@@ -401,6 +412,7 @@ export function SkillEditor({
                   />
                 ) : selectedFile?.content !== undefined ? (
                   <Textarea
+                    readOnly={readOnly}
                     aria-label={`${selected}内容`}
                     rows={22}
                     className="min-h-96 font-mono text-sm"
@@ -430,6 +442,7 @@ export function SkillEditor({
             <div className="mt-4 space-y-4">
               <label className="flex items-center gap-2 text-sm">
                 <Switch
+                  disabled={readOnly}
                   checked={draft.active ?? true}
                   onCheckedChange={(active) => setDraft({ ...draft, active })}
                 />
@@ -441,6 +454,7 @@ export function SkillEditor({
                 description="此处是平台扩展，不是 Skill 标准字段。空规范无需员工填写参数；不自动授予脚本执行权限。"
               >
                 <Textarea
+                  readOnly={readOnly}
                   id="skill-schema"
                   rows={7}
                   className="font-mono text-xs"

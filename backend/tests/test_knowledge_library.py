@@ -1,5 +1,3 @@
-"""Product ingestion against migrated SQLite, real FTS5 and persisted originals."""
-
 from datetime import timedelta
 from uuid import uuid4
 
@@ -8,12 +6,11 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select, text
 
 from app.auth.actor import Actor
-from app.errors import NotFoundError
 from app.files.models import StoredFile
-from app.infrastructure.database.fields import utc_now
 from app.knowledge.models import KnowledgeBase, LibraryDocument
 from app.knowledge.schemas import SearchRequest
 from app.knowledge.service import KnowledgeService, retained_file_ids
+from app.values import utc_now
 
 
 def create(client, name="测试资料"):
@@ -39,18 +36,19 @@ def upload(
     )
 
 
-def library_owner(service, id):
+def library_creator(service, id):
     with service.database.transaction() as session:
-        return session.get(KnowledgeBase, id).owner_user_id
+        return session.get(KnowledgeBase, id).created_by_user_id
 
 
-def process(client, kb, documents=None, reprocess=False, request_id=None, run=True):
+def process(client, kb, documents=None, reprocess=False, request_id=None, run=True, rules=None):
     response = client.post(
         f"/api/knowledge-bases/{kb}/processing",
         json={
             "client_request_id": request_id or str(uuid4()),
             "document_ids": documents,
             "reprocess": reprocess,
+            "rules": rules,
         },
     )
     assert response.status_code == 202, response.text
@@ -80,7 +78,7 @@ def test_upload_source_search_reopen_and_remove(api_client):
     knowledge = api_client.app.state.knowledge
     reopened = KnowledgeService(knowledge.database, knowledge.files)
     actor = Actor(
-        "user", "", library_owner(knowledge, id), "admin", "admin", utc_now() + timedelta(hours=1)
+        "user", "", library_creator(knowledge, id), "admin", "admin", utc_now() + timedelta(hours=1)
     )
     assert reopened.search(actor, id, SearchRequest(question="一等座")).hits
     assert (
@@ -147,9 +145,8 @@ def test_scope_and_query_escaping(api_client):
     )
     service = api_client.app.state.knowledge
     stranger = Actor("user", "", str(uuid4()), "other", "admin", utc_now() + timedelta(hours=1))
-    assert service.libraries(stranger) == []
-    with pytest.raises(NotFoundError):
-        service.get(stranger, first)
+    assert len(service.libraries(stranger)) == 2
+    assert service.get(stranger, first).id == first
 
 
 def test_retained_original_survives_attachment_sweep(api_client):
@@ -160,7 +157,7 @@ def test_retained_original_survives_attachment_sweep(api_client):
         row = session.get(LibraryDocument, doc["id"])
         file = session.get(StoredFile, row.file_id)
         file.created_at = utc_now() - timedelta(days=2)
-    service.files.sweep(retained_file_ids)
+    api_client.app.state.file_cleanup.sweep(retained_file_ids)
     assert (
         api_client.get(f"/api/knowledge-bases/{kb}/documents/{doc['id']}/original").status_code
         == 200
@@ -216,9 +213,14 @@ def test_demo_import_uses_same_persistent_ingestion_and_is_repeatable(api_client
     )
 
 
-def test_guest_is_rejected_before_any_library_access(api_client):
+def test_guest_can_read_libraries_but_cannot_remove_documents(api_client):
+    kb = create(api_client)["id"]
+    doc = upload(api_client, kb).json()["id"]
     actor = Actor("guest", "", None, None, "guest", utc_now() + timedelta(hours=1))
     from app.errors import PermissionDeniedError
 
+    knowledge = api_client.app.state.knowledge
+    assert knowledge.libraries(actor)[0].id == kb
+    assert knowledge.detail(actor, kb, doc).id == doc
     with pytest.raises(PermissionDeniedError):
-        api_client.app.state.knowledge.libraries(actor)
+        knowledge.remove(actor, kb, doc)

@@ -1,40 +1,49 @@
-# 基础工具接入与沙箱部署
+# 工具与环境
 
-当前契约见[基础工具](../reference/agent-tools.md)，模块边界见[设计与实施分工](../proposals/skills-and-mcp/foundation-boundaries.md)，本次实际验证与限制见[实施记录](../records/agent-foundations.md)。本页是操作指引，不表示外部服务已在每个环境部署。
+面向管理员和部署者。外部工具通过组织工作连接装配给员工；平台文件读写直接提供，运行程序则需要已验收的 OpenSandbox。
 
-## 1. 升级应用与备份
+## 接入前准备
 
-1. 备份现有 SQLite、模型主密钥和工具主密钥（模型密钥路径追加 `.tools`）；已有文件目录也一并备份。不要打印或提交真实凭证。
-2. 在项目根运行 `make setup-backend`、`make db-upgrade` 升级到当前 head。`0006` 建立工具、文件和沙箱底座，`0007` 增加 MCP 服务、账号和个人绑定；不会把旧 CI 凭证迁入通用工具。
-3. 构建前端并重启单后端进程；当前仍使用单主机 Runner，不使用多个后端 worker。
+新环境先安装后端依赖、升级数据库并初始化管理员。已有环境先按[数据库迁移](backend-operations.md#数据库迁移)停写、备份并核对升级条件，尤其是已有工具和知识资源的 0028 接纳清单。升级使用当前 `head`，不只停留在某个旧功能的引入版本。
 
-## 2. 先让文件工具可用
+前端重新构建，后端保持单进程。以下部署配置写入服务实际使用的环境，修改后重启。
 
-1. 管理员从“能力库 → 平台工作区”创建原生工作区。平台直接提供受信目录，无须安装外部 MCP。
-2. 在员工“能力装配 → 工具装配”选择 `read_file`、`ls`、`glob`、`grep`，按需要增加 `write_file`、`edit_file`；删除需要另选 `delete`。
-3. 在高级范围约束中指定只读输入/来源及可写工作区/输出。页面提供初始 JSON，服务端验证才是最终权限；与员工配置一起保存。
-4. 上传一个小 CSV，发送“读取输入，生成一个 CSV 到 /outputs/”。检查实际工具步骤，再下载产物并刷新复核。附件不能仅凭文件 ID 越过对话权限。
+## 验证文件读写
 
-当前 UI 上传提示为 10 MiB；虚拟文本单文件仍只有 128 KiB，总量 512 KiB。大文件和二进制请使用后面的沙箱工作区。
+无需登记文件插件或原生连接。新对话可以读取本次输入、获准资料和技能文件，写入 `/workspace/` 与 `/outputs/`；不能借此访问后端宿主目录。
 
-## 3. 接搜索与网页
+上传一份小型 UTF-8 CSV，让员工读取并把汇总文件保存到 `/outputs/`。核对执行日志与正式回复中的下载文件。未配置沙箱时，文本工作区单文件上限 128 KiB、可写总量 512 KiB，不能执行程序；附件上传限额与工作区限额分别检查。
 
-1. 准备 Tavily 的受限服务凭证；从“能力库 → 接入 MCP”登记服务，地址使用 `https://mcp.tavily.com/mcp/`，再创建 Bearer Token 账号连接。凭证保存在服务端，不拼到 URL。
-2. 点击“检查连接与目录更新”，检查返回名称、描述和 schema，再“确认候选目录”。只保存 Token 或发现候选均不能让员工装配操作。
-3. 在员工“能力装配 → 工具装配”点击“刷新连接列表”，选择 `tavily_search`、`tavily_extract`，设置调用预算、账号方式与必要参数限制，保存员工配置。需要读取长来源时，同时授予原生 `read_file` 的 `/sources` 范围。目录管理在新标签页完成，刷新不会清除当前员工草稿。
-4. 发送一个需要当前资料的问题，核对实际搜索、所选页面的提取、来源状态和保存材料。搜索摘要不代表已读全文，提取失败不能展示为已核实。
+## 接入 HTTP 工具
 
-默认仅允许 `mcp.tavily.com`。其他服务由部署者在 `TOOL_MCP_ALLOWED_HOSTS` 明确列出；受控内网另用 `TOOL_MCP_PRIVATE_HOSTS`，链路本地和云元数据仍禁止。传输不自动使用环境代理。若本机代理 DNS 返回保留/私有地址，默认会拒绝；应在具有正常公共解析和出口的后端部署，或由部署者明确建立受控路径，不自动放宽网络策略。
+以 Tavily 搜索和页面提取服务为例：
 
-遇到“工具域名解析到未获准的私网或保留地址”时，请先检查运行后端的机器，而非浏览器是否能打开网站。若确认是部署者控制的代理 DNS 映射，且已验证目标主机的 HTTPS 证书和路由，可仅在该环境的 `backend/.env` 显式设置 `TOOL_MCP_PRIVATE_HOSTS=mcp.tavily.com`（有其他受控域名时追加），重启后端后重新检查目录。该设置表示信任此域名的私网解析，不能照搬给任意服务；不修改项目默认值，线上使用正常公共 DNS 时不需要它。TLS 校验、原始 Host/SNI、链路本地和云元数据拒绝继续生效。域名无法解析时会显示独立的 DNS 错误；此时更换 Token 无法修复网络。
+1. 从“能力库 → 添加能力 → 添加 MCP 服务”进入接入页，填写服务地址 `https://mcp.tavily.com/mcp/`，在访问设置中选择 Bearer Token 并保存凭据。不要把凭据拼入地址。
+2. 点击“保存并测试”。在返回的“可用工具”中核对实际名称、说明和参数，点击“确认工具列表”；已有连接使用“检查工具更新”“应用工具更新”。
+3. 打开员工“能力装配”，选择该工作连接，只勾选任务需要的搜索和提取操作，例如清单中提供的 `tavily_search`、`tavily_extract`。设置调用上限及已有范围规则，再点击员工“保存配置”。
+4. 发起一项需要查询公开资料的工作，检查实际搜索、页面提取和返回来源。提取失败时，不能把搜索摘要当成已读全文。
 
-第三方提取只处理适合交给该服务的公开网页。登录、点击、表单、内部站点和完整浏览器自动化未在首版开放。MCP 协议成功也不证明特定服务的账号额度、费用或资源范围，需用实际账号完成有界联调。
+HTTP(S) 地址可以指向后端可达的本机、内网或外部服务，不需要维护部署域名白名单。地址不能包含用户名、密码、查询参数或片段；密钥在访问设置中保存。传输不自动读取环境 HTTP 代理，域名解析失败时先检查后端网络与 DNS；401 则检查认证。
 
-## 4. 在 Linux 部署 OpenSandbox
+不同服务的额度、费用和数据访问范围由其账号决定。先用小范围请求联调，并只装配需要的操作。完整的地址与调用限制见[工具规则](../reference/mcp.md)。
 
-### 可信本机 MCP
+## OAuth 与 Notion 接入
 
-需要运行 `npx/bunx/python` stdio MCP 时，可在 Mac 或 Linux 后端的环境中开启以下配置，不需要 Docker 或另起 OpenSandbox 容器：
+工具 OAuth 使用本站浏览器来源，和 GitHub 登录分开配置。
+
+1. 将实际浏览器来源加入 `AUTH_ALLOWED_ORIGINS`。线上使用 HTTPS 并设置 `AUTH_COOKIE_SECURE=true`；工具回调默认使用发起授权的受信任来源，固定路径为 `/api/tool-connections/oauth/callback`。
+2. 服务方要求固定回调时，再设置 `TOOL_OAUTH_CALLBACK_URL`。其来源必须在允许列表中，浏览器也须从同一来源发起授权；反向代理要将该路径转发到后端。
+3. 在 MCP 接入页填写 `https://mcp.notion.com/mcp`，认证选择“OAuth（浏览器授权）”，通常可先保留高级参数为空。服务要求预注册客户端时，填写其提供的 Client ID、Secret 和 scopes。
+4. 点击“保存并连接账号”，在 Notion 页面选择工作空间并核对授权。已有连接可点击“连接账号”或“重新连接账号”。返回后读取并确认工具列表，再到员工配置中选入所需操作。
+5. 刷新后核对连接状态，再做一次实际操作。状态为 `reauth_required` 时重新授权；临时网络错误先检查网络。平台“断开账号”清理本地授权，服务方的连接撤销需在其账号中另行处理。
+
+Notion 的连接要求见[官方接入说明](https://developers.notion.com/guides/mcp/get-started-with-mcp)，可用工具与额度以实际账号为准。
+
+回调查询串可能含授权码，后端、网关及上游代理都应避免记录完整请求 URL。应用对工具回调采用不缓存、不发送来源的响应策略，并过滤固定回调路径的 Uvicorn 访问日志；代理日志需单独配置。更换域名后更新来源和固定回调，再重新连接旧来源授权。
+
+## 接入可信本机程序
+
+stdio MCP 运行在后端宿主上，具有服务账号的权限，不提供容器级隔离。部署者确认程序可信后，在后端环境开启：
 
 ```dotenv
 TOOL_MCP_STDIO_ENABLED=true
@@ -42,9 +51,9 @@ TOOL_MCP_STDIO_MAX_PROCESSES=4
 TOOL_MCP_STDIO_WAIT_SECONDS=10
 ```
 
-默认关闭。重启后由管理员在能力库登记可信程序、固定包版本和环境变量键；账号页保存对应变量值，再检查、确认目录并给员工装配。先确保相同宿主账号可找到 `npx`、`bunx` 或绝对解释器路径，提前安装依赖，避免第一次下载超时。导入 JSON 不执行安装，程序启动只发生在目录检查或实际调用。
+确保后端服务账号能找到程序，提前安装依赖并固定版本。导入配置只解析内容，“保存并测试”会启动程序并读取工具。平台内置代码执行和技能脚本仍通过沙箱运行，不使用此入口。
 
-以 Context7 为例，下面是本机实际验证过的固定版本配置，可粘贴到“导入配置”：
+以下固定版本的 Context7 配置可作为快捷导入示例，实际版本要求按[服务方说明](https://context7.com/docs/resources/all-clients)核对：
 
 ```json
 {
@@ -57,29 +66,38 @@ TOOL_MCP_STDIO_WAIT_SECONDS=10
 }
 ```
 
-点击“检查导入配置 → 填入接入表单 → 保存服务”；手填等价于程序 `npx`、参数 `["-y", "@upstash/context7-mcp@4.4.4"]`、环境变量名留空。创建个人连接后检查并确认目录，可看到 `resolve-library-id` 和 `query-docs`，最后到员工页面主动装配。这份配置以匿名方式调用，实际可用性受服务方限额影响；需要个人 API Key 时，在登记配置的 `env` 中声明 `CONTEXT7_API_KEY` 空位，再在账号连接里填写真实值；已有匿名服务可先在“编辑服务信息”补充允许的字段，再点击现有连接的“配置密钥”，不必重建 MCP。不将密钥放入公开启动参数。参见 [Context7 官方客户端配置](https://context7.com/docs/resources/all-clients)。
+通过“快捷导入”的“解析并填入”回填表单，核对程序和参数后保存、测试、确认工具列表。需要密钥时，在服务信息的“允许配置的凭据字段”声明 `CONTEXT7_API_KEY`，再在工作连接的“配置密钥”中填写值，不把密钥写入公开启动参数。
 
-如果检查阶段提示“部署尚未开启可信本机 MCP”，说明当前实例未开启前述开关；更换 JSON 不会解决。若能保存服务但发现目录超时，再核对 Node 版本、包下载与后端机器的外网连接。Context7 `4.4.4` 要求 Node.js 至少 `20.18.1`。
+提示“部署尚未开启可信本机 MCP”时，先开启部署开关并重启；目录读取超时则检查程序路径、依赖下载和后端外网。连接与任务结束后由平台回收进程组及临时目录，主动脱离进程组的程序不属于恶意代码隔离保证。
 
-这是宿主子进程，拥有后端账号权限，只有实例数与等待时间限制，不提供容器 CPU/内存/网络隔离。管理员应同时信任程序和暴露工具的实现，不向普通用户开放会把参数当宿主代码执行的工具；平台不能仅凭 schema 自动判断服务的所有行为。平台内置的代码执行与 Skill 脚本仍需要下面的 OpenSandbox 配置，导入包不会成为宿主进程启动定义。不同 Run/账号不会共用此进程；任务结束和停服负责回收进程组及临时目录。
+## 部署 OpenSandbox
 
-### OpenSandbox 服务
+以下按同机 Linux、Docker 和 gVisor `runsc` 部署。服务模板使用 OpenSandbox `1.1.1`；应用 SDK 和适配包版本以仓库锁文件为准。准备步骤与[官方配置说明](https://open-sandbox.ai/getting-started/configuration)对照执行。
 
-模板位于 [deploy/opensandbox](../../deploy/opensandbox/sandbox.example.toml)。本轮选择 OpenSandbox 服务/SDK `1.1.1`、Docker、gVisor `runsc`，适配包锁定 `langchain-sandbox-opensandbox==0.1.2`；应用依赖见 pyproject/uv.lock。目标是腾讯云 Linux 单机，不需要 Kubernetes。服务端操作按[官方部署与配置](https://open-sandbox.ai/getting-started/configuration)及[安全运行时](https://open-sandbox.ai/guides/secure-container)复核。
+1. 在目标主机安装 Docker Engine 和对应架构的 `runsc`，验证运行时可用。云虚拟机可先验证 `systrap`，不依赖嵌套虚拟化。
+2. 为专用 Docker 数据目录配置有效磁盘配额。[daemon 示例](../../deploy/opensandbox/daemon.example.json)采用 overlay2/XFS project quota，每可写层 256 MiB；宿主文件系统需支持配额，`runsc` 使用 `--overlay2=none`。先合并核对已有 Docker 配置，不直接覆盖或重启承载其他服务的 daemon。
+3. 用专用服务身份安装固定版本：
 
-1. 安装 Docker Engine 与对应架构的 runsc。云虚拟机优先验证 `systrap`，不以 KVM 或嵌套虚拟化为前提。
-2. 对专用 Docker 数据目录配置真实磁盘配额。[daemon 示例](../../deploy/opensandbox/daemon.example.json)采用 overlay2/XFS project quota、每可写层 256 MiB；宿主 XFS 须支持对应配额，runsc 使用 `--overlay2=none`。不要覆盖现有 Docker 配置或自动重启承载其他服务的 daemon；若存储驱动不支持该方式，先实现等效硬配额，再运行验收。
-3. 以受信控制服务身份安装固定版本：`uv venv /opt/niuma-sandbox/server-venv`，再执行 `uv pip install --python /opt/niuma-sandbox/server-venv/bin/python opensandbox-server==1.1.1`。该身份的 Docker 访问属于主机控制权限，不给工作负载。
-4. 复制 [server TOML 模板](../../deploy/opensandbox/sandbox.example.toml)到权限受限的配置文件，替换 API Key。execd/egress 使用对应发行版镜像，部署时固定验收 digest。保持 bridge、runsc、no-new-privileges、PID 上限、dns+nft、禁 IPv6、空宿主路径授权与关闭自动续租。
-5. 用[工作负载 Dockerfile](../../deploy/opensandbox/Dockerfile)构建镜像：显式提供 `--build-arg PYTHON_IMAGE=python:3.12-slim-bookworm@sha256:<已验证摘要>`。镜像预装 Python、Git、Node 和进程管理工具，工作用户 UID/GID 为 1000。构建后将工作负载固定为 registry digest 或本机 `sha256:<image-id>`，不使用浮动标签运行。
-6. 同机服务仅监听回环地址，工作负载端口也绑定回环；后端使用服务代理访问文件/命令。跨主机另配置受限内网和 TLS，必须同时验证管理 API 与文件/命令通道。Docker socket 和应用数据目录不进入工作负载。
-7. [systemd 模板](../../deploy/opensandbox/niuma-opensandbox.service)供显式配置控制服务身份与启动路径。模板不会自动修改主机、安装软件或启用服务。
+   ```bash
+   uv venv /opt/niuma-sandbox/server-venv
+   uv pip install --python /opt/niuma-sandbox/server-venv/bin/python opensandbox-server==1.1.1
+   ```
 
-隔离配置的目标是：命令与子进程不能获取平台凭证，输入不可修改，工作负载不能通过直连、IPv6、私网或云元数据绕过网络边界，CPU/内存/进程/磁盘受限。Docker、域名列表或提示词单独存在都不等于这些目标已经满足。
+4. 在仓库根运行 `make sandbox-init`，生成私有服务配置，并将相同密钥和本机地址写入 `backend/.env`。默认服务配置位于 `backend/.data/opensandbox/sandbox.toml`；重复运行保留已有密钥，不启动服务或生成验收文件。需要部署到 `/etc/niuma-sandbox` 时，显式指定目录：
 
-## 5. 验收与启用代码能力
+   ```bash
+   backend/.venv/bin/python scripts/init_sandbox.py --directory /etc/niuma-sandbox --app-env /绝对路径/backend/.env
+   ```
 
-在应用配置或部署秘密中设置以下非秘密项和管理密钥，参见 [env 示例](../../backend/.env.example)：
+5. 使用[工作负载 Dockerfile](../../deploy/opensandbox/Dockerfile)构建镜像，显式传入已核对摘要的 `PYTHON_IMAGE`。镜像包含 Python、Git、Node 和进程工具，命令以 UID/GID 1000 执行。将最终工作负载固定为 registry digest 或本机 `sha256:<image-id>`。
+6. 检查生成的[服务配置](../../deploy/opensandbox/sandbox.example.toml)：保持回环监听、bridge、`runsc`、`no-new-privileges`、PID 上限、`dns+nft`、禁用 IPv6、空宿主路径许可和关闭自动续租。execd 与 egress 镜像按匹配发行版固定摘要，Docker socket 和平台数据不挂入工作负载。
+7. 按服务身份可读的路径启动 `opensandbox-server --config /绝对路径/sandbox.toml`。[systemd 模板](../../deploy/opensandbox/niuma-opensandbox.service)默认使用 `/etc/niuma-sandbox/sandbox.toml`，路径须与第 4 步一致；默认初始化路径与模板路径不能混用。
+
+服务身份拥有 Docker 控制权限，工作负载不应继承该权限。连接已有 OpenSandbox 时，直接使用其地址和密钥，不运行本机初始化覆盖它。
+
+## 验收并启用代码执行
+
+在后端环境填写以下配置。`make sandbox-init` 已写入的地址、密钥和验收文件路径保持一致；密钥通过私有配置或秘密管理注入，不写入示例或日志。
 
 ```dotenv
 OPENSANDBOX_ENDPOINT=http://127.0.0.1:8080
@@ -93,30 +111,44 @@ OPENSANDBOX_COMMAND_SECONDS=60
 OPENSANDBOX_TTL_SECONDS=240
 ```
 
-API Key 通过私有环境或秘密管理注入 `OPENSANDBOX_API_KEY`。镜像及 UID、网络、资源配置变化后重新验收。
+1. 在实际运行沙箱的 Linux Docker 主机进入 `backend/`，使用同一环境执行：
 
-1. 在实际 Docker Linux 主机、backend 目录运行 `uv run python -m app.sandboxes.verify --output /etc/niuma-sandbox/verified-profile.json`。验证程序会创建自己标记的短时环境，检查真实 Docker runtime、UID、权限、资源、网络和实际磁盘拒绝行为，最后销毁；未通过不生成可用依据。磁盘试验最多写到指定上限，请保留主机空间。
-2. 检查主机 nftables/防火墙与 IPv6 路径，额外覆盖宿主和非许可内网的真实可达测试；脚本中的有限网络探针不代表穷尽所有旁路。验收文件是受信部署依据，当前有效期一天；应由运维在配置不变的条件下定期更新。
-3. 重启应用，工具页沙箱状态就绪后创建“原生沙箱工作区”，为员工选择文件工具及 `execute`。每员工最多启用一个原生工作区连接；替换旧连接时同次保存许可集合。
-4. 让员工执行简单 Python、处理 CSV、将结果写到 `/outputs/`。核对实际退出码、日志、可下载文件、取消后进程停止，以及回收后文件仍可下载。
-5. 模拟创建超时、销毁失败和后端重启。确认资源债务仍可查询，后台仅回收本部署归属，不恢复旧容器继续运行。没有真实目标主机的验收，不将代码能力标为可用。
+   ```bash
+   uv run python -m app.environments.verify --output /etc/niuma-sandbox/verified-profile.json
+   ```
 
-## 6. 回收、故障与维护
+   输出路径须与 `OPENSANDBOX_VERIFIED_PROFILE` 一致。程序会创建测试沙箱，检查实际运行时、UID、权限、CPU、内存、进程限制、网络和磁盘拒绝行为，最后销毁。默认磁盘探针最多写到约 256 MiB，主机需预留空间。
 
-普通销毁失败保留待清理资源，应用每隔一段时间和启动时重试；管理服务 TTL 作为最后补偿。工具页 `/api/sandbox-status` 公开给管理员当前资源状态，不含管理密钥。
+2. 补查主机防火墙、IPv6、宿主及内网可达路径。脚本的有限探针不覆盖全部网络旁路。通过后的验收文件有效期为 24 小时，部署者须定期重新验收；镜像、资源或隔离配置变化后也需重做。
+3. 确认业务数据库已升级到当前 `head`，重启后端。在员工“能力装配”顶部检查“代码执行：已就绪”。配置与验收匹配后，新受理工作自动使用沙箱，无需创建文件插件或增加员工代码许可。
+4. 让员工读取小型 CSV、执行简单 Python、将结果写入 `/outputs/`。核对退出码、文件下载及内容，再测试取消、创建超时、回收失败与重启后的清理结果。
 
-创建超时且尚未取得远端 ID 时，空查询不能证明请求不会晚到，平台保守占用容量并持续核对。运维可在 backend 目录运行 `uv run python -m app.sandboxes.cli` 查看申请 ID、Run、期限及清理次数。核对服务日志、实际资源和到期时间，确认过期请求没有遗留环境后，使用 `--resolve-absent <申请ID> --confirm-absent` 释放这条逻辑占用；命令仍会再次按精确 metadata 查询。未过期或已记录远端 ID 的资源不能用此方式消除记录。
+验收文件只说明所记录配置的检查结果，实际服务、网络和文件下载仍需上述联调。更换密钥时同步修改应用与服务端，再重启相关服务。
 
-文件字节、SQLite 和密钥按各自用途备份；临时沙箱与 checkpoint 不替代正式文件。`FILES_*`、`RUN_MAX_TOOL_CALLS` 与沙箱环境上限来自部署配置，员工许可只能收紧。修改配置需重启，新 Run 重新固定依据，旧 Run 不透明换身份、镜像或额度。
+## 回收与故障处理
 
-## 从标准目录同步 Skill
+工作结束后释放沙箱；销毁失败会保留待回收记录，应用启动和后台维护继续重试，服务 TTL 提供到期回收。临时容器不用于恢复旧任务，也不替代正式文件备份。
 
-`SKILL_LIBRARY_DIR` 默认运行后端的系统用户目录 `~/.agents/skills/`。这是 [Agent Skills 官方接入指南](https://agentskills.io/client-implementation/adding-skills-support#where-to-scan) 推荐的跨客户端目录约定，不是包格式强制的位置。Mac 开发时使用本机用户目录；Linux 使用服务用户目录，不能读取网页访问者电脑的技能。管理员显式同步才会把该目录的包登记到平台共享能力库，启动时不自动扫描或发布。共享部署可显式指定独立持久目录，容器部署需挂载到配置路径并给予后端读写权限。已有 `SKILL_STORAGE_DIR` 是运行快照存储，不要把两个目录配置为同一处。
+在 `backend/` 用服务实际环境查看记录：
 
-旧版默认使用数据库父目录下 `.agents/skills`；升级时若已有技能，可显式配置原目录继续使用，或停服后将完整技能目录迁往新位置。平台不自动合并两个根目录，也不改已发布版本与员工装配关系。
+```bash
+uv run python -m app.environments.cli
+```
 
-每个直接子目录包含 `SKILL.md`，目录名与其中 `name` 相同；scripts、references、assets 等文件随包保存。通过命令行安装时，将安装器目标设置为页面显示的实际路径，或把完整标准技能目录复制进去；不保证任意 CLI 默认安装位置恰好相同。不要使用指向其他位置的符号链接，当前有界扫描会拒绝。
+创建结果未知且尚无远端 ID 时，平台会保留容量占用。先核对服务日志、实际资源与到期时间；确认已过期且没有遗留环境后，才可执行：
 
-在能力库点击“同步目录技能”，先核对展示的后端路径，再执行同步并查看新增、更新、无变化、来源缺失和错误。新增技能使用包内名称，可在配置页设置显示别名；更新保留员工关联。上传/在线创建也写入同一目录。外部编辑后先同步，再继续页面编辑，避免互相覆盖。目录被删除时保留已发布内容，不自动删除或解除员工装配。
+```bash
+uv run python -m app.environments.cli --resolve-absent <申请ID> --confirm-absent
+```
 
-备份需包含数据库、标准目录和不可变技能存储。正式迁移只增加关联和输入描述字段，不在数据库升级时读取技能文件；旧技能在首次同步时物化到标准目录。同名不同内容先报冲突，需要核对后处理。同步不会执行脚本、安装依赖或自动给员工装配。
+命令会再次按归属信息查询。尚未到期、已取得远端 ID 或归属其他部署的记录，不能用此方式清除。
+
+## 同步目录技能
+
+`SKILL_LIBRARY_DIR` 默认指向后端服务用户的 `~/.agents/skills/`，不是网页访问者的电脑。共享部署可指定独立持久目录；它与 `SKILL_STORAGE_DIR` 的不可变存储必须分开。
+
+1. 在该目录下放置标准技能包，每个直接子目录包含 `SKILL.md`，目录名与包内 `name` 一致。将需要的 scripts、references、assets 一并复制，不能使用指向其他位置的符号链接。
+2. 管理员在“能力库”更多操作中选择“从服务器目录同步技能”，核对后端路径，再点击“同步到能力库”。查看新增、更新、无变化、来源缺失和错误；同步不执行脚本或安装依赖。
+3. 在员工“能力装配”选入同步后的技能并保存配置。目录同步不会自动装配给员工，删除来源目录也不会自动删除已发布内容。
+
+在线创建和上传技能也使用这份标准目录。外部编辑后先同步，再继续页面编辑；同名不同内容发生冲突时先核对来源。备份同时保留数据库、标准目录和不可变技能存储。

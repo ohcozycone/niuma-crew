@@ -5,8 +5,7 @@ import { clientFailure } from "@/lib/failures/resolve";
 import { PageContainer } from "@/components/common/PageContainer";
 import { AgentCapabilityAssembly } from "./AgentCapabilityAssembly";
 import { FormField } from "@/components/common/FormField";
-import { ResourceIcon } from "@/components/common/ResourceIcon";
-import { Link } from "react-router";
+import { AgentInstructions } from "./AgentInstructions";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/Dialog";
 import { useEditingRegistration } from "@/state/editing/useEditing";
 import { ConfigurationConflict } from "@/components/configuration/ConfigurationConflict";
@@ -17,8 +16,9 @@ import { identityKey } from "@/lib/identity";
 import { useDraft } from "@/hooks/useDraft";
 import { draftKey, clearDraft } from "@/lib/draft";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowRight, Camera, Eye, FileText, Save } from "lucide-react";
+import { ArrowRight, Camera, Check, Eye, Save } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ButtonGroup } from "@/components/ui/ButtonGroup";
 import { PageHeading } from "@/components/common/PageHeading";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -34,29 +34,14 @@ import { AgentCard } from "@/pages/agents/AgentCard";
 import { toAgentPresentation } from "./agentPresentation";
 import { type Agent as Agent } from "@/lib/models/agent";
 import { type SkillListItem } from "@/lib/models/skill";
-import { InheritedRules } from "@/components/organization-rules/InheritedRules";
-import { EmployeeKnowledge } from "@/components/knowledge/EmployeeKnowledge";
 const categories = ["财务行政", "知识管理", "内容创作", "研究分析", "客户服务", "研发协作", "其他"];
 export type ConfigurationTab = "identity" | "instructions" | "capabilities";
-const instructionTemplate = `岗位目标
-[填写服务对象，以及希望帮助他们完成什么。]
-
-职责范围
-- [填写主要负责的工作。]
-- [如有需要，说明不承担的工作。]
-
-工作方式
-- [填写完成任务需要的信息及处理步骤。]
-- [说明信息不足时如何处理。]
-- [如有需要，说明哪些事项交由人工确认。]
-
-交付要求
-[填写期望的输出内容、格式和表达方式。]`;
 function initialDraft(value: Agent | "new") {
   const agent = value === "new" ? null : value;
   return {
     revision: agent?.revision ?? 0,
     toolGrants: agent?.toolGrants ?? [],
+    knowledge: agent?.knowledge ?? { knowledge_base_ids: [], mode: "on_demand" as const, top_k: 6 },
     name: agent?.name || "",
     description: agent?.description || "",
     category: agent?.category || "财务行政",
@@ -82,6 +67,7 @@ export function AgentConfiguration({
   value,
   skills,
   saving,
+  readOnly = false,
   onDelete,
   initialTab = "identity",
   onClose,
@@ -93,6 +79,7 @@ export function AgentConfiguration({
   skillTotal?: number;
   skills: SkillListItem[];
   saving: boolean;
+  readOnly?: boolean;
   onDelete?: () => void;
   initialTab?: ConfigurationTab;
   onTabChange?: (tab: string) => void;
@@ -119,6 +106,7 @@ export function AgentConfiguration({
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [error, setError] = useState("");
   const dirty = snapshot(draft) !== snapshot(baseline);
+  const unchanged = !!editing && !dirty;
   const avatar = findAvatar(draft.avatarId);
   const [modelReady, setModelReady] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -132,11 +120,12 @@ export function AgentConfiguration({
     toolCount: (draft.toolGrants ?? baseline.toolGrants)
       .filter((grant) => grant.enabled)
       .reduce((count, grant) => count + grant.tools.length, 0),
-    knowledgeBaseCount: editing?.knowledgeBaseCount ?? 0,
+    knowledgeBaseCount: (draft.knowledge ?? baseline.knowledge).knowledge_base_ids.length,
     deliverables: editing?.deliverables ?? [],
     exampleTasks: editing?.exampleTasks ?? [],
     ...draft,
     toolGrants: draft.toolGrants ?? baseline.toolGrants,
+    knowledge: draft.knowledge ?? baseline.knowledge,
     revision: draft.revision,
     configurationLoaded: editing?.configurationLoaded ?? false,
     skillAssignments: draft.skills.map((skillId) => ({
@@ -170,6 +159,7 @@ export function AgentConfiguration({
   }
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (readOnly) return;
     if (saving || submitting.current) return;
     if (editing && !dirty) return;
     if (!toolsValid) {
@@ -256,37 +246,32 @@ export function AgentConfiguration({
         />
         <fieldset disabled={saving || !!recovery.stale} className="min-w-0">
           <PageHeading
-            title={editing ? "编辑员工" : "创建数字员工"}
+            title={readOnly ? "员工详情" : editing ? "编辑员工" : "创建数字员工"}
             description="配置身份、工作要求与可用能力。"
             actions={
-              <div
-                aria-label="员工配置操作"
-                role="group"
-                className="flex flex-wrap items-center justify-end gap-2"
-              >
-                <span role="status" className="type-caption">
-                  {saving
-                    ? "正在保存…"
-                    : dirty
-                      ? "有未保存的修改"
-                      : editing
-                        ? "已保存"
-                        : "尚未保存"}
-                </span>
+              <div className="flex flex-wrap items-center gap-6 @max-[640px]/page:gap-3">
                 {onDelete && (
-                  <Button type="button" variant="destructive" onClick={onDelete}>
+                  <Button type="button" variant="destructive-ghost" onClick={onDelete}>
                     删除员工
                   </Button>
                 )}
-                {(!editing || dirty || saving) && (
-                  <Button type="submit">
-                    <Save size={16} />
-                    保存配置
+                <ButtonGroup aria-label="员工配置操作" role="group">
+                  <Button type="button" variant="outline" onClick={onClose}>
+                    返回
                   </Button>
-                )}
-                <Button type="button" variant="outline" onClick={onClose}>
-                  返回
-                </Button>
+                  <Button type="submit" loading={saving} disabled={readOnly || unchanged}>
+                    {unchanged ? <Check size={16} /> : <Save size={16} />}
+                    <span className="min-w-[4em]">
+                      {readOnly
+                        ? "只读浏览"
+                        : saving
+                          ? "保存中…"
+                          : unchanged
+                            ? "已保存"
+                            : "保存配置"}
+                    </span>
+                  </Button>
+                </ButtonGroup>
               </div>
             }
           />
@@ -325,214 +310,152 @@ export function AgentConfiguration({
             ]}
           >
             <TabsContent value="identity" className="m-0 pt-2">
-              <div className="configuration-layout gap-10">
-                <section
-                  aria-labelledby="agent-profile-heading"
-                  className="min-w-0 space-y-8 @container/identity"
-                >
-                  <h2
-                    id="agent-profile-heading"
-                    className="type-section border-b border-border pb-4"
+              <fieldset disabled={readOnly} className="min-w-0">
+                <div className="configuration-layout gap-10">
+                  <section
+                    aria-labelledby="agent-profile-heading"
+                    className="min-w-0 space-y-8 @container/identity"
                   >
-                    员工资料
-                  </h2>
-                  <div className="flex min-w-0 flex-wrap items-center gap-x-8 gap-y-5">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="group relative size-28 shrink-0 rounded-full p-0 hover:bg-transparent has-[>svg]:px-0"
-                      aria-label="更换头像"
-                      aria-haspopup="dialog"
-                      aria-expanded={avatarOpen}
-                      title="更换头像"
-                      onClick={() => setAvatarOpen(true)}
+                    <h2
+                      id="agent-profile-heading"
+                      className="type-section border-b border-border pb-4"
                     >
-                      <span className="flex size-full shrink-0 items-center justify-center overflow-hidden rounded-full bg-avatar-bg transition-colors group-hover:bg-muted">
-                        <AgentAvatar
-                          avatarId={preview.avatarId}
-                          size="100%"
-                          alt={avatar?.name ?? "当前员工头像"}
-                          className="size-full"
-                        />
-                      </span>
-                      <span
-                        aria-hidden="true"
-                        className="absolute -right-1 bottom-1 flex size-6 items-center justify-center rounded-full bg-action/65 text-action-text transition-colors group-hover:bg-action/80"
-                      >
-                        <Camera strokeWidth={1.5} className="size-3.5" />
-                      </span>
-                    </Button>
-                    <div className="min-w-0 flex-1 basis-44">
-                      <AgentModelConnectionField
-                        value={draft.modelConnectionId}
-                        onChange={(id) => update("modelConnectionId", id)}
-                        onReadinessChange={setModelReady}
-                      />
-                    </div>
-                  </div>
-                  <div className="@container">
-                    <div className="form-grid items-start gap-8">
-                      <FormField
-                        label={
-                          <>
-                            员工名称{" "}
-                            <span aria-hidden="true" className="text-brand">
-                              *
-                            </span>
-                          </>
-                        }
-                        htmlFor="agent-name"
-                        error={error || undefined}
-                      >
-                        <Input
-                          id="agent-name"
-                          autoComplete="off"
-                          aria-required="true"
-                          maxLength={24}
-                          placeholder="为员工起个名字"
-                          value={draft.name}
-                          onChange={(event) => update("name", event.target.value)}
-                        />
-                      </FormField>
-                      <FormField label="岗位分类" htmlFor="agent-category">
-                        <SelectField
-                          options={categories.map((value) => ({ value, label: value }))}
-                          value={draft.category}
-                          onValueChange={(value) => update("category", value)}
-                          id="agent-category"
-                          className="w-full"
-                        />
-                      </FormField>
-                    </div>
-                  </div>
-                  <FormField
-                    label="员工简介"
-                    htmlFor="agent-description"
-                    description="展示在员工卡片中，帮助同事了解适合交给他的工作。"
-                  >
-                    <Textarea
-                      id="agent-description"
-                      value={draft.description}
-                      maxLength={500}
-                      rows={4}
-                      className="min-h-36 [field-sizing:fixed]"
-                      placeholder="例如：协助技术方案设计与问题排查，说明依据和下一步。"
-                      onChange={(event) => update("description", event.target.value)}
-                    />
-                  </FormField>
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
-                    <span className="type-caption">
-                      {modelReady && draft.name.trim()
-                        ? "名称和大脑已配置，保存后可开始对话。"
-                        : "可先保存资料，装配可用大脑后再开始对话。"}
-                    </span>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setTab("instructions")}
-                    >
-                      继续配置指令与知识
-                      <ArrowRight size={16} />
-                    </Button>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="@min-[1008px]/page:hidden"
-                    onClick={() => setPreviewOpen(true)}
-                  >
-                    <Eye size={16} />
-                    预览员工卡片
-                  </Button>
-                </section>
-                <aside
-                  aria-label="员工配置预览"
-                  className="hidden min-w-0 pt-1 @min-[1008px]/page:block"
-                >
-                  <div className="type-caption mb-6 flex justify-between gap-3 border-b border-border pb-4">
-                    <span>员工预览</span>
-                    <span>随配置更新</span>
-                  </div>
-                  {previewCard}
-                </aside>
-              </div>
-            </TabsContent>
-            <TabsContent value="instructions" className="m-0 pt-2">
-              <div className="agent-instructions-layout">
-                <section className="min-w-0">
-                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                    <h2 className="type-section">
-                      <label htmlFor="agent-system-prompt">工作指令</label>
+                      员工资料
                     </h2>
-                    {!draft.systemPrompt.trim() && (
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-8 gap-y-5">
                       <Button
                         type="button"
                         variant="ghost"
-                        size="sm"
-                        onClick={() => update("systemPrompt", instructionTemplate)}
+                        className="group relative size-28 shrink-0 rounded-full p-0 hover:bg-transparent has-[>svg]:px-0"
+                        aria-label="更换头像"
+                        aria-haspopup="dialog"
+                        aria-expanded={avatarOpen}
+                        title="更换头像"
+                        onClick={() => setAvatarOpen(true)}
                       >
-                        <FileText size={16} />
-                        填入指令模板
+                        <span className="flex size-full shrink-0 items-center justify-center overflow-hidden rounded-full bg-avatar-bg transition-colors group-hover:bg-muted">
+                          <AgentAvatar
+                            avatarId={preview.avatarId}
+                            size="100%"
+                            alt={avatar?.name ?? "当前员工头像"}
+                            className="size-full"
+                          />
+                        </span>
+                        <span
+                          aria-hidden="true"
+                          className="absolute -right-1 bottom-1 flex size-6 items-center justify-center rounded-full bg-action/65 text-action-text transition-colors group-hover:bg-action/80"
+                        >
+                          <Camera strokeWidth={1.5} className="size-3.5" />
+                        </span>
                       </Button>
-                    )}
-                  </div>
-                  <p className="type-description mb-4">描述职责、工作边界和答复要求。</p>
-                  <Textarea
-                    id="agent-system-prompt"
-                    value={draft.systemPrompt}
-                    maxLength={20000}
-                    placeholder={
-                      "你是谁，负责什么？\n信息不足时怎样处理？\n哪些事情需要人工确认？\n如何组织答案与引用来源？"
-                    }
-                    aria-describedby="prompt-help"
-                    className="min-h-112 [field-sizing:fixed] leading-7"
-                    onChange={(event) => update("systemPrompt", event.target.value)}
-                  />
-                  <div className="type-caption mt-2 flex flex-wrap justify-between gap-3">
-                    <span id="prompt-help">员工的常驻指令；具体任务在对话时输入。</span>
-                    <span>{draft.systemPrompt.length.toLocaleString()} / 20,000</span>
-                  </div>
-                </section>
-                <aside
-                  className="min-w-0 space-y-6 border-t border-border pt-6 @min-[1008px]/page:border-t-0 @min-[1008px]/page:border-l @min-[1008px]/page:pl-6 @min-[1008px]/page:pt-0"
-                  aria-label="规则与知识资料"
-                >
-                  <InheritedRules compact />
-                  <section
-                    aria-label="知识资料"
-                    className="border-t border-border pt-6 first:border-t-0 first:pt-0"
-                  >
-                    <h2 className="type-section inline-flex items-center gap-2">
-                      <ResourceIcon kind="knowledge" />
-                      知识资料
-                    </h2>
-                    <p className="type-description mt-3">
-                      为你使用这位员工时选择参考资料，知识范围与岗位指令独立维护。
-                    </p>
-                    <div className="mt-4">
-                      <EmployeeKnowledge agentId={editing?.id} agentName={draft.name} />
+                      <div className="min-w-0 flex-1 basis-44">
+                        <AgentModelConnectionField
+                          value={draft.modelConnectionId}
+                          onChange={(id) => update("modelConnectionId", id)}
+                          onReadinessChange={setModelReady}
+                        />
+                      </div>
+                    </div>
+                    <div className="@container">
+                      <div className="form-grid items-start gap-8">
+                        <FormField
+                          label={
+                            <>
+                              员工名称{" "}
+                              <span aria-hidden="true" className="text-brand">
+                                *
+                              </span>
+                            </>
+                          }
+                          htmlFor="agent-name"
+                          error={error || undefined}
+                        >
+                          <Input
+                            id="agent-name"
+                            autoComplete="off"
+                            aria-required="true"
+                            maxLength={24}
+                            placeholder="为员工起个名字"
+                            value={draft.name}
+                            onChange={(event) => update("name", event.target.value)}
+                          />
+                        </FormField>
+                        <FormField label="岗位分类" htmlFor="agent-category">
+                          <SelectField
+                            options={categories.map((value) => ({ value, label: value }))}
+                            value={draft.category}
+                            onValueChange={(value) => update("category", value)}
+                            id="agent-category"
+                            className="w-full"
+                          />
+                        </FormField>
+                      </div>
+                    </div>
+                    <FormField
+                      label="员工简介"
+                      htmlFor="agent-description"
+                      description="展示在员工卡片中，帮助同事了解适合交给他的工作。"
+                    >
+                      <Textarea
+                        id="agent-description"
+                        value={draft.description}
+                        maxLength={500}
+                        rows={4}
+                        className="min-h-36 [field-sizing:fixed]"
+                        placeholder="例如：协助技术方案设计与问题排查，说明依据和下一步。"
+                        onChange={(event) => update("description", event.target.value)}
+                      />
+                    </FormField>
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+                      <span className="type-caption">
+                        {modelReady && draft.name.trim()
+                          ? "名称和大脑已配置，保存后可开始对话。"
+                          : "可先保存资料，装配可用大脑后再开始对话。"}
+                      </span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setTab("instructions")}
+                      >
+                        继续配置指令与知识
+                        <ArrowRight size={16} />
+                      </Button>
                     </div>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="mt-4"
-                      render={<Link to="/knowledge" target="_blank" rel="noopener noreferrer" />}
-                      nativeButton={false}
+                      className="@min-[1008px]/page:hidden"
+                      onClick={() => setPreviewOpen(true)}
                     >
-                      管理知识库
-                      <ArrowRight size={16} />
-                      <span className="sr-only">（新标签页）</span>
+                      <Eye size={16} />
+                      预览员工卡片
                     </Button>
                   </section>
-                </aside>
-              </div>
+                  <aside
+                    aria-label="员工配置预览"
+                    className="hidden min-w-0 @min-[1008px]/page:block"
+                  >
+                    {previewCard}
+                  </aside>
+                </div>
+              </fieldset>
+            </TabsContent>
+            <TabsContent value="instructions" className="m-0 pt-2">
+              <fieldset disabled={readOnly} className="min-w-0">
+                <AgentInstructions
+                  value={draft.systemPrompt}
+                  onChange={(value) => update("systemPrompt", value)}
+                  knowledge={draft.knowledge ?? baseline.knowledge}
+                  onKnowledgeChange={(value) => update("knowledge", value)}
+                  readOnly={readOnly}
+                />
+              </fieldset>
             </TabsContent>
             <TabsContent value="capabilities" className="m-0 pt-2">
               <AgentCapabilityAssembly
-                personalConnectionsHref={editing ? `/agents/${editing.id}/connections` : undefined}
+                readOnly={readOnly}
                 tools={{
                   value: draft.toolGrants ?? baseline.toolGrants,
                   onChange: (grants) => update("toolGrants", grants),

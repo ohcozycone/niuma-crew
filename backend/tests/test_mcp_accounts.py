@@ -1,16 +1,14 @@
-"""Token onboarding, shared definitions and per-user runtime identities."""
-
 import asyncio
 import json
 from uuid import uuid4
 
 import pytest
-from test_agent_foundations import SearchClient, run_id, search_grant, send
-from test_capability_runtime import ScriptedModel, execute, response, setup
+from test_agent_foundations import SearchClient, search_grant
+from test_capability_runtime import setup
 
-from app.agents.tool_grants import assert_binding, capture_tools
+from app.employees.access import assert_binding
+from app.employees.assembly import capture_tools
 from app.errors import ConflictError
-from app.execution.models import Run
 
 
 def member(client):
@@ -21,162 +19,93 @@ def member(client):
     return actor
 
 
-def own_connection(client, service_id):
-    result = client.post(
-        "/api/tool-connections",
-        json={
-            "name": "我的账号",
-            "kind": "mcp_http",
-            "service_id": service_id,
-            "auth_type": "bearer",
-            "credential": "member-fixture-secret",
-            "public_config": {"url": "https://mcp.tavily.com/mcp"},
-        },
-    )
-    assert result.status_code == 201, result.text
-    candidate = client.post(f"/api/tool-connections/{result.json()['id']}/discover").json()
-    approved = client.post(
-        f"/api/tool-connections/{candidate['id']}/approve",
-        json={
-            "candidate_hash": candidate["discovery_candidate"]["hash"],
-            "expected_config_revision": candidate["config_revision"],
-            "expected_catalog_revision": candidate["catalog_revision"],
-        },
-    )
-    assert approved.status_code == 200, approved.text
-    return approved.json()
-
-
-def test_personal_account_is_not_shared_and_missing_connection_is_lazy(api_client, monkeypatch):
+def test_employee_uses_fixed_connection_for_every_caller(api_client):
     _, _, agent, _ = setup(api_client)
-    creator_connection = search_grant(api_client, agent)
-    actor = member(api_client)
-    listing = api_client.get("/api/tool-connections")
-    assert listing.status_code == 200, listing.text
-    assert creator_connection["id"] not in {row["id"] for row in listing.json()}
+    connection = search_grant(api_client, agent)
+    with api_client.app.state.database.transaction() as db:
+        before, _ = capture_tools(db, agent["id"])
+    member(api_client)
+    assert connection["id"] in {row["id"] for row in api_client.get("/api/tool-connections").json()}
+    with api_client.app.state.database.transaction() as db:
+        after, _ = capture_tools(db, agent["id"])
+        assert_binding(db, {"agent_id": agent["id"]}, after[0])
+    assert before == after
+    assert after[0]["connection_id"] == connection["id"]
     assert (
-        api_client.patch(
-            f"/api/tool-connections/{creator_connection['id']}",
+        not {"user_id", "account_mode", "personal_binding_id", "raw_descriptor", "metadata"}
+        & after[0].keys()
+    )
+    assert "fixture-tool-secret" not in json.dumps(after)
+    assert api_client.get(f"/api/agents/{agent['id']}/my-tool-bindings").status_code == 404
+    assert (
+        api_client.post(
+            "/api/tool-connections",
             json={
-                "expected_config_revision": 1,
-                "expected_credential_revision": 1,
-                "enabled": False,
+                "name": "member",
+                "kind": "mcp_http",
+                "public_config": {"url": "https://mcp.fixture/mcp"},
             },
         ).status_code
-        == 404
+        == 403
     )
-    conversation = api_client.post("/api/conversations", json={"agent_id": agent["id"]})
-    assert conversation.status_code == 201, conversation.text
-    accepted = send(api_client, conversation.json())
-    id = run_id(api_client, accepted)
-    with api_client.app.state.database.transaction() as db:
-        snapshot = db.get(Run, id).config_snapshot
-        tool = snapshot["tools"][0]
-        assert tool["auth_required"] and snapshot["tool_user_id"] == actor.user_id
-        assert "fixture-tool-secret" not in json.dumps(snapshot)
-    before = SearchClient.calls
-    model = ScriptedModel(
-        responses=[
-            response(
-                "",
-                [{"name": tool["exposed_name"], "id": "needs-account", "args": {"query": "hello"}}],
-            ),
-            response("请先连接本人账号。"),
-        ]
-    )
-    completed = execute(api_client, monkeypatch, model, {"id": id})
-    assert completed["status"] == "succeeded", completed
-    assert SearchClient.calls == before
-    assert "tool_auth_required" in " ".join(model.prompts)
-    assert api_client.get(f"/api/agents/{agent['id']}/usage").status_code == 200
     assert (
         api_client.patch(
-            f"/api/agents/{agent['id']}", json={"expected_revision": 2, "name": "不允许改"}
+            f"/api/agents/{agent['id']}", json={"expected_revision": 2, "name": "member edit"}
         ).status_code
         == 403
     )
 
 
-def test_personal_binding_selects_only_own_compatible_account_and_rechecks(api_client):
-    _, _, agent, _ = setup(api_client)
-    creator_connection = search_grant(api_client, agent)
-    actor = member(api_client)
-    items = api_client.get(f"/api/agents/{agent['id']}/my-tool-bindings").json()["items"]
-    grant = items[0]
-    url = f"/api/agents/{agent['id']}/my-tool-bindings/{grant['grant_id']}"
-    assert (
-        api_client.put(
-            url, json={"connection_id": creator_connection["id"], "expected_revision": 0}
-        ).status_code
-        == 404
-    )
-    own = own_connection(api_client, creator_connection["service_id"])
-    bound = api_client.put(url, json={"connection_id": own["id"], "expected_revision": 0})
-    assert bound.status_code == 200, bound.text
-    with api_client.app.state.database.transaction() as db:
-        bindings, _, _ = capture_tools(db, agent["id"], actor.user_id)
-        snapshot = {"agent_id": agent["id"], "tools": bindings, "tool_user_id": actor.user_id}
-        assert bindings[0]["connection_id"] == own["id"] and not bindings[0]["auth_required"]
-        assert_binding(db, snapshot, bindings[0])
-    rotated = api_client.patch(
-        f"/api/tool-connections/{own['id']}",
-        json={
-            "expected_config_revision": own["config_revision"],
-            "expected_credential_revision": own["credential_revision"],
-            "credential": "another-fixture-token",
-        },
-    )
-    assert rotated.status_code == 200 and rotated.json()["approved_catalog"] == []
-    with api_client.app.state.database.transaction() as db, pytest.raises(ConflictError):
-        assert_binding(db, snapshot, bindings[0])
-
-
-def test_shared_account_requires_explicit_shared_connection(api_client):
+def test_fixed_connection_revocation_stops_old_binding(api_client):
     _, _, agent, _ = setup(api_client)
     connection = search_grant(api_client, agent)
-    data = {
-        "expected_revision": 2,
-        "grants": [
-            {
-                "connection_id": connection["id"],
-                "tools": ["tavily_search"],
-                "expected_descriptors": {
-                    "tavily_search": SearchClient.catalog[0]["descriptor_hash"]
-                },
-                "scope_policy": {"mode": "provider", "max_calls": 5},
-                "account_mode": "shared",
-            }
-        ],
-    }
-    assert api_client.put(f"/api/agents/{agent['id']}/tool-grants", json=data).status_code == 422
-    # Explicitly create a separate shared connection; personal secrets are never promoted implicitly.
-    shared = api_client.post(
-        "/api/tool-connections",
+    with api_client.app.state.database.transaction() as db:
+        bindings, _ = capture_tools(db, agent["id"])
+    result = api_client.patch(
+        f"/api/tool-connections/{connection['id']}",
         json={
-            "service_id": connection["service_id"],
-            "name": "共用服务账号",
-            "kind": "mcp_http",
-            "account_scope": "shared",
-            "auth_type": "none",
-            "public_config": connection["public_config"],
-        },
-    ).json()
-    candidate = api_client.post(f"/api/tool-connections/{shared['id']}/discover").json()
-    api_client.post(
-        f"/api/tool-connections/{shared['id']}/approve",
-        json={
-            "expected_config_revision": 1,
-            "expected_catalog_revision": 1,
-            "candidate_hash": candidate["discovery_candidate"]["hash"],
+            "expected_config_revision": connection["config_revision"],
+            "expected_credential_revision": connection["credential_revision"],
+            "enabled": False,
         },
     )
-    data["grants"][0]["connection_id"] = shared["id"]
-    saved = api_client.put(f"/api/agents/{agent['id']}/tool-grants", json=data)
-    assert saved.status_code == 200, saved.text
-    actor = member(api_client)
-    with api_client.app.state.database.transaction() as db:
-        bindings, _, _ = capture_tools(db, agent["id"], actor.user_id)
-        assert bindings[0]["connection_id"] == shared["id"] and not bindings[0]["auth_required"]
+    assert result.status_code == 200, result.text
+    with api_client.app.state.database.transaction() as db, pytest.raises(ConflictError):
+        assert_binding(db, {"agent_id": agent["id"]}, bindings[0])
+
+
+def test_retired_personal_account_fields_are_rejected(api_client):
+    _, _, agent, _ = setup(api_client)
+    connection = search_grant(api_client, agent)
+    assert (
+        api_client.patch(
+            f"/api/agents/{agent['id']}",
+            json={
+                "expected_revision": 2,
+                "tool_grants": [
+                    {
+                        "connection_id": connection["id"],
+                        "tools": [],
+                        "scope_policy": {},
+                        "account_mode": "personal",
+                    }
+                ],
+            },
+        ).status_code
+        == 422
+    )
+    assert (
+        api_client.post(
+            "/api/tool-connections",
+            json={
+                "name": "legacy",
+                "kind": "mcp_http",
+                "account_scope": "personal",
+                "public_config": {"url": "https://mcp.fixture/mcp"},
+            },
+        ).status_code
+        == 422
+    )
 
 
 def test_catalog_annotations_and_stale_grant_do_not_change_authority(api_client):
@@ -194,11 +123,11 @@ def test_catalog_annotations_and_stale_grant_do_not_change_authority(api_client)
         changed.json()["approved_catalog"][0]["descriptor_hash"]
         == SearchClient.catalog[0]["descriptor_hash"]
     )
-    rejected = api_client.put(
-        f"/api/agents/{agent['id']}/tool-grants",
+    rejected = api_client.patch(
+        f"/api/agents/{agent['id']}",
         json={
             "expected_revision": 2,
-            "grants": [
+            "tool_grants": [
                 {
                     "connection_id": connection["id"],
                     "tools": ["tavily_search"],
@@ -245,8 +174,8 @@ def test_protocol_auth_rejection_is_sanitized_and_does_not_start_oauth():
     import httpx
 
     from app.errors import InvalidInputError
-    from app.tools.adapters.mcp import MCPClient
-    from app.tools.config import ToolConfig
+    from app.mcp.adapters.http import MCPClient
+    from app.mcp.config import ToolConfig
 
     calls = []
 
@@ -283,9 +212,9 @@ def test_protocol_preserves_local_network_failures_without_sending_credentials(
     import httpx
 
     from app.errors import InvalidInputError, ServiceUnavailableError
-    from app.tools.adapters.mcp import MCPClient
-    from app.tools.config import ToolConfig
-    from app.tools.network import PinnedTransport
+    from app.mcp.adapters.http import MCPClient
+    from app.mcp.config import ToolConfig
+    from app.mcp.network import PinnedTransport
 
     calls = []
 
@@ -293,7 +222,7 @@ def test_protocol_preserves_local_network_failures_without_sending_credentials(
         async def resolve(*args, **kwargs):
             if dns_failure:
                 raise socket.gaierror("private-upstream-diagnostic")
-            return [(2, 1, 6, "", ("172.29.0.217", 443))]
+            return [(2, 1, 6, "", ("169.254.169.254", 443))]
 
         monkeypatch.setattr(asyncio.get_running_loop(), "getaddrinfo", resolve)
 
@@ -316,7 +245,7 @@ def test_protocol_preserves_local_network_failures_without_sending_credentials(
         with pytest.raises(ServiceUnavailableError if dns_failure else InvalidInputError) as caught:
             await client.discover()
         assert caught.value.code == ("tool_dns_failed" if dns_failure else "tool_endpoint_denied")
-        assert "DNS" in caught.value.message
+        assert ("DNS" if dns_failure else "链路本地") in caught.value.message
         assert "private-token" not in caught.value.message
         assert "private-upstream-diagnostic" not in caught.value.message
 
@@ -324,15 +253,29 @@ def test_protocol_preserves_local_network_failures_without_sending_credentials(
     assert not calls
 
 
-@pytest.mark.parametrize("address,allowed", [("172.29.0.217", True), ("169.254.169.254", False)])
-def test_exact_deployer_private_host_preserves_tls_and_metadata_rejection(
+@pytest.mark.parametrize(
+    "address,allowed",
+    [
+        ("172.29.0.217", True),
+        ("198.18.0.1", True),
+        ("127.0.0.1", True),
+        ("::1", True),
+        ("169.254.169.254", False),
+        ("fe80::1", False),
+        ("224.0.0.1", False),
+        ("ff02::1", False),
+        ("0.0.0.0", False),
+        ("::", False),
+    ],
+)
+def test_unlisted_host_accepts_private_dns_and_preserves_tls_and_special_address_rejection(
     monkeypatch, address, allowed
 ):
     import httpx
 
     from app.errors import InvalidInputError
-    from app.tools.config import ToolConfig
-    from app.tools.network import PinnedTransport
+    from app.mcp.config import ToolConfig
+    from app.mcp.network import PinnedTransport
 
     calls = []
 
@@ -341,29 +284,29 @@ def test_exact_deployer_private_host_preserves_tls_and_metadata_rejection(
             return [(2, 1, 6, "", (address, 443))]
 
         monkeypatch.setattr(asyncio.get_running_loop(), "getaddrinfo", resolve)
-        transport = PinnedTransport(
-            "https://mcp.tavily.com/mcp/", ToolConfig(private_hosts=("mcp.tavily.com",))
-        )
+        endpoint = "https://new-mcp.example/mcp/"
+        transport = PinnedTransport(endpoint, ToolConfig())
 
         def upstream(request):
             calls.append(request)
-            assert request.headers["host"] == "mcp.tavily.com"
-            assert request.extensions["sni_hostname"] == "mcp.tavily.com"
+            assert request.url.host == address
+            assert request.headers["host"] == "new-mcp.example"
+            assert request.extensions["sni_hostname"] == "new-mcp.example"
             return httpx.Response(401)
 
         transport.inner = httpx.MockTransport(upstream)
         async with httpx.AsyncClient(transport=transport) as client:
             if allowed:
-                assert (await client.post("https://mcp.tavily.com/mcp/")).status_code == 401
+                assert (await client.post(endpoint)).status_code == 401
             else:
                 with pytest.raises(InvalidInputError):
-                    await client.post("https://mcp.tavily.com/mcp/")
+                    await client.post(endpoint)
 
     asyncio.run(scenario())
     assert len(calls) == int(allowed)
 
 
-def test_other_admin_cannot_edit_employee_and_atomic_save_rolls_back(api_client):
+def test_other_admin_can_maintain_shared_employee_and_atomic_save_rolls_back(api_client):
     from app.auth.models import User
     from app.auth.service import hash_password
 
@@ -402,15 +345,15 @@ def test_other_admin_cannot_edit_employee_and_atomic_save_rolls_back(api_client)
     )
     assert (
         api_client.patch(
-            f"/api/agents/{agent['id']}", json={"expected_revision": 2, "name": "越权"}
+            f"/api/agents/{agent['id']}", json={"expected_revision": 2, "name": "另一管理员维护"}
         ).status_code
-        == 403
+        == 200
     )
     assert (
-        api_client.put(
-            f"/api/agents/{agent['id']}/tool-grants", json={"expected_revision": 2, "grants": []}
+        api_client.patch(
+            f"/api/agents/{agent['id']}", json={"expected_revision": 3, "tool_grants": []}
         ).status_code
-        == 403
+        == 200
     )
 
 
@@ -439,11 +382,11 @@ def test_malformed_binding_identifiers_are_rejected_as_input(api_client):
         },
     )
     assert invalid.status_code == 422
-    invalid = api_client.put(
-        f"/api/agents/{agent['id']}/tool-grants",
+    invalid = api_client.patch(
+        f"/api/agents/{agent['id']}",
         json={
             "expected_revision": 1,
-            "grants": [{"connection_id": "not-a-uuid", "tools": [], "scope_policy": {}}],
+            "tool_grants": [{"connection_id": "not-a-uuid", "tools": [], "scope_policy": {}}],
         },
     )
     assert invalid.status_code == 422

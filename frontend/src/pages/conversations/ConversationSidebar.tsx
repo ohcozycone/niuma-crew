@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import type { AgentUsageDTO } from "@/lib/api/agents";
 import { ConversationCapabilities } from "./ConversationCapabilities";
-import { ConversationHistory } from "./ConversationHistory";
+import { ConversationHistory } from "@/components/conversations/ConversationHistory";
 
 export function ConversationSidebar({
   agent,

@@ -3,7 +3,7 @@ import { AccountMenuButton } from "@/components/auth/AccountMenuButton";
 import { NavigationItem } from "@/components/ui/NavigationItem";
 import { Card } from "@/components/ui/Card";
 import { useState } from "react";
-import { ArrowUpRight, LogOut, LoaderCircle, Plus, Users } from "lucide-react";
+import { LogOut, Plus, Users } from "lucide-react";
 import { ResourceIcon } from "@/components/common/ResourceIcon";
 import { Button } from "@/components/ui/Button";
 import {
@@ -33,6 +33,7 @@ import { contrastExceptions, agentNavigationRoles } from "@/design-system/spec";
 import { useTheme } from "@/state/theme/useTheme";
 import { useThemeValues } from "./useThemeValues";
 import { styles } from "./previewStyles";
+import { ButtonExamples } from "./ButtonExamples";
 const navigationAgents = [
   { avatarId: "programmer", name: "架构师老登" },
   { avatarId: "admin", name: "行政管家小 K" },
@@ -84,7 +85,7 @@ export function ComponentExamples({ notify: setNotice }: { notify: (message: str
           已选项在悬停时保持当前颜色，其他项悬停显示浅灰底。图标 {number("--os-nav-icon-size")}
           px，描边常态 {number("--os-nav-icon-stroke")}
           px、当前 {number("--os-nav-icon-active-stroke")}
-          px；当前项品牌橙底，文字、图标与数量共用 nav-active-text，文字与数量为{" "}
+          px；当前项暖灰底，文字、图标与数量共用 nav-active-text，文字与数量为{" "}
           {number("--os-nav-active-weight")} 字重，数量去底框。
         </p>
         {contrastExceptions
@@ -152,7 +153,7 @@ export function ComponentExamples({ notify: setNotice }: { notify: (message: str
       >
         <div className={styles.panelTitle}>
           <h3 className={"mb-4 font-semibold"}>收藏员工导航</h3>
-          <span>主区域进入对话，右侧独立编辑</span>
+          <span>主区域进入员工主页，右侧新建对话</span>
         </div>
         <div className={styles.foundationGrid}>
           <nav
@@ -166,7 +167,7 @@ export function ComponentExamples({ notify: setNotice }: { notify: (message: str
                 avatarId={agent.avatarId}
                 to="/agents"
                 label={`查看${agent.name}的导航样板`}
-                editTo="/agents/new"
+                conversationTo="/agents"
               />
             ))}
           </nav>
@@ -180,9 +181,9 @@ export function ComponentExamples({ notify: setNotice }: { notify: (message: str
               ))}
             </dl>
             <p className={styles.caption}>
-              正式侧栏主区域接续最近对话，右侧悬停或聚焦显示独立编辑入口；触屏常驻。
-              编辑区固定预留，分隔处点击不跳转，两个入口各有焦点轮廓。本样板主入口前往员工列表，
-              编辑入口前往创建页。六角色共用完整 SVG，长名称省略，头像保持尺寸。
+              正式侧栏主区域进入员工主页，右侧悬停或聚焦显示新建对话入口；触屏常驻。
+              对话入口固定预留，分隔处点击不跳转，两个入口各有焦点轮廓。本样板主入口前往员工列表，
+              对话入口前往员工列表选择员工。六角色共用完整 SVG，长名称省略，头像保持尺寸。
             </p>
           </div>
         </div>
@@ -238,12 +239,12 @@ export function ComponentExamples({ notify: setNotice }: { notify: (message: str
           items={[
             { value: "all", label: "全部员工", count: 128 },
             { value: "favorites", label: "已收藏" },
-            { value: "paused", label: "已被优化" },
+            { value: "paused", label: "已暂停" },
           ]}
         >
           <TabsContent value="all">全部员工示例</TabsContent>
           <TabsContent value="favorites">已收藏员工示例</TabsContent>
-          <TabsContent value="paused">已被优化员工示例</TabsContent>
+          <TabsContent value="paused">已暂停员工示例</TabsContent>
         </PageTabs>
         <p className={styles.caption}>
           默认选中中间项；可连续点击或用方向键切换。右侧槽位承载数量、状态或操作，空间不足时换行。
@@ -287,33 +288,7 @@ export function ComponentExamples({ notify: setNotice }: { notify: (message: str
           或空格翻页，首尾箭头禁用。
         </p>
       </Card>
-      <Card as="div" variant="outline" radius="panel" className={styles.panel}>
-        <div className={styles.panelTitle}>
-          <h3 className={"mb-4 font-semibold"}>操作层级</h3>
-          <span>一个操作区域，突出一个主操作</span>
-        </div>
-        <div className={styles.controls}>
-          <Button onClick={() => setNotice("已触发主操作示例")}>
-            <Plus />
-            创建员工
-          </Button>
-          <Button variant="outline" onClick={() => setNotice("已触发次级操作示例")}>
-            查看配置
-          </Button>
-          <Button variant="ghost" onClick={() => setNotice("已触发轻量操作示例")}>
-            了解更多
-            <ArrowUpRight />
-          </Button>
-          <Button disabled>暂不可用</Button>
-          <Button disabled aria-busy="true">
-            <LoaderCircle size={14} />
-            保存中
-          </Button>
-        </div>
-        <p className={styles.caption}>
-          同一区域保留一个主操作。提交中禁用按钮，并用文字说明当前状态。
-        </p>
-      </Card>
+      <ButtonExamples notify={setNotice} />
       <div className={styles.foundationGrid}>
         <Card as="div" variant="outline" radius="panel" className={styles.panel}>
           <h3 className={"mb-4 font-semibold"}>输入与说明</h3>
@@ -333,7 +308,7 @@ export function ComponentExamples({ notify: setNotice }: { notify: (message: str
             <SelectField
               options={[
                 { value: "available", label: "可对话" },
-                { value: "paused", label: "已被优化" },
+                { value: "paused", label: "已暂停" },
                 { value: "unconfigured", label: "待配置模型" },
               ]}
               value={exampleState}

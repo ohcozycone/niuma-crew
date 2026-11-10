@@ -1,5 +1,3 @@
-"""Bounded OpenAI-compatible embedding calls with a fixed provider configuration."""
-
 import math
 from collections.abc import Callable
 
@@ -25,7 +23,7 @@ class EmbeddingConfig(BaseModel):
 
 
 def normalized_vector(values: object) -> list[float]:
-    """Reject malformed/zero vectors and store unit vectors for cosine scoring."""
+    """拒绝无效或零向量，归一化后用于余弦评分。"""
     if not isinstance(values, list) or len(values) != VECTOR_DIMENSIONS:
         raise ValueError("invalid embedding dimensions")
     if any(type(value) not in (int, float) or not math.isfinite(value) for value in values):
@@ -41,7 +39,7 @@ def embed_texts(
     texts: list[str],
     guard: Callable[[], None] = lambda: None,
 ) -> list[list[float]]:
-    """Send raw, short text; provider token IDs are never approximated with tiktoken."""
+    """发送原始短文本，不用本地 token 编号替代上游分词。"""
     if any(not text.strip() or len(text.encode("utf-8")) > 8192 for text in texts):
         raise InvalidInputError(
             "embedding_text_too_long", "向量输入为空或超过 8192 字节，请缩短文本后重试。"

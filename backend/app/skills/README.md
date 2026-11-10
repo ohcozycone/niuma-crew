@@ -55,10 +55,10 @@ skills/
 
 ## 与其他模块协作
 
-[agents](../agents/README.md) 保存选择关系和参数，[conversations](../conversations/README.md) 固定本轮定义，[agent_runtime](../agent_runtime/README.md) 负责发现、加载、实际激活及文件/沙箱投递。格式与内容由本模块解释，调用许可归员工及运行宿主。
+[agents](../../../docs/reference/configuration.md) 保存选择关系和参数，[conversations](../../../docs/reference/conversations.md) 固定本轮定义，[执行中的SDK适配](../execution/README.md) 负责发现、加载、实际激活及文件/沙箱投递。格式与内容由本模块解释，调用许可归员工及运行宿主。
 
 技能是共享资产，生命周期不同于个人附件，不套用 files 的暂存 TTL。用户管理入口检查 Actor 和管理能力；已授权运行读取 blob 不要求使用者拥有技能编辑权。标准 `allowed-tools` 只是源包字段，不授予平台权限。
 
 ## 维护与验证
 
-管理 API 见[技能契约](../../../docs/reference/agent-configuration/api.md#技能接口)，运行组装见 [skill_loading.py](../agent_runtime/skill_loading.py) 和 [workspace.py](../agent_runtime/workspace.py)。[标准包测试](../../tests/test_skill_packages.py)、[配置事务测试](../../tests/test_configuration_api.py)和[SDK 加载测试](../../tests/test_capability_runtime.py)覆盖内容与边界；假沙箱不证明真实部署可用。
+管理 API 见[技能契约](../../../docs/reference/configuration.md)，运行组装见 [skill_loading.py](../agent/skills.py) 和 [workspace.py](../builtin_tools/workspace.py)。[标准包测试](../../tests/test_skill_packages.py)、[配置事务测试](../../tests/test_configuration_api.py)和[SDK 加载测试](../../tests/test_capability_runtime.py)覆盖内容与边界；假沙箱不证明真实部署可用。

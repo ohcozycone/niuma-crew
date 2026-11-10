@@ -37,3 +37,31 @@ it("reconfirms an unqualified SSE revocation without assuming the session expire
   window.removeEventListener("auth:permissions-changed", changed);
   window.removeEventListener("auth:session-ended", ended);
 });
+
+it.each([null, "100000000000"])("only treats 200/null as an absent request for %s", async (id) => {
+  const fetch = vi.fn<typeof globalThis.fetch>(async () => Response.json(null));
+  vi.stubGlobal("fetch", fetch);
+  const key = "00000000-0000-4000-8000-000000000001";
+  expect(await createConversationTransport().findRequest(id, key)).toBeNull();
+  expect(fetch.mock.calls[0][0]).toBe(
+    id === null ? `/api/conversations/requests/${key}` : `/api/conversations/${id}/requests/${key}`,
+  );
+});
+
+it.each([null, "100000000000"])(
+  "preserves a lookup 404 as a resource failure for %s",
+  async (id) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof globalThis.fetch>(async () =>
+        Response.json(
+          { detail: { code: "conversation_not_found", message: "对话不存在。" } },
+          { status: 404 },
+        ),
+      ),
+    );
+    await expect(
+      createConversationTransport().findRequest(id, "00000000-0000-4000-8000-000000000001"),
+    ).rejects.toMatchObject({ status: 404, code: "conversation_not_found" });
+  },
+);

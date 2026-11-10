@@ -1,5 +1,3 @@
-"""Bounded, process-local attempt limiter. All untrusted forwarding headers are ignored."""
-
 import math
 import time
 from threading import Lock

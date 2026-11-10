@@ -1,5 +1,3 @@
-"""Serve a built client application without masking API or asset failures."""
-
 import mimetypes
 import re
 import stat
@@ -14,15 +12,14 @@ from starlette.staticfiles import StaticFiles
 from starlette.types import Scope
 
 PAGE = re.compile(
-    r"(?:|agents(?:/(?:new|[^/.]+)(?:/connections)?)?|skills(?:/(?:new|[^/.]+))?|brains|rules|"
+    r"(?:|agents(?:/(?:new|[^/.]+)(?:/(?:connections|home|evaluations/[^/.]+/cases/[^/.]+/trace))?)?|skills(?:/(?:new|[^/.]+))?|brains|rules|"
     r"knowledge(?:/[^/.]+(?:/documents/[^/.]+)?)?|tools|"
-    r"conversations(?:/(?:new|[^/.]+))?|help(?:/[^/.]+)?|design-system|signin|"
+    r"conversations(?:/(?:new|[^/.]+)(?:/trace)?)?|help(?:/[^/.]+)?|design-system|signin|"
     r"avatars/playground(?:/[^/.]+)?|avatars/svg|avatars/rive/programmer|login|preview)/?"
 )
 
 
 def document_navigation(path: str, scope: Scope) -> bool:
-    """Recognize missing human pages without turning missing resources into HTML."""
     segments = path.strip("/").split("/")
     if (
         segments[0] in {"api", "assets", "brand", "avatars", "failures"}
@@ -36,8 +33,7 @@ def document_navigation(path: str, scope: Scope) -> bool:
         return destination == "document"
     if headers.get("sec-fetch-mode") is not None:
         return False
-    # Older clients omit Fetch Metadata. An extensionless path and an explicit
-    # HTML accept value are both required for this compatibility fallback.
+    # 兼容旧客户端缺少 Fetch Metadata；仍须同时满足无扩展名及明确接受 HTML。
     for value in headers.get("accept", "").lower().split(","):
         media_type, *parameters = value.strip().split(";")
         if media_type != "text/html":
@@ -70,7 +66,7 @@ def encoding(header: str, available: set[str]) -> str | None:
         quality = accepted.get(name, accepted.get("*", 0 if name != "identity" else 1))
         if quality > 0:
             candidates.append((quality, name))
-    # Compression wins ties; an omitted identity is a fallback, as in the old entry.
+    # 同优先级选压缩版本，未声明 identity 时保留其兜底资格。
     compressed = [p for p in candidates if p[1] != "identity"]
     if compressed and accepted.get("identity", 0) <= max(p[0] for p in compressed):
         return max(compressed, key=lambda p: (p[0], p[1] == "br"))[1]
@@ -83,8 +79,7 @@ class FrontendFiles(StaticFiles):
             path = ""
         if path.startswith(("api/", ".")) or path == "api":
             raise HTTPException(404)
-        # StaticFiles normalizes dot components before calling this method.
-        # Inspect the decoded original as well so a traversal cannot become a page.
+        # StaticFiles 会先规范化路径，须另查原始解码路径以拒绝目录穿越。
         if any(segment.startswith(".") for segment in scope["path"].split("/")):
             raise HTTPException(404)
         if scope["method"] not in {"GET", "HEAD"}:
@@ -104,9 +99,8 @@ class FrontendFiles(StaticFiles):
         return await super().get_response(path, scope)
 
     async def static_response(self, path: str, scope: Scope, *, status_code: int = 200):
-        """Reuse static path boundaries and negotiation for normal and error documents."""
 
-        # Resolve through StaticFiles so compression cannot bypass its path boundary.
+        # 压缩资源仍经 StaticFiles 解析，避免绕过路径限制。
         def variants():
             _, info = self.lookup_path(path)
             if info is None or not stat.S_ISREG(info.st_mode):
@@ -130,8 +124,7 @@ class FrontendFiles(StaticFiles):
             response = await super().get_response(path + suffix, scope)
         else:
             full_path, info = await anyio.to_thread.run_sync(self.lookup_path, path + suffix)
-            # StaticFiles' conditional response would turn a repeated unknown URL
-            # into 304. Error documents must keep their original error status.
+            # 错误页保留原错误状态，不能因条件请求变成 304。
             response = FileResponse(
                 full_path, status_code=status_code, stat_result=info, media_type="text/html"
             )

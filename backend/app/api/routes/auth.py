@@ -1,5 +1,4 @@
-"""Cookie transport and public identity responses."""
-
+import logging
 from datetime import datetime
 from typing import Annotated, Literal
 from urllib.parse import urlencode, urlsplit
@@ -23,6 +22,7 @@ from app.errors import InvalidInputError, ServiceError
 from app.schemas import RequestModel
 
 COOKIE_NAME = "app_session"
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
@@ -133,6 +133,7 @@ def github_callback(
 ):
     next_path = "/"
     actor = token = None
+    stage = "context_validation"
     try:
         source = request.client.host if request.client else "unknown"
         limiter.consume(f"github:callback:{source}", 40, 60)
@@ -142,19 +143,32 @@ def github_callback(
         next_path = context["next"]
         if request.query_params.get("error"):
             raise InvalidInputError("github_cancelled", "GitHub 登录未完成。")
+        stage = "github_identity"
         subject, username = github.identity(
             request.query_params.get("code", ""), context["verifier"]
         )
+        stage = "session_creation"
         actor, token = auth.github_login(subject, username, request.cookies.get(COOKIE_NAME))
         response = RedirectResponse(next_path, status_code=303)
     except ServiceError as error:
         # OAuth 用跳转报告已知失败，并继续清理临时 Cookie；代码缺陷不进入此分支。
+        logger.warning(
+            "github.callback.failed request_id=%s stage=%s code=%s",
+            getattr(request.state, "request_id", None),
+            stage,
+            error.code,
+        )
         response = RedirectResponse(
             "/signin?" + urlencode({"auth_error": error.code, "next": next_path}), status_code=303
         )
         if error.retry_after:
             response.headers["Retry-After"] = str(error.retry_after)
     except OperationalError:
+        logger.warning(
+            "github.callback.failed request_id=%s stage=%s type=OperationalError",
+            getattr(request.state, "request_id", None),
+            stage,
+        )
         response = RedirectResponse(
             "/signin?" + urlencode({"auth_error": "github_failed", "next": next_path}),
             status_code=303,
@@ -180,7 +194,7 @@ def login(
     auth: AuthDependency,
     limiter: LimiterDependency,
 ):
-    # Uvicorn forwarding trust is disabled in the supplied run command; never read XFF here.
+    # 启动配置已禁用代理头信任，此处不读取 XFF。
     source = request.client.host if request.client else "unknown"
     limiter.consume(f"login:source:{source}", 20, 60)
     limiter.consume(f"login:user:{data.username.strip().lower()}", 10, 900)

@@ -1,5 +1,3 @@
-"""Public account/catalog operations authorize users; runtime secrets stay inside transports."""
-
 import asyncio
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
@@ -16,20 +14,18 @@ from app.auth.models import User
 from app.errors import (
     ConflictError,
     InvalidInputError,
-    NotFoundError,
     PermissionDeniedError,
     ServiceUnavailableError,
 )
 from app.infrastructure.credentials import CredentialUnavailableError, CredentialVault
 from app.infrastructure.database.session import Database
-from app.tools.catalogs import ToolCatalogService
-from app.tools.config import ToolConfig
-from app.tools.connections import ToolConnectionService
-from app.tools.contracts import digest
-from app.tools.definitions import McpDefinitionService
-from app.tools.invocation import ToolInvocationService
-from app.tools.models import McpService, ToolConnection
-from app.tools.schemas import (
+from app.mcp.catalogs import ToolCatalogService
+from app.mcp.config import ToolConfig
+from app.mcp.connections import ToolConnectionService
+from app.mcp.definitions import McpDefinitionService
+from app.mcp.invocation import ToolInvocationService
+from app.mcp.models import McpService, ToolConnection
+from app.mcp.schemas import (
     CatalogAnnotations,
     CatalogApprove,
     McpConfigImport,
@@ -38,6 +34,7 @@ from app.tools.schemas import (
     ToolConnectionCreate,
     ToolConnectionPatch,
 )
+from app.values import digest
 
 
 def actor(user_id=None, role="guest"):
@@ -55,7 +52,7 @@ def actor(user_id=None, role="guest"):
 def tool_services(migrated_config, tmp_path):
     database = Database(migrated_config.database)
     with database.transaction() as db:
-        owner = User(username="tool-owner", role="member", password_hash=None)
+        owner = User(username="tool-owner", role="admin", password_hash="test-only-hash")
         other = User(username="other-owner", role="member", password_hash=None)
         admin = User(username="tool-admin", role="admin", password_hash="test-only-hash")
         db.add_all([owner, other, admin])
@@ -74,7 +71,7 @@ def tool_services(migrated_config, tmp_path):
         invocation=invocation,
         catalogs=catalogs,
         definitions=definitions,
-        owner=actor(owner.id, "member"),
+        owner=actor(owner.id, "admin"),
         other=actor(other.id, "member"),
         admin=actor(admin.id, "admin"),
         vault=vault,
@@ -87,7 +84,7 @@ def create_http(services):
     return services.connections.create(
         services.owner,
         ToolConnectionCreate(
-            name="Personal search account",
+            name="Organization search connection",
             kind="mcp_http",
             auth_type="bearer",
             credential="fixture-token",
@@ -126,6 +123,8 @@ def test_public_operations_reject_guest_before_accessing_storage_or_secrets(
     tool_services, operation
 ):
     services, guest, missing_id = tool_services, actor(), str(uuid4())
+    with services.database.transaction() as db:
+        original_connections = set(db.scalars(select(ToolConnection.id)))
     approval = CatalogApprove(
         expected_config_revision=1, expected_catalog_revision=1, candidate_hash="unused"
     )
@@ -165,30 +164,43 @@ def test_public_operations_reject_guest_before_accessing_storage_or_secrets(
             guest, McpConfigImport(configuration="{not valid JSON}")
         ),
     }
-    with pytest.raises(PermissionDeniedError):
-        calls[operation]()
+    if operation in {"list_connections", "list_definitions"}:
+        assert calls[operation]() == []
+    else:
+        with pytest.raises(PermissionDeniedError):
+            calls[operation]()
     assert not services.vault.path.exists()
     with services.database.transaction() as db:
-        assert list(db.scalars(select(ToolConnection))) == []
+        assert set(db.scalars(select(ToolConnection.id))) == original_connections
         assert list(db.scalars(select(McpService))) == []
 
 
-def test_account_owner_check_applies_before_remote_catalog_access(tool_services):
+def test_management_permission_applies_before_remote_catalog_access(tool_services):
     services = tool_services
     connection = create_http(services)
-    with pytest.raises(NotFoundError):
+    with pytest.raises(PermissionDeniedError):
         services.connections.update(services.other, connection.id, patch(connection, enabled=False))
-    with pytest.raises(NotFoundError):
+    with pytest.raises(PermissionDeniedError):
         asyncio.run(services.catalogs.discover(services.other, connection.id))
-    assert services.connections.get(services.owner, connection.id).enabled
-    assert services.connections.list(services.other) == []
+    assert next(
+        row for row in services.connections.list(services.owner) if row.id == connection.id
+    ).enabled
+    visible = next(
+        row for row in services.connections.list(services.other) if row.id == connection.id
+    )
+    assert visible.has_credential and "fixture-token" not in visible.model_dump_json()
+    updated = services.connections.update(
+        services.admin, connection.id, patch(connection, name="Maintained by another admin")
+    )
+    assert updated.name == "Maintained by another admin"
+    assert updated.has_credential and updated.credential_revision == connection.credential_revision
 
 
 def test_stdio_registration_uses_actor_role_without_trusting_a_caller_flag(tool_services):
     request = McpServiceCreate(name="Local MCP", transport="stdio", command="npx", args=[])
     with pytest.raises(PermissionDeniedError) as failure:
-        tool_services.definitions.create(tool_services.owner, request)
-    assert failure.value.code == "stdio_registration_denied"
+        tool_services.definitions.create(tool_services.other, request)
+    assert failure.value.code == "permission_denied"
     created = tool_services.definitions.create(tool_services.admin, request)
     assert created["transport"] == "stdio"
 
@@ -246,7 +258,9 @@ def test_discovery_does_not_save_a_catalog_for_a_changed_account(tool_services):
     with pytest.raises(ConflictError) as failure:
         asyncio.run(services.catalogs.discover(services.owner, connection.id))
     assert failure.value.code == "tool_connection_changed"
-    stored = services.connections.get(services.owner, connection.id)
+    stored = next(
+        row for row in services.connections.list(services.owner) if row.id == connection.id
+    )
     assert stored.discovery_candidate is None and stored.approved_catalog == []
     assert stored.name == "Renamed during discovery"
 
@@ -402,7 +416,9 @@ def test_discovery_approval_and_runtime_share_catalog_and_secret_boundaries(tool
         with pytest.raises(InvalidInputError) as failure:
             asyncio.run(execute())
         assert failure.value.code == "tool_catalog_changed"
-        stored = services.connections.get(services.owner, connection.id)
+        stored = next(
+            row for row in services.connections.list(services.owner) if row.id == connection.id
+        )
         assert stored.approved_catalog == [descriptor]
         assert stored.discovery_candidate["tools"][0]["descriptor_hash"] == "changed-definition"
     else:

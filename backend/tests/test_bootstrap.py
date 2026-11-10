@@ -1,25 +1,32 @@
-"""The platform starts independently of model credentials and legacy services."""
-
 import asyncio
 from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from scenario_client import ScenarioClient as TestClient
+from fastapi.testclient import TestClient
 from uvicorn.importer import import_from_string
 
 from app import __version__
 from app.bootstrap import create_app
-from app.files.service import FileService
+from app.files.cleanup import FileCleanup
 from app.infrastructure.database.session import Database
 from app.knowledge.worker import KnowledgeWorker
-from app.tools.invocation import ToolInvocationService
+from app.mcp.invocation import ToolInvocationService
 
 
 def test_asgi_entrypoint_starts_without_model_configuration(monkeypatch, migrated_config):
+    directory = Path(migrated_config.database.url.database).parent
+    # app.main读取真实环境配置；临时数据库不足以隔离.env中的文件根目录。
+    monkeypatch.setenv("APP_DATA_DIR", str(directory))
+    monkeypatch.setenv("FILES_DIRECTORY", str(directory / "files"))
+    monkeypatch.setenv("KNOWLEDGE_VECTOR_DIR", str(directory / "knowledge-vectors"))
+    monkeypatch.setenv("SKILL_STORAGE_DIR", str(directory / "skill-assets"))
+    monkeypatch.setenv("SKILL_LIBRARY_DIR", str(directory / "skill-library"))
     monkeypatch.setenv("MODEL_CONNECTIONS_KEY_FILE", str(migrated_config.model_encryption_key_file))
     monkeypatch.setenv("RUNNER_LOCK_FILE", str(migrated_config.runner_lock_file))
     with TestClient(import_from_string("app.main:app")) as client:
+        assert client.app.state.files.storage.directory == directory / "files"
+        assert client.app.state.knowledge.vectors.store.directory == directory / "knowledge-vectors"
         response = client.get("/health")
         assert response.status_code == 200
         assert response.json() == {
@@ -32,9 +39,19 @@ def test_asgi_entrypoint_starts_without_model_configuration(monkeypatch, migrate
         assert set(schema["paths"]) == {
             "/health",
             "/api/capabilities",
+            "/api/evaluations",
+            "/api/evaluations/suites",
+            "/api/evaluations/{batch_id}",
+            "/api/evaluations/{batch_id}/cancel",
+            "/api/evaluations/{batch_id}/cases/{case_id}/trace",
+            "/api/evaluations/{batch_id}/cases/{case_id}/trace/actions/{action_id}/evidence/{direction}",
+            "/api/conversations/{id}/trace",
+            "/api/conversations/{id}/responses/{response_id}/trace",
+            "/api/conversations/{id}/responses/{response_id}/trace/actions/{action_id}/evidence/{direction}",
             "/api/knowledge-bases",
             "/api/knowledge-bases/embedding-connections",
-            "/api/knowledge-bases/employee-bindings/{agent_id}",
+            "/api/runs/{run_id}/knowledge-evidence",
+            "/api/runs/{run_id}/knowledge-evidence/{evidence_id}",
             "/api/knowledge-bases/{kb_id}/vector-index",
             "/api/knowledge-bases/{kb_id}",
             "/api/knowledge-bases/{kb_id}/documents",
@@ -53,19 +70,18 @@ def test_asgi_entrypoint_starts_without_model_configuration(monkeypatch, migrate
             "/api/tool-capabilities",
             "/api/tool-connections/{id}/annotations",
             "/api/tool-connections/{id}/discard",
-            "/api/agents/{id}/my-tool-bindings",
-            "/api/agents/{id}/my-tool-bindings/{grant_id}",
             "/api/agents/{id}/usage",
             "/ready",
             "/api/configuration-summary",
             "/api/public/configuration-summary",
             "/api/conversations",
-            "/api/conversations/{id}",
+            "/api/conversations/stats",
             "/api/conversations/{id}/messages",
             "/api/conversations/{id}/questions",
             "/api/conversations/{id}/questions/{question_id}/preview",
             "/api/conversations/{id}/snapshot",
             "/api/conversations/{id}/requests/{request_id}",
+            "/api/conversations/requests/{request_id}",
             "/api/conversations/{id}/responses/{response_id}",
             "/api/conversations/{id}/responses/{response_id}/events",
             "/api/conversations/{id}/responses/{response_id}/stop",
@@ -86,15 +102,16 @@ def test_asgi_entrypoint_starts_without_model_configuration(monkeypatch, migrate
             "/api/public/skills",
             "/api/public/skills/{skill_id}",
             "/api/agents",
-            "/api/agents/{id}/tool-grants",
             "/api/tool-connections",
             "/api/tool-connections/{id}",
             "/api/tool-connections/{id}/discover",
             "/api/tool-connections/{id}/approve",
+            "/api/tool-connections/{id}/oauth/sessions",
+            "/api/tool-connections/{id}/oauth/sessions/{session_id}",
+            "/api/tool-connections/{id}/oauth/disconnect",
             "/api/files",
             "/api/conversations/{conversation_id}/files",
             "/api/conversations/{conversation_id}/files/{file_id}",
-            "/api/sandbox-status",
             "/api/agents/{agent_id}",
             "/api/skills",
             "/api/skills/library",
@@ -126,18 +143,18 @@ def test_app_owns_database_lifecycle_without_running_migrations(app_config):
                 == []
             )
         pool = database.engine.pool
-    # dispose() replaces the pool and releases the application's idle connections.
+    # dispose 会替换连接池并释放闲置连接。
     assert database.engine.pool is not pool
     assert not app_config.model_encryption_key_file.exists()
     assert not app_config.runner_lock_file.exists()
 
 
 @pytest.mark.parametrize(
-    "failure", ["tool_close", "construction", "runner_start", "file_start", "multiple_closes"]
+    "failure", ["tool_close", "construction", "run_worker_start", "file_start", "multiple_closes"]
 )
 def test_lifespan_releases_created_resources_despite_failures(app_config, monkeypatch, failure):
-    from app.execution.scheduler import Runner
-    from app.sandboxes.service import SandboxService
+    from app.environments.service import SandboxService
+    from app.execution.scheduler import RunWorker
 
     events = []
     original_close = Database.close
@@ -161,10 +178,10 @@ def test_lifespan_releases_created_resources_despite_failures(app_config, monkey
         monkeypatch.setattr("app.bootstrap.FileService", broken_files)
     else:
         for cls, name in (
-            (Runner, "runner"),
+            (RunWorker, "run_worker"),
             (KnowledgeWorker, "knowledge"),
             (SandboxService, "sandboxes"),
-            (FileService, "files"),
+            (FileCleanup, "files"),
         ):
 
             def callbacks(label):
@@ -196,10 +213,10 @@ def test_lifespan_releases_created_resources_despite_failures(app_config, monkey
         asyncio.run(run())
     if failure == "construction":
         assert events == ["tools", "database"]
-    elif failure == "runner_start":
-        assert events == ["runner", "tools", "database"]
+    elif failure == "run_worker_start":
+        assert events == ["run_worker", "tools", "database"]
     else:
-        assert events == ["knowledge", "runner", "files", "sandboxes", "tools", "database"]
+        assert events == ["knowledge", "run_worker", "files", "sandboxes", "tools", "database"]
     if failure == "multiple_closes":
         assert str(raised.value) == "tool_close"
         assert isinstance(raised.value.__context__, ValueError)
@@ -224,7 +241,7 @@ def test_knowledge_worker_failure_releases_process_lock(api_client, tmp_path, mo
         with pytest.raises(RuntimeError, match="worker_failed"):
             await worker.stop()
         assert worker.lock is None
-        # A second worker must acquire the same OS lock, not merely see a cleared field.
+        # 另一个宿主须能取得同一系统锁，而非仅清空内存字段。
         monkeypatch.setattr(processing, "run_next", lambda: False)
         replacement = KnowledgeWorker(processing, path)
         await replacement.start()

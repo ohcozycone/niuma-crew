@@ -185,6 +185,10 @@ export default ts.config(
               },
             },
             allow(["entry"], [...shared, "entry", "router"]),
+            {
+              from: { file: { categories: "entry" } },
+              allow: { to: { element: { type: "showcase", fileInternalPath: "**/*Page.tsx" } } },
+            },
             allow(["page"], shared),
             {
               from: { element: { type: "page" } },
