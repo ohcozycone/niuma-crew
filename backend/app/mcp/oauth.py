@@ -23,11 +23,11 @@ from app.errors import (
     ServiceUnavailableError,
 )
 from app.mcp.access import managed_connection
+from app.mcp.adapters.oauth_storage import OAuthStorage
 from app.mcp.adapters.transport import SDKTransport
 from app.mcp.config import OAUTH_CALLBACK_PATH, oauth_callback_origin
 from app.mcp.connections import connection_read, require_connection
 from app.mcp.models import McpService
-from app.mcp.oauth_storage import OAuthStorage
 
 # 框架调试日志可能包含授权 URL 或令牌；应用只记录阶段码。
 logging.getLogger("mcp.client.auth.oauth2").disabled = True

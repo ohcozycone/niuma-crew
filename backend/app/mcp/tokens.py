@@ -2,16 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import json
-import time
-
-from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 
 from app.errors import ConflictError, InvalidInputError
 from app.mcp.connections import require_connection
 from app.mcp.models import McpService
 
 
-class OAuthStorage:
+class OAuthTokenStore:
     def __init__(
         self,
         connections,
@@ -98,37 +95,6 @@ class OAuthStorage:
             # 取消等待不会停止 SQLite；须等事务结束，才能撤销可能已提交的授权。
             self.row = await commit
             raise
-
-    async def get_tokens(self) -> OAuthToken | None:
-        data = self.payload.get("tokens")
-        return OAuthToken.model_validate(data) if data else None
-
-    async def set_tokens(self, tokens: OAuthToken) -> None:
-        self.payload["tokens"] = tokens.model_dump(mode="json", exclude_none=True)
-        self.payload["expires_at"] = (
-            time.time() + tokens.expires_in if tokens.expires_in is not None else None
-        )
-        await self.save(connected=True)
-
-    async def get_client_info(self) -> OAuthClientInformationFull | None:
-        data = self.payload.get("client_info")
-        if data:
-            return OAuthClientInformationFull.model_validate(data)
-        client_id = self.row.public_config.get("oauth", {}).get("client_id")
-        if not client_id:
-            return None
-        return OAuthClientInformationFull(
-            client_id=client_id,
-            client_secret=self.payload.get("client_secret"),
-            redirect_uris=[self.payload["callback_url"]],
-            token_endpoint_auth_method="client_secret_post"
-            if self.payload.get("client_secret")
-            else "none",
-        )
-
-    async def set_client_info(self, client_info: OAuthClientInformationFull) -> None:
-        self.payload["client_info"] = client_info.model_dump(mode="json", exclude_none=True)
-        await self.save()
 
     async def observe(self, url: str, data: dict) -> None:
         if isinstance(data, dict) and data.get("issuer") and data.get("token_endpoint"):
