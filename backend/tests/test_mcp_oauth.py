@@ -538,7 +538,7 @@ def test_refresh_storage_failure_blocks_further_network_requests(api_client, mon
     server, connection = setup_oauth(api_client)
     saved, _ = authorize(api_client, server, connection)
     expire(api_client, saved)
-    from app.mcp.oauth_storage import OAuthStorage
+    from app.mcp.adapters.oauth_storage import OAuthStorage
 
     async def fail(*args, **kwargs):
         raise RuntimeError("disk unavailable")
@@ -677,7 +677,7 @@ def test_capacity_and_expired_callback(api_client):
 
 
 def test_cancelling_after_token_commit_disconnects_the_new_grant(api_client, monkeypatch):
-    from app.mcp.oauth_storage import OAuthStorage
+    from app.mcp.adapters.oauth_storage import OAuthStorage
 
     original = OAuthStorage.set_tokens
 
