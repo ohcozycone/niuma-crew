@@ -9,8 +9,8 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 from pydantic import Field, PrivateAttr
 from run_helpers import complete_run, empty_conversation, execute_run, read_reply, reply_path
 
-from app.execution.models import Run
 from app.runtime.contracts.runs import RUN_SNAPSHOT_VERSION
+from app.runtime.execution.models import Run
 
 
 class ScriptedModel(BaseChatModel):
@@ -82,7 +82,7 @@ def submit(client, conversation, selected=None, key=None, content="请审阅文�
 
 
 def execute(client, monkeypatch, model, run):
-    monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *a, **k: model)
+    monkeypatch.setattr("app.infrastructure.llm.factory.create_chat_model", lambda *a, **k: model)
     asyncio.run(execute_run(client, run["id"]))
     client.app.state.conversation_acceptance.sweep()
     return read_reply(client, run["id"])
@@ -277,7 +277,7 @@ def test_same_named_skills_keep_pinned_and_automatic_parameters_separate(api_cli
 
 
 def test_explicit_skill_requires_host_loaded_body_before_model(api_client, monkeypatch):
-    from app.agent.skills import SkillsMiddleware
+    from app.runtime.agent.skills import SkillsMiddleware
 
     async def skip_pinning(self, state, runtime):
         return None
@@ -453,7 +453,7 @@ def test_restart_action_dedup_pagination_and_guest_scope(api_client, migrated_co
     from fastapi.testclient import TestClient
 
     from app.bootstrap.app import create_app
-    from app.errors import ConflictError
+    from app.common.errors import ConflictError
 
     _, _, _, conversation = setup(api_client)
     run = submit(api_client, conversation).json()["response"]
@@ -544,7 +544,8 @@ def test_real_sdk_cancel_closes_running_model_step(api_client, monkeypatch):
     _, _, _, conversation = setup(api_client)
     run = submit(api_client, conversation).json()["response"]
     monkeypatch.setattr(
-        "app.llm.factory.create_chat_model", lambda *a, **k: WaitingModel(responses=[])
+        "app.infrastructure.llm.factory.create_chat_model",
+        lambda *a, **k: WaitingModel(responses=[]),
     )
 
     async def cancel():

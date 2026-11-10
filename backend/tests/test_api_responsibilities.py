@@ -13,13 +13,13 @@ from starlette.responses import Response, StreamingResponse
 from test_configuration_api import create_agent, create_skill
 
 from app.api.router import router
-from app.capability_catalog.queries import list_capabilities
-from app.capability_catalog.schemas import CapabilityRead
-from app.employees.models import Agent
-from app.employees.schemas import AgentCreate, AgentPatch
-from app.employees.service import AgentService
-from app.errors import InvalidInputError, PermissionDeniedError
-from app.skills.service import SkillService
+from app.common.errors import InvalidInputError, PermissionDeniedError
+from app.resources.capability_catalog.queries import list_capabilities
+from app.resources.capability_catalog.schemas import CapabilityRead
+from app.resources.employees.models import Agent
+from app.resources.employees.schemas import AgentCreate, AgentPatch
+from app.resources.employees.service import AgentService
+from app.resources.skills.service import SkillService
 
 
 def current_actor(client):
@@ -93,7 +93,7 @@ def test_employee_write_failure_rolls_back_fields_and_revision(api_client, monke
     def fail(*args):
         raise InvalidInputError("injected_grant_failure", "装配拒绝。")
 
-    monkeypatch.setattr("app.employees.service.apply_grants", fail)
+    monkeypatch.setattr("app.resources.employees.service.apply_grants", fail)
     with pytest.raises(InvalidInputError):
         api_client.app.state.agents.update(
             agent["id"],

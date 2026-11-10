@@ -16,18 +16,19 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from test_capability_runtime import ScriptedModel, response
 from test_response_contract import employee
 
-from app.agent.tool_calls import validate_tool_names
+from app.applications.conversations.acceptance import ConversationAcceptance
+from app.applications.conversations.models import Conversation, ConversationRun, Message
 from app.bootstrap.app import create_app
-from app.conversations.acceptance import ConversationAcceptance
-from app.conversations.models import Conversation, ConversationRun, Message
-from app.errors import NotFoundError, PermissionDeniedError
-from app.execution.errors import PersistenceFailure
-from app.execution.models import Run, RunAction
-from app.execution.store import RunStore, require_run, retained_file_ids
-from app.files.models import StoredFile
+from app.common.errors import NotFoundError, PermissionDeniedError
+from app.common.values import utc_now
 from app.infrastructure.database.transactions import reserve_writer
+from app.resources.files.models import StoredFile
+from app.runtime.agent.tool_calls import validate_tool_names
 from app.runtime.contracts.runs import Completion
-from app.values import utc_now
+from app.runtime.execution.errors import PersistenceFailure
+from app.runtime.execution.models import Run, RunAction
+from app.runtime.execution.references import retained_file_ids
+from app.runtime.execution.store import RunStore, require_run
 
 
 @pytest.fixture
@@ -115,7 +116,9 @@ def test_task_runs_real_multiround_sdk_without_any_product_messages(direct, monk
             response("独立成果"),
         ]
     )
-    monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *args, **kwargs: model)
+    monkeypatch.setattr(
+        "app.infrastructure.llm.factory.create_chat_model", lambda *args, **kwargs: model
+    )
     id = accept_work(direct, agent)
     asyncio.run(execute_run(direct, id))
     result = load_run(direct, id)
@@ -203,7 +206,7 @@ def test_new_application_worker_repairs_acceptance_without_reexecuting(direct, m
     def forbidden(*args, **kwargs):
         raise AssertionError("Application adoption must not invoke a model")
 
-    monkeypatch.setattr("app.llm.factory.create_chat_model", forbidden)
+    monkeypatch.setattr("app.infrastructure.llm.factory.create_chat_model", forbidden)
     replacement = ConversationAcceptance(direct.app.state.database, direct.app.state.runs.authorize)
     replacement.sweep()
     done = direct.get(f"/api/conversations/{conversation}/responses/{reply['id']}").json()[

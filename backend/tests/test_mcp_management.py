@@ -2,11 +2,11 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from threading import Barrier
 
-from app.employees.tool_grants import assert_connections_unused
-from app.errors import ConflictError
-from app.mcp.definitions import McpDefinitionService
-from app.mcp.models import McpService, ToolConnection
-from app.mcp.schemas import McpServiceCreate
+from app.common.errors import ConflictError
+from app.resources.employees.tool_grants import assert_connections_unused
+from app.resources.mcp.definitions import McpDefinitionService
+from app.resources.mcp.models import McpService, ToolConnection
+from app.resources.mcp.schemas import McpServiceCreate
 
 
 def service(client, **changes):

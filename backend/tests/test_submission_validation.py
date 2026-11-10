@@ -5,11 +5,11 @@ import pytest
 from run_helpers import complete_run, read_reply
 from test_conversations import send, setup_agent
 
-from app.execution.errors import ExecutionFailure
-from app.execution.models import Run
-from app.execution.service import request_digest
-from app.execution.snapshot_rules import validate_snapshot
 from app.runtime.contracts.runs import Completion
+from app.runtime.execution.errors import ExecutionFailure
+from app.runtime.execution.models import Run
+from app.runtime.execution.service import request_digest
+from app.runtime.execution.snapshot_rules import validate_snapshot
 
 
 def test_retired_routes_are_absent_and_old_inputs_are_rejected(api_client):

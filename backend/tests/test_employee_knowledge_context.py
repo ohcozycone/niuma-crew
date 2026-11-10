@@ -8,12 +8,12 @@ from test_conversations import send
 from test_employee_knowledge import assemble
 from test_employee_knowledge_runtime import MARKER, KnowledgeModel, actions, configure
 
+from app.applications.conversations.context import accepted_run_id
 from app.auth.actor import Actor
-from app.conversations.context import accepted_run_id
-from app.execution.evidence_models import RunKnowledgeEvidence
-from app.execution.models import Run
-from app.knowledge.models import LibraryChunk
-from app.values import utc_now
+from app.common.values import utc_now
+from app.resources.knowledge.models import LibraryChunk
+from app.runtime.execution.evidence_models import RunKnowledgeEvidence
+from app.runtime.execution.models import Run
 
 
 def initial(client, monkeypatch):
@@ -124,7 +124,7 @@ def test_stale_or_omitted_history_loses_citation_authority_in_model_input(
     assert "请重新检索" in model.prompts[0]
     with api_client.app.state.database.transaction() as db:
         # 只清理本轮送模副本，已保存的成功历史不变。
-        from app.conversations.models import Message
+        from app.applications.conversations.models import Message
 
         assert citation in db.get(Message, first["id"]).body
         assert (
@@ -179,7 +179,7 @@ def test_deletion_after_acceptance_invalidates_inherited_evidence(api_client, mo
 def test_finished_checkpoint_rechecks_history_without_a_second_model_call(
     api_client, monkeypatch, delete_source
 ):
-    from app.conversations.models import Message
+    from app.applications.conversations.models import Message
 
     _, conversation, base, document, _, first, citation = initial(api_client, monkeypatch)
     accepted = send(api_client, conversation, "继续说明").json()["response"]

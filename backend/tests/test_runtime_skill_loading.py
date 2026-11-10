@@ -6,8 +6,8 @@ from langchain_core.tools import StructuredTool
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from runtime_helpers import MemoryContext, tool_runtime
 
-from app.agent.skills import SkillLoadingMiddleware, prepare_skills
-from app.agent.tool_calls import ToolExecutionMiddleware
+from app.runtime.agent.skills import SkillLoadingMiddleware, prepare_skills
+from app.runtime.agent.tool_calls import ToolExecutionMiddleware
 
 
 def test_unrelated_tools_can_run_in_parallel_through_skill_loading():

@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from app.agent.prompts import server_instructions, tool_instructions
+from app.runtime.agent.prompts import server_instructions, tool_instructions
 
 
 def test_knowledge_only_does_not_advertise_mcp_file_or_execution_capabilities():

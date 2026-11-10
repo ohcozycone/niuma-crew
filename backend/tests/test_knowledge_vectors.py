@@ -12,10 +12,10 @@ from test_knowledge_library import create, library_creator, process
 from test_knowledge_library import upload as stage_upload
 
 from app.auth.actor import Actor
-from app.errors import NotFoundError, PermissionDeniedError
-from app.knowledge.models import LibraryVectorIndex
-from app.knowledge.schemas import SearchRequest
-from app.values import utc_now
+from app.common.errors import NotFoundError, PermissionDeniedError
+from app.common.values import utc_now
+from app.resources.knowledge.models import LibraryVectorIndex
+from app.resources.knowledge.schemas import SearchRequest
 
 KEY = "test-siliconflow-key"
 
@@ -77,7 +77,7 @@ def upstream(monkeypatch):
         def __init__(self, **kwargs):
             super().__init__(transport=httpx.MockTransport(respond), **kwargs)
 
-    monkeypatch.setattr("app.llm.embeddings.httpx.Client", MockClient)
+    monkeypatch.setattr("app.infrastructure.llm.embeddings.httpx.Client", MockClient)
     return state
 
 
@@ -244,7 +244,7 @@ def test_upgrade_from_text_only_preserves_sources(app_config, monkeypatch):
     from legacy_knowledge_helpers import seed_text_library
     from sqlalchemy import text
 
-    from app.knowledge.search import KnowledgeSearch
+    from app.resources.knowledge.search import KnowledgeSearch
 
     database, files, config, actor, kb, document, chunks = seed_text_library(
         app_config, monkeypatch, "0013"
@@ -263,9 +263,9 @@ def test_upgrade_from_text_only_preserves_sources(app_config, monkeypatch):
 
 
 def test_rank_fusion_uses_ranks_and_deduplicates_chunks():
-    from app.knowledge.contracts import Chunk
-    from app.knowledge.retrieval import fuse_rankings
-    from app.knowledge.schemas import SearchHit
+    from app.resources.knowledge.contracts import Chunk
+    from app.resources.knowledge.retrieval import fuse_rankings
+    from app.resources.knowledge.schemas import SearchHit
 
     def hit(id, rank, score):
         return SearchHit(

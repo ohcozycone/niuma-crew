@@ -6,11 +6,11 @@ from fastapi.testclient import TestClient
 from run_helpers import complete_run, empty_conversation, reply_path
 from test_conversations import send, setup_agent
 
+from app.applications.conversations.queries import ConversationQueries
 from app.auth.models import User
 from app.auth.permissions import ROLE_PERMISSIONS
 from app.bootstrap.app import create_app
-from app.conversations.queries import ConversationQueries
-from app.errors import PermissionDeniedError
+from app.common.errors import PermissionDeniedError
 from app.runtime.contracts.runs import Completion
 
 

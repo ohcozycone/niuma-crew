@@ -10,21 +10,21 @@ from test_knowledge_vectors import upstream as upstream
 
 from app.auth.actor import Actor
 from app.auth.models import AuthSession, User
-from app.employees.knowledge import capture_knowledge
-from app.errors import (
+from app.common.errors import (
     ConflictError,
     InvalidInputError,
     NotFoundError,
     PermissionDeniedError,
     ServiceUnavailableError,
 )
-from app.execution.evidence_models import RunKnowledgeEvidence
-from app.execution.models import Run
+from app.common.values import new_uuid, utc_now
 from app.infrastructure.database.identifiers import allocate_id
-from app.knowledge.models import LibraryChunk
-from app.knowledge.schemas import LibraryCreate
+from app.resources.employees.knowledge import capture_knowledge
+from app.resources.knowledge.models import LibraryChunk
+from app.resources.knowledge.schemas import LibraryCreate
 from app.runtime.contracts.tools import ToolInvocation
-from app.values import new_uuid, utc_now
+from app.runtime.execution.evidence_models import RunKnowledgeEvidence
+from app.runtime.execution.models import Run
 
 
 def agent(client):

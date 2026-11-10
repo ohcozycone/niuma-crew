@@ -13,8 +13,8 @@ from app.auth.models import AuthSession, User
 from app.auth.permissions import ROLE_PERMISSIONS
 from app.auth.service import AuthService, token_digest
 from app.bootstrap.app import create_app
-from app.errors import AuthenticationError, RateLimitError
-from app.values import utc_now
+from app.common.errors import AuthenticationError, RateLimitError
+from app.common.values import utc_now
 
 HEADERS = {"Origin": "http://localhost:3000", "Content-Type": "application/json"}
 PASSWORD = "test-password-auth"
@@ -329,7 +329,7 @@ def test_guest_absolute_expiry_and_user_idle_touch(api_client):
 def test_cli_initialization_and_password_reset_do_not_echo_credentials(
     migrated_config, monkeypatch, capsys
 ):
-    from app.auth import cli
+    from app.cli import auth as cli
 
     monkeypatch.setattr(cli, "load_config", lambda: migrated_config)
     monkeypatch.setattr(cli.getpass, "getpass", lambda _: PASSWORD)

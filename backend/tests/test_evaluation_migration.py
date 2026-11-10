@@ -6,8 +6,8 @@ from alembic.config import Config
 from sqlalchemy import text
 
 from app.auth.service import AuthService
+from app.common.values import utc_now
 from app.infrastructure.database.session import Database
-from app.values import utc_now
 
 
 def test_0022_adds_assessments_without_rebuilding_existing_records(app_config, monkeypatch):

@@ -11,21 +11,22 @@ from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
 from app.auth.models import User
-from app.errors import (
+from app.common.errors import (
     ConflictError,
     InvalidInputError,
     PermissionDeniedError,
     ServiceUnavailableError,
 )
+from app.common.values import digest
 from app.infrastructure.credentials import CredentialUnavailableError, CredentialVault
 from app.infrastructure.database.session import Database
-from app.mcp.catalogs import ToolCatalogService
-from app.mcp.config import ToolConfig
-from app.mcp.connections import ToolConnectionService
-from app.mcp.definitions import McpDefinitionService
-from app.mcp.invocation import ToolInvocationService
-from app.mcp.models import McpService, ToolConnection
-from app.mcp.schemas import (
+from app.resources.mcp.catalogs import ToolCatalogService
+from app.resources.mcp.config import ToolConfig
+from app.resources.mcp.connections import ToolConnectionService
+from app.resources.mcp.definitions import McpDefinitionService
+from app.resources.mcp.invocation import ToolInvocationService
+from app.resources.mcp.models import McpService, ToolConnection
+from app.resources.mcp.schemas import (
     CatalogAnnotations,
     CatalogApprove,
     McpConfigImport,
@@ -34,7 +35,6 @@ from app.mcp.schemas import (
     ToolConnectionCreate,
     ToolConnectionPatch,
 )
-from app.values import digest
 
 
 def actor(user_id=None, role="guest"):

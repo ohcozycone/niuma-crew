@@ -4,10 +4,10 @@ import pytest
 from test_agent_foundations import SearchClient, search_grant, send
 from test_capability_runtime import ScriptedModel, discovery_response, execute, response, setup
 
-from app.agent.tool_discovery import ToolDiscovery
-from app.builtin_tools.tool_search import search_binding, search_tool
-from app.mcp.contracts import exposed_name
+from app.resources.mcp.contracts import exposed_name
+from app.runtime.agent.tool_discovery import ToolDiscovery
 from app.runtime.contracts.tools import catalog_hash
+from app.runtime.tools.tool_search import search_binding, search_tool
 
 
 def test_search_expands_next_request_and_saves_exact_parent_exposure(api_client, monkeypatch):
@@ -136,9 +136,9 @@ def test_official_parallel_commands_union_only_after_results_are_saved():
     from langgraph.prebuilt import ToolNode
     from runtime_helpers import MemoryContext, agent_runtime
 
-    from app.agent.checkpoints import AgentRunState
-    from app.agent.skills import prepare_skills
-    from app.agent.tool_calls import ToolExecutionMiddleware
+    from app.runtime.agent.checkpoints import AgentRunState
+    from app.runtime.agent.skills import prepare_skills
+    from app.runtime.agent.tool_calls import ToolExecutionMiddleware
 
     snapshot = fixture_snapshot()
     second = {
@@ -191,8 +191,8 @@ def test_official_parallel_commands_union_only_after_results_are_saved():
 
 
 def test_model_exposure_cannot_be_overwritten_or_reused_for_hidden_tool(api_client):
-    from app.execution.errors import ExecutionFailure
     from app.runtime.contracts.tools import ToolInvocation
+    from app.runtime.execution.errors import ExecutionFailure
 
     _, _, employee, conversation = setup(api_client)
     connection = search_grant(api_client, employee)
@@ -235,7 +235,7 @@ def test_model_exposure_cannot_be_overwritten_or_reused_for_hidden_tool(api_clie
 def test_candidate_budgets_fail_independently_of_model_context(
     api_client, monkeypatch, count, description, code
 ):
-    from app.employees.assembly import capture_tools
+    from app.resources.employees.assembly import capture_tools
 
     _, _, employee, conversation = setup(api_client)
     search_grant(api_client, employee)
@@ -251,7 +251,9 @@ def test_candidate_budgets_fail_independently_of_model_context(
         }
         for i in range(count)
     ]
-    monkeypatch.setattr("app.execution.snapshot.capture_tools", lambda *_: (candidates, False))
+    monkeypatch.setattr(
+        "app.runtime.execution.snapshot.capture_tools", lambda *_: (candidates, False)
+    )
     from uuid import uuid4
 
     accepted = api_client.post(
@@ -305,7 +307,7 @@ def test_real_catalog_keyword_queries_meet_recall_gate():
 
 
 def test_parameter_index_handles_boolean_combinations_and_bounded_nesting():
-    from app.agent.tool_discovery import parameter_text
+    from app.runtime.agent.tool_discovery import parameter_text
 
     value = {
         "properties": {
@@ -345,8 +347,8 @@ def test_parameter_index_handles_boolean_combinations_and_bounded_nesting():
 def test_revocation_after_discovery_stops_before_next_model_request(api_client, monkeypatch):
     from sqlalchemy import select
 
-    from app.employees.models import AgentToolGrant
-    from app.execution.context import RunContext
+    from app.resources.employees.models import AgentToolGrant
+    from app.runtime.execution.context import RunContext
 
     _, _, employee, conversation = setup(api_client)
     search_grant(api_client, employee)
@@ -373,8 +375,8 @@ def test_revocation_after_discovery_stops_before_next_model_request(api_client, 
 def test_parallel_discovery_union_over_context_never_sends_next_request(api_client, monkeypatch):
     from sqlalchemy import select
 
-    from app.employees.models import AgentToolGrant
-    from app.values import digest
+    from app.common.values import digest
+    from app.resources.employees.models import AgentToolGrant
 
     original = SearchClient.catalog[0]
     catalog = [

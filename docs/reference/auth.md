@@ -74,8 +74,8 @@ FastAPI 是唯一会话签发和校验方，SQLite 为会话存储。通过 `Set
 
 | 资源 | 展示模型入口                                          | 保护边界                                                                                    |
 | ---- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| 员工 | [PublicAgent](../../backend/app/employees/schemas.py) | 只给展示资料、启用技能 ID、只读资源摘要及模型配置标记；不暴露指令、关系参数、连接 ID 或凭证 |
-| 技能 | [PublicSkill](../../backend/app/skills/schemas.py)    | 只给用途与展示资料、引用计数；不暴露内部指令、参数规范及修订管理字段                        |
+| 员工 | [PublicAgent](../../backend/app/resources/employees/schemas.py) | 只给展示资料、启用技能 ID、只读资源摘要及模型配置标记；不暴露指令、关系参数、连接 ID 或凭证 |
+| 技能 | [PublicSkill](../../backend/app/resources/skills/schemas.py)    | 只给用途与展示资料、引用计数；不暴露内部指令、参数规范及修订管理字段                        |
 
 字段名称、类型与默认由各显式 DTO 和 OpenAPI 维护，完整分页与读取语义见[配置 API](configuration.md)，本页不重复另一份字段清单。
 

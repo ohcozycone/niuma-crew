@@ -6,35 +6,35 @@ from typing import Annotated
 from fastapi import Depends, Request
 
 from app.api.rate_limit import RateLimiter
+from app.applications.conversations.commands import ConversationService
+from app.applications.conversations.files import ConversationFiles
+from app.applications.conversations.queries import ConversationQueries
+from app.applications.evaluations.commands import EvaluationCommands
+from app.applications.evaluations.queries import EvaluationQueries
 from app.auth.actor import Actor
 from app.auth.github import GitHubOAuth
 from app.auth.permissions import require_permission
 from app.auth.service import AuthService
-from app.conversations.files import ConversationFiles
-from app.conversations.queries import ConversationQueries
-from app.conversations.service import ConversationService
-from app.employees.organization_rules import OrganizationRulesService
-from app.employees.service import AgentService
-from app.environments.service import SandboxService
-from app.errors import PermissionDeniedError
-from app.evaluations.commands import EvaluationCommands
-from app.evaluations.queries import EvaluationQueries
-from app.execution.knowledge_evidence import KnowledgeEvidence
-from app.execution.queries import ExecutionQueries
-from app.files.service import FileService
+from app.common.errors import PermissionDeniedError
 from app.infrastructure.database.session import Database
-from app.knowledge.documents import KnowledgeDocuments
-from app.knowledge.libraries import KnowledgeLibraries
-from app.knowledge.processing import KnowledgeProcessingService
-from app.knowledge.search import KnowledgeSearch
-from app.knowledge.vectors import KnowledgeVectorService
-from app.mcp.catalogs import ToolCatalogService
-from app.mcp.connections import ToolConnectionService
-from app.mcp.definitions import McpDefinitionService
-from app.mcp.oauth import OAuthService
-from app.model_connections.service import ModelConnectionService
+from app.resources.employees.service import AgentService
+from app.resources.environments.service import SandboxService
+from app.resources.files.service import FileService
+from app.resources.knowledge.documents import KnowledgeDocuments
+from app.resources.knowledge.libraries import KnowledgeLibraries
+from app.resources.knowledge.processing import KnowledgeProcessingService
+from app.resources.knowledge.search import KnowledgeSearch
+from app.resources.knowledge.vectors import KnowledgeVectorService
+from app.resources.mcp.catalogs import ToolCatalogService
+from app.resources.mcp.connections import ToolConnectionService
+from app.resources.mcp.definitions import McpDefinitionService
+from app.resources.mcp.oauth import OAuthService
+from app.resources.model_connections.service import ModelConnectionService
+from app.resources.organization_rules.service import OrganizationRulesService
+from app.resources.skills.service import SkillService
 from app.runtime.contracts.runs import ExecutionStatus
-from app.skills.service import SkillService
+from app.runtime.execution.knowledge_evidence import KnowledgeEvidence
+from app.runtime.execution.queries import ExecutionQueries
 
 
 def get_database(request: Request) -> Database:

@@ -21,17 +21,17 @@ from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 from sqlalchemy import URL, select
 
-from app.agent import engine, prompts
 from app.auth.service import AuthService
 from app.bootstrap.app import create_app
+from app.common.values import digest
 from app.config import AppConfig, DatabaseConfig, load_config
-from app.execution.config import RuntimeConfig
-from app.execution.models import RunAction
-from app.execution.tool_results import ToolResults
 from app.infrastructure.credentials import CredentialVault
 from app.infrastructure.database.session import Database
-from app.skills.config import SkillConfig
-from app.values import digest
+from app.resources.skills.config import SkillConfig
+from app.runtime.agent import engine, prompts
+from app.runtime.execution.config import RuntimeConfig
+from app.runtime.execution.models import RunAction
+from app.runtime.execution.tool_results import ToolResults
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -40,8 +40,8 @@ STOP = prompts.RESULT_READING_POLICY
 
 
 def empty_conversation(client, employee):
-    from app.conversations.queries import read_conversation
-    from app.conversations.writes import create_conversation
+    from app.applications.conversations.queries import read_conversation
+    from app.applications.conversations.writes import create_conversation
 
     actor = client.app.state.auth.resolve(client.cookies.get("app_session"))
     with client.app.state.database.transaction() as db:
@@ -388,9 +388,9 @@ def main(args):
         "source_hashes": {
             p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest()
             for p in [
-                "backend/app/agent/tool_discovery.py",
-                "backend/app/agent/engine.py",
-                "backend/app/builtin_tools/result_files.py",
+                "backend/app/runtime/agent/tool_discovery.py",
+                "backend/app/runtime/agent/engine.py",
+                "backend/app/runtime/tools/result_files.py",
             ]
         },
         "results": [],

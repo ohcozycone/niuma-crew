@@ -9,10 +9,10 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import OperationalError
 from test_capability_runtime import ScriptedModel, response, setup, submit
 
-from app.agent.checkpoints import CheckpointStore
-from app.agent.engine import execute_agent
-from app.execution.models import Run, RunAction
+from app.runtime.agent.checkpoints import CheckpointStore
+from app.runtime.agent.engine import execute_agent
 from app.runtime.contracts.agent import AgentRequest
+from app.runtime.execution.models import Run, RunAction
 
 
 def test_real_sdk_runs_with_memory_control_and_its_own_checkpoint_store(
@@ -36,7 +36,9 @@ def test_real_sdk_runs_with_memory_control_and_its_own_checkpoint_store(
             response("独立完成"),
         ]
     )
-    monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *args, **kwargs: model)
+    monkeypatch.setattr(
+        "app.infrastructure.llm.factory.create_chat_model", lambda *args, **kwargs: model
+    )
     config = api_client.app.state.model_connections.resolve(row.config_snapshot["connection_id"])
     control = MemoryContext()
     input = AgentRequest(row.id, row.config_snapshot, messages, config, thread_id=row.thread_id)
@@ -98,8 +100,12 @@ def imported_modules(source: str, package: str) -> set[str]:
         ("import app.bootstrap as setup", "app.api", "app.bootstrap"),
         ("from app import bootstrap", "app.api", "app.bootstrap"),
         ("from .. import bootstrap", "app.api", "app.bootstrap"),
-        ("from ..auth import service", "app.llm", "app.auth.service"),
-        ("from app.infrastructure import database", "app.llm", "app.infrastructure.database"),
+        ("from ...auth import service", "app.infrastructure.llm", "app.auth.service"),
+        (
+            "from app.infrastructure import database",
+            "app.infrastructure.llm",
+            "app.infrastructure.database",
+        ),
     ],
 )
 def test_import_guard_resolves_aliases_package_imports_and_relative_imports(
@@ -113,93 +119,108 @@ def test_dependency_directions_prevent_sdk_and_application_state_leaks():
     sdk_packages = ("langchain", "langchain_core", "langgraph", "deepagents")
     persistence_forbidden = (
         "app.api",
-        "app.conversations",
-        "app.agent.engine",
-        "app.execution.snapshot",
-        "app.agent.prompts",
-        "app.agent.model_calls",
-        "app.agent.tool_calls",
-        "app.agent.skills",
-        "app.builtin_tools.workspace",
-        "app.agent.checkpoints",
-        "app.agent.streaming",
-        "app.agent.config",
+        "app.applications.conversations",
+        "app.runtime.agent.engine",
+        "app.runtime.execution.snapshot",
+        "app.runtime.agent.prompts",
+        "app.runtime.agent.model_calls",
+        "app.runtime.agent.tool_calls",
+        "app.runtime.agent.skills",
+        "app.runtime.tools.workspace",
+        "app.runtime.agent.checkpoints",
+        "app.runtime.agent.streaming",
+        "app.runtime.agent.config",
         *sdk_packages,
     )
     rules = {
-        "evaluations": (
+        "applications/evaluations": (
             "app.api",
-            "app.conversations",
-            "app.agent.engine",
+            "app.applications.conversations",
+            "app.runtime.agent.engine",
             "fastapi",
             *sdk_packages,
         ),
-        "execution": (
+        "runtime/execution": (
             "app.api",
-            "app.conversations",
-            "app.evaluations",
-            "app.public_errors",
+            "app.applications.conversations",
+            "app.applications.evaluations",
+            "app.common.public_errors",
             "fastapi",
             *sdk_packages,
         ),
-        "execution/models.py": persistence_forbidden,
-        "execution/store.py": persistence_forbidden,
-        "builtin_tools": (
-            "app.agent",
-            "app.execution",
-            "app.employees",
+        "runtime/execution/models.py": persistence_forbidden,
+        "runtime/execution/store.py": persistence_forbidden,
+        "runtime/tools": (
+            "app.runtime.agent",
+            "app.runtime.execution",
+            "app.resources.employees",
             "app.auth",
             "sqlalchemy",
             "fastapi",
         ),
-        "agent": (
-            "app.public_errors",
+        "runtime/agent": (
+            "app.common.public_errors",
             "app.api",
             "app.auth",
-            "app.employees",
-            "app.execution",
-            "app.conversations",
+            "app.resources.employees",
+            "app.runtime.execution",
+            "app.applications.conversations",
             "sqlalchemy",
             "fastapi",
         ),
-        "agent/prompts.py": ("app", "sqlalchemy", *sdk_packages),
-        "execution/snapshot.py": ("app.api", "app.conversations", *sdk_packages),
+        "runtime/agent/prompts.py": ("app", "sqlalchemy", *sdk_packages),
+        "runtime/execution/snapshot.py": (
+            "app.api",
+            "app.applications.conversations",
+            *sdk_packages,
+        ),
         "infrastructure/concurrency.py": ("app", "sqlalchemy", *sdk_packages),
         "infrastructure/settings.py": ("app", "sqlalchemy", *sdk_packages),
-        "conversations": ("app.api", "fastapi"),
-        "capability_catalog": ("app.api", "fastapi", "app.execution", "app.agent"),
-        "mcp": ("app.api", "app.conversations", "app.execution", "app.agent", "app.employees"),
-        "files": (
+        "applications/conversations": ("app.api", "fastapi"),
+        "resources/capability_catalog": (
             "app.api",
-            "app.conversations",
-            "app.execution",
-            "app.agent",
-            "app.employees",
+            "fastapi",
+            "app.runtime.execution",
+            "app.runtime.agent",
+        ),
+        "resources/mcp": (
+            "app.api",
+            "app.applications.conversations",
+            "app.runtime.execution",
+            "app.runtime.agent",
+            "app.resources.employees",
+        ),
+        "resources/files": (
+            "app.api",
+            "app.applications.conversations",
+            "app.runtime.execution",
+            "app.runtime.agent",
+            "app.resources.employees",
             *sdk_packages,
         ),
-        "environments": (
+        "resources/environments": (
             "app.api",
-            "app.conversations",
-            "app.execution",
-            "app.agent",
-            "app.employees",
+            "app.applications.conversations",
+            "app.runtime.execution",
+            "app.runtime.agent",
+            "app.resources.employees",
             *sdk_packages,
         ),
-        "llm": (
+        "infrastructure/llm": (
             "app.api",
             "app.auth",
-            "app.employees",
-            "app.conversations",
-            "app.execution",
-            "app.agent",
-            "app.model_connections",
-            "app.knowledge",
-            "app.skills",
-            "app.mcp",
-            "app.files",
-            "app.environments",
+            "app.resources.employees",
+            "app.applications.conversations",
+            "app.runtime.execution",
+            "app.runtime.agent",
+            "app.resources.model_connections",
+            "app.resources.knowledge",
+            "app.resources.skills",
+            "app.resources.mcp",
+            "app.resources.files",
+            "app.resources.environments",
             "app.organization_rules",
-            "app.capability_catalog",
+            "app.resources.capability_catalog",
             "app.infrastructure.database",
             "app.bootstrap",
             "app.main",
@@ -221,7 +242,7 @@ def test_dependency_directions_prevent_sdk_and_application_state_leaks():
                 for module in modules
                 for prefix in effective_forbidden
             ), path
-            if directory == "agent":
+            if directory == "runtime/agent":
                 tree = ast.parse(source)
                 assert not any(
                     isinstance(node, ast.Attribute)

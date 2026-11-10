@@ -13,7 +13,7 @@ from app.api.dependencies import (
     ExecutionQueriesDependency,
 )
 from app.api.streaming import ResponseEventsDependency
-from app.conversations.schemas import (
+from app.applications.conversations.schemas import (
     AcceptedSubmission,
     ConversationRead,
     ConversationSnapshot,
@@ -28,7 +28,7 @@ from app.conversations.schemas import (
     RetryRequest,
     SendRequest,
 )
-from app.schemas import Page, RecordID
+from app.common.schemas import Page, RecordID
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["conversations"])

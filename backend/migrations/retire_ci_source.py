@@ -22,10 +22,10 @@ from urllib.parse import quote
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import ArgumentError
 
-from app.errors import ServiceError
-from app.skills.definitions import definition_from_record
-from app.skills.library import SkillLibrary, fingerprint
-from app.skills.packages import checked_package_path
+from app.common.errors import ServiceError
+from app.resources.skills.definitions import definition_from_record
+from app.resources.skills.library import SkillLibrary, fingerprint
+from app.resources.skills.packages import checked_package_path
 
 CI_SKILL_ID = "6e69bf0e-84ca-44fd-8afb-d299a63d4381"
 

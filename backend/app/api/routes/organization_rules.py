@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from app.api.dependencies import ActorDependency, OrganizationRulesDependency, require_capability
 from app.api.errors import SERVICE_ERROR_RESPONSES
-from app.employees.schemas import OrganizationRulesRead, OrganizationRulesUpdate
+from app.resources.organization_rules.schemas import OrganizationRulesRead, OrganizationRulesUpdate
 
 router = APIRouter(
     prefix="/api/organization-rules", tags=["organization-rules"], responses=SERVICE_ERROR_RESPONSES

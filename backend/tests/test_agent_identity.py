@@ -5,7 +5,7 @@ from configuration_helpers import patch_current, set_submission_limits
 from run_helpers import reply_path
 from test_capability_runtime import ScriptedModel, execute, response, setup, submit
 
-from app.agent.prompts import compose_system_prompt
+from app.runtime.agent.prompts import compose_system_prompt
 
 
 @pytest.mark.parametrize("rules", ["", "禁止编造执行结果。"])

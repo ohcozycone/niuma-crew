@@ -4,9 +4,9 @@ import pytest
 from test_knowledge_library import create, process, upload
 
 from app.auth.actor import Actor
-from app.errors import PermissionDeniedError
-from app.knowledge.models import KnowledgeBase, LibraryChunk
-from app.values import utc_now
+from app.common.errors import PermissionDeniedError
+from app.common.values import utc_now
+from app.resources.knowledge.models import KnowledgeBase, LibraryChunk
 
 
 def fixture(client):

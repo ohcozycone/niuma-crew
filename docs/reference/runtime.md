@@ -24,9 +24,9 @@ Run 的 result_text/result_data 是执行成果，Message 是应用接纳后的�
 
 一次被接受的输入建立一条 Run；幂等重放、打开对话和观察连接不新增 Run。不同用户或不同对话使用同一位员工时，各自的输入、历史、资源依据和成果属于各自 Run。累计工作数量与当前同时执行数量分别计算。
 
-全平台不再设置 Run 同时执行数量上限。[RunWorker](../../backend/app/execution/scheduler.py) 在服务就绪时调度已接受 queued 记录，并用在途任务表防止同一 Run 重复启动。队列容量、单用户未结束容量、同一对话只接受一份活动工作、动作预算、时限和资源许可仍分别生效；取消总量门槛不扩大任何资源权限。
+全平台不再设置 Run 同时执行数量上限。[RunWorker](../../backend/app/runtime/execution/scheduler.py) 在服务就绪时调度已接受 queued 记录，并用在途任务表防止同一 Run 重复启动。队列容量、单用户未结束容量、同一对话只接受一份活动工作、动作预算、时限和资源许可仍分别生效；取消总量门槛不扩大任何资源权限。
 
-原 `RuntimeConfig.concurrency / RUN_CONCURRENCY` 已移除或不再读取。当前配置入口见[运行配置](../../backend/app/execution/config.py)；已确认的文件职责与方法协作见[运行管理标准](../records/README.md)。
+原 `RuntimeConfig.concurrency / RUN_CONCURRENCY` 已移除或不再读取。当前配置入口见[运行配置](../../backend/app/runtime/execution/config.py)；已确认的文件职责与方法协作见[运行管理标准](../records/README.md)。
 
 ## checkpoint、历史与恢复
 
@@ -157,7 +157,7 @@ CI 对话诊断试验已退役，专用执行、报告/反馈及配置入口移�
 
 ## 快照版本与实现入口
 
-当前版本和支持集合由[执行契约常量](../../backend/app/execution/contracts.py)维护，当前快照为版本8且只恢复该版本；旧个人资源线程在新一轮显式重置工作上下文，正式历史保留。不支持的恢复输入明确中断。升级运行代码前按[运维指南](../guides/backend-operations.md)核对活动工作和备份。内部控制链见[执行机制](../../backend/app/execution/README.md)。
+当前版本和支持集合由[执行契约常量](../../backend/app/runtime/contracts/runs.py)维护，当前快照为版本8且只恢复该版本；旧个人资源线程在新一轮显式重置工作上下文，正式历史保留。不支持的恢复输入明确中断。升级运行代码前按[运维指南](../guides/backend-operations.md)核对活动工作和备份。内部控制链见[执行机制](../../backend/app/runtime/execution/README.md)。
 
 ## 失败分类与步骤定位
 

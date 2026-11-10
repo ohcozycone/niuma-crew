@@ -114,7 +114,7 @@ OPENSANDBOX_TTL_SECONDS=240
 1. 在实际运行沙箱的 Linux Docker 主机进入 `backend/`，使用同一环境执行：
 
    ```bash
-   uv run python -m app.environments.verify --output /etc/niuma-sandbox/verified-profile.json
+   uv run python -m app.cli.verify_environment --output /etc/niuma-sandbox/verified-profile.json
    ```
 
    输出路径须与 `OPENSANDBOX_VERIFIED_PROFILE` 一致。程序会创建测试沙箱，检查实际运行时、UID、权限、CPU、内存、进程限制、网络和磁盘拒绝行为，最后销毁。默认磁盘探针最多写到约 256 MiB，主机需预留空间。
@@ -132,13 +132,13 @@ OPENSANDBOX_TTL_SECONDS=240
 在 `backend/` 用服务实际环境查看记录：
 
 ```bash
-uv run python -m app.environments.cli
+uv run python -m app.cli.environments
 ```
 
 创建结果未知且尚无远端 ID 时，平台会保留容量占用。先核对服务日志、实际资源与到期时间；确认已过期且没有遗留环境后，才可执行：
 
 ```bash
-uv run python -m app.environments.cli --resolve-absent <申请ID> --confirm-absent
+uv run python -m app.cli.environments --resolve-absent <申请ID> --confirm-absent
 ```
 
 命令会再次按归属信息查询。尚未到期、已取得远端 ID 或归属其他部署的记录，不能用此方式清除。

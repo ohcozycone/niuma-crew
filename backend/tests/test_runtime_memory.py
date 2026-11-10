@@ -12,7 +12,7 @@ from test_capability_runtime import (
 )
 from test_employee_knowledge_runtime import KnowledgeModel, configure
 
-from app.execution.models import Run
+from app.runtime.execution.models import Run
 
 
 def saved_state(client, run_id):
@@ -106,7 +106,7 @@ def test_added_skill_is_discovered_next_turn_without_losing_ordinary_memory(
 def test_added_mcp_is_registered_and_callable_next_turn_with_memory(api_client, monkeypatch):
     from test_agent_foundations import SearchClient, search_grant
 
-    from app.mcp.contracts import exposed_name
+    from app.resources.mcp.contracts import exposed_name
 
     _, _, agent, conversation = setup(api_client)
     first = submit(api_client, conversation, content="FIRST_MCP_MARKER").json()["response"]
@@ -197,7 +197,7 @@ def test_old_output_is_not_republished_when_next_turn_keeps_messages(api_client,
 def test_revoking_inherited_mcp_blocks_memory_before_next_model(api_client, monkeypatch):
     from test_agent_foundations import SearchClient, search_grant
 
-    from app.mcp.contracts import exposed_name
+    from app.resources.mcp.contracts import exposed_name
 
     skill, _, agent, conversation = setup(api_client)
     SearchClient.calls, SearchClient.before_guard = 0, None

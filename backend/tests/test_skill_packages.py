@@ -9,13 +9,13 @@ from deepagents.backends.protocol import ExecuteResponse
 from run_helpers import empty_conversation, read_reply
 from test_capability_runtime import ScriptedModel, execute, response, submit
 
-from app.agent.skills import prepare_skills
-from app.builtin_tools.sandbox_backend import SandboxFileBackend
-from app.builtin_tools.workspace import WorkspaceBackend
-from app.environments.open_sandbox import OpenSandboxOperations
-from app.errors import InvalidInputError
-from app.execution.models import Run
-from app.skills.packages import archive_files, parse_skill_md
+from app.common.errors import InvalidInputError
+from app.resources.environments.open_sandbox import OpenSandboxOperations
+from app.resources.skills.packages import archive_files, parse_skill_md
+from app.runtime.agent.skills import prepare_skills
+from app.runtime.execution.models import Run
+from app.runtime.tools.sandbox_backend import SandboxFileBackend
+from app.runtime.tools.workspace import WorkspaceBackend
 
 SOURCE = "---\nname: table-report\ndescription: Generate a report from an input table\nlicense: MIT\n---\nRead references/rules.md, then run scripts/analyze.py.\n"
 

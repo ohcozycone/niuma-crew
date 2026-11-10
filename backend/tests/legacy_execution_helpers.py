@@ -6,7 +6,7 @@ from alembic import command
 from checkpoint_helpers import publication_graph
 from langchain_core.messages import AIMessage, HumanMessage
 
-from app.agent.checkpoints import CheckpointStore, checkpoint_config
+from app.runtime.agent.checkpoints import CheckpointStore, checkpoint_config
 
 
 def seed_legacy(config, path, revision="0003"):

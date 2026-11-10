@@ -23,8 +23,8 @@ print(json.dumps(sorted(sys.modules)))
         "langgraph",
         "deepagents",
         "fastapi",
-        "app.agent",
-        "app.execution",
+        "app.runtime.agent",
+        "app.runtime.execution",
         "app.bootstrap",
         "app.infrastructure.database",
     )

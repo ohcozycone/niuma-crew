@@ -10,9 +10,9 @@ from sqlalchemy import delete, select, update
 from app.auth.actor import Actor
 from app.auth.config import AuthConfig
 from app.auth.models import AuthSession, ExternalIdentity, User
-from app.errors import AuthenticationError, PermissionDeniedError
+from app.common.errors import AuthenticationError, PermissionDeniedError
+from app.common.values import utc_now
 from app.infrastructure.database.session import Database
-from app.values import utc_now
 
 PASSWORDS = PasswordHash.recommended()
 DUMMY_HASH = PASSWORDS.hash(secrets.token_urlsafe(32))

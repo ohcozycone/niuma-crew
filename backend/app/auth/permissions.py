@@ -1,5 +1,5 @@
 from app.auth.actor import Actor
-from app.errors import NotFoundError, PermissionDeniedError
+from app.common.errors import NotFoundError, PermissionDeniedError
 
 PUBLIC_PERMISSIONS = frozenset({"agents:read_public", "skills:read_public"})
 GUEST_PERMISSIONS = PUBLIC_PERMISSIONS | {

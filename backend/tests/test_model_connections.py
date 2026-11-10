@@ -14,10 +14,10 @@ from sqlalchemy.exc import IntegrityError
 from app.auth.models import AuthSession
 from app.auth.permissions import ROLE_PERMISSIONS
 from app.bootstrap.app import create_app
+from app.common.values import utc_now
 from app.infrastructure.credentials import CredentialUnavailableError, CredentialVault
 from app.infrastructure.database.transactions import reserve_writer
-from app.model_connections.models import ModelConnection
-from app.values import utc_now
+from app.resources.model_connections.models import ModelConnection
 
 KEY = "test-only-key-not-a-real-credential"
 
@@ -149,7 +149,7 @@ def test_new_chat_presets_save_resolve_bind_and_check(
         return httpx.Response(status, json={"data": [{"id": model_id}]})
 
     monkeypatch.setattr(
-        "app.llm.probe.httpx.Client",
+        "app.infrastructure.llm.probe.httpx.Client",
         lambda **kwargs: original_client(transport=httpx.MockTransport(handle), **kwargs),
     )
     check = api_client.post(f"/api/model-connections/{item['id']}/test", json={})
@@ -354,7 +354,7 @@ def test_provider_check_is_bounded_safe_and_does_not_generate(
         assert kwargs == {"timeout": 8, "follow_redirects": False, "trust_env": False}
         return original_client(transport=httpx.MockTransport(handle), **kwargs)
 
-    monkeypatch.setattr("app.llm.probe.httpx.Client", factory)
+    monkeypatch.setattr("app.infrastructure.llm.probe.httpx.Client", factory)
     response = api_client.post(f"/api/model-connections/{item['id']}/test", json={})
     assert response.status_code == 200 and response.json()["ok"] is success
     assert KEY not in response.text
@@ -383,7 +383,7 @@ def test_provider_timeout_response_limit_and_rate_limit(api_client, monkeypatch)
         )
 
     monkeypatch.setattr(
-        "app.llm.probe.httpx.Client",
+        "app.infrastructure.llm.probe.httpx.Client",
         lambda **kwargs: original_client(transport=httpx.MockTransport(handle), **kwargs),
     )
     for _ in range(5):

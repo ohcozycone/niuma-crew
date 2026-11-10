@@ -8,9 +8,9 @@ from fastapi.testclient import TestClient
 
 from app.bootstrap.app import create_app
 from app.bootstrap.services import check_employee_history
-from app.employees.models import AgentSkill
 from app.infrastructure.database.session import Database
-from app.skills.models import Skill
+from app.resources.employees.models import AgentSkill
+from app.resources.skills.models import Skill
 
 
 def create_skill(client, **values):
@@ -437,8 +437,8 @@ def test_shell_aggregate_is_independent_of_page_and_safe_for_guest(api_client, m
 def test_directory_queries_are_bounded_and_do_not_load_method_bodies(api_client):
     from sqlalchemy import event
 
-    from app.employees.models import Agent
-    from app.employees.service import AgentService
+    from app.resources.employees.models import Agent
+    from app.resources.employees.service import AgentService
 
     database = api_client.app.state.database
     with database.transaction() as db:

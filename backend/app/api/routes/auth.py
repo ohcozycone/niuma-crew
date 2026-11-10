@@ -18,8 +18,8 @@ from app.auth.actor import Actor
 from app.auth.config import normalize_origin
 from app.auth.github import OAUTH_COOKIE, OAUTH_COOKIE_PATH, OAUTH_TTL
 from app.auth.permissions import permissions_for
-from app.errors import InvalidInputError, ServiceError
-from app.schemas import RequestModel
+from app.common.errors import InvalidInputError, ServiceError
+from app.common.schemas import RequestModel
 
 COOKIE_NAME = "app_session"
 logger = logging.getLogger(__name__)

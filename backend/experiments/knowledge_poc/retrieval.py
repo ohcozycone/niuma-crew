@@ -5,7 +5,7 @@ from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
 from pydantic import ConfigDict
 
-from app.knowledge.contracts import Chunk, RetrievalStrategy, TokenCount
+from app.resources.knowledge.contracts import Chunk, RetrievalStrategy, TokenCount
 from experiments.knowledge_poc.contracts import Candidate, RetrievalPreset, RetrievalResult
 from experiments.knowledge_poc.indexing import Release, lexical_terms
 

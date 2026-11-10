@@ -11,11 +11,11 @@ from test_knowledge_library import create
 from app.api.dependencies import get_actor, get_knowledge_evidence
 from app.api.routes.knowledge import source_router
 from app.auth.actor import Actor
-from app.errors import ConflictError, NotFoundError, PermissionDeniedError
-from app.execution.evidence_models import RunKnowledgeEvidence
-from app.execution.models import Run
-from app.knowledge.models import LibraryChunk
-from app.values import utc_now
+from app.common.errors import ConflictError, NotFoundError, PermissionDeniedError
+from app.common.values import utc_now
+from app.resources.knowledge.models import LibraryChunk
+from app.runtime.execution.evidence_models import RunKnowledgeEvidence
+from app.runtime.execution.models import Run
 
 
 def prepared(client, *, owner=None):

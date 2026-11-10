@@ -18,7 +18,7 @@ from app.api.errors import register_error_handlers
 from app.api.routes.conversations import router
 from app.api.streaming import subscribe
 from app.auth.permissions import ROLE_PERMISSIONS
-from app.errors import AuthenticationError, PermissionDeniedError
+from app.common.errors import AuthenticationError, PermissionDeniedError
 
 
 def parse_events(text):

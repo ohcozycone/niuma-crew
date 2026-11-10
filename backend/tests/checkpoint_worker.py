@@ -13,9 +13,9 @@ from sqlalchemy import URL
 
 from app.bootstrap.app import create_app
 from app.config import AppConfig, DatabaseConfig
-from app.execution.config import RuntimeConfig
-from app.llm import factory
-from app.skills.config import SkillConfig
+from app.infrastructure.llm import factory
+from app.resources.skills.config import SkillConfig
+from app.runtime.execution.config import RuntimeConfig
 
 
 class CheckpointModel(BaseChatModel):

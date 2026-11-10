@@ -10,7 +10,7 @@ from starlette.responses import Response
 
 from app.api.errors import register_error_handlers
 from app.api.failure_boundary import FailureBoundaryMiddleware, ResponseStartedFailure
-from app.errors import ServiceError
+from app.common.errors import ServiceError
 
 
 def failure_app(error):

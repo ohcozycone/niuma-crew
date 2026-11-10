@@ -5,9 +5,9 @@ from app.api.dependencies import (
     DatabaseDependency,
     require_capability,
 )
-from app.capability_catalog.queries import list_capabilities
-from app.capability_catalog.schemas import CapabilityRead
-from app.schemas import Page
+from app.common.schemas import Page
+from app.resources.capability_catalog.queries import list_capabilities
+from app.resources.capability_catalog.schemas import CapabilityRead
 
 router = APIRouter(tags=["capabilities"])
 

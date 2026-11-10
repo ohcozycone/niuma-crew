@@ -1,6 +1,6 @@
 from langgraph.graph import END, START, StateGraph
 
-from app.agent.checkpoints import AgentRunState, checkpoint_config
+from app.runtime.agent.checkpoints import AgentRunState, checkpoint_config
 
 
 def publication_graph(saver):

@@ -2,52 +2,56 @@ from functools import partial
 from pathlib import Path
 
 from app.api.rate_limit import RateLimiter
+from app.applications.conversations.acceptance import ConversationAcceptance
+from app.applications.conversations.commands import ConversationService
+from app.applications.conversations.files import ConversationFiles, retained_file_ids
+from app.applications.conversations.queries import ConversationQueries
+from app.applications.conversations.references import assert_employee_unused as conversation_history
+from app.applications.evaluations.commands import EvaluationCommands
+from app.applications.evaluations.progression import EvaluationProgression
+from app.applications.evaluations.queries import EvaluationQueries
+from app.applications.evaluations.references import assert_employee_unused as evaluation_history
+from app.applications.evaluations.worker import EvaluationWorker
 from app.auth.github import GitHubOAuth
 from app.auth.service import AuthService
-from app.conversations.acceptance import ConversationAcceptance
-from app.conversations.files import ConversationFiles, retained_file_ids
-from app.conversations.queries import ConversationQueries
-from app.conversations.references import assert_employee_unused as conversation_history
-from app.conversations.service import ConversationService
-from app.employees.organization_rules import OrganizationRulesService
-from app.employees.references import assert_model_unused as employee_model
-from app.employees.references import model_employees, skill_assignment_counts, skill_assignments
-from app.employees.service import AgentService
-from app.employees.tool_grants import assert_connections_unused
-from app.environments.service import SandboxService
-from app.errors import ConflictError
-from app.evaluations.commands import EvaluationCommands
-from app.evaluations.progression import EvaluationProgression
-from app.evaluations.queries import EvaluationQueries
-from app.evaluations.references import assert_employee_unused as evaluation_history
-from app.evaluations.worker import EvaluationWorker
-from app.execution.assembly import build_execution
-from app.execution.knowledge import KnowledgeAccess, RunKnowledgeSearch
-from app.execution.knowledge_evidence import KnowledgeEvidence
-from app.execution.queries import ExecutionQueries
-from app.execution.references import model_in_use as execution_model
-from app.execution.references import retained_file_ids as retained_run_files
-from app.execution.service import active_run_ids
-from app.files.cleanup import FileCleanup
-from app.files.service import FileService
+from app.common.errors import ConflictError
 from app.infrastructure.credentials import CredentialVault
 from app.infrastructure.database.session import Database
 from app.infrastructure.observability import ExecutionLogs
-from app.knowledge.documents import KnowledgeDocuments
-from app.knowledge.libraries import KnowledgeLibraries
-from app.knowledge.processing import KnowledgeProcessingService
-from app.knowledge.references import assert_model_unused as knowledge_model
-from app.knowledge.references import retained_file_ids as retained_knowledge_files
-from app.knowledge.search import KnowledgeSearch
-from app.knowledge.vectors import KnowledgeVectorService
-from app.knowledge.worker import KnowledgeWorker
-from app.mcp.catalogs import ToolCatalogService
-from app.mcp.connections import ToolConnectionService
-from app.mcp.definitions import McpDefinitionService
-from app.mcp.invocation import ToolInvocationService
-from app.mcp.oauth import OAuthService
-from app.model_connections.service import ModelConnectionService
-from app.skills.service import SkillService
+from app.resources.employees.references import assert_model_unused as employee_model
+from app.resources.employees.references import (
+    model_employees,
+    skill_assignment_counts,
+    skill_assignments,
+)
+from app.resources.employees.service import AgentService
+from app.resources.employees.tool_grants import assert_connections_unused
+from app.resources.environments.service import SandboxService
+from app.resources.files.cleanup import FileCleanup
+from app.resources.files.service import FileService
+from app.resources.knowledge.documents import KnowledgeDocuments
+from app.resources.knowledge.libraries import KnowledgeLibraries
+from app.resources.knowledge.processing import KnowledgeProcessingService
+from app.resources.knowledge.references import assert_model_unused as knowledge_model
+from app.resources.knowledge.references import retained_file_ids as retained_knowledge_files
+from app.resources.knowledge.search import KnowledgeSearch
+from app.resources.knowledge.vectors import KnowledgeVectorService
+from app.resources.knowledge.worker import KnowledgeWorker
+from app.resources.mcp.catalogs import ToolCatalogService
+from app.resources.mcp.connections import ToolConnectionService
+from app.resources.mcp.definitions import McpDefinitionService
+from app.resources.mcp.invocation import ToolInvocationService
+from app.resources.mcp.oauth import OAuthService
+from app.resources.model_connections.service import ModelConnectionService
+from app.resources.organization_rules.service import OrganizationRulesService
+from app.resources.skills.service import SkillService
+from app.runtime.assembly import build_execution
+from app.runtime.execution.knowledge import KnowledgeAccess, RunKnowledgeSearch
+from app.runtime.execution.knowledge_evidence import KnowledgeEvidence
+from app.runtime.execution.queries import ExecutionQueries
+from app.runtime.execution.references import model_in_use as execution_model
+from app.runtime.execution.references import retained_file_ids as retained_run_files
+from app.runtime.execution.service import active_run_ids
 
 
 def check_employee_history(db, agent_id):

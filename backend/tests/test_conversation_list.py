@@ -6,8 +6,8 @@ from run_helpers import complete_run, empty_conversation, reply_path
 from sqlalchemy import event
 from test_conversations import send, setup_agent
 
-from app.conversations.models import ConversationRun
-from app.conversations.queries import ConversationQueries
+from app.applications.conversations.models import ConversationRun
+from app.applications.conversations.queries import ConversationQueries
 from app.runtime.contracts.runs import Completion
 
 
@@ -53,7 +53,7 @@ def test_latest_attempt_filters_pending_adoption_and_literal_search(api_client):
 def test_search_counts_page_scope_and_bounded_queries(api_client):
     _, agent, _ = setup_agent(api_client)
     database = api_client.app.state.database
-    from app.conversations.models import Conversation
+    from app.applications.conversations.models import Conversation
 
     for index in range(23):
         topic = empty_conversation(api_client, agent["id"])

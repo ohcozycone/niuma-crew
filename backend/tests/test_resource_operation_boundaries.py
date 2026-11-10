@@ -9,29 +9,39 @@ from sqlalchemy import func, select
 from app.auth.actor import Actor
 from app.auth.models import User
 from app.bootstrap.services import check_employee_history, check_model_references
-from app.employees.access import authorize_execution, configured_agent
-from app.employees.assembly import capture_skills
-from app.employees.models import AgentSkill, AgentToolGrant
-from app.employees.organization_rules import OrganizationRulesService, current_rules
-from app.employees.references import model_employees, skill_assignment_counts, skill_assignments
-from app.employees.schemas import (
-    AgentCreate,
-    AgentPatch,
-    OrganizationRulesUpdate,
+from app.common.errors import (
+    ConflictError,
+    NotFoundError,
+    PermissionDeniedError,
+    ServiceUnavailableError,
 )
-from app.employees.service import AgentService
-from app.employees.tool_grants import GrantInput
-from app.errors import ConflictError, NotFoundError, PermissionDeniedError, ServiceUnavailableError
 from app.infrastructure.credentials import CredentialUnavailableError, CredentialVault
 from app.infrastructure.database.session import Database
-from app.mcp.models import McpService, ToolConnection
-from app.model_connections.models import ModelConnection
-from app.model_connections.schemas import ConnectionCreate, ConnectionPatch
-from app.model_connections.service import ModelConnectionService
-from app.skills.definitions import definition_from_record, protocol_names, readiness_reason
-from app.skills.models import Skill
-from app.skills.schemas import SkillCreate, SkillImport, SkillPatch
-from app.skills.service import SkillService
+from app.resources.employees.access import authorize_execution, configured_agent
+from app.resources.employees.assembly import capture_skills
+from app.resources.employees.models import AgentSkill, AgentToolGrant
+from app.resources.employees.references import (
+    model_employees,
+    skill_assignment_counts,
+    skill_assignments,
+)
+from app.resources.employees.schemas import AgentCreate, AgentPatch
+from app.resources.employees.service import AgentService
+from app.resources.employees.tool_grants import GrantInput
+from app.resources.mcp.models import McpService, ToolConnection
+from app.resources.model_connections.models import ModelConnection
+from app.resources.model_connections.schemas import ConnectionCreate, ConnectionPatch
+from app.resources.model_connections.service import ModelConnectionService
+from app.resources.organization_rules.schemas import OrganizationRulesUpdate
+from app.resources.organization_rules.service import OrganizationRulesService, current_rules
+from app.resources.skills.definitions import (
+    definition_from_record,
+    protocol_names,
+    readiness_reason,
+)
+from app.resources.skills.models import Skill
+from app.resources.skills.schemas import SkillCreate, SkillImport, SkillPatch
+from app.resources.skills.service import SkillService
 
 
 @pytest.fixture

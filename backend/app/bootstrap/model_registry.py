@@ -1,23 +1,20 @@
 """为迁移注册业务模型；业务代码仍从所属模块导入模型。"""
 
-from app.auth.models import AuthSession, ExternalIdentity, User
-from app.conversations.models import Conversation, ConversationRun, Message, MessageFile
-from app.employees.models import (
-    Agent,
-    AgentKnowledgeLibrary,
-    AgentSkill,
-    AgentToolGrant,
-    OrganizationRules,
+from app.applications.conversations.models import (
+    Conversation,
+    ConversationRun,
+    Message,
+    MessageFile,
 )
-from app.environments.legacy_models import WorkspaceProfile
-from app.environments.models import SandboxResource
-from app.evaluations.models import EvaluationBatch, EvaluationCase
-from app.execution.evidence_models import RunKnowledgeEvidence
-from app.execution.models import Run, RunAction
-from app.files.models import StoredFile
+from app.applications.evaluations.models import EvaluationBatch, EvaluationCase
+from app.auth.models import AuthSession, ExternalIdentity, User
 from app.infrastructure.database.base import Base
 from app.infrastructure.database.identifiers import IdentifierSequence
-from app.knowledge.models import (
+from app.resources.employees.models import Agent, AgentKnowledgeLibrary, AgentSkill, AgentToolGrant
+from app.resources.environments.legacy_models import WorkspaceProfile
+from app.resources.environments.models import SandboxResource
+from app.resources.files.models import StoredFile
+from app.resources.knowledge.models import (
     KnowledgeBase,
     LibraryChunk,
     LibraryDocument,
@@ -26,9 +23,12 @@ from app.knowledge.models import (
     ProcessingBatch,
     ProcessingItem,
 )
-from app.mcp.models import McpService, ToolConnection
-from app.model_connections.models import ModelConnection
-from app.skills.models import Skill
+from app.resources.mcp.models import McpService, ToolConnection
+from app.resources.model_connections.models import ModelConnection
+from app.resources.organization_rules.models import OrganizationRules
+from app.resources.skills.models import Skill
+from app.runtime.execution.evidence_models import RunKnowledgeEvidence
+from app.runtime.execution.models import Run, RunAction
 
 __all__ = [
     "WorkspaceProfile",

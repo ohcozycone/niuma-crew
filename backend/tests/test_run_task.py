@@ -150,7 +150,7 @@ def test_cancelled_completion_joins_commit_before_worker_can_release_lock(api_cl
 def test_cancelled_output_collection_finishes_before_task_closes(api_client, monkeypatch):
     from test_capability_runtime import ScriptedModel, response
 
-    from app.builtin_tools.workspace import WorkspaceBackend
+    from app.runtime.tools.workspace import WorkspaceBackend
 
     context = queued_task(api_client)
     collecting, release = Event(), Event()
@@ -172,7 +172,7 @@ def test_cancelled_output_collection_finishes_before_task_closes(api_client, mon
     monkeypatch.setattr(context, "_close", close_resources)
     monkeypatch.setattr(WorkspaceBackend, "collect_outputs", collect)
     monkeypatch.setattr(
-        "app.llm.factory.create_chat_model",
+        "app.infrastructure.llm.factory.create_chat_model",
         lambda *args, **kwargs: ScriptedModel(responses=[response("完成")]),
     )
 
@@ -195,10 +195,10 @@ def test_cancelled_output_collection_finishes_before_task_closes(api_client, mon
 
 @pytest.mark.parametrize("fails", [False, True], ids=["success", "failure"])
 def test_task_claims_runs_and_closes_resources_before_committing(api_client, monkeypatch, fails):
-    from app.execution.errors import ExecutionFailure
-    from app.execution.models import Run
     from app.infrastructure.observability import run_id_context
     from app.runtime.contracts.agent import AgentOutput
+    from app.runtime.execution.errors import ExecutionFailure
+    from app.runtime.execution.models import Run
 
     work = queued_task(api_client)
     order = []
@@ -242,7 +242,7 @@ def test_task_claims_runs_and_closes_resources_before_committing(api_client, mon
 
 
 def test_task_does_not_execute_or_complete_an_already_claimed_run(api_client):
-    from app.execution.models import Run
+    from app.runtime.execution.models import Run
 
     work = queued_task(api_client)
     assert work._store.claim(work.run_id)
@@ -264,7 +264,7 @@ def test_service_authorization_reuses_the_action_transaction_and_preserves_rollb
     from sqlalchemy import func, select
     from sqlalchemy.exc import OperationalError
 
-    from app.execution.models import Run, RunAction
+    from app.runtime.execution.models import Run, RunAction
 
     work = queued_task(api_client)
     store = work._store

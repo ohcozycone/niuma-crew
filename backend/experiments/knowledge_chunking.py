@@ -2,11 +2,11 @@ import json
 import sqlite3
 from pathlib import Path
 
-from app.knowledge.chunking import split_document
-from app.knowledge.contracts import Chunk, KnowledgeDocument
-from app.knowledge.lexical import lexical_terms, lexical_version
-from app.knowledge.loading import text_document
-from app.knowledge.samples import DATASET, sample_files
+from app.resources.knowledge.chunking import split_document
+from app.resources.knowledge.contracts import Chunk, KnowledgeDocument
+from app.resources.knowledge.lexical import lexical_terms, lexical_version
+from app.resources.knowledge.loading import text_document
+from app.resources.knowledge.samples import DATASET, sample_files
 from experiments.knowledge_poc.contracts import RetrievalPreset
 
 FAQ = Path(__file__).resolve().parents[1] / "datasets/knowledge-chunking/faq.md"

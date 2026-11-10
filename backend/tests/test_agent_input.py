@@ -7,12 +7,12 @@ from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from runtime_helpers import MemoryContext
 from test_capability_runtime import ScriptedModel
 
-from app.agent.checkpoints import CheckpointStore
-from app.agent.engine import _prepare_run_input
-from app.agent.errors import RuntimeFailure
-from app.agent.model_calls import ReferenceContextMiddleware
-from app.agent.skills import prepare_skills
-from app.execution.snapshot import RunConfiguration
+from app.runtime.agent.checkpoints import CheckpointStore
+from app.runtime.agent.engine import _prepare_run_input
+from app.runtime.agent.errors import RuntimeFailure
+from app.runtime.agent.model_calls import ReferenceContextMiddleware
+from app.runtime.agent.skills import prepare_skills
+from app.runtime.execution.snapshot import RunConfiguration
 
 
 def request(**overrides):

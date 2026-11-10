@@ -12,13 +12,13 @@ from sqlalchemy import select, text
 from app.auth.actor import Actor
 from app.auth.models import User
 from app.auth.service import AuthService
-from app.files.service import FileService
+from app.common.values import new_uuid, utc_now
 from app.infrastructure.database.session import Database
-from app.knowledge.chunking import split_document
-from app.knowledge.contracts import ChunkingRules
-from app.knowledge.lexical import lexical_terms, lexical_version
-from app.knowledge.loading import text_document
-from app.values import new_uuid, utc_now
+from app.resources.files.service import FileService
+from app.resources.knowledge.chunking import split_document
+from app.resources.knowledge.contracts import ChunkingRules
+from app.resources.knowledge.lexical import lexical_terms, lexical_version
+from app.resources.knowledge.loading import text_document
 
 
 def seed_text_library(settings, monkeypatch, revision):

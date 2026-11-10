@@ -4,7 +4,7 @@ from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
-from app.knowledge.contracts import Chunk, FrozenModel, RetrievalStrategy
+from app.resources.knowledge.contracts import Chunk, FrozenModel, RetrievalStrategy
 
 
 class RetrievalPreset(FrozenModel):

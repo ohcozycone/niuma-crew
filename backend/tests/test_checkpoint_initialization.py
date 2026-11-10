@@ -2,7 +2,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 
-from app.agent.checkpoints import CheckpointStore, checkpoint_config
+from app.runtime.agent.checkpoints import CheckpointStore, checkpoint_config
 
 
 def test_fresh_runs_and_readers_initialize_checkpoint_storage_concurrently(tmp_path):

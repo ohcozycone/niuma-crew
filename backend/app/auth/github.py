@@ -12,8 +12,8 @@ import httpx
 from cryptography.fernet import Fernet, InvalidToken
 
 from app.auth.config import GitHubOAuthConfig
-from app.errors import InvalidInputError, ServiceUnavailableError
-from app.values import utc_now
+from app.common.errors import InvalidInputError, ServiceUnavailableError
+from app.common.values import utc_now
 
 logger = logging.getLogger(__name__)
 

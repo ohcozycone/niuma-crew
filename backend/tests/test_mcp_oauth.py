@@ -15,11 +15,11 @@ from app.api.oauth_logging import OAuthAccessFilter
 from app.auth.config import AuthConfig
 from app.auth.service import AuthService
 from app.bootstrap.app import create_app
-from app.errors import InvalidInputError
+from app.common.errors import InvalidInputError
 from app.infrastructure.database.session import Database
-from app.mcp.adapters.http import MCPClient
-from app.mcp.models import ToolConnection
-from app.mcp.oauth import OAuthService
+from app.resources.mcp.adapters.http import MCPClient
+from app.resources.mcp.models import ToolConnection
+from app.resources.mcp.oauth import OAuthService
 
 
 class OAuthServer:
@@ -538,7 +538,7 @@ def test_refresh_storage_failure_blocks_further_network_requests(api_client, mon
     server, connection = setup_oauth(api_client)
     saved, _ = authorize(api_client, server, connection)
     expire(api_client, saved)
-    from app.mcp.adapters.oauth_storage import OAuthStorage
+    from app.resources.mcp.adapters.oauth_storage import OAuthStorage
 
     async def fail(*args, **kwargs):
         raise RuntimeError("disk unavailable")
@@ -559,7 +559,7 @@ def test_downgrade_refuses_to_discard_oauth_accounts(historical_api_client):
     from alembic import command
     from alembic.config import Config
 
-    from app.mcp.models import HttpConnection
+    from app.resources.mcp.models import HttpConnection
 
     with api_client.app.state.database.transaction() as db:
         db.add(
@@ -677,7 +677,7 @@ def test_capacity_and_expired_callback(api_client):
 
 
 def test_cancelling_after_token_commit_disconnects_the_new_grant(api_client, monkeypatch):
-    from app.mcp.adapters.oauth_storage import OAuthStorage
+    from app.resources.mcp.adapters.oauth_storage import OAuthStorage
 
     original = OAuthStorage.set_tokens
 

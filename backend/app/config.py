@@ -6,7 +6,6 @@ from dotenv import dotenv_values
 from sqlalchemy import URL, make_url
 from sqlalchemy.exc import ArgumentError
 
-from app.agent.config import AgentConfig, load_agent_config
 from app.api.config import StreamConfig, load_stream_config
 from app.auth.config import (
     AuthConfig,
@@ -14,12 +13,13 @@ from app.auth.config import (
     load_auth_config,
     load_github_oauth_config,
 )
-from app.environments.config import SandboxConfig
-from app.execution.config import RuntimeConfig, load_runtime_config
-from app.files.config import FileConfig
 from app.infrastructure.database.session import DatabaseConfig
-from app.mcp.config import ToolConfig
-from app.skills.config import SkillConfig
+from app.resources.environments.config import SandboxConfig
+from app.resources.files.config import FileConfig
+from app.resources.mcp.config import ToolConfig
+from app.resources.skills.config import SkillConfig
+from app.runtime.agent.config import AgentConfig, load_agent_config
+from app.runtime.execution.config import RuntimeConfig, load_runtime_config
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 

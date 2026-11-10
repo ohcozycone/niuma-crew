@@ -16,9 +16,10 @@ from app.api.dependencies import (
     KnowledgeVectorsDependency,
     LimiterDependency,
 )
-from app.errors import InvalidInputError
-from app.knowledge.documents import MAX_DOCUMENT_BYTES
-from app.knowledge.schemas import (
+from app.common.errors import InvalidInputError
+from app.common.schemas import RecordID
+from app.resources.knowledge.documents import MAX_DOCUMENT_BYTES
+from app.resources.knowledge.schemas import (
     ChunkPreviewRead,
     ChunkPreviewRequest,
     CitationPreviewRead,
@@ -37,7 +38,6 @@ from app.knowledge.schemas import (
     SearchResult,
     VectorBuild,
 )
-from app.schemas import RecordID
 
 router = APIRouter(prefix="/api/knowledge-bases", tags=["knowledge"])
 

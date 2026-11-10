@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 from sqlalchemy import func, select
 
-from app.employees.models import Agent
 from app.infrastructure.database.session import Database
-from app.skills.models import Skill
+from app.resources.employees.models import Agent
+from app.resources.skills.models import Skill
 
 
 class ConfigurationSummary(BaseModel):

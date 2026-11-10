@@ -26,13 +26,13 @@ from langchain_core.utils.function_calling import convert_to_openai_tool
 from pydantic import Field, PrivateAttr
 from pytest import MonkeyPatch
 
-from app.agent import prompts
-from app.execution.models import Run
-from app.llm.config import LLMConfig
-from app.llm.errors import classify_error
-from app.llm.factory import model_session, observe_model_request
-from app.llm.usage import parse_token_usage
-from app.model_connections.presets import PRESETS
+from app.infrastructure.llm.config import LLMConfig
+from app.infrastructure.llm.errors import classify_error
+from app.infrastructure.llm.factory import model_session, observe_model_request
+from app.infrastructure.llm.usage import parse_token_usage
+from app.resources.model_connections.presets import PRESETS
+from app.runtime.agent import prompts
+from app.runtime.execution.models import Run
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / "docs/records/data/回答证据边界-基线.json"
@@ -161,7 +161,7 @@ def collect(client, employee, case, baseline):
     model = CaptureModel(search_name=search_name)
     with MonkeyPatch.context() as patch:
         patch.setattr(prompts, "RESULT_READING_POLICY", baseline)
-        patch.setattr("app.llm.factory.create_chat_model", lambda *a, **kw: model)
+        patch.setattr("app.infrastructure.llm.factory.create_chat_model", lambda *a, **kw: model)
         asyncio.run(delivery.execute_run(client, identifier))
     assert len(model.requests) == 3, "Capture must be exactly discovery, search, answer"
     client.app.state.conversation_acceptance.sweep()

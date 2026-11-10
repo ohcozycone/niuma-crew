@@ -11,12 +11,12 @@ from sqlalchemy import func, select
 from test_capability_runtime import ScriptedModel, response
 from test_response_contract import employee
 
-from app.conversations.models import Conversation, Message
-from app.evaluations.benchmark import DATA, SUITE_ID, grade, load_suite
-from app.evaluations.models import EvaluationBatch, EvaluationCase
-from app.evaluations.progression import EvaluationProgression
-from app.execution.models import Run
+from app.applications.conversations.models import Conversation, Message
+from app.applications.evaluations.benchmark import DATA, SUITE_ID, grade, load_suite
+from app.applications.evaluations.models import EvaluationBatch, EvaluationCase
+from app.applications.evaluations.progression import EvaluationProgression
 from app.runtime.contracts.runs import Completion
+from app.runtime.execution.models import Run
 
 
 def create(client, agent, count=1, key=None):
@@ -154,7 +154,7 @@ def test_real_sdk_execution_and_score_are_independent_without_tools_or_messages(
         text = json.dumps([{"name": name, "arguments": args}])
         run_id = row.id
     model = ScriptedModel(responses=[response(text)])
-    monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *a, **kw: model)
+    monkeypatch.setattr("app.infrastructure.llm.factory.create_chat_model", lambda *a, **kw: model)
     asyncio.run(execute_run(api_client, run_id))
     service.advance(batch["id"])
     report = result(api_client, batch)
@@ -226,7 +226,7 @@ def test_scoring_failure_preserves_answer_and_does_not_change_run_success(api_cl
     def broken(*args):
         raise RuntimeError("Injected scoring failure")
 
-    monkeypatch.setattr("app.evaluations.acceptance.grade", broken)
+    monkeypatch.setattr("app.applications.evaluations.acceptance.grade", broken)
     service.advance(batch["id"])
     report = result(api_client, batch)
     assert report["batch"]["errors"] == 1 and report["batch"]["scored"] == 0
@@ -279,7 +279,7 @@ def test_revoked_session_stops_new_exam_work(api_client):
     batch = create(api_client, employee(api_client)).json()
     actor = api_client.app.state.auth.resolve(api_client.cookies.get("app_session"))
     from app.auth.models import AuthSession
-    from app.values import utc_now
+    from app.common.values import utc_now
 
     with api_client.app.state.database.transaction() as db:
         db.get(AuthSession, actor.session_id).revoked_at = utc_now()

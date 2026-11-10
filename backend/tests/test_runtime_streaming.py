@@ -13,7 +13,7 @@ from test_capability_runtime import ScriptedModel, execute, response, setup, sub
 from test_conversations import live_client as live_client
 from test_conversations import wait_run
 
-from app.agent.streaming import ContentUpdate, RunProgress
+from app.runtime.agent.streaming import ContentUpdate, RunProgress
 
 
 class StreamingModel(ScriptedModel):
@@ -66,7 +66,7 @@ class StreamingModel(ScriptedModel):
 def test_real_stream_flushes_while_idle_and_separates_tool_rounds(live_client, monkeypatch):
     skill, _, _, conversation = setup(live_client)
     model = StreamingModel(responses=[], path=f"/skills/s-{skill['id']}/SKILL.md")
-    monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *a, **k: model)
+    monkeypatch.setattr("app.infrastructure.llm.factory.create_chat_model", lambda *a, **k: model)
     decrypt = live_client.app.state.model_connections.vault.decrypt
     decryptions = []
 
@@ -118,7 +118,7 @@ def test_real_stream_flushes_while_idle_and_separates_tool_rounds(live_client, m
 def test_sdk_cancel_retains_draft_as_process_and_closes_upstream(live_client, monkeypatch):
     skill, _, _, conversation = setup(live_client)
     model = StreamingModel(responses=[], path=f"/skills/s-{skill['id']}/SKILL.md")
-    monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *a, **k: model)
+    monkeypatch.setattr("app.infrastructure.llm.factory.create_chat_model", lambda *a, **k: model)
     run = submit(live_client, conversation).json()["response"]
     wait_run(
         live_client,
@@ -247,7 +247,7 @@ def test_scanner_crash_closes_admission_and_readiness(live_client, monkeypatch):
 def test_live_configuration_revocation_is_failed_not_cancelled(live_client, monkeypatch):
     skill, connection, _, conversation = setup(live_client)
     model = StreamingModel(responses=[], path=f"/skills/s-{skill['id']}/SKILL.md")
-    monkeypatch.setattr("app.llm.factory.create_chat_model", lambda *a, **k: model)
+    monkeypatch.setattr("app.infrastructure.llm.factory.create_chat_model", lambda *a, **k: model)
     run = submit(live_client, conversation).json()["response"]
     wait_run(
         live_client,

@@ -1,7 +1,7 @@
 from sqlalchemy import CheckConstraint, Integer, update
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
-from app.errors import ServiceUnavailableError
+from app.common.errors import ServiceUnavailableError
 from app.infrastructure.database.base import Base
 
 MIN_ID = 100_000_000_000

@@ -7,9 +7,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.bootstrap.app import create_app
-from app.employees.models import Agent
-from app.model_connections.models import ModelConnection
-from app.skills.models import Skill
+from app.resources.employees.models import Agent
+from app.resources.model_connections.models import ModelConnection
+from app.resources.skills.models import Skill
 
 INPUTS = {
     "agents": {"name": "original", "avatar_id": "admin", "code": "original-code"},
@@ -100,7 +100,7 @@ def test_unknown_integrity_failures_return_safe_500_and_roll_back(
 
 
 def test_service_preserves_unknown_integrity_failure_and_rolls_back(api_client, probe):
-    from app.employees.schemas import AgentCreate
+    from app.resources.employees.schemas import AgentCreate
 
     actor = api_client.app.state.auth.resolve(api_client.cookies.get("app_session"))
     with fail_flush(Agent, FAILURES["not_null"]) as errors:

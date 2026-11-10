@@ -9,15 +9,15 @@ from app.api.dependencies import (
     ModelConnectionDependency,
     require_capability,
 )
-from app.model_connections.presets import ModelPreset
-from app.model_connections.schemas import (
+from app.common.schemas import Page
+from app.resources.model_connections.presets import ModelPreset
+from app.resources.model_connections.schemas import (
     ConnectionCreate,
     ConnectionPatch,
     ConnectionRead,
     ConnectionTestRequest,
     ConnectionTestResult,
 )
-from app.schemas import Page
 
 router = APIRouter(tags=["model-connections"])
 

@@ -22,7 +22,7 @@ Python 最低版本、FastAPI、SQLAlchemy、Alembic、模型 SDK 与开发工�
 
 绝对导入统一使用 app 前缀。普通业务从模型所属模块导入，不从数据库模型注册聚合文件取得业务模型。`__init__.py` 只在确有公共入口时导出，避免为每个目录建聚合层。迁移名称和框架约定沿用工具格式。
 
-新增或实质修改的公共入口、DTO 和跨模块返回值优先补明确类型；内部辅助函数按实际复杂度处理。当前用 mypy 检查执行契约、准入、查询、对话读写和输入准备、Agent 契约、请求服务及发布；具体范围以 pyproject.toml 为准，导入的其他代码不自动视为已严格检查。新增受影响接口应补类型，逐步扩展覆盖。make typecheck-backend 已纳入 lint-backend。
+新增或实质修改的公共入口、DTO 和跨模块返回值优先补明确类型；内部辅助函数按实际复杂度处理。当前用 mypy 检查执行契约、准入、查询、对话读写和输入准备、普通运行契约、知识资源与执行证据、请求服务及发布；具体范围以 pyproject.toml 为准，导入的其他代码不自动视为已严格检查。新增受影响接口应补类型，逐步扩展覆盖。make typecheck-backend 已纳入 lint-backend。迁移职责时同步迁移 mypy 检查范围，不能只检查原文件留下的包装入口。
 
 ## 文件职责与依赖
 
@@ -34,9 +34,9 @@ Python 最低版本、FastAPI、SQLAlchemy、Alembic、模型 SDK 与开发工�
 | models.py                                                               | 所属模块的 ORM 结构、约束及关系，不集中所有业务模型               |
 | service.py                                                              | 一次业务操作的校验、协作、查询及事务；简单 CRUD 可直接使用 ORM    |
 | store.py / queries.py                                                   | 有实际后台存取或安全读取边界时拆分，不强制每表一个 repository     |
-| conversations/writes.py                                                 | 对话业务写入与发布规则；使用调用方 Session，不自行提交            |
-| conversations/service.py                                                | 创建、接受、停止和重试事务；不启动模型或持有后台任务              |
-| capability_catalog/queries.py                                           | 统一目录的可见范围、搜索、计数、排序与分页                        |
+| applications/conversations/writes.py                                                 | 对话业务写入与发布规则；使用调用方 Session，不自行提交            |
+| applications/conversations/commands.py                                                | 创建、接受、停止和重试事务；不启动模型或持有后台任务              |
+| resources/capability_catalog/queries.py                                           | 统一目录的可见范围、搜索、计数、排序与分页                        |
 | execution/snapshot.py、execution/runner.py、conversations/acceptance.py | 配置、单次准备和独立应用接纳；授权组合由 RunService 负责          |
 | rules、prompt 等职责文件                                                | 有独立价值的纯规则或组合逻辑；没有需要时不预建层级                |
 | execution                                                               | 队列、领取、看护、取消、预算及终态；与单次 HTTP 观察分开          |
@@ -44,25 +44,25 @@ Python 最低版本、FastAPI、SQLAlchemy、Alembic、模型 SDK 与开发工�
 | infrastructure/database                                                 | 共用存储机制，不拥有员工、对话等业务规则                          |
 | bootstrap                                                               | 组合具体服务并管理生命周期，可以同时认识多类实现                  |
 
-api 不导入 main 或 bootstrap；装配层组合 HTTP 适配与具体服务，配置和跨模块引用检查回调由 bootstrap 固定注入。路由通过 dependencies 取得服务，不在请求中重新构造带默认配置的实例。服务不接收 FastAPI Request，不在模块导入时连接数据库或启动后台任务。不同业务模块确需协作时写清所有者和调用入口；同库引用计数、兼容性验证和删除保护可使用所属模型或公开查询，是否注入回调取决于既有依赖边界，不要求统一所有查询形式；对话服务和共享回复流程可以组合所需模块的公开操作，同库原子操作不拆成独立 commit。execution不导入conversations或HTTP实现；agent不读取业务ORM，通过普通输入和AgentContext协议请求受控操作。装配入口组合具体实现。对应依赖检查以[test_runtime_boundaries.py](../../backend/tests/test_runtime_boundaries.py)及[test_execution_boundaries.py](../../backend/tests/test_execution_boundaries.py)为准。
+api 不导入 main 或 bootstrap；装配层组合 HTTP 适配与具体服务，配置和跨模块引用检查回调由 bootstrap 固定注入。路由通过 dependencies 取得服务，不在请求中重新构造带默认配置的实例。服务不接收 FastAPI Request，不在模块导入时连接数据库或启动后台任务。不同业务模块确需协作时写清所有者和调用入口；同库引用计数、兼容性验证和删除保护由状态所有者提供具名只读查询，使用调用方 Session；跨模块 ORM 仅允许架构契约逐文件声明的只读投影；对话服务和共享回复流程可以组合所需模块的公开操作，同库原子操作不拆成独立 commit。execution不导入conversations或HTTP实现；agent不读取业务ORM，通过普通输入和AgentContext协议请求受控操作。装配入口组合具体实现。完整依赖与具名例外由[test_architecture_contract.py](../../backend/tests/test_architecture_contract.py)检查，运行和失败路径继续由既有边界测试覆盖。
 
-工作台配置摘要仅聚合员工、技能和收藏数量，响应结构与只读查询集中在 `api/routes/configuration_summary.py`，不另设服务层。
+工作台配置摘要的响应与只读投影归 `applications/configuration_summary.py`，路由只处理 HTTP 协议。完整文件归属、允许依赖、状态所有权与执行顺序以[后端架构](../architecture/backend.md)和[可执行架构契约](../../backend/tests/architecture_contract.json)为准。
 
-RunWorker 与 RunService 共同读取 ExecutionStatus；Worker 管队列、在途任务和服务生命周期，Task 管单次执行、看护、受限操作与资源释放，完成后唤醒独立接纳。DatabaseConfig 定义在基础设施，app.config 负责配置组合。数据库 models.py 反向导入业务模型仅用于元数据注册，是窄用途装配入口。Agent 只接收普通 AgentRequest，通过 AgentContext 协议报告内容和请求受控操作；该协议不暴露 store 或数据库。
+RunWorker 与 RunService 共同读取 ExecutionStatus；Worker 管队列、在途任务和服务生命周期，Task 管单次执行、看护、受限操作与资源释放，完成后唤醒独立接纳。DatabaseConfig 定义在基础设施，app.config 负责配置组合。业务模型仅由 `bootstrap/model_registry.py` 聚合注册，数据库机制不反向导入业务模型。Agent 只接收普通 AgentRequest，通过 AgentContext 协议报告内容和请求受控操作；该协议不暴露 store 或数据库。
 
 技能格式由 skills/definitions 解释，员工捕获关系由 employees/assembly 维护。员工固定连接和知识关系由 employees 维护；连接、清单和调用分别归 mcp/connections、catalogs、invocation。共享主密钥机制归 infrastructure/credentials，业务负责转换故障；目录查询可以读约定概要字段，不重新解析技能原文。
 
 ## 运行管理组织约定
 
-可靠执行、SDK循环与实际资源按所有权分开：执行层维护持久状态、预算、当前授权、看护和资源释放；Agent层解释SDK与模型协议，不直接读取业务数据库。平台不为每个内部步骤建立可装配对象或只转发的层级；详细文件职责和正常流程见[执行说明](../../backend/app/execution/README.md)。
+可靠执行、SDK循环与实际资源按所有权分开：执行层维护持久状态、预算、当前授权、看护和资源释放；Agent层解释SDK与模型协议，不直接读取业务数据库。平台不为每个内部步骤建立可装配对象或只转发的层级；详细文件职责和正常流程见[执行说明](../../backend/app/runtime/execution/README.md)。
 
 单用户容量、队列、同一对话占用、动作预算和时限分别约束自己的范围；调度去重和单宿主锁不能被新增并发代码绕过。外部行为由[运行契约](../reference/runtime.md)维护，部署参数由[运维](../guides/backend-operations.md)维护。
 
 ## HTTP、校验与授权
 
-输入优先复用 [RequestModel、分页和 PATCH 约定](../../backend/app/schemas.py)，字段结构由 schema 与运行 OpenAPI 维护。新增接口按现有规则声明请求、响应、状态和特殊错误；业务语义、权限、幂等及兼容在对应 reference 维护。
+输入优先复用 [RequestModel、分页和 PATCH 约定](../../backend/app/common/schemas.py)，字段结构由 schema 与运行 OpenAPI 维护。新增接口按现有规则声明请求、响应、状态和特殊错误；业务语义、权限、幂等及兼容在对应 reference 维护。
 
-应用操作按失败含义抛出 app.errors 的具体类型；已登记分类的子类沿 MRO 使用最近分类的 HTTP 状态，未分类的 ServiceError 仍是服务器错误；code 表达细分原因，message 必须可公开，retry_after 是可选等待建议。HTTP 状态由 API 统一映射，不传入业务异常，也不通过公共父类吞掉所有故障。认证回退只处理认证失败，持续授权复核只将认证或权限失效解释为撤权；其他故障保留原有含义。类型、响应与传输例外见[应用错误约定](../reference/failures.md)。
+应用操作按失败含义抛出 app.common.errors 的具体类型；已登记分类的子类沿 MRO 使用最近分类的 HTTP 状态，未分类的 ServiceError 仍是服务器错误；code 表达细分原因，message 必须可公开，retry_after 是可选等待建议。HTTP 状态由 API 统一映射，不传入业务异常，也不通过公共父类吞掉所有故障。认证回退只处理认证失败，持续授权复核只将认证或权限失效解释为撤权；其他故障保留原有含义。类型、响应与传输例外见[应用错误约定](../reference/failures.md)。
 
 PATCH 用 exclude_unset 区分未提供与显式清空，不能把字段默认 None 当作客户端请求清空。非空字段显式 null 必须拒绝；可空字段的清空语义由各契约定义。配置变更核对对应预期修订，冲突保留客户端输入，服务不能静默采用最新版本覆盖。
 
@@ -108,9 +108,9 @@ PATCH 用 exclude_unset 区分未提供与显式清空，不能把字段默认 N
 
 配置经 load_config 显式解析并校验，环境与本地文件优先级由[配置指南](../guides/backend-operations.md)和代码维护。业务不散落读取进程环境，测试使用注入配置和临时路径，不读取开发数据库或密钥。
 
-已知业务错误沿用 [ServiceError 及子类](../../backend/app/errors.py)，HTTP 状态与响应由 [API 转换入口](../../backend/app/api/errors.py)维护。422 当前是经过脱敏的校验条目数组，不能假定所有错误都有同一 code 包络。SQLite busy/locked 与业务冲突分别处理。数据库驱动错误码、唯一约束文本由[数据库错误识别](../../backend/app/infrastructure/database/errors.py)封装；业务只转换能够确认含义的冲突，其他完整性异常原样抛出，删除保护检查实际关联。
+已知业务错误沿用 [ServiceError 及子类](../../backend/app/common/errors.py)，HTTP 状态与响应由 [API 转换入口](../../backend/app/api/errors.py)维护。422 当前是经过脱敏的校验条目数组，不能假定所有错误都有同一 code 包络。SQLite busy/locked 与业务冲突分别处理。数据库驱动错误码、唯一约束文本由[数据库错误识别](../../backend/app/infrastructure/database/errors.py)封装；业务只转换能够确认含义的冲突，其他完整性异常原样抛出，删除保护检查实际关联。
 
-Agent 与 Execution 只表达稳定 code、技术类型及执行处理规则，不维护用户提示。两者的异常继承 `CodedFailure`，应用业务拒绝继续保留具体 `ServiceError` 类型；执行入口可以省略其 message，由应用出口映射。公开文案在 `app/public_errors.py` 维护，HTTP、对话或考核按使用场景选择展示；程序不得依赖文案表识别错误。模型工具反馈仍是运行数据，不等同于用户错误说明。契约见[失败事实与展示](../reference/failures.md#执行失败事实与应用文案)。
+Agent 与 Execution 只表达稳定 code、技术类型及执行处理规则，不维护用户提示。两者的异常继承 `CodedFailure`，应用业务拒绝继续保留具体 `ServiceError` 类型；执行入口可以省略其 message，由应用出口映射。公开文案在 `app/common/public_errors.py` 维护，HTTP、对话或考核按使用场景选择展示；程序不得依赖文案表识别错误。模型工具反馈仍是运行数据，不等同于用户错误说明。契约见[失败事实与展示](../reference/failures.md#执行失败事实与应用文案)。
 
 不得将密码、Cookie、API Key、密文、完整配置快照或上游原始异常放入响应、日志和步骤。诊断信息优先记录非秘密标识、错误类别及已确认阶段；记录输入正文须有实际用途与边界，不能默认打印全部请求。HTTP 已提供 X-Request-ID 和安全失败日志，后台通过 Run 标识定位；核心执行事件另以相同 Run/动作键输出有界结构化文件日志；不是所有后端日志落库，详见[执行证据契约](../reference/runtime.md)。
 
@@ -121,7 +121,7 @@ Agent 与 Execution 只表达稳定 code、技术类型及执行处理规则，�
 | 基础 Python 错误、未使用项、导入排序 | Ruff 已启用 E4/E7/E9/F/I；具体规则见 pyproject.toml                                                                                         |
 | Python 格式                          | Ruff format，包含 backend 与根 scripts                                                                                                      |
 | 业务与迁移行为                       | pytest 隔离数据库、假上游及真实迁移；重点覆盖失败、拒绝、并发和恢复                                                                         |
-| 类型、依赖方向及职责                 | mypy 检查数据库错误识别及已列入的执行边界；导入约束由 test_runtime_boundaries.py 与 test_execution_boundaries.py 强制；其余未列方向仍需评审 |
+| 类型、依赖方向及职责                 | mypy 检查数据库错误识别及已列入的执行边界；导入约束由 test_runtime_boundaries.py 与 test_execution_boundaries.py 强制；完整目录、无环依赖、普通契约隔离和具名例外由架构契约测试检查 |
 | 文档入口、文件和章节链接             | make check-docs；不判断业务内容是否正确                                                                                                     |
 
 公共入口为 `make lint-backend`、`make test-backend`；修改启动器执行 `make test-dev`。后端测试的[共享夹具](../../backend/tests/conftest.py)使用 tmp_path、隔离迁移、注入配置与 TestClient lifespan；运行器测试按需显式启用并使用假执行器及真实 SDK 的假模型。外部响应格式变化应在适配边界测试，不仅 mock 最外层服务结果。

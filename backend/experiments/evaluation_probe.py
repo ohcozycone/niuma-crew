@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from app.evaluations.benchmark import SUITE_ID, grade, load_suite
+from app.applications.evaluations.benchmark import SUITE_ID, grade, load_suite
 
 
 def scoring_controls() -> dict:

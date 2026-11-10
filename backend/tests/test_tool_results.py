@@ -6,9 +6,9 @@ from test_capability_runtime import ScriptedModel, execute, response, setup, sub
 from test_tool_discovery import discovery_response
 from test_tool_readers import search_setup
 
-from app.execution.errors import ExecutionFailure
-from app.execution.tool_results import ToolResults, _legacy_result_text
-from app.mcp.contracts import exposed_name
+from app.resources.mcp.contracts import exposed_name
+from app.runtime.execution.errors import ExecutionFailure
+from app.runtime.execution.tool_results import ToolResults, _legacy_result_text
 
 
 def result_fixture(text="extracted text"):
@@ -175,11 +175,11 @@ def test_result_reader_rechecks_originating_permission(api_client):
 
     from sqlalchemy import select
 
-    from app.employees.models import AgentToolGrant
-    from app.errors import ConflictError
-    from app.execution.authorization import authorize_tool
-    from app.execution.models import Run
+    from app.common.errors import ConflictError
+    from app.resources.employees.models import AgentToolGrant
     from app.runtime.contracts.tools import ToolInvocation
+    from app.runtime.execution.authorization import authorize_tool
+    from app.runtime.execution.models import Run
 
     agent, conversation, _ = search_setup(api_client)
     run = submit(api_client, conversation).json()["response"]
