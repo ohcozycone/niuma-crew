@@ -7,7 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database.base import Base
 from app.infrastructure.database.fields import IdentityTimestamps, NumericID, UTCDateTime
-from app.mcp.models import ToolConnection
 
 
 class SandboxResource(IdentityTimestamps, Base):
@@ -25,9 +24,3 @@ class SandboxResource(IdentityTimestamps, Base):
     expires_at: Mapped[datetime] = mapped_column(UTCDateTime())
     cleanup_attempts: Mapped[int] = mapped_column(Integer, default=0)
     last_error: Mapped[str | None] = mapped_column(Text)
-
-
-class WorkspaceProfile(ToolConnection):
-    """仅保留历史原生连接的 ORM 读取映射，不再提供装配入口。"""
-
-    __mapper_args__ = {"polymorphic_identity": "native"}

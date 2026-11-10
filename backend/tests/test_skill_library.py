@@ -5,6 +5,7 @@ import pytest
 from sqlalchemy import select
 from test_skill_packages import SOURCE, assigned, encoded_archive, imported
 
+from app.employees.references import skill_assignments
 from app.skills.config import SkillConfig
 from app.skills.models import Skill
 from app.skills.service import SkillService
@@ -29,6 +30,7 @@ def test_user_library_default_and_explicit_root_discover_installed_packages(
     service = SkillService(
         api_client.app.state.skills.database,
         SkillConfig(library_directory=root if custom_directory else None),
+        assignment_facts=skill_assignments,
     )
     assert service.library.root == root
     actor = api_client.app.state.auth.resolve(api_client.cookies.get("app_session"))

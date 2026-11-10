@@ -7,6 +7,7 @@ from configuration_helpers import patch_current
 from fastapi.testclient import TestClient
 
 from app.bootstrap import create_app
+from app.bootstrap.services import check_employee_history
 from app.employees.models import AgentSkill
 from app.infrastructure.database.session import Database
 from app.skills.models import Skill
@@ -454,7 +455,9 @@ def test_directory_queries_are_bounded_and_do_not_load_method_bodies(api_client)
     actor = api_client.app.state.auth.resolve(api_client.cookies.get("app_session"))
     event.listen(database.engine, "before_cursor_execute", record)
     try:
-        page = AgentService(database).list(actor=actor, offset=20, limit=20)
+        page = AgentService(database, check_history=check_employee_history).list(
+            actor=actor, offset=20, limit=20
+        )
         assert page.total == 500 and len(page.items) == 20
         assert len(statements) == 3
         assert not any(

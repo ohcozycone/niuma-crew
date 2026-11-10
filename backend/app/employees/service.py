@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session, defer
 
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
-from app.conversations.models import Conversation
 from app.employees.knowledge import (
     capture_knowledge,
     knowledge_configuration,
@@ -156,8 +155,9 @@ def replace_assignments(session, agent, requested):
 
 
 class AgentService:
-    def __init__(self, database: Database):
+    def __init__(self, database: Database, *, check_history):
         self.database = database
+        self.check_history = check_history
 
     def create(self, data: AgentCreate, actor: Actor) -> AgentRead:
         self._require_write(actor, data, "agents:create")
@@ -488,15 +488,6 @@ class AgentService:
         with self.database.transaction() as session:
             reserve_writer(session, Agent.__table__)
             agent = require_agent(session, agent_id)
-            from app.evaluations.models import EvaluationBatch
-
-            if session.scalar(
-                select(EvaluationBatch.id).where(EvaluationBatch.agent_id == agent_id).limit(1)
-            ):
-                raise ConflictError("agent_has_evaluations", "员工已有考核记录，请改为停用。")
-            if session.scalar(
-                select(Conversation.id).where(Conversation.agent_id == agent_id).limit(1)
-            ):
-                raise ConflictError("agent_has_conversations", "员工已有对话历史，请改为停用。")
+            self.check_history(session, agent_id)
             session.delete(agent)
             session.flush()

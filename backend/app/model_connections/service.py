@@ -6,14 +6,11 @@ from sqlalchemy.exc import IntegrityError
 
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
-from app.employees.models import Agent
 from app.errors import ConflictError, InvalidInputError, NotFoundError, ServiceUnavailableError
-from app.execution.models import ACTIVE, Run
 from app.infrastructure.credentials import CredentialUnavailableError, CredentialVault
 from app.infrastructure.database.errors import is_unique_violation
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
-from app.knowledge.models import LibraryVectorIndex
 from app.llm.config import LLMConfig
 from app.llm.embeddings import EmbeddingConfig, embed_texts
 from app.model_connections.models import ModelConnection
@@ -41,13 +38,9 @@ def require_connection(session, connection_id: str) -> ModelConnection:
     return connection
 
 
-def connection_response(session, connection) -> ConnectionRead:
+def connection_response(session, connection, employee_references) -> ConnectionRead:
     preset = PRESETS[connection.preset_id]
-    agents = session.execute(
-        select(Agent.id, Agent.name)
-        .where(Agent.model_connection_id == connection.id)
-        .order_by(Agent.name, Agent.id)
-    )
+    agents = employee_references(session, connection.id)
     return ConnectionRead(
         enabled=connection.enabled,
         capability=connection.capability,
@@ -61,15 +54,19 @@ def connection_response(session, connection) -> ConnectionRead:
         base_url=preset.base_url,
         model_id=connection.model_id,
         has_api_key=bool(connection.encrypted_api_key),
-        agents=[AgentReference(id=id, name=name) for id, name in agents],
+        agents=[AgentReference(**ref) for ref in agents],
         created_at=connection.created_at,
         updated_at=connection.updated_at,
     )
 
 
 class ModelConnectionService:
-    def __init__(self, database: Database, vault: CredentialVault):
+    def __init__(
+        self, database: Database, vault: CredentialVault, *, employee_references, check_references
+    ):
         self.database, self.vault = database, vault
+        self.employee_references = employee_references
+        self.check_references = check_references
 
     @staticmethod
     def presets(actor: Actor) -> list[ModelPreset]:
@@ -110,7 +107,7 @@ class ModelConnectionService:
                 )
                 session.add(row)
                 session.flush()
-                result = connection_response(session, row)
+                result = connection_response(session, row, self.employee_references)
             return result
         except IntegrityError as error:
             if not is_unique_violation(error, table="model_connections", columns=("name",)):
@@ -130,7 +127,7 @@ class ModelConnectionService:
                 .limit(limit)
             )
             return Page(
-                items=[connection_response(session, row) for row in rows],
+                items=[connection_response(session, row, self.employee_references) for row in rows],
                 total=total,
                 offset=offset,
                 limit=limit,
@@ -139,7 +136,9 @@ class ModelConnectionService:
     def get(self, connection_id: str, actor: Actor) -> ConnectionRead:
         require_permission(actor, "model_connections:read")
         with self.database.transaction() as session:
-            return connection_response(session, require_connection(session, connection_id))
+            return connection_response(
+                session, require_connection(session, connection_id), self.employee_references
+            )
 
     def update(self, connection_id: str, data: ConnectionPatch, actor: Actor) -> ConnectionRead:
         require_permission(actor, "model_connections:update")
@@ -168,7 +167,7 @@ class ModelConnectionService:
                     row.encrypted_api_key = self._encrypt(session, data.api_key)
                     row.credential_revision += 1
                 session.flush()
-                result = connection_response(session, row)
+                result = connection_response(session, row, self.employee_references)
             return result
         except IntegrityError as error:
             if not is_unique_violation(error, table="model_connections", columns=("name",)):
@@ -182,26 +181,7 @@ class ModelConnectionService:
         with self.database.transaction() as session:
             reserve_writer(session, ModelConnection.__table__)
             row = require_connection(session, connection_id)
-            if session.scalar(
-                select(LibraryVectorIndex.knowledge_base_id)
-                .where(LibraryVectorIndex.connection_id == row.id)
-                .limit(1)
-            ):
-                raise ConflictError(
-                    "model_connection_in_use", "仍有知识库使用此向量连接，请先移除对应向量索引。"
-                )
-            if session.scalar(
-                select(Run.id)
-                .where(Run.model_connection_id == row.id, Run.status.in_(ACTIVE))
-                .limit(1)
-            ):
-                raise ConflictError(
-                    "model_connection_in_use", "仍有执行使用这个大脑，请等待结束或停止。"
-                )
-            if session.scalar(select(Agent.id).where(Agent.model_connection_id == row.id).limit(1)):
-                raise ConflictError(
-                    "model_connection_in_use", "仍有员工使用这个大脑，请先更换或解除装配。"
-                )
+            self.check_references(session, connection_id)
             session.delete(row)
             session.flush()
 

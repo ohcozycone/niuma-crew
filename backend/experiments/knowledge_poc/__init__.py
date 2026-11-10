@@ -14,7 +14,9 @@ from langchain_core.embeddings import Embeddings
 from langchain_openai import OpenAIEmbeddings
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
+from app.bootstrap.services import check_model_references
 from app.config import load_config
+from app.employees.references import model_employees
 from app.infrastructure.credentials import CredentialVault
 from app.infrastructure.database.session import Database
 from app.knowledge.chunking import split_document
@@ -147,6 +149,8 @@ def chat_config(connection_id: str) -> LLMConfig:
         service = ModelConnectionService(
             database,
             CredentialVault(app_config.model_encryption_key_file, app_config.model_encryption_key),
+            employee_references=model_employees,
+            check_references=check_model_references,
         )
         return service.resolve(connection_id)
     finally:

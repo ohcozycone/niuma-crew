@@ -9,6 +9,7 @@ from app.employees.models import (
     AgentToolGrant,
     OrganizationRules,
 )
+from app.environments.legacy_models import WorkspaceProfile
 from app.environments.models import SandboxResource
 from app.evaluations.models import EvaluationBatch, EvaluationCase
 from app.execution.models import Run, RunAction
@@ -30,6 +31,7 @@ from app.model_connections.models import ModelConnection
 from app.skills.models import Skill
 
 __all__ = [
+    "WorkspaceProfile",
     "EvaluationBatch",
     "EvaluationCase",
     "IdentifierSequence",
