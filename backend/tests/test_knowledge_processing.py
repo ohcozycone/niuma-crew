@@ -44,7 +44,7 @@ def test_original_is_readable_but_not_searchable_until_explicit_processing(api_c
         json={"client_request_id": request, "document_ids": [doc["id"]], "reprocess": True},
     )
     assert conflict.status_code == 409
-    assert api_client.app.state.knowledge.processing.run_next()
+    assert api_client.app.state.knowledge_processing.run_next()
     assert detail(api_client, kb, doc["id"])["keyword_ready"] and hits(api_client, kb)
 
 
@@ -73,7 +73,7 @@ def test_effective_rule_validation_revision_guard_and_frozen_job(api_client):
     assert api_client.patch(f"/api/knowledge-bases/{kb}", json=payload).status_code == 409
     payload.update(expected_revision=updated.json()["revision"], chunk_size=300, chunk_overlap=20)
     assert api_client.patch(f"/api/knowledge-bases/{kb}", json=payload).status_code == 200
-    api_client.app.state.knowledge.processing.run_next()
+    api_client.app.state.knowledge_processing.run_next()
     result = detail(api_client, kb, doc["id"])
     assert {key: result["processing_rules"][key] for key in job["rules"]} == job["rules"]
     assert result["processing_reusable"]
@@ -97,7 +97,7 @@ def test_each_successful_file_is_queryable_without_waiting_for_batch(api_client,
 
     monkeypatch.setattr(processing, "text_document", parse)
     job = process(api_client, kb, run=False).json()
-    worker = api_client.app.state.knowledge.processing
+    worker = api_client.app.state.knowledge_processing
     assert worker.run_next()
     snapshot = api_client.get(f"/api/knowledge-bases/{kb}/processing/{job['id']}").json()
     if any(item["status"] == "succeeded" for item in snapshot["items"]):
@@ -147,7 +147,7 @@ def test_delete_during_work_prevents_late_republication(api_client, monkeypatch)
     keep = upload(api_client, kb, "# 住宿\n住宿保留", "keep.md").json()
     process(api_client, kb)
     target = upload(api_client, kb).json()
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     actor = Actor(
         "user", "", library_creator(service, kb), "admin", "admin", utc_now() + timedelta(hours=1)
     )
@@ -155,7 +155,7 @@ def test_delete_during_work_prevents_late_republication(api_client, monkeypatch)
 
     def split(*args, **kwargs):
         chunks = native(*args, **kwargs)
-        service.remove(actor, kb, target["id"])
+        service.knowledge_documents.remove(actor, kb, target["id"])
         return chunks
 
     monkeypatch.setattr(processing, "split_document", split)
@@ -177,15 +177,15 @@ def test_cancel_has_no_side_effect_on_published_content_and_scope_is_enforced(ap
         run=False,
         rules={"chunk_size": 900, "chunk_overlap": 120, "min_section_chars": 200},
     ).json()
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     stranger = Actor("user", "", str(uuid4()), "other", "member", utc_now() + timedelta(hours=1))
     with pytest.raises(PermissionDeniedError):
-        service.processing.get(stranger, kb, queued["id"])
+        service.knowledge_processing.get(stranger, kb, queued["id"])
     with pytest.raises(PermissionDeniedError):
-        service.processing.cancel(stranger, kb, queued["id"])
+        service.knowledge_processing.cancel(stranger, kb, queued["id"])
     result = api_client.post(f"/api/knowledge-bases/{kb}/processing/{queued['id']}/cancel", json={})
     assert result.json()["status"] == "cancelled"
-    assert not service.processing.run_next() and hits(api_client, kb)
+    assert not service.knowledge_processing.run_next() and hits(api_client, kb)
 
 
 def test_worker_restart_interrupts_uncertain_item_and_continues_queued(api_client, tmp_path):
@@ -193,16 +193,24 @@ def test_worker_restart_interrupts_uncertain_item_and_continues_queued(api_clien
     first = upload(api_client, kb).json()
     second = upload(api_client, kb, "# 住宿\n住宿标准", "hotel.md").json()
     queued = process(api_client, kb, run=False).json()
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     with service.database.transaction() as db:
         item = db.scalar(select(ProcessingItem).where(ProcessingItem.document_id == first["id"]))
         item.status = "running"
         db.get(LibraryDocument, first["id"]).processing_state = "processing"
 
     async def run():
-        worker = KnowledgeWorker(service.processing, tmp_path / "knowledge.lock")
+        worker = KnowledgeWorker(
+            service.knowledge_processing,
+            tmp_path / "knowledge.lock",
+            reconcile=service.knowledge_vectors.reconcile,
+        )
         await worker.start()
-        duplicate = KnowledgeWorker(service.processing, tmp_path / "knowledge.lock")
+        duplicate = KnowledgeWorker(
+            service.knowledge_processing,
+            tmp_path / "knowledge.lock",
+            reconcile=service.knowledge_vectors.reconcile,
+        )
         with pytest.raises(BlockingIOError):
             await duplicate.start()
         try:
@@ -262,7 +270,7 @@ def test_only_intact_current_results_are_reused(api_client, damage):
     doc = upload(api_client, kb, "# 规则\n" + "高铁特别批准。" * 150).json()
     process(api_client, kb, [doc["id"]])
     assert detail(api_client, kb, doc["id"])["processing_reusable"]
-    with api_client.app.state.knowledge.database.transaction() as session:
+    with api_client.app.state.database.transaction() as session:
         row = session.get(LibraryDocument, doc["id"])
         if damage.startswith("fts"):
             sql = (
@@ -322,7 +330,7 @@ def test_missing_original_reports_recovery_action_and_keeps_published_content(
     if already_processed:
         process(api_client, kb, [doc["id"]])
     before = detail(api_client, kb, doc["id"])
-    knowledge = api_client.app.state.knowledge
+    knowledge = api_client.app.state
     with knowledge.database.transaction() as session:
         document = session.get(LibraryDocument, doc["id"])
         original = session.get(StoredFile, document.file_id)

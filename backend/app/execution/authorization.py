@@ -10,6 +10,7 @@ from app.errors import AuthenticationError, PermissionDeniedError
 from app.execution.errors import ExecutionFailure
 from app.execution.models import Run, RunAction
 from app.execution.store import assert_tool_exposure, require_run
+from app.knowledge.sources import context_revision
 from app.runtime.contracts.tools import ToolInvocation
 from app.values import digest
 
@@ -50,11 +51,11 @@ def authorize_run(
     if snapshot.get("knowledge"):
         if knowledge is None:
             raise ExecutionFailure("knowledge_access_revoked")
-        knowledge.access.assert_current(db, snapshot, row.id)
+        knowledge.assert_current(db, snapshot, row.id)
         current_scope = digest(
             [
                 snapshot["agent_id"],
-                knowledge.evidence.context_revision(db, snapshot["knowledge"]),
+                context_revision(db, snapshot["knowledge"]),
             ]
         )
         if current_scope != snapshot["memory_scope"]:
@@ -100,5 +101,5 @@ def authorize_run(
         if invocation.binding_id.startswith("knowledge:"):
             if knowledge is None:
                 raise ExecutionFailure("tool_not_allowed")
-            return knowledge.access.authorize(db, snapshot, invocation)
+            return knowledge.authorize(db, snapshot, invocation)
         return authorize_tool(db, snapshot, invocation)

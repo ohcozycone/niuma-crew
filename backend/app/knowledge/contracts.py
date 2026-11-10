@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import Literal, Self
+from typing import Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -73,3 +73,11 @@ class ChunkingRules(FrozenModel):
         if self.overlap_tokens >= self.chunk_tokens:
             raise ValueError("overlap must be smaller than chunk budget")
         return self
+
+
+class EvidenceSource(Protocol):
+    knowledge_base_id: str
+    document_id: str
+    document_version: str
+    chunk_id: str
+    snapshot: dict

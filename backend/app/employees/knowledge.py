@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.employees.models import Agent, AgentKnowledgeLibrary
 from app.errors import InvalidInputError, NotFoundError
-from app.knowledge.models import KnowledgeBase
+from app.knowledge.libraries import library_fact
 
 
 def knowledge_ids(db: Session, agent_id: str) -> list[str]:
@@ -33,7 +33,7 @@ def replace_knowledge(db: Session, agent: Agent, data: Any) -> None:
     if len(set(ids)) != len(ids):
         raise InvalidInputError("knowledge_duplicate_library", "不能重复装配同一知识库。")
     for identifier in ids:
-        if db.get(KnowledgeBase, identifier) is None:
+        if library_fact(db, identifier) is None:
             raise NotFoundError("knowledge_not_found", "待装配知识库不存在。")
     agent.knowledge_mode, agent.knowledge_top_k = data.mode, data.top_k
     db.execute(delete(AgentKnowledgeLibrary).where(AgentKnowledgeLibrary.agent_id == agent.id))
@@ -50,10 +50,10 @@ def capture_knowledge(db: Session, agent_id: str) -> dict[str, Any] | None:
         return None
     libraries = []
     for identifier in ids:
-        base = db.get(KnowledgeBase, identifier)
+        base = library_fact(db, identifier)
         if base is None:
             raise NotFoundError("knowledge_not_found", "员工装配的知识库不存在。")
-        libraries.append({"id": base.id, "name": base.name, "description": base.description})
+        libraries.append(base)
     return {
         "agent_id": agent.id,
         "revision": agent.revision,

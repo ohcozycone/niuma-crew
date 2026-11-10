@@ -188,7 +188,7 @@ def test_publish_rechecks_source_and_model_revisions(api_client, upstream, chang
     kb = create(api_client)["id"]
     upload(api_client, kb)
     assert build(api_client, kb, model["id"]).status_code == 200
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     with service.database.transaction() as db:
         generation = db.get(LibraryVectorIndex, kb).generation
 
@@ -217,25 +217,27 @@ def test_owner_permissions_and_build_concurrency_are_enforced_before_upstream(ap
     model = connection(api_client)
     kb = create(api_client)["id"]
     upload(api_client, kb)
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     actor = Actor(
         "user", "", library_creator(service, kb), "admin", "admin", utc_now() + timedelta(hours=1)
     )
-    assert service.vectors.options(actor)[0].id == model["id"]
+    assert service.knowledge_vectors.options(actor)[0].id == model["id"]
     for stranger in [
         replace(actor, user_id=str(uuid4()), role="member"),
         replace(actor, role="guest"),
     ]:
         with pytest.raises((NotFoundError, PermissionDeniedError)):
-            service.vectors.build(stranger, kb, model["id"])
+            service.knowledge_vectors.build(stranger, kb, model["id"])
     assert upstream["requests"] == []
-    assert service.vectors.build_slot.acquire(blocking=False)
+    assert service.knowledge_vectors.build_slot.acquire(blocking=False)
     try:
         assert build(api_client, kb, model["id"]).status_code == 409
     finally:
-        service.vectors.build_slot.release()
-    assert service.vectors.build(actor, kb, model["id"]).vector_status == "ready"
-    assert service.search(actor, kb, SearchRequest(question="查询", strategy="vector")).hits
+        service.knowledge_vectors.build_slot.release()
+    assert service.knowledge_vectors.build(actor, kb, model["id"]).vector_status == "ready"
+    assert service.knowledge_search.search_library(
+        actor, kb, SearchRequest(question="查询", strategy="vector")
+    ).hits
 
 
 def test_upgrade_from_text_only_preserves_sources(app_config, monkeypatch):

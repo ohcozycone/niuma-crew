@@ -7,6 +7,7 @@ from datetime import timedelta
 
 from sqlalchemy import or_, select
 
+from app.files.contracts import FileRetentionCandidate
 from app.files.models import StoredFile
 from app.infrastructure.database.transactions import reserve_writer
 from app.values import utc_now
@@ -40,7 +41,9 @@ class FileCleanup:
             self.cleanup_after = (
                 (candidates[-1].created_at, candidates[-1].id) if len(candidates) == 128 else None
             )
-            keep = retained(db, candidates)
+            keep = retained(
+                db, [FileRetentionCandidate(row.id, row.origin_run_id) for row in candidates]
+            )
             for row in candidates:
                 if row.id not in keep:
                     removed.append(row.storage_key)

@@ -12,6 +12,7 @@ from app.employees.models import (
 from app.environments.legacy_models import WorkspaceProfile
 from app.environments.models import SandboxResource
 from app.evaluations.models import EvaluationBatch, EvaluationCase
+from app.execution.evidence_models import RunKnowledgeEvidence
 from app.execution.models import Run, RunAction
 from app.files.models import StoredFile
 from app.infrastructure.database.base import Base
@@ -24,7 +25,6 @@ from app.knowledge.models import (
     LibraryVectorMembership,
     ProcessingBatch,
     ProcessingItem,
-    RunKnowledgeEvidence,
 )
 from app.mcp.models import McpService, ToolConnection
 from app.model_connections.models import ModelConnection

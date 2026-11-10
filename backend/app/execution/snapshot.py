@@ -278,7 +278,7 @@ class RunConfiguration:
         snapshot["memory_scope"] = digest(
             [
                 agent.id,
-                self.knowledge.evidence.context_revision(db, knowledge) if knowledge else None,
+                self.knowledge.context_revision(db, knowledge) if knowledge else None,
             ]
         )
         snapshot["memory_reset"] = False
@@ -321,7 +321,7 @@ class RunConfiguration:
         return any(after.get(key) != value for key, value in before.items())
 
     def bind_history(self, db: Session, row: Any) -> None:
-        self.knowledge.evidence.bind_history(db, row)
+        self.knowledge.bind_history(db, row)
 
     def capture_evidence(
         self,
@@ -336,7 +336,7 @@ class RunConfiguration:
         if snapshot.get("knowledge"):
             if self.knowledge is None:
                 raise ConflictError("knowledge_unavailable")
-            evidence = self.knowledge.evidence.capture_history(
+            evidence = self.knowledge.capture_history(
                 db,
                 snapshot["knowledge"],
                 sources,

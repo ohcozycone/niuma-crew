@@ -6,16 +6,18 @@ from collections.abc import Callable
 from contextlib import ExitStack
 from pathlib import Path
 from threading import BoundedSemaphore
-from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
 from app.errors import ConflictError, InvalidInputError, ServiceUnavailableError
+from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
 from app.knowledge.contracts import Chunk
+from app.knowledge.lexical import lexical_search
+from app.knowledge.libraries import KnowledgeLibraries
 from app.knowledge.models import (
     KnowledgeBase,
     LibraryChunk,
@@ -31,69 +33,25 @@ from app.knowledge.schemas import (
     SearchRequest,
     SearchResult,
 )
+from app.knowledge.sources import source_digest
 from app.knowledge.vector_store import PREFIX, KnowledgeVectorStore
 from app.llm.embeddings import VECTOR_DIMENSIONS, embed_texts
-from app.model_connections.models import ModelConnection
+from app.model_connections.references import embedding_connections
 from app.model_connections.service import ModelConnectionService
 from app.values import digest, new_uuid, utc_now
 
 logger = logging.getLogger(__name__)
 
-if TYPE_CHECKING:
-    from app.knowledge.service import KnowledgeService
-
-
-def source_digest(session: Session, kb: str) -> str:
-    return digest(
-        list(
-            session.scalars(
-                select(LibraryChunk.id)
-                .join(LibraryDocument)
-                .where(LibraryDocument.knowledge_base_id == kb)
-                .order_by(LibraryChunk.id)
-            )
-        )
-    )
-
-
-def index_summary(session: Session, kb: str, chunk_count: int) -> dict[str, Any]:
-    index = session.get(LibraryVectorIndex, kb)
-    if index is None:
-        return {}
-    connection = session.get(ModelConnection, index.connection_id)
-    status = "ready"
-    vector_count = (
-        session.scalar(
-            select(func.count())
-            .select_from(LibraryVectorMembership)
-            .where(
-                LibraryVectorMembership.knowledge_base_id == kb,
-                LibraryVectorMembership.generation == index.generation,
-            )
-        )
-        or 0
-    )
-    if connection is None or not connection.enabled or connection.capability != "embedding":
-        status = "unavailable"
-    elif connection.config_revision != index.config_revision:
-        status = "outdated"
-    elif vector_count == 0:
-        status = "not_built"
-    elif vector_count < chunk_count:
-        status = "partial"
-    return {
-        "vector_status": status,
-        "vector_connection_id": index.connection_id,
-        "vector_connection_name": connection.name if connection else None,
-        "vector_chunk_count": vector_count,
-    }
-
 
 class KnowledgeVectorService:
     def __init__(
-        self, knowledge: KnowledgeService, connections: ModelConnectionService, directory: Path
-    ):
-        self.knowledge, self.connections = knowledge, connections
+        self,
+        database: Database,
+        libraries: KnowledgeLibraries,
+        connections: ModelConnectionService,
+        directory: Path,
+    ) -> None:
+        self.database, self.libraries, self.connections = database, libraries, connections
         self.store = KnowledgeVectorStore(directory)
         # 每进程只构建一项，限制资源及重复向量请求费用。
         self.build_slot = BoundedSemaphore(1)
@@ -102,22 +60,16 @@ class KnowledgeVectorService:
         if actor.kind == "guest":
             require_permission(actor, "knowledge:read")
         else:
-            self.knowledge.manager(actor)
-        with self.knowledge.database.transaction() as session:
+            self.libraries.manager(actor)
+        with self.database.transaction() as session:
             return [
                 EmbeddingConnectionRead(id=row.id, name=row.name, model_id=row.model_id)
-                for row in session.scalars(
-                    select(ModelConnection)
-                    .where(
-                        ModelConnection.enabled.is_(True), ModelConnection.capability == "embedding"
-                    )
-                    .order_by(ModelConnection.name, ModelConnection.id)
-                )
+                for row in embedding_connections(session)
             ]
 
     def build(self, actor: Actor, kb: str, connection_id: str) -> LibraryRead:
-        self.knowledge.manager(actor)
-        self.knowledge.get(actor, kb)
+        self.libraries.manager(actor)
+        self.libraries.get(actor, kb)
         if not self.build_slot.acquire(blocking=False):
             raise ConflictError("knowledge_build_busy", "正在建立向量索引，请稍后重试。")
         try:
@@ -128,8 +80,8 @@ class KnowledgeVectorService:
 
     def _build(self, actor: Actor, kb: str, connection_id: str) -> LibraryRead:
         deadline = time.monotonic() + 120
-        with self.knowledge.database.transaction() as session:
-            base_revision = self.knowledge.require_base(session, kb, actor).updated_at
+        with self.database.transaction() as session:
+            base_revision = self.libraries.require_base(session, kb, actor).updated_at
             config = self.connections.resolve_embedding(connection_id, db=session)
             old = session.get(LibraryVectorIndex, kb)
             generation = old.generation if old else None
@@ -167,9 +119,9 @@ class KnowledgeVectorService:
                 self.store.build(name, chunks, vectors)
                 guard()
                 # 仅在获取或退役索引指针时持锁，网络请求和索引构建不占用 SQLite 写锁。
-                with self.store.lock, self.knowledge.database.transaction() as session:
+                with self.store.lock, self.database.transaction() as session:
                     reserve_writer(session, KnowledgeBase.__table__)
-                    base = self.knowledge.require_base(session, kb, actor)
+                    base = self.libraries.require_base(session, kb, actor)
                     self.connections.resolve_embedding(
                         connection_id,
                         config.config_revision,
@@ -216,7 +168,7 @@ class KnowledgeVectorService:
                         ]
                     )
                     session.flush()
-                    result = self.knowledge.base_read(session, base)
+                    result = self.libraries.base_read(session, base)
                 published = True
             finally:
                 if not published:
@@ -226,11 +178,11 @@ class KnowledgeVectorService:
         return result
 
     def clear(self, actor: Actor, kb: str) -> None:
-        self.knowledge.manager(actor)
+        self.libraries.manager(actor)
         with self.store.lock:
-            with self.knowledge.database.transaction() as session:
+            with self.database.transaction() as session:
                 reserve_writer(session, KnowledgeBase.__table__)
-                self.knowledge.require_base(session, kb, actor).updated_at = utc_now()
+                self.libraries.require_base(session, kb, actor).updated_at = utc_now()
                 current = session.get(LibraryVectorIndex, kb)
                 name = current.collection_name if current else None
                 session.execute(
@@ -248,8 +200,8 @@ class KnowledgeVectorService:
         self, kb: str, data: SearchRequest, authorize: Callable[[Session], KnowledgeBase]
     ) -> SearchResult:
         with ExitStack() as lease:
-            with self.store.lock, self.knowledge.database.transaction() as session:
-                status = self.knowledge.base_read(session, authorize(session))
+            with self.store.lock, self.database.transaction() as session:
+                status = self.libraries.base_read(session, authorize(session))
                 if status.vector_status not in {"ready", "partial"}:
                     raise ConflictError(
                         "knowledge_vector_not_ready",
@@ -274,14 +226,14 @@ class KnowledgeVectorService:
             query = embed_texts(config, [data.question])[0]
             limit = 30 if data.strategy == "hybrid" else data.top_k
             candidates = self.store.query(name, query, ids, limit)
-            with self.knowledge.database.transaction() as session:
+            with self.database.transaction() as session:
                 base = authorize(session)
                 current = session.get(LibraryVectorIndex, kb)
                 if (
                     current is None
                     or current.generation != generation
                     or source_digest(session, kb) != source
-                    or self.knowledge.base_read(session, base).vector_status
+                    or self.libraries.base_read(session, base).vector_status
                     not in {"ready", "partial"}
                 ):
                     raise ConflictError(
@@ -321,7 +273,7 @@ class KnowledgeVectorService:
                     for rank, (id, distance) in enumerate(candidates, 1)
                 ]
                 if data.strategy == "hybrid":
-                    lexical = self.knowledge.lexical_search(session, kb, data.question, limit)
+                    lexical = lexical_search(session, kb, data.question, limit)
                     hits = fuse_rankings([lexical, hits], data.top_k)
                 return SearchResult(
                     knowledge_base_id=kb,
@@ -332,7 +284,7 @@ class KnowledgeVectorService:
     def prune(self, kb: str) -> None:
         """立即移除可见关系，物理清理失败可重试。"""
         with self.store.lock:
-            with self.knowledge.database.transaction() as db:
+            with self.database.transaction() as db:
                 index = db.get(LibraryVectorIndex, kb)
                 if index is None:
                     return
@@ -354,7 +306,7 @@ class KnowledgeVectorService:
         """持有进程锁后、开始服务前执行一次。"""
         with self.store.lock:
             names = self.store.names()
-            with self.knowledge.database.transaction() as db:
+            with self.database.transaction() as db:
                 indexes = list(db.scalars(select(LibraryVectorIndex)))
                 published = {index.collection_name for index in indexes}
                 libraries = []

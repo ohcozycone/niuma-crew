@@ -4,14 +4,13 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import NotRequired, Protocol, TypedDict
 
-from app.runtime.contracts.content import AgentResult, ContentUpdate, InputMessage
+from app.runtime.contracts.content import AgentResult, ContentUpdate, InputMessage, KnowledgeResult
 from app.runtime.contracts.tools import (
     ModelExposure,
     SandboxAccess,
     ToolActions,
     ToolCaller,
     ToolInvocation,
-    ToolOutcome,
 )
 
 
@@ -85,7 +84,7 @@ class AgentContext(ToolActions, Protocol):
     def save_source(self, name: str, data: bytes) -> dict: ...
     def save_output(self, name: str, data: bytes) -> dict: ...
     def read_skill_blob(self, content_hash: str) -> bytes: ...
-    def knowledge_call(self, name: str, arguments: dict) -> ToolOutcome: ...
+    def knowledge_call(self, name: str, arguments: dict) -> KnowledgeResult: ...
     async def preserve_tool_result(
         self, invocation: ToolInvocation, data: dict, status: str
     ) -> tuple: ...

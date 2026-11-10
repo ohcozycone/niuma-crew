@@ -10,7 +10,7 @@ from runtime_helpers import MemoryContext, agent_runtime
 from app.agent.skills import prepare_skills
 from app.agent.tool_calls import ToolExecutionMiddleware, prepare_agent_tools
 from app.builtin_tools.knowledge import tool_bindings
-from app.knowledge.access import KnowledgeAccess
+from app.execution.knowledge import KnowledgeAccess
 from app.runtime.contracts.agent import AgentRuntimeContext
 from app.runtime.contracts.tools import ToolOutcome
 

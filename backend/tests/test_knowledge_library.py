@@ -7,9 +7,11 @@ from sqlalchemy import select, text
 
 from app.auth.actor import Actor
 from app.files.models import StoredFile
+from app.knowledge.libraries import KnowledgeLibraries
 from app.knowledge.models import KnowledgeBase, LibraryDocument
+from app.knowledge.references import retained_file_ids
 from app.knowledge.schemas import SearchRequest
-from app.knowledge.service import KnowledgeService, retained_file_ids
+from app.knowledge.search import KnowledgeSearch
 from app.values import utc_now
 
 
@@ -53,7 +55,7 @@ def process(client, kb, documents=None, reprocess=False, request_id=None, run=Tr
     )
     assert response.status_code == 202, response.text
     if run:
-        while client.app.state.knowledge.processing.run_next():
+        while client.app.state.knowledge_processing.run_next():
             pass
     return client.get(f"/api/knowledge-bases/{kb}/processing/{response.json()['id']}")
 
@@ -75,12 +77,14 @@ def test_upload_source_search_reopen_and_remove(api_client):
         f"/api/knowledge-bases/{id}/search", json={"question": "一等座 批准"}
     ).json()
     assert found["strategy"] == "bm25" and found["hits"][0]["chunk"]["document_id"] == doc["id"]
-    knowledge = api_client.app.state.knowledge
-    reopened = KnowledgeService(knowledge.database, knowledge.files)
+    knowledge = api_client.app.state
+    reopened = KnowledgeSearch(
+        knowledge.database, KnowledgeLibraries(knowledge.database), knowledge.knowledge_vectors
+    )
     actor = Actor(
         "user", "", library_creator(knowledge, id), "admin", "admin", utc_now() + timedelta(hours=1)
     )
-    assert reopened.search(actor, id, SearchRequest(question="一等座")).hits
+    assert reopened.search_library(actor, id, SearchRequest(question="一等座")).hits
     assert (
         TestClient.request(
             api_client, "DELETE", f"/api/knowledge-bases/{id}/documents/{doc['id']}"
@@ -143,16 +147,16 @@ def test_scope_and_query_escaping(api_client):
         ).status_code
         == 200
     )
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     stranger = Actor("user", "", str(uuid4()), "other", "admin", utc_now() + timedelta(hours=1))
-    assert len(service.libraries(stranger)) == 2
-    assert service.get(stranger, first).id == first
+    assert len(service.knowledge_libraries.libraries(stranger)) == 2
+    assert service.knowledge_libraries.get(stranger, first).id == first
 
 
 def test_retained_original_survives_attachment_sweep(api_client):
     kb = create(api_client)["id"]
     doc = upload(api_client, kb).json()
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     with service.database.transaction() as session:
         row = session.get(LibraryDocument, doc["id"])
         file = session.get(StoredFile, row.file_id)
@@ -219,8 +223,8 @@ def test_guest_can_read_libraries_but_cannot_remove_documents(api_client):
     actor = Actor("guest", "", None, None, "guest", utc_now() + timedelta(hours=1))
     from app.errors import PermissionDeniedError
 
-    knowledge = api_client.app.state.knowledge
-    assert knowledge.libraries(actor)[0].id == kb
-    assert knowledge.detail(actor, kb, doc).id == doc
+    knowledge = api_client.app.state
+    assert knowledge.knowledge_libraries.libraries(actor)[0].id == kb
+    assert knowledge.knowledge_documents.detail(actor, kb, doc).id == doc
     with pytest.raises(PermissionDeniedError):
-        knowledge.remove(actor, kb, doc)
+        knowledge.knowledge_documents.remove(actor, kb, doc)

@@ -26,7 +26,7 @@ def test_asgi_entrypoint_starts_without_model_configuration(monkeypatch, migrate
     monkeypatch.setenv("RUNNER_LOCK_FILE", str(migrated_config.runner_lock_file))
     with TestClient(import_from_string("app.main:app")) as client:
         assert client.app.state.files.storage.directory == directory / "files"
-        assert client.app.state.knowledge.vectors.store.directory == directory / "knowledge-vectors"
+        assert client.app.state.knowledge_vectors.store.directory == directory / "knowledge-vectors"
         response = client.get("/health")
         assert response.status_code == 200
         assert response.json() == {
@@ -224,7 +224,7 @@ def test_lifespan_releases_created_resources_despite_failures(app_config, monkey
 
 
 def test_knowledge_worker_failure_releases_process_lock(api_client, tmp_path, monkeypatch):
-    processing = api_client.app.state.knowledge.processing
+    processing = api_client.app.state.knowledge_processing
 
     def fail():
         raise RuntimeError("worker_failed")
@@ -233,7 +233,9 @@ def test_knowledge_worker_failure_releases_process_lock(api_client, tmp_path, mo
 
     async def run():
         path = tmp_path / "knowledge.lock"
-        worker = KnowledgeWorker(processing, path)
+        worker = KnowledgeWorker(
+            processing, path, reconcile=api_client.app.state.knowledge_vectors.reconcile
+        )
         await worker.start()
         assert worker.task is not None
         with pytest.raises(RuntimeError, match="worker_failed"):
@@ -243,7 +245,9 @@ def test_knowledge_worker_failure_releases_process_lock(api_client, tmp_path, mo
         assert worker.lock is None
         # 另一个宿主须能取得同一系统锁，而非仅清空内存字段。
         monkeypatch.setattr(processing, "run_next", lambda: False)
-        replacement = KnowledgeWorker(processing, path)
+        replacement = KnowledgeWorker(
+            processing, path, reconcile=api_client.app.state.knowledge_vectors.reconcile
+        )
         await replacement.start()
         await replacement.stop()
 

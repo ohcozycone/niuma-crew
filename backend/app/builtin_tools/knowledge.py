@@ -9,6 +9,7 @@ from app.builtin_tools.results import normalize_builtin
 from app.infrastructure.concurrency import run_sync
 from app.knowledge.contracts import TOOL_BINDINGS
 from app.knowledge.schemas import KnowledgeReadInput, KnowledgeSearchInput
+from app.runtime.contracts.content import KnowledgeResult
 from app.runtime.contracts.tools import ToolOutcome
 
 
@@ -37,9 +38,10 @@ def tool_bindings() -> list[dict]:
     ]
 
 
-def knowledge_tool(binding: dict, call: Callable[[str, dict], ToolOutcome]) -> ToolBinding:
+def knowledge_tool(binding: dict, call: Callable[[str, dict], KnowledgeResult]) -> ToolBinding:
     async def invoke(**arguments):
-        outcome = await run_sync(call, binding["tool_name"], arguments)
+        result = await run_sync(call, binding["tool_name"], arguments)
+        outcome = ToolOutcome(**asdict(result))
         return outcome.content, {"builtin_outcome": asdict(outcome)}
 
     return ToolBinding(

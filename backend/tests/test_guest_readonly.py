@@ -62,7 +62,7 @@ def test_guest_reads_knowledge_and_keyword_search_but_cannot_change_it(api_clien
     doc = upload(api_client, kb).json()["id"]
     process(api_client, kb)
     path = f"/api/knowledge-bases/{kb}"
-    knowledge = api_client.app.state.knowledge
+    knowledge = api_client.app.state
     # 共用应用但使用独立 Cookie，不能继承管理员身份。
     with TestClient(api_client.app, headers={"Origin": "http://localhost:3000"}) as guest:
         guest.post("/api/auth/guest", json={})
@@ -100,12 +100,14 @@ def test_guest_reads_knowledge_and_keyword_search_but_cannot_change_it(api_clien
         ]:
             assert guest.request(method, path + suffix, json={}).status_code == 403
         with pytest.raises(PermissionDeniedError):
-            knowledge.update(
+            knowledge.knowledge_libraries.update(
                 actor, kb, LibraryUpdate(name="禁止覆盖", description="", expected_revision=1)
             )
         with pytest.raises(PermissionDeniedError):
-            knowledge.processing.submit(actor, kb, ProcessingRequest(client_request_id=uuid4()))
+            knowledge.knowledge_processing.submit(
+                actor, kb, ProcessingRequest(client_request_id=uuid4())
+            )
         with pytest.raises(PermissionDeniedError):
-            knowledge.vectors.clear(actor, kb)
+            knowledge.knowledge_vectors.clear(actor, kb)
         assert guest.post("/api/auth/logout", json={}).status_code == 204
         assert guest.get(path).status_code == 401

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import re
-from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -10,64 +9,27 @@ from sqlalchemy.orm import Session
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
 from app.errors import ConflictError, InvalidInputError, NotFoundError
+from app.execution.evidence_models import RunKnowledgeEvidence
 from app.execution.models import Run
 from app.execution.store import require_run
 from app.knowledge.contracts import Chunk
-from app.knowledge.models import (
-    LibraryChunk,
-    LibraryDocument,
-    RunKnowledgeEvidence,
-)
 from app.knowledge.schemas import (
     KnowledgeEvidenceRead,
     KnowledgeEvidenceReference,
     KnowledgeReadInput,
 )
-from app.runtime.contracts.tools import ToolOutcome
-from app.values import digest
-
-if TYPE_CHECKING:
-    from app.knowledge.service import KnowledgeService
-
+from app.knowledge.sources import assert_evidence, context_revision
+from app.runtime.contracts.content import KnowledgeResult
 
 LINK = re.compile(r"\[([^\]]*)\]\(([^\s)]+)\)")
 
 
 class KnowledgeEvidence:
-    def __init__(self, knowledge: KnowledgeService) -> None:
-        self.knowledge = knowledge
+    context_revision = staticmethod(context_revision)
+    assert_evidence = staticmethod(assert_evidence)
 
-    @staticmethod
-    def context_revision(db: Session, captured: dict) -> str:
-        """知识依据改变时使旧执行记忆失效。"""
-        ids = [item["id"] for item in captured["libraries"]]
-        versions = list(
-            db.execute(
-                select(LibraryDocument.id, LibraryDocument.updated_at, LibraryDocument.content_hash)
-                .where(LibraryDocument.knowledge_base_id.in_(ids))
-                .order_by(LibraryDocument.id)
-            )
-        )
-        return digest(
-            [captured["revision"], ids, [[str(value) for value in row] for row in versions]]
-        )
-
-    @staticmethod
-    def assert_evidence(db: Session, evidence: RunKnowledgeEvidence, ids: set[str]) -> None:
-        document = db.get(LibraryDocument, evidence.document_id)
-        chunk = db.get(LibraryChunk, evidence.chunk_id)
-        if (
-            evidence.knowledge_base_id not in ids
-            or document is None
-            or chunk is None
-            or document.knowledge_base_id != evidence.knowledge_base_id
-            or document.snapshot.get("version") != evidence.document_version
-            or chunk.document_id != document.id
-            or chunk.snapshot != evidence.snapshot
-        ):
-            raise ConflictError(
-                "knowledge_source_changed", "已取得的知识来源已删除或重处理，请重新提问。"
-            )
+    def __init__(self, database, *, run_scope) -> None:
+        self.database, self.run_scope = database, run_scope
 
     @staticmethod
     def hit(evidence: RunKnowledgeEvidence, offset: int = 0, limit: int = 800) -> dict:
@@ -116,16 +78,16 @@ class KnowledgeEvidence:
             break
         return result
 
-    def read_source(self, run_id: str, data: KnowledgeReadInput) -> ToolOutcome:
-        with self.knowledge.database.transaction() as db:
-            self.knowledge.access.run_scope(db, run_id)
+    def read_source(self, run_id: str, data: KnowledgeReadInput) -> KnowledgeResult:
+        with self.database.transaction() as db:
+            self.run_scope(db, run_id)
             evidence = db.get(RunKnowledgeEvidence, (run_id, data.evidence_id))
             if evidence is None:
                 raise NotFoundError(
                     "knowledge_evidence_not_found", "该证据不属于本轮已取得的来源。"
                 )
             result = self.citation_hit(db, evidence, data.offset, 2000)
-        return ToolOutcome(
+        return KnowledgeResult(
             json.dumps(result, ensure_ascii=False),
             sources=(
                 {
@@ -140,9 +102,9 @@ class KnowledgeEvidence:
     def finalize_answer(self, run_id: str, text: str, db: Session | None = None) -> str:
         """在同一授权事务中规范化并核验引用。"""
         if db is None:
-            with self.knowledge.database.transaction() as session:
+            with self.database.transaction() as session:
                 return self.finalize_answer(run_id, text, session)
-        self.knowledge.access.run_scope(db, run_id)
+        self.run_scope(db, run_id)
         by_id = {
             item.evidence_id: self.citation_hit(db, item)["source_url"]
             for item in db.scalars(
@@ -226,12 +188,12 @@ class KnowledgeEvidence:
     def preview(
         self, actor: Actor, run_id: str, evidence_id: str, offset: int = 0
     ) -> KnowledgeEvidenceRead:
-        with self.knowledge.database.transaction() as db:
+        with self.database.transaction() as db:
             row = self.readable_run(db, actor, run_id)
             evidence = db.get(RunKnowledgeEvidence, (run_id, evidence_id))
             if evidence is None or not self.frozen_scope(row, evidence):
                 raise NotFoundError("knowledge_evidence_not_found", "该运行没有此知识来源。")
-            self.assert_evidence(db, evidence, {evidence.knowledge_base_id})
+            assert_evidence(db, evidence, {evidence.knowledge_base_id})
             return KnowledgeEvidenceRead(
                 **{
                     key: value
@@ -243,7 +205,7 @@ class KnowledgeEvidence:
 
     def references(self, actor: Actor, run_id: str) -> list[KnowledgeEvidenceReference]:
         """供旧回答精确映射已有引用；仅返回该Run已登记的有界目录。"""
-        with self.knowledge.database.transaction() as db:
+        with self.database.transaction() as db:
             row = self.readable_run(db, actor, run_id)
             result = []
             for evidence in db.scalars(
@@ -298,7 +260,7 @@ class KnowledgeEvidence:
                 ):
                     continue
                 try:
-                    self.assert_evidence(db, evidence, allowed)
+                    assert_evidence(db, evidence, allowed)
                 except ConflictError:
                     continue
                 item = {
@@ -343,7 +305,7 @@ class KnowledgeEvidence:
                 }
             ):
                 raise ConflictError("knowledge_source_changed", "历史知识来源已变化，请重新发送。")
-            self.assert_evidence(db, evidence, allowed)
+            assert_evidence(db, evidence, allowed)
             db.add(
                 RunKnowledgeEvidence(
                     run_id=row.id,

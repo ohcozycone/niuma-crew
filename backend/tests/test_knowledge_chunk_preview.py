@@ -109,7 +109,7 @@ def test_preview_has_no_publication_and_explicit_rules_match_background_result(a
         },
     )
     assert job.status_code == 202
-    api_client.app.state.knowledge.processing.run_next()
+    api_client.app.state.knowledge_processing.run_next()
     actual = detail(api_client, kb, doc["id"])
     assert actual["chunks"] == preview["chunks"]
     assert actual["processing_rules"] == {**RULES, "split_version": 2}
@@ -161,21 +161,21 @@ def test_invalid_rules_scope_and_deletion_during_preview(api_client, monkeypatch
         ).status_code
         == 404
     )
-    service = api_client.app.state.knowledge
+    service = api_client.app.state
     stranger = Actor("user", "", str(uuid4()), "other", "member", utc_now() + timedelta(hours=1))
     with pytest.raises(PermissionDeniedError):
-        service.processing.preview(stranger, kb, doc["id"], ChunkPreviewRequest())
+        service.knowledge_processing.preview(stranger, kb, doc["id"], ChunkPreviewRequest())
     with service.database.transaction() as db:
         owner_id = db.get(KnowledgeBase, kb).created_by_user_id
     owner = Actor("user", "", owner_id, "admin", "admin", utc_now() + timedelta(hours=1))
-    native = service.processing.prepare
+    native = service.knowledge_processing.prepare
 
     def prepare(*args):
         result = native(*args)
-        service.remove(owner, kb, doc["id"])
+        service.knowledge_documents.remove(owner, kb, doc["id"])
         return result
 
-    monkeypatch.setattr(service.processing, "prepare", prepare)
+    monkeypatch.setattr(service.knowledge_processing, "prepare", prepare)
     assert api_client.post(url, json={}).status_code == 404
 
 
@@ -185,5 +185,5 @@ def test_legacy_queued_rules_do_not_silently_enable_merging(api_client):
     job = process(api_client, kb, run=False).json()
     with api_client.app.state.database.transaction() as db:
         db.get(ProcessingBatch, job["id"]).rules = {"chunk_size": 800, "chunk_overlap": 120}
-    api_client.app.state.knowledge.processing.run_next()
+    api_client.app.state.knowledge_processing.run_next()
     assert len(detail(api_client, kb, doc["id"])["chunks"]) == 4

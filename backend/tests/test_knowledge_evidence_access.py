@@ -8,12 +8,13 @@ from fastapi.testclient import TestClient
 from test_employee_knowledge import agent, assemble, member, ready, run
 from test_knowledge_library import create
 
-from app.api.dependencies import get_actor, get_knowledge
+from app.api.dependencies import get_actor, get_knowledge_evidence
 from app.api.routes.knowledge import source_router
 from app.auth.actor import Actor
 from app.errors import ConflictError, NotFoundError, PermissionDeniedError
+from app.execution.evidence_models import RunKnowledgeEvidence
 from app.execution.models import Run
-from app.knowledge.models import LibraryChunk, RunKnowledgeEvidence
+from app.knowledge.models import LibraryChunk
 from app.values import utc_now
 
 
@@ -23,8 +24,8 @@ def prepared(client, *, owner=None):
     ready(client, kb)
     assert assemble(client, employee, [kb]).status_code == 200
     run_id, snapshot = run(client, employee, owner=owner)
-    service = client.app.state.knowledge
-    result = service.retrieval.call(run_id, "search_knowledge", {"query": "住宿"})
+    service = client.app.state
+    result = service.run_knowledge.call(run_id, "search_knowledge", {"query": "住宿"})
     assert result.status == "succeeded", result.content
     hit = json.loads(result.content)["hits"][0]
     return service, employee, kb, run_id, snapshot, hit
@@ -35,24 +36,29 @@ def test_member_reads_only_registered_run_evidence_and_not_library(api_client):
         viewer = member(db)
         stranger = member(db)
     service, employee, kb, run_id, snapshot, hit = prepared(api_client, owner=viewer.user_id)
-    result = service.evidence.preview(viewer, run_id, hit["evidence_id"])
+    result = service.knowledge_evidence.preview(viewer, run_id, hit["evidence_id"])
     assert "住宿" in result.content and result.source_url == hit["source_url"]
     with pytest.raises(PermissionDeniedError):
-        service.get(viewer, kb)
+        service.knowledge_libraries.get(viewer, kb)
     with pytest.raises(NotFoundError):
-        service.evidence.preview(stranger, run_id, hit["evidence_id"])
+        service.knowledge_evidence.preview(stranger, run_id, hit["evidence_id"])
     with pytest.raises(NotFoundError):
-        service.evidence.preview(viewer, run_id, "K-0000000000000000")
-    assert len(service.evidence.references(viewer, run_id)) == 1
+        service.knowledge_evidence.preview(viewer, run_id, "K-0000000000000000")
+    assert len(service.knowledge_evidence.references(viewer, run_id)) == 1
     assert assemble(api_client, employee, []).status_code == 200
-    assert service.evidence.preview(viewer, run_id, hit["evidence_id"]).content == result.content
+    assert (
+        service.knowledge_evidence.preview(viewer, run_id, hit["evidence_id"]).content
+        == result.content
+    )
     with pytest.raises(ConflictError):
-        service.retrieval.call(run_id, "read_knowledge_source", {"evidence_id": hit["evidence_id"]})
+        service.run_knowledge.call(
+            run_id, "read_knowledge_source", {"evidence_id": hit["evidence_id"]}
+        )
     with service.database.transaction() as db:
         chunk = db.get(LibraryChunk, hit["chunk_id"])
         chunk.snapshot = {**chunk.snapshot, "text": "已重切的不同内容"}
     with pytest.raises(ConflictError):
-        service.evidence.preview(viewer, run_id, hit["evidence_id"])
+        service.knowledge_evidence.preview(viewer, run_id, hit["evidence_id"])
 
 
 def test_run_source_http_endpoint_and_guest_denial(api_client):
@@ -64,7 +70,7 @@ def test_run_source_http_endpoint_and_guest_denial(api_client):
         owner = db.get(Run, run_id).owner_user_id
     actor = Actor("user", "", owner, "admin", "admin", utc_now() + timedelta(hours=1))
     app.dependency_overrides[get_actor] = lambda: actor
-    app.dependency_overrides[get_knowledge] = lambda: service
+    app.dependency_overrides[get_knowledge_evidence] = lambda: service.knowledge_evidence
     with TestClient(app) as client:
         result = client.get(path)
         assert result.status_code == 200, result.text
@@ -73,7 +79,7 @@ def test_run_source_http_endpoint_and_guest_denial(api_client):
         assert len(client.get(f"/api/runs/{run_id}/knowledge-evidence").json()) == 1
     guest = Actor("guest", "", None, None, "guest", utc_now() + timedelta(hours=1))
     with pytest.raises(PermissionDeniedError):
-        service.evidence.preview(guest, run_id, hit["evidence_id"])
+        service.knowledge_evidence.preview(guest, run_id, hit["evidence_id"])
 
 
 @pytest.mark.parametrize("mismatch", ["owner", "thread", "legacy_user"])
@@ -90,7 +96,7 @@ def test_history_does_not_expand_scope_or_cross_owner_thread(api_client, mismatc
                 **snapshot,
                 "knowledge": {**captured, "user_id": str(uuid4())},
             }
-        items = service.evidence.capture_history(
+        items = service.knowledge_evidence.capture_history(
             db,
             captured,
             [(source_id, f"[{hit['evidence_id']}]({hit['source_url']})")],
@@ -113,14 +119,14 @@ def test_legacy_history_is_rebound_without_retired_settings_and_keeps_exact_link
             "knowledge": {**snapshot["knowledge"], "user_id": owner},
         }
         evidence = db.get(RunKnowledgeEvidence, (source_id, hit["evidence_id"]))
-        citation = f"[{hit['evidence_id']}]({service.evidence.legacy_url(evidence)})"
+        citation = f"[{hit['evidence_id']}]({service.knowledge_evidence.legacy_url(evidence)})"
     previous = source_id
     for _ in range(2):
         target_id, target_snapshot = run(api_client, employee)
         with service.database.transaction() as db:
             target = db.get(Run, target_id)
             target.thread_id = thread
-            items = service.evidence.capture_history(
+            items = service.knowledge_evidence.capture_history(
                 db,
                 target_snapshot["knowledge"],
                 [(previous, citation)],
@@ -133,10 +139,10 @@ def test_legacy_history_is_rebound_without_retired_settings_and_keeps_exact_link
                 **target_snapshot,
                 "knowledge": {**target_snapshot["knowledge"], "history_evidence": items},
             }
-            service.evidence.bind_history(db, target)
-            citation = service.evidence.clean_history(citation, items)
+            service.knowledge_evidence.bind_history(db, target)
+            citation = service.knowledge_evidence.clean_history(citation, items)
         assert hit["source_url"] in citation
-        assert service.evidence.finalize_answer(target_id, citation) == citation
+        assert service.knowledge_evidence.finalize_answer(target_id, citation) == citation
         with service.database.transaction() as db:
             db.get(Run, target_id).status = "succeeded"
             db.get(Run, target_id).finished_at = utc_now()

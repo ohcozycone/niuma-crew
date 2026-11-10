@@ -2,6 +2,7 @@ import asyncio
 import fcntl
 import logging
 import os
+from collections.abc import Callable
 from pathlib import Path
 from typing import IO
 
@@ -13,8 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 class KnowledgeWorker:
-    def __init__(self, processing: KnowledgeProcessingService, lock_path: Path):
+    def __init__(
+        self,
+        processing: KnowledgeProcessingService,
+        lock_path: Path,
+        *,
+        reconcile: Callable[[], None],
+    ) -> None:
         self.processing, self.lock_path = processing, lock_path
+        self.reconcile = reconcile
         self.task: asyncio.Task[None] | None = None
         self.lock: IO[str] | None = None
         self.stopping = False
@@ -25,7 +33,7 @@ class KnowledgeWorker:
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             os.chmod(lock.name, 0o600)
-            await asyncio.to_thread(self.processing.knowledge.vectors.reconcile)
+            await asyncio.to_thread(self.reconcile)
             await asyncio.to_thread(self.processing.recover)
         except BaseException:
             lock.close()

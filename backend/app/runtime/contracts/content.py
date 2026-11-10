@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal, TypedDict
 
 
@@ -30,3 +30,11 @@ class ContentUpdate:
     reasoning_text: str
     reasoning_truncated: bool
     has_tool_calls: bool
+
+
+@dataclass(frozen=True, slots=True)
+class KnowledgeResult:
+    content: str
+    status: str = "succeeded"
+    data: dict = field(default_factory=dict)
+    sources: tuple[dict, ...] = ()

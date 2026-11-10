@@ -29,11 +29,11 @@ from app.values import utc_now
 if TYPE_CHECKING:
     from app.agent.checkpoints import CheckpointStore
     from app.environments.service import SandboxService
+    from app.execution.knowledge import RunKnowledgeSearch
     from app.execution.models import Run
     from app.execution.service import RunService
     from app.execution.store import RunStore
     from app.files.service import FileService
-    from app.knowledge.service import KnowledgeService
     from app.mcp.invocation import ToolInvocationService
     from app.model_connections.service import ModelConnectionService
     from app.skills.service import SkillService
@@ -61,7 +61,7 @@ class RunTask:
         files: FileService,
         sandboxes: SandboxService,
         skills: SkillService,
-        knowledge: KnowledgeService,
+        knowledge: RunKnowledgeSearch,
     ) -> None:
         self.run_id, self._store, self._runs = run_id, store, runs
         self.row: Run | None = None
