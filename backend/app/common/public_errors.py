@@ -42,7 +42,7 @@ ERROR_MESSAGES = {
     "upstream_auth_failed": "模型凭证无效，请检查大脑配置。",
     "upstream_forbidden": "模型服务拒绝访问，请检查订阅与客户端使用权限。",
     "upstream_rate_limited": "模型服务限流，请稍后重试。",
-    "context_limit_exceeded": "上下文超过模型限制，请开始新对话。",
+    "context_limit_exceeded": "本轮上下文（含工具定义）超过输入上限，请缩小工具范围或联系管理员核对配置。",
     "upstream_unavailable": "暂时无法连接模型服务，请稍后重试。",
     "upstream_stream_error": "模型响应异常中断，请重试。",
     "empty_response": "模型未返回可见文本，请重试。",

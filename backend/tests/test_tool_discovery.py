@@ -447,3 +447,51 @@ def test_discovery_result_save_failure_never_emits_command(api_client, monkeypat
     with pytest.raises(OperationalError):
         execute(api_client, monkeypatch, model, accepted)
     assert len(model.prompts) == 1 and converted == []
+
+
+@pytest.mark.parametrize("context_bytes", [131072, 262144])
+def test_expanded_schema_obeys_frozen_configured_input_budget(
+    api_client, monkeypatch, context_bytes
+):
+    import json
+
+    from langchain_core.utils.function_calling import convert_to_openai_tool
+
+    from app.runtime.agent.config import load_agent_config
+    from app.runtime.agent.mcp_tools import mcp_tool
+
+    # 小目录通过共享定义描述参数，SDK 展开每个引用后才得到真实输入体积。
+    schema = {
+        "type": "object",
+        "$defs": {"entry": {"type": "string", "description": "field help " * 1800}},
+        "properties": {f"part_{i}": {"$ref": "#/$defs/entry"} for i in range(8)},
+    }
+    item = {**SearchClient.catalog[0], "input_schema": schema}
+    monkeypatch.setattr(SearchClient, "catalog", [item])
+    expanded = convert_to_openai_tool(mcp_tool({**item, "exposed_name": item["name"]}).tool)
+
+    def measure(value):
+        return len(json.dumps(value, ensure_ascii=False).encode())
+
+    assert measure(schema) < 32768
+    assert 131072 < measure(expanded) < 262144
+    settings = load_agent_config({"RUN_CONTEXT_BYTES": str(context_bytes)})
+    monkeypatch.setattr(api_client.app.state.runs.configuration, "agent", settings)
+    _, _, employee, conversation = setup(api_client)
+    connection = search_grant(api_client, employee)
+    accepted = send(api_client, conversation)
+    model = ScriptedModel(responses=[discovery_response(), response("已提供完整工具定义。")])
+    result = execute(api_client, monkeypatch, model, accepted)
+    if context_bytes == 131072:
+        assert result["status"] == "failed"
+        assert result["error"]["code"] == "context_limit_exceeded"
+        assert "工具定义" in result["error"]["message"]
+        assert "新对话" not in result["error"]["message"]
+        assert len(model.prompts) == 1
+    else:
+        assert result["status"] == "succeeded"
+        assert result["content"] == "已提供完整工具定义。"
+        assert len(model.prompts) == 2
+        assert exposed_name(connection["id"], item["name"]) in model.bindings[1]
+    row, _ = api_client.app.state.run_worker.store.load(accepted["id"])
+    assert row.config_snapshot["context_bytes"] == context_bytes
