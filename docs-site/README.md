@@ -37,7 +37,7 @@ make dev-docs
 
 ```bash
 make check-docs-site   # 内容、类型、定向测试、格式及静态构建
-make build-docs        # 生成 docs-site/out 静态产物
+make build-docs        # 生成静态产物并核对导出页面的图片、交互示例资源
 make preview-docs     # 在 3001 端口预览静态产物
 ```
 

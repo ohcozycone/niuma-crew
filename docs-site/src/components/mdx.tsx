@@ -2,11 +2,17 @@ import defaultMdxComponents from 'fumadocs-ui/mdx';
 import type { MDXComponents } from 'mdx/types';
 import { publicPath } from '@/lib/public-path';
 
+const MarkdownImage = defaultMdxComponents.img;
+
 export function getMDXComponents(components?: MDXComponents) {
   return {
     ...defaultMdxComponents,
     img: ({ src, alt, ...props }) => (
-      <img {...props} src={typeof src === 'string' ? publicPath(src) : src} alt={alt ?? ''} />
+      <MarkdownImage
+        {...props}
+        src={typeof src === 'string' ? publicPath(src) : src}
+        alt={alt ?? ''}
+      />
     ),
     ...components,
   } satisfies MDXComponents;
