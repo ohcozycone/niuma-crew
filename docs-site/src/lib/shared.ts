@@ -1,4 +1,5 @@
 import { createGetUrl } from 'fumadocs-core/source';
+import { publicPath } from '@/lib/public-path';
 
 export const appName = 'NiumaCrew 文档';
 export const docsRoute = '/docs';
@@ -9,5 +10,5 @@ const getContentUrl = createGetUrl(docsContentRoute);
 export function getPageMarkdownUrl(page: { slugs: string[]; locale?: string }) {
   const segments = [...page.slugs, 'content.md'];
 
-  return { segments, url: getContentUrl(segments, page.locale) };
+  return { segments, url: publicPath(getContentUrl(segments, page.locale)) };
 }

@@ -2,11 +2,12 @@ import { Provider } from '@/components/provider';
 import type { Metadata } from 'next';
 import { brand } from '../../../frontend/src/lib/brand';
 import './global.css';
+import { publicPath } from '@/lib/public-path';
 
 export const metadata: Metadata = {
   title: { default: `${brand.name} 文档 · ${brand.tagline}`, template: `%s · ${brand.name} 文档` },
   description: '从第一次对话到工具接入、知识检索与平台部署，了解 NiumaCrew 数字员工平台。',
-  icons: { icon: '/brand/mark.svg' },
+  icons: { icon: publicPath('/brand/mark.svg') },
 };
 
 export default function Layout({ children }: LayoutProps<'/'>) {

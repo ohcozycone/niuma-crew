@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { publicPath } from '@/lib/public-path';
 
 export function DesignPreview({ category }: { category: string }) {
   const frame = useRef<HTMLIFrameElement>(null);
@@ -53,7 +54,9 @@ export function DesignPreview({ category }: { category: string }) {
       <iframe
         ref={frame}
         title="设计系统交互示例"
-        src={`/design-examples/design-examples.html?category=${encodeURIComponent(category)}`}
+        src={publicPath(
+          `/design-examples/design-examples.html?category=${encodeURIComponent(category)}`,
+        )}
         loading="lazy"
         style={{ height }}
         onLoad={() => {
