@@ -160,6 +160,17 @@ html {
 }
 
 /* Shared motion primitives. */
+@keyframes trace-activity {
+  0%,
+  65%,
+  100% {
+    opacity: 0.3;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
 @keyframes question-anchor-breathe {
   0%,
   100% {

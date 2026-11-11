@@ -274,19 +274,6 @@ export const retryResponse = async (
     }),
   );
 export const answerContent = (reply: Reply): string => reply.content;
-export function activityLabel(reply: Reply): string {
-  if (reply.acceptance === "pending") return "执行已完成，正在保存回复";
-  if (reply.acceptance === "failed") return "执行已完成，回复未保存";
-  if (reply.status !== "running") return statusLabel[reply.status];
-  const action = reply.steps.findLast((item) => item.status === "running");
-  if (action?.kind === "tool_call")
-    return action.safe_details.tool === "read_file"
-      ? action.skill_id
-        ? "正在读取技能"
-        : "正在读取文件"
-      : "正在执行工具";
-  return reply.content_state === "draft" ? "生成中" : "正在处理";
-}
 export type ReplyStep = {
   /** 平台步骤 ID，页面以此作为稳定的行标识。 */
   id: string;

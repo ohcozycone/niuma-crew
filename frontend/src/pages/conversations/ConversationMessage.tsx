@@ -6,7 +6,7 @@ import { Bubble, BubbleContent } from "@/components/ui/Bubble";
 import { Button } from "@/components/ui/Button";
 import { Markdown } from "@/components/common/Markdown";
 import { AgentAvatar } from "@/components/avatars/index";
-import { activityLabel, isActive } from "@/lib/api/conversations";
+import { isActive } from "@/lib/api/conversations";
 import { useMessage } from "./useMessage";
 import { MessageScrollerItem } from "@/components/ui/MessageScroller";
 import { RunActions } from "./RunActions";
@@ -84,7 +84,6 @@ export const ConversationMessage = memo(function ConversationMessage({
                   <AgentAvatar avatarId={avatarId ?? "admin"} size={28} />
                 </span>
                 <span>{agentName}</span>
-                {run && <span>{activityLabel(run)}</span>}
               </MessageHeader>
               {run && <RunActions key={run.id} run={run} finalText={message.content} />}
               {message.content ? (
@@ -94,11 +93,9 @@ export const ConversationMessage = memo(function ConversationMessage({
                   sourceTitles={sourceTitles}
                   sourceRunId={message.run?.id}
                 />
-              ) : (
-                <p className="text-sm text-text-muted">
-                  {active ? "等待模型响应…" : "本次没有生成文本。"}
-                </p>
-              )}
+              ) : !active && run?.acceptance !== "pending" ? (
+                <p className="text-sm text-text-muted">本次没有生成文本。</p>
+              ) : null}
               {message.content && !active && !message.published && (
                 <p className="text-xs text-text-muted">未完成的输出</p>
               )}

@@ -26,31 +26,32 @@ Python 最低版本、FastAPI、SQLAlchemy、Alembic、模型 SDK 与开发工�
 
 ## 文件职责与依赖
 
-| 文件或模块                                                              | 负责内容与边界                                                    |
-| ----------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| main.py                                                                 | ASGI 导出入口，调用 bootstrap；不归属 HTTP 适配模块               |
-| api/routes                                                              | 参数、响应、Cookie、入口权限和 SSE；把业务决策交给所属服务        |
-| schemas.py                                                              | 输入校验、响应投影与协议类型，不承担数据库事务                    |
-| models.py                                                               | 所属模块的 ORM 结构、约束及关系，不集中所有业务模型               |
-| service.py                                                              | 一次业务操作的校验、协作、查询及事务；简单 CRUD 可直接使用 ORM    |
-| store.py / queries.py                                                   | 有实际后台存取或安全读取边界时拆分，不强制每表一个 repository     |
-| applications/conversations/writes.py                                                 | 对话业务写入与发布规则；使用调用方 Session，不自行提交            |
-| applications/conversations/commands.py                                                | 创建、接受、停止和重试事务；不启动模型或持有后台任务              |
-| resources/capability_catalog/queries.py                                           | 统一目录的可见范围、搜索、计数、排序与分页                        |
-| execution/snapshot.py、execution/runner.py、conversations/acceptance.py | 配置、单次准备和独立应用接纳；授权组合由 RunService 负责          |
-| rules、prompt 等职责文件                                                | 有独立价值的纯规则或组合逻辑；没有需要时不预建层级                |
-| execution                                                               | 队列、领取、看护、取消、预算及终态；与单次 HTTP 观察分开          |
-| agent / llm                                                             | 前者运行 Agent 和解释 SDK，后者适配模型；两者均不查询身份或业务库 |
-| infrastructure/database                                                 | 共用存储机制，不拥有员工、对话等业务规则                          |
-| bootstrap                                                               | 组合具体服务并管理生命周期，可以同时认识多类实现                  |
+| 文件或模块                                               | 负责内容与边界                                                                   |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| main.py                                                  | ASGI 导出入口，调用 bootstrap；不归属 HTTP 适配模块                              |
+| api/routes                                               | 参数、响应、Cookie、入口权限和 SSE；把业务决策交给所属服务                       |
+| schemas.py                                               | 输入校验、响应投影与协议类型，不承担数据库事务                                   |
+| models.py                                                | 所属模块的 ORM 结构、约束及关系，不集中所有业务模型                              |
+| service.py                                               | 一次业务操作的校验、协作、查询及事务；简单 CRUD 可直接使用 ORM                   |
+| store.py / queries.py                                    | 有实际后台存取或安全读取边界时拆分，不强制每表一个 repository                    |
+| applications/conversations/writes.py                     | 对话消息、绑定及接纳所需的发布写入；使用调用方 Session，不决定接纳时机或自行提交 |
+| applications/conversations/commands.py                   | 创建、接受、停止和重试事务；不启动模型或持有后台任务                             |
+| resources/capability_catalog/queries.py                  | 统一目录的可见范围、搜索、计数、排序与分页                                       |
+| runtime/execution/snapshot.py、preparation.py、runner.py | 分别捕获配置、准备资源和协调单次执行；授权组合由 RunService 负责                 |
+| applications/conversations/acceptance.py                 | 复核对话接纳资格并组织正式回复发布；失败只重试接纳                               |
+| rules、prompt 等职责文件                                 | 有独立价值的纯规则或组合逻辑；没有需要时不预建层级                               |
+| runtime/execution                                        | 队列、领取、看护、取消、预算及终态；与单次 HTTP 观察分开                         |
+| runtime/agent、infrastructure/llm                        | 前者运行 Agent 和解释 SDK，后者适配模型；两者均不查询身份或业务库                |
+| infrastructure/database                                  | 共用存储机制，不拥有员工、对话等业务规则                                         |
+| bootstrap                                                | 组合具体服务并管理生命周期，可以同时认识多类实现                                 |
 
-api 不导入 main 或 bootstrap；装配层组合 HTTP 适配与具体服务，配置和跨模块引用检查回调由 bootstrap 固定注入。路由通过 dependencies 取得服务，不在请求中重新构造带默认配置的实例。服务不接收 FastAPI Request，不在模块导入时连接数据库或启动后台任务。不同业务模块确需协作时写清所有者和调用入口；同库引用计数、兼容性验证和删除保护由状态所有者提供具名只读查询，使用调用方 Session；跨模块 ORM 仅允许架构契约逐文件声明的只读投影；对话服务和共享回复流程可以组合所需模块的公开操作，同库原子操作不拆成独立 commit。execution不导入conversations或HTTP实现；agent不读取业务ORM，通过普通输入和AgentContext协议请求受控操作。装配入口组合具体实现。完整依赖与具名例外由[test_architecture_contract.py](../../backend/tests/test_architecture_contract.py)检查，运行和失败路径继续由既有边界测试覆盖。
+api 不导入 main 或 bootstrap；装配层组合 HTTP 适配与具体服务，配置和跨模块引用检查回调由 bootstrap 固定注入。路由通过 dependencies 取得服务，不在请求中重新构造带默认配置的实例。服务不接收 FastAPI Request，不在模块导入时连接数据库或启动后台任务。不同业务模块确需协作时写清所有者和调用入口；同库引用计数、兼容性验证和删除保护由状态所有者提供具名只读查询，使用调用方 Session；跨模块 ORM 仅允许架构契约逐文件声明的只读投影；对话服务和共享回复流程可以组合所需模块的公开操作，同库原子操作不拆成独立 commit。`runtime/execution` 不导入业务应用或 HTTP 实现；`runtime/agent` 不读取业务 ORM，通过普通输入和 AgentContext 协议请求受控操作。装配入口组合具体实现。完整依赖与具名例外由[test_architecture_contract.py](../../backend/tests/test_architecture_contract.py)检查，运行和失败路径继续由既有边界测试覆盖。
 
 工作台配置摘要的响应与只读投影归 `applications/configuration_summary.py`，路由只处理 HTTP 协议。完整文件归属、允许依赖、状态所有权与执行顺序以[后端架构](../architecture/backend.md)和[可执行架构契约](../../backend/tests/architecture_contract.json)为准。
 
 RunWorker 与 RunService 共同读取 ExecutionStatus；Worker 管队列、在途任务和服务生命周期，Task 管单次执行、看护、受限操作与资源释放，完成后唤醒独立接纳。DatabaseConfig 定义在基础设施，app.config 负责配置组合。业务模型仅由 `bootstrap/model_registry.py` 聚合注册，数据库机制不反向导入业务模型。Agent 只接收普通 AgentRequest，通过 AgentContext 协议报告内容和请求受控操作；该协议不暴露 store 或数据库。
 
-技能格式由 skills/definitions 解释，员工捕获关系由 employees/assembly 维护。员工固定连接和知识关系由 employees 维护；连接、清单和调用分别归 mcp/connections、catalogs、invocation。共享主密钥机制归 infrastructure/credentials，业务负责转换故障；目录查询可以读约定概要字段，不重新解析技能原文。
+技能格式由 `resources/skills/definitions.py` 解释，员工捕获关系由 `resources/employees/assembly.py` 维护。员工固定连接和知识关系由 `resources/employees/` 维护；MCP 连接、清单和调用分别归 `resources/mcp/` 下的 `connections.py`、`catalogs.py`、`invocation.py`。共享主密钥机制归 infrastructure/credentials，业务负责转换故障；目录查询可以读约定概要字段，不重新解析技能原文。
 
 ## 运行管理组织约定
 
@@ -116,13 +117,13 @@ Agent 与 Execution 只表达稳定 code、技术类型及执行处理规则，�
 
 ## 检查与交付
 
-| 内容                                 | 当前工具或评审方式                                                                                                                          |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| 基础 Python 错误、未使用项、导入排序 | Ruff 已启用 E4/E7/E9/F/I；具体规则见 pyproject.toml                                                                                         |
-| Python 格式                          | Ruff format，包含 backend 与根 scripts                                                                                                      |
-| 业务与迁移行为                       | pytest 隔离数据库、假上游及真实迁移；重点覆盖失败、拒绝、并发和恢复                                                                         |
+| 内容                                 | 当前工具或评审方式                                                                                                                                                                  |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 基础 Python 错误、未使用项、导入排序 | Ruff 已启用 E4/E7/E9/F/I；具体规则见 pyproject.toml                                                                                                                                 |
+| Python 格式                          | Ruff format，包含 backend 与根 scripts                                                                                                                                              |
+| 业务与迁移行为                       | pytest 隔离数据库、假上游及真实迁移；重点覆盖失败、拒绝、并发和恢复                                                                                                                 |
 | 类型、依赖方向及职责                 | mypy 检查数据库错误识别及已列入的执行边界；导入约束由 test_runtime_boundaries.py 与 test_execution_boundaries.py 强制；完整目录、无环依赖、普通契约隔离和具名例外由架构契约测试检查 |
-| 文档入口、文件和章节链接             | make check-docs；不判断业务内容是否正确                                                                                                     |
+| 文档入口、文件和章节链接             | make check-docs；不判断业务内容是否正确                                                                                                                                             |
 
 公共入口为 `make lint-backend`、`make test-backend`；修改启动器执行 `make test-dev`。后端测试的[共享夹具](../../backend/tests/conftest.py)使用 tmp_path、隔离迁移、注入配置与 TestClient lifespan；运行器测试按需显式启用并使用假执行器及真实 SDK 的假模型。外部响应格式变化应在适配边界测试，不仅 mock 最外层服务结果。
 

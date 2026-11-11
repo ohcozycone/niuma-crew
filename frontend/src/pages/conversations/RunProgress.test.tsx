@@ -132,3 +132,54 @@ it("switches directly when reduced motion is enabled", () => {
   expect(container.querySelector('[data-current="true"] .lucide-circle-alert')).toBeTruthy();
   expect(animate).not.toHaveBeenCalled();
 });
+
+it.each(["succeeded", "failed", "cancelled", "interrupted"] as const)(
+  "stops activity immediately on %s, including pending reply saving",
+  (status) => {
+    const run = runFixture({ steps: [actionFixture({ output_text: "" })] });
+    const { rerender, container } = render(<RunProgress run={run} total={1} />);
+    expect(container.querySelector('[data-slot="run-activity"]')).toBeTruthy();
+    rerender(<RunProgress run={{ ...run, status }} total={1} />);
+    expect(container.querySelector('[data-slot="run-activity"]')).toBeNull();
+    if (status === "succeeded") {
+      rerender(<RunProgress run={{ ...run, status, acceptance: "pending" }} total={1} />);
+      expect(container.querySelector('[data-slot="run-activity"]')).toBeTruthy();
+      rerender(<RunProgress run={{ ...run, status, acceptance: "failed" }} total={1} />);
+      expect(container.querySelector('[data-slot="run-activity"]')).toBeNull();
+    }
+  },
+);
+
+it("pauses offscreen or hidden activity and cleans its observer on completion", () => {
+  let onIntersection: IntersectionObserverCallback = () => {};
+  const disconnect = vi.fn();
+  vi.stubGlobal(
+    "IntersectionObserver",
+    class {
+      observe = vi.fn();
+      disconnect = disconnect;
+      constructor(callback: IntersectionObserverCallback) {
+        onIntersection = callback;
+      }
+    },
+  );
+  const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
+  const run = runFixture();
+  const { rerender, container } = render(<RunProgress run={run} total={1} />);
+  const activity = container.querySelector('[data-slot="run-activity"]')!;
+  const intersect = (isIntersecting: boolean) =>
+    onIntersection([{ isIntersecting } as IntersectionObserverEntry], {} as IntersectionObserver);
+  intersect(false);
+  expect(activity.hasAttribute("data-paused")).toBe(true);
+  intersect(true);
+  expect(activity.hasAttribute("data-paused")).toBe(false);
+  hidden.mockReturnValue(true);
+  fireEvent(document, new Event("visibilitychange"));
+  expect(activity.hasAttribute("data-paused")).toBe(true);
+  hidden.mockReturnValue(false);
+  fireEvent(document, new Event("visibilitychange"));
+  expect(activity.hasAttribute("data-paused")).toBe(false);
+  rerender(<RunProgress run={{ ...run, status: "succeeded" }} total={1} />);
+  expect(disconnect).toHaveBeenCalledOnce();
+  hidden.mockRestore();
+});

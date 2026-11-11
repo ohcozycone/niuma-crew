@@ -148,7 +148,10 @@ it("paginates all loaded steps locally and retains the current page when new sna
   expect(screen.getByText("模型调用 · 第 102 轮")).toBeTruthy();
   expect(fetch).not.toHaveBeenCalled();
 });
-it("does not show an empty process", () => {
+it("keeps progress visible before the first step without an empty disclosure", () => {
   const { container } = render(<RunActions run={runFixture({ steps: [] })} finalText="" />);
-  expect(container.textContent).toBe("");
+  expect(screen.getByText("执行中")).toBeTruthy();
+  expect(container.querySelector('[data-slot="run-activity"]')).toBeTruthy();
+  expect(screen.queryByRole("button")).toBeNull();
+  expect(screen.queryByText("0 项记录")).toBeNull();
 });

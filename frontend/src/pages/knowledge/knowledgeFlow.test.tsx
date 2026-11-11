@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router";
 import * as api from "@/lib/api/knowledge";
@@ -828,4 +828,140 @@ it("builds all existing chunks even when some uploaded documents are pending, in
   fireEvent.click(screen.getByRole("button", { name: "建立向量索引（1篇）" }));
   await waitFor(() => expect(api.buildKnowledgeVectors).toHaveBeenCalledWith("kb", "embedding"));
   expect(api.processKnowledgeDocuments).not.toHaveBeenCalled();
+});
+
+it("opens original and chunks independently while retaining the filtered list, selection and focus", async () => {
+  vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([doc]);
+  vi.mocked(api.getKnowledgeDocument).mockResolvedValue({
+    ...doc,
+    document: {
+      text: "只属于原文的长正文。".repeat(3000),
+      version: "v1",
+      parser: "library-text-v1",
+    },
+    chunks: [{ ...chunk, text: "只属于分片的内容。" }],
+  });
+  open("/knowledge/kb?q=发布");
+  const checkbox = await screen.findByRole("checkbox", { name: "选择release.md" });
+  fireEvent.click(checkbox);
+  const original = screen.getAllByRole("button", { name: "查看原文" })[0];
+  original.focus();
+  fireEvent.click(original);
+  const dialog = within(await screen.findByRole("dialog"));
+  expect((await dialog.findByRole("article", { name: "固定文档原文" })).textContent).toContain(
+    "只属于原文",
+  );
+  expect(dialog.queryByText("只属于分片的内容。")).toBeNull();
+  fireEvent.click(dialog.getByRole("tab", { name: "分片（1）" }));
+  expect(await dialog.findByText("只属于分片的内容。")).toBeTruthy();
+  expect(dialog.queryByRole("article", { name: "固定文档原文" })).toBeNull();
+  fireEvent.keyDown(document.activeElement || document.body, { key: "Escape" });
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  await waitFor(() => expect(document.activeElement).toBe(original));
+  expect(checkbox).toHaveProperty("checked", true);
+  expect(screen.getByRole("textbox", { name: "查找库内文档" })).toHaveProperty("value", "发布");
+  fireEvent.click(screen.getAllByRole("button", { name: "查看分片" })[0]);
+  const reopened = within(await screen.findByRole("dialog"));
+  expect(await reopened.findByText("只属于分片的内容。")).toBeTruthy();
+  expect(reopened.getByRole("tab", { name: "分片（1）" }).getAttribute("aria-selected")).toBe(
+    "true",
+  );
+  expect(reopened.queryByRole("article", { name: "固定文档原文" })).toBeNull();
+  fireEvent.click(reopened.getByRole("button", { name: "关闭" }));
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(api.getKnowledgeDocument).toHaveBeenCalledTimes(1);
+});
+
+it("paginates published chunks independently from the original", async () => {
+  vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([{ ...doc, chunk_count: 21 }]);
+  vi.mocked(api.getKnowledgeDocument).mockResolvedValue({
+    ...doc,
+    chunk_count: 21,
+    document: { text: "完整长原文", version: "v1", parser: "library-text-v1" },
+    chunks: Array.from({ length: 21 }, (_, index) => ({
+      ...chunk,
+      id: `part-${index}`,
+      text: `分片正文 ${index + 1}`,
+    })),
+  });
+  open("/knowledge/kb");
+  fireEvent.click((await screen.findAllByRole("button", { name: "查看分片" }))[0]);
+  const dialog = within(await screen.findByRole("dialog"));
+  await dialog.findByText("第 1—20 片，共 21 片");
+  expect(dialog.getAllByRole("listitem")).toHaveLength(20);
+  expect(dialog.getByRole("button", { name: "上一页" })).toHaveProperty("disabled", true);
+  fireEvent.click(dialog.getByRole("button", { name: "下一页" }));
+  expect(dialog.getByText("第 21—21 片，共 21 片")).toBeTruthy();
+  expect(dialog.getAllByRole("listitem")).toHaveLength(1);
+  expect(dialog.getByText("分片正文 21")).toBeTruthy();
+  expect(dialog.getByRole("button", { name: "下一页" })).toHaveProperty("disabled", true);
+  fireEvent.click(dialog.getByRole("button", { name: "上一页" }));
+  expect(dialog.getByText("分片正文 1")).toBeTruthy();
+  expect(dialog.queryByText("完整长原文")).toBeNull();
+});
+
+it("allows read-only viewing of an unprocessed document and explains missing content", async () => {
+  readOnly = true;
+  vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([
+    { ...doc, version: "", chunk_count: 0, processing_state: "pending" },
+  ]);
+  vi.mocked(api.getKnowledgeDocument).mockResolvedValue({
+    ...doc,
+    version: "",
+    chunk_count: 0,
+    document: null,
+    chunks: [],
+  });
+  open("/knowledge/kb");
+  fireEvent.click((await screen.findAllByRole("button", { name: "查看分片" }))[0]);
+  const dialog = within(await screen.findByRole("dialog"));
+  expect(await dialog.findByText(/暂无分片/)).toBeTruthy();
+  fireEvent.click(dialog.getByRole("tab", { name: "原文" }));
+  expect(dialog.getByText(/尚未生成可阅读的原文/)).toBeTruthy();
+  expect(dialog.getByRole("link", { name: "下载原件" })).toBeTruthy();
+  expect(api.processKnowledgeDocuments).not.toHaveBeenCalled();
+});
+
+it("retries a document read failure inside the window and keeps the close action available", async () => {
+  vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([doc]);
+  vi.mocked(api.getKnowledgeDocument)
+    .mockRejectedValueOnce(new ApiError("网络中断，请重试。", 0, "client_connection_failed"))
+    .mockResolvedValueOnce({
+      ...doc,
+      document: { text: "恢复后的原文", version: "v1", parser: "library-text-v1" },
+      chunks: [chunk],
+    });
+  open("/knowledge/kb");
+  fireEvent.click((await screen.findAllByRole("button", { name: "查看原文" }))[0]);
+  const dialog = within(await screen.findByRole("dialog"));
+  await dialog.findByText("网络中断，请重试。");
+  expect(dialog.getByRole("button", { name: "关闭" })).toHaveProperty("disabled", false);
+  fireEvent.click(dialog.getByRole("button", { name: "重新加载" }));
+  expect(await dialog.findByText("恢复后的原文")).toBeTruthy();
+});
+
+it("retains document removal in the reader with cancellation and a retryable confirmation", async () => {
+  vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([doc]);
+  vi.mocked(api.getKnowledgeDocument).mockResolvedValue({
+    ...doc,
+    document: { text: "可阅读原文", version: "v1", parser: "library-text-v1" },
+    chunks: [chunk],
+  });
+  vi.mocked(api.removeKnowledgeDocument)
+    .mockRejectedValueOnce(new ApiError("文档正在处理，请稍后再试。", 409, "document_busy"))
+    .mockResolvedValueOnce(undefined);
+  open("/knowledge/kb");
+  fireEvent.click((await screen.findAllByRole("button", { name: "查看原文" }))[0]);
+  fireEvent.click(await screen.findByRole("button", { name: "移除文档" }));
+  fireEvent.click(screen.getByRole("button", { name: "取消" }));
+  expect(api.removeKnowledgeDocument).not.toHaveBeenCalled();
+  expect(screen.getByRole("article", { name: "固定文档原文" })).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "移除文档" }));
+  fireEvent.click(screen.getByRole("button", { name: "确认移除" }));
+  await screen.findByText("文档正在处理，请稍后再试。");
+  expect(screen.getByRole("button", { name: "确认移除" })).toHaveProperty("disabled", false);
+  vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([]);
+  fireEvent.click(screen.getByRole("button", { name: "确认移除" }));
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(await screen.findByText("这个知识库还没有文档")).toBeTruthy();
 });

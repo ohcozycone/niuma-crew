@@ -1,10 +1,5 @@
 import { expect, it, vi, afterEach } from "vitest";
-import {
-  answerContent,
-  activityLabel,
-  sendMessage,
-  type AcceptedSubmission,
-} from "./conversations";
+import { answerContent, sendMessage, type AcceptedSubmission } from "./conversations";
 import { safeReturnPath } from "@/lib/navigation";
 import type { Reply, ReplyStep } from "./conversations";
 const actionFixture = (overrides: Partial<ReplyStep> = {}): ReplyStep => ({
@@ -66,18 +61,6 @@ it("displays the selected server content without interpreting model rounds", () 
       ],
     }),
   ).toBe("");
-  expect(
-    activityLabel({
-      ...reply,
-      steps: [
-        actionFixture({
-          kind: "tool_call",
-          skill_id: "skill",
-          safe_details: { tool: "read_file" },
-        }),
-      ],
-    }),
-  ).toBe("正在读取技能");
 });
 it.each(["100000000000", null])("sends to the current acceptance endpoint for %s", async (id) => {
   const response = runFixture({

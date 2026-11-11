@@ -14,6 +14,7 @@ import { useWorkspaceData } from "@/state/workspace/useWorkspaceData";
 import { useResource } from "@/state/shared/useResource";
 import { useSaveOperation } from "@/state/editing/useSaveOperation";
 import { KnowledgeFeedback } from "./KnowledgeLibraries";
+import { KnowledgeDocumentContent } from "./KnowledgeDocumentContent";
 
 export function KnowledgeDocumentPage({ kb, id }: { kb: string; id: string }) {
   const writable = useIdentity().permissions.includes("knowledge:manage");
@@ -97,33 +98,11 @@ export function KnowledgeDocumentPage({ kb, id }: { kb: string; id: string }) {
             <span>原文快照 · {state.data.version.slice(0, 12)}</span>
             <span>上传时间 · {new Date(state.data.created_at).toLocaleString("zh-CN")}</span>
           </div>
-          <article
-            aria-label="固定文档原文"
-            className="max-w-prose whitespace-pre-wrap break-words text-sm leading-8"
-          >
-            {state.data.document?.text ??
-              "文件已加入知识库，尚未完成分片。请返回文档列表，选择文件并点击“分片并建关键词索引”；也可以下载原件核对。"}
-          </article>
-          <details className="mt-8 border-t border-border pt-5 text-sm">
-            <summary className="cursor-pointer font-medium">
-              查看全部切片（{state.data.chunks.length}）
-            </summary>
-            <div className="mt-4 divide-y divide-border">
-              {state.data.chunks.map((chunk, index) => (
-                <section key={chunk.id} className="py-4">
-                  <h3 className="text-sm font-medium [overflow-wrap:anywhere]">
-                    {index + 1}. {chunk.locator}
-                  </h3>
-                  <p className="mt-1 text-xs text-text-muted">
-                    正文区间 [{chunk.start}, {chunk.end})
-                  </p>
-                  <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-text-muted">
-                    {chunk.text}
-                  </p>
-                </section>
-              ))}
-            </div>
-          </details>
+          <KnowledgeDocumentContent
+            document={state.data}
+            initialView={params.get("view") === "chunks" ? "chunks" : "original"}
+            className="h-[70dvh] min-h-80 rounded-panel border border-border"
+          />
           <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-border pt-5">
             <Button disabled={!writable} variant="ghost" onClick={() => setConfirm(true)}>
               <Trash2 size={16} />

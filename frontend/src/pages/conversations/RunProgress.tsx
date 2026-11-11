@@ -136,6 +136,28 @@ export function RunProgress({ run, total }: { run: Reply; total: number }) {
   const [settled, setSettled] = useState(target);
   const [now, setNow] = useState(Date.now);
   const active = isActive(run.status);
+  const busy = run.acceptance !== "failed" && (active || run.acceptance === "pending");
+  const activity = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const element = activity.current;
+    if (!busy || !element) return;
+    let visible = true;
+    const update = () => element.toggleAttribute("data-paused", document.hidden || !visible);
+    const observer =
+      typeof IntersectionObserver === "undefined"
+        ? null
+        : new IntersectionObserver(([entry]) => {
+            visible = entry.isIntersecting;
+            update();
+          });
+    observer?.observe(element);
+    document.addEventListener("visibilitychange", update);
+    update();
+    return () => {
+      observer?.disconnect();
+      document.removeEventListener("visibilitychange", update);
+    };
+  }, [busy]);
   const smooth =
     run.status === "running" && run.acceptance !== "pending" && run.acceptance !== "failed";
   useEffect(() => {
@@ -162,11 +184,28 @@ export function RunProgress({ run, total }: { run: Reply; total: number }) {
   return (
     <>
       <PhaseIcon name={phase.icon} />
-      <TraceTitle aria-live="polite">{phase.label}</TraceTitle>
-      <TraceDescription>
-        {duration ? `用时 ${duration} · ` : ""}
-        {total} 项记录
-      </TraceDescription>
+      <TraceTitle aria-live="polite" className="inline-flex items-center gap-1.5">
+        {phase.label}
+        {busy && (
+          <span
+            ref={activity}
+            data-slot="run-activity"
+            aria-hidden="true"
+            className="group/activity inline-flex shrink-0 items-center gap-0.5"
+          >
+            <span className="size-0.5 rounded-full bg-current opacity-60 motion-safe:animate-[trace-activity_var(--os-motion-loading)_ease-in-out_infinite] group-data-paused/activity:[animation-play-state:paused]" />
+            <span className="size-0.5 rounded-full bg-current opacity-60 motion-safe:animate-[trace-activity_var(--os-motion-loading)_ease-in-out_180ms_infinite] group-data-paused/activity:[animation-play-state:paused]" />
+            <span className="size-0.5 rounded-full bg-current opacity-60 motion-safe:animate-[trace-activity_var(--os-motion-loading)_ease-in-out_360ms_infinite] group-data-paused/activity:[animation-play-state:paused]" />
+          </span>
+        )}
+      </TraceTitle>
+      {(duration || total > 0) && (
+        <TraceDescription>
+          {[duration && `用时 ${duration}`, total > 0 && `${total} 项记录`]
+            .filter(Boolean)
+            .join(" · ")}
+        </TraceDescription>
+      )}
     </>
   );
 }

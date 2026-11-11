@@ -218,24 +218,25 @@ export const RunActions = memo(function RunActions({
 }) {
   const [open, setOpen] = useState(false);
   const page = useStepPagination(run);
-  if (page.total === 0) return null;
+  const progress = (
+    <TraceLine
+      className="flex-wrap gap-y-1"
+      status={
+        run.status === "failed" || run.acceptance === "failed"
+          ? "error"
+          : isActive(run.status)
+            ? "running"
+            : undefined
+      }
+    >
+      <RunProgress run={run} total={page.total} />
+    </TraceLine>
+  );
+  if (page.total === 0) return <Trace className="py-1">{progress}</Trace>;
   return (
     <Trace>
       <TraceCollapsible open={open} onOpenChange={(value) => setOpen(value)}>
-        <TraceCollapsibleTrigger aria-label="执行过程">
-          <TraceLine
-            className="flex-wrap gap-y-1"
-            status={
-              run.status === "failed" || run.acceptance === "failed"
-                ? "error"
-                : isActive(run.status)
-                  ? "running"
-                  : undefined
-            }
-          >
-            <RunProgress run={run} total={page.total} />
-          </TraceLine>
-        </TraceCollapsibleTrigger>
+        <TraceCollapsibleTrigger aria-label="执行过程">{progress}</TraceCollapsibleTrigger>
         <TraceCollapsibleContent keepMounted className="ml-2 border-l border-border pl-4">
           {page.items.map((step) => {
             const text = step.output_text;
