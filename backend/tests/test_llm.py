@@ -15,15 +15,18 @@ from app.runtime.usage import aggregate_usage
 
 
 @pytest.mark.parametrize(
-    "provider,base_url,model_id",
+    "provider,base_url,model_id,legacy_request",
     [
-        ("zhipu", "https://open.bigmodel.cn/api/paas/v4", "glm-5.3"),
-        ("deepseek", "https://api.deepseek.com", "deepseek-flash"),
+        ("zhipu", "https://open.bigmodel.cn/api/paas/v4", "glm-5.3", True),
+        ("deepseek", "https://api.deepseek.com", "deepseek-flash", True),
+        ("kimi-code", "https://fixture.invalid/v1", "kimi-for-coding", False),
+        ("", "https://fixture.invalid/v1", "unnamed-model", False),
+        ("unregistered-provider", "https://fixture.invalid/v1", "new-model", False),
     ],
 )
 @pytest.mark.parametrize("streaming", [False, True])
 def test_reasoning_survives_sdk_tool_roundtrip_and_serialization(
-    provider, base_url, model_id, streaming
+    provider, base_url, model_id, legacy_request, streaming
 ):
     calls = []
     tool = {"id": "call-1", "type": "function", "function": {"name": "lookup", "arguments": "{}"}}
@@ -32,12 +35,18 @@ def test_reasoning_survives_sdk_tool_roundtrip_and_serialization(
         assert str(request.url) == base_url + "/chat/completions"
         body = json.loads(request.content)
         calls.append(body)
-        assert body["max_tokens"] == 100 and "max_completion_tokens" not in body
+        if legacy_request:
+            assert body["max_tokens"] == 100 and "max_completion_tokens" not in body
+        else:
+            assert body["max_completion_tokens"] == 100 and "max_tokens" not in body
         if len(calls) == 1:
             message = {"role": "assistant", "content": "", "tool_calls": [tool]}
             finish = "tool_calls"
         else:
-            assert body["messages"][1]["reasoning_content"] == "需要查询资料"
+            if legacy_request:
+                assert body["messages"][1]["reasoning_content"] == "需要查询资料"
+            else:
+                assert "reasoning_content" not in body["messages"][1]
             assert body["messages"][1]["tool_calls"] == [tool]
             assert body["messages"][2]["tool_call_id"] == "call-1"
             message = {"role": "assistant", "content": "完成"}
@@ -281,3 +290,56 @@ def test_cumulative_usage_preserves_zero_and_cannot_recover_missing_fields():
     assert third["cached_input_tokens"] is third["reasoning_tokens"] is None
     assert all(value is None for value in aggregate_usage(third, None, 4).values())
     assert aggregate_usage({"total_tokens": None}, {"total_tokens": 15}, 2)["total_tokens"] is None
+
+
+@pytest.mark.parametrize("streaming", [False, True])
+@pytest.mark.parametrize(
+    "standard,extension,expected",
+    [
+        ("标准思考", None, "标准思考"),
+        (None, "扩展思考", "扩展思考"),
+        ("标准思考", "不应重复的扩展思考", "标准思考"),
+        (None, None, ""),
+        (None, {"invalid": "不是文本"}, ""),
+    ],
+)
+def test_reasoning_prefers_sdk_standard_blocks_before_extension(
+    streaming, standard, extension, expected
+):
+    from langchain_core.messages import AIMessageChunk
+
+    from app.runtime.agent.streaming import RunProgress
+
+    model = create_chat_model(
+        LLMConfig(api_key="fixture", model_id="fixture", base_url="https://fixture.invalid/v1")
+    )
+    # SDK 已归一的标准内容块优先；正文、工具和其他字段继续由 SDK 处理。
+    content = ([{"type": "reasoning", "reasoning": standard}] if standard else []) + [
+        {"type": "text", "text": "正文"}
+    ]
+    message = {"role": "assistant", "content": content, "reasoning_content": extension}
+    if streaming:
+        chunk = model._convert_chunk_to_generation_chunk(
+            {"choices": [{"index": 0, "delta": message, "finish_reason": "stop"}]},
+            AIMessageChunk,
+            None,
+        )
+        result = chunk.message
+    else:
+        result = (
+            model._create_chat_result(
+                {
+                    "id": "fixture",
+                    "model": "fixture",
+                    "choices": [{"index": 0, "message": message, "finish_reason": "stop"}],
+                }
+            )
+            .generations[0]
+            .message
+        )
+    value = RunProgress(1000, 1000).record("model:1", result, complete=True)
+    assert value.reasoning_text == expected and value.output_text == "正文"
+    if standard or not isinstance(extension, str):
+        assert "reasoning_content" not in result.additional_kwargs
+    else:
+        assert result.additional_kwargs["reasoning_content"] == extension

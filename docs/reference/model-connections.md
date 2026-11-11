@@ -14,7 +14,7 @@
 | `zhipu`            | 智谱 GLM  | `https://open.bigmodel.cn/api/paas/v4` | `glm-5.3`         |
 | `deepseek`         | DeepSeek  | `https://api.deepseek.com`             | `deepseek-flash`  |
 
-智谱使用开放平台标准 API Key，与 GLM Coding Plan Key 不通用；DeepSeek 使用开放平台 API Key。地址与模型名按 [智谱 OpenAI 兼容说明](https://docs.bigmodel.cn/cn/guide/develop/openai/introduction)及 [DeepSeek 快速开始](https://api-docs.deepseek.com/quick_start/)于 2026-11-05 核对。两者通过局部模型适配保留并回传 `reasoning_content`，支持思考模型的工具调用往返；该字段用于协议续接，当前不转换为界面的思考内容块。
+智谱使用开放平台标准 API Key，与 GLM Coding Plan Key 不通用；DeepSeek 使用开放平台 API Key。地址与模型名按 [智谱 OpenAI 兼容说明](https://docs.bigmodel.cn/cn/guide/develop/openai/introduction)及 [DeepSeek 快速开始](https://api-docs.deepseek.com/quick_start/)于 2026-11-05 核对。两者保留已有请求格式及工具续轮的思考回传兼容。所有兼容聊天连接统一提取推理文本：优先使用 SDK 标准推理内容块，缺失时读取实际返回的字符串 `reasoning_content`；供应商名称不决定是否接收。文本进入执行进度、证据和 checkpoint，遵守当前思考展示预算；字段同时存在时不重复拼接，无字段时不补造文本。
 
 依据 [Kimi Code 官方说明](https://www.kimi.com/code/docs/en/)（2026-10-17 核对），Kimi Code 面向编程场景，订阅 Key 与开放平台 Key 不通用，自有通用产品集成应另评估开放平台。客户端使用真实 NiumaCrew 身份，不伪装其他编程工具。
 

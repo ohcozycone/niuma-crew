@@ -12,7 +12,7 @@
 
 模型连接服务检查当前授权与版本，解析秘密并生成不可变 `LLMConfig`。配置中的 `SecretStr` 减少常规打印暴露凭据，但不是加密存储；密文保管在 model_connections。
 
-`factory.py` 根据这份参数构造 ChatOpenAI，当前采用兼容 Chat Completions 协议。智谱和 DeepSeek 根据配置中的 provider 选择 `ReasoningChatOpenAI`，保留供应商工具续接必需的思考字段；其他配置继续使用标准客户端。新增非兼容供应商需要新适配，客户端可配置地址不代表平台管理界面已开放任意服务。
+`factory.py` 根据这份参数统一构造 `ReasoningChatOpenAI`，当前采用兼容 Chat Completions 协议。响应提取按协议结构处理：先沿用 SDK 解析出的标准推理内容块，缺少推理文本时再保留 `reasoning_content` 扩展字段，不依赖供应商名称。已有智谱和 DeepSeek 请求参数名及思考回传兼容由独立的 `legacy_request_format` 开关保持；该开关不决定是否接收推理。新增非兼容协议仍需适配，客户端可配置地址不代表平台管理界面已开放任意服务。
 
 ### 网络客户端为什么跟随一次 Agent 执行
 
@@ -24,7 +24,7 @@
 
 `usage.py` 解释供应商实际报告的 token 字段；`common/usage.py` 定义数据，`runtime/usage.py` 跨轮累计，某一累计字段缺失就保持未知，不用正文长度伪造消耗。`errors.py` 只把已知认证、限流、超时等供应商故障分类为平台运行错误，数据库或程序错误不包装成网络故障。
 
-模型输出仍由执行运行时解释并交给业务发布。`reasoning.py` 在 SDK 转换边界保留智谱和 DeepSeek 的 `reasoning_content`，存入消息的 `additional_kwargs`，流式片段由 SDK 合并，随 checkpoint 保存并在后续请求回传；不把思考混入正文，也不在执行核心解析供应商 JSON。执行进度层会把实际返回的该字段映射到已有可见思考字段，并遵守原截断预算。适配器同时恢复供应商支持的 `max_tokens` 参数，避免 ChatOpenAI 自动改为 OpenAI 的 `max_completion_tokens`。
+模型输出仍由执行运行时解释并交给业务发布。`reasoning.py` 先执行 SDK 转换，标准推理文本存在时直接使用，缺失时将实际返回的字符串 `reasoning_content` 放入消息的 `additional_kwargs`。流式与非流式遵循相同优先级，字段同时存在时不拼接重复内容，无字段或非文本值保持为空。流式扩展片段由 SDK 合并，随 checkpoint 保存；执行进度和执行证据沿用现有保存链路及截断预算。响应字段兼容不自动改变请求：普通兼容服务沿用 SDK 请求，已有专用请求格式继续使用 `max_tokens` 并回传工具续轮所需的扩展思考。
 
 ## 目录与职责
 
@@ -32,7 +32,7 @@
 llm/
 ├── config.py                      # 定义不可变模型参数及受保护的秘密表示，使调用方显式选择连接而不是工厂查库
 ├── factory.py                     # 构造兼容聊天模型，为一次 Agent 执行创建和关闭受管 HTTP 客户端，传递时限与输出上限
-├── reasoning.py                   # 为智谱与 DeepSeek 保留和回传思考字段，沿用 SDK 的正文、工具及用量解析
+├── reasoning.py                   # 统一提取标准及扩展推理文本，独立兼容已有请求格式，沿用 SDK 正文、工具和用量解析
 ├── usage.py                       # 解释供应商实际报告的用量字段，保留缺失字段和未知尝试，供运行计费/展示使用
 ├── probe.py                       # 有界检查模型目录，不生成内容
 └── errors.py                      # 识别已知供应商失败类别并保留未知异常，让宿主按真实原因收束

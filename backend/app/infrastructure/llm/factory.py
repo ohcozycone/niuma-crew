@@ -5,7 +5,6 @@ from contextvars import ContextVar
 
 import httpx
 from langchain_core.language_models import BaseChatModel
-from langchain_openai import ChatOpenAI
 
 from app.infrastructure.llm.config import LLMConfig
 from app.infrastructure.llm.reasoning import ReasoningChatOpenAI
@@ -42,8 +41,8 @@ def create_chat_model(
     if max_tokens is not None:
         runtime_options["max_tokens"] = max_tokens
 
-    model_class = ReasoningChatOpenAI if config.provider in {"zhipu", "deepseek"} else ChatOpenAI
-    return model_class(
+    return ReasoningChatOpenAI(
+        legacy_request_format=config.provider in {"zhipu", "deepseek"},
         model=config.model_id,
         api_key=config.api_key,
         base_url=config.base_url,
