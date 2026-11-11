@@ -282,3 +282,82 @@ def test_truncated_tool_request_is_not_promoted_to_partial_answer(api_client, mo
     assert result["error"]["code"] == "output_limit_exceeded"
     assert result["content"] == ""
     assert "已保留部分回答" not in result["error"]["message"]
+
+
+def test_extension_reasoning_reaches_progress_evidence_and_checkpoint_without_provider_branch(
+    api_client, monkeypatch
+):
+    import json
+
+    from run_helpers import checkpoint_store, execute_run
+
+    from app.runtime.agent.checkpoints import checkpoint_config
+    from app.runtime.execution.models import Run, RunAction
+
+    requests = []
+
+    def handle(request):
+        payload = json.loads(request.content)
+        requests.append(payload)
+        assert "legacy_request_format" not in payload
+        pieces = [
+            {"delta": {"role": "assistant", "reasoning_content": "先核对"}},
+            {"delta": {"reasoning_content": "再回答"}},
+            {"delta": {"content": "合成答复"}},
+            {"delta": {}, "finish_reason": "stop"},
+        ]
+        events = [
+            {
+                "id": "fixture-reasoning",
+                "object": "chat.completion.chunk",
+                "model": "fixture",
+                "created": 1,
+                "choices": [{"index": 0, "finish_reason": None, **piece}],
+            }
+            for piece in pieces
+        ]
+        events.append(
+            {
+                "id": "fixture-reasoning",
+                "object": "chat.completion.chunk",
+                "model": "fixture",
+                "created": 1,
+                "choices": [],
+                "usage": {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
+            }
+        )
+        return httpx.Response(
+            200,
+            headers={"Content-Type": "text/event-stream"},
+            text="".join("data: " + json.dumps(event) + "\n\n" for event in events)
+            + "data: [DONE]\n\n",
+        )
+
+    class OfflineClient(httpx.AsyncClient):
+        def __init__(self, **kwargs):
+            kwargs["transport"] = httpx.MockTransport(handle)
+            super().__init__(**kwargs)
+
+    monkeypatch.setattr("app.infrastructure.llm.factory.httpx.AsyncClient", OfflineClient)
+    _, _, _, conversation = setup(api_client)
+    accepted = submit(api_client, conversation).json()["response"]
+    asyncio.run(execute_run(api_client, accepted["id"]))
+    api_client.app.state.conversation_acceptance.sweep()
+    result = read_reply(api_client, accepted["id"])
+    assert result["status"] == "succeeded" and result["content"] == "合成答复"
+    step = next(item for item in result["steps"] if item["kind"] == "model_call")
+    assert step["reasoning_text"] == "先核对再回答" and not step["reasoning_truncated"]
+    assert len(requests) == 1
+    with api_client.app.state.database.transaction() as db:
+        run = db.get(Run, accepted["id"])
+        action = db.get(RunAction, step["id"])
+        evidence = json.loads(api_client.app.state.files.read(action.response_file_id))
+        assert evidence["payload"]["reasoning_content"] == "先核对再回答"
+        config = checkpoint_config(run.thread_id, run.checkpoint_id)
+    with checkpoint_store(api_client).reader() as saver:
+        saved = saver.get_tuple(config).checkpoint["channel_values"]["messages"]
+    assert any(
+        isinstance(message, AIMessage)
+        and message.additional_kwargs.get("reasoning_content") == "先核对再回答"
+        for message in saved
+    )
