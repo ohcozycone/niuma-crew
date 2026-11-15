@@ -138,7 +138,9 @@ def test_real_sdk_execution_and_score_are_independent_without_tools_or_messages(
             [],
         )
         assert normal["skills"]
-    batch = create(api_client, agent).json()
+    # Positive publication fixture: some benchmark dict-valued answers are intentionally
+    # rejected by the pinned scorer, so do not sample them with a random UUID.
+    batch = create(api_client, agent, key="00000000-0000-4000-8000-000000000002").json()
     service = api_client.app.state.evaluation_progression
     service.advance(batch["id"])
     service.advance(batch["id"])
@@ -197,7 +199,10 @@ def test_cancel_keeps_records_and_never_submits_remaining_questions(api_client):
 
 
 def test_cancel_scores_already_completed_answer_before_cancelling_remaining_work(api_client):
-    batch = create(api_client, employee(api_client), 3).json()
+    # Same verified positive sample as the publication test, not a test of random sampling.
+    batch = create(
+        api_client, employee(api_client), 3, key="00000000-0000-4000-8000-000000000002"
+    ).json()
     service = api_client.app.state.evaluation_progression
     service.advance(batch["id"])
     run_id = result(api_client, batch)["cases"]["items"][0]["run_id"]

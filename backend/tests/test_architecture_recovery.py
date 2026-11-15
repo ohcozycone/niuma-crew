@@ -2,10 +2,13 @@
 
 import asyncio
 import json
+import sqlite3
 import tarfile
 from datetime import timedelta
 from pathlib import Path
 
+from alembic import command
+from alembic.config import Config
 from checkpoint_worker import CheckpointModel
 from fastapi.testclient import TestClient
 from langchain_core.messages import ToolMessage
@@ -26,6 +29,21 @@ def test_snapshot_version_eight_checkpoint_resumes_without_replaying_saved_tool(
         archive.extractall(tmp_path, filter="data")
     saved = json.loads((tmp_path / "state.json").read_text())
     assert saved["source_commit"] == "b2cacbd61a02ec7e11e84507a25504ecf42c4b9e"
+    # Run current additive schema migrations as deployment would; never rewrite the fixture
+    # checkpoint or its historical Run snapshot to manufacture compatibility.
+    with sqlite3.connect(app_config.database.url.database) as db:
+        original = db.execute(
+            "SELECT config_snapshot FROM runs WHERE id=?", (saved["run_id"],)
+        ).fetchone()
+    monkeypatch.setenv(
+        "DATABASE_URL", app_config.database.url.render_as_string(hide_password=False)
+    )
+    command.upgrade(Config(str(Path(__file__).resolve().parents[1] / "alembic.ini")), "head")
+    with sqlite3.connect(app_config.database.url.database) as db:
+        assert (
+            db.execute("SELECT config_snapshot FROM runs WHERE id=?", (saved["run_id"],)).fetchone()
+            == original
+        )
 
     class Continuation(CheckpointModel):
         def _generate(self, messages, stop=None, run_manager=None, **kwargs):
