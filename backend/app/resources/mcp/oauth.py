@@ -344,13 +344,18 @@ class OAuthService:
 
     @asynccontextmanager
     async def access(self, row):
-        if row.id in self.blocked or any(
+        if any(
             session.connection_id == row.id and session.active for session in self.sessions.values()
         ):
             raise InvalidInputError(
                 "tool_auth_required", "此账号需要完成授权，请在访问设置中连接账号。"
             )
         async with self.locks.setdefault(row.id, asyncio.Lock()):
+            # 等待期间前一个请求可能续期保存失败，获锁后才检查阻断状态。
+            if row.id in self.blocked:
+                raise InvalidInputError(
+                    "tool_auth_required", "此账号需要完成授权，请在访问设置中连接账号。"
+                )
 
             def current():
                 with self.connections.database.transaction() as db:
@@ -393,16 +398,18 @@ class OAuthService:
                 tokens = await self._refresh(storage, tokens)
             # 同步游离记录的最新密文，避免结果脱敏仍使用旧凭据。
             row.encrypted_credentials = storage.row.encrypted_credentials
-            try:
-                yield {"Authorization": "Bearer " + tokens.access_token}
-            except InvalidInputError as error:
-                if error.code == "tool_auth_required":
+        # 同连接只串行读取和续期凭据，远端业务请求不占用凭据锁。
+        try:
+            yield {"Authorization": "Bearer " + tokens.access_token}
+        except InvalidInputError as error:
+            if error.code == "tool_auth_required":
+                async with self.locks[row.id]:
                     try:
                         await storage.invalidate()
                     except ConflictError:
-                        # 并发账号或配置修改优先。
+                        # 迟到的认证失败不能清除已续期或重新授权的凭据。
                         pass
-                raise
+            raise
 
     async def _refresh(self, storage, previous):
         endpoint = storage.payload.get("metadata", {}).get("token_endpoint")

@@ -458,6 +458,105 @@ def test_restart_concurrent_refresh_and_business_guard(api_client):
     assert server.business_calls == 1
 
 
+@pytest.mark.parametrize("expired,cancel_first", [(False, False), (True, False), (False, True)])
+def test_same_oauth_account_runs_business_requests_concurrently(api_client, expired, cancel_first):
+    server, connection = setup_oauth(api_client)
+    saved, _ = authorize(api_client, server, connection)
+    oauth = api_client.app.state.tool_oauth
+    factory = api_client.app.state.tool_invocation.client_factory
+    with api_client.app.state.database.transaction() as db:
+        row = db.get(ToolConnection, saved["id"])
+
+    def client():
+        return factory(row.public_config["url"], {}, oauth.config, access=lambda: oauth.access(row))
+
+    catalog = api_client.portal.call(client().discover)
+    if expired:
+        expire(api_client, saved)
+
+    async def scenario():
+        entered = 0
+        all_entered, release = asyncio.Event(), asyncio.Event()
+
+        async def request(value):
+            nonlocal entered
+            if value.method == "POST" and json.loads(value.content).get("method") == "tools/call":
+                entered += 1
+                if entered == 5:
+                    all_entered.set()
+                await release.wait()
+            return server.request(value)
+
+        async def permit():
+            pass
+
+        async def invoke():
+            # 使用正式 SDK、授权存储及 HTTP 适配，仅把上游替换为可控服务。
+            current = MCPClient(
+                row.public_config["url"],
+                {},
+                oauth.config,
+                access=lambda: oauth.access(row),
+                transport_factory=lambda: httpx.MockTransport(request),
+            )
+            return await current.invoke("lookup", {}, catalog[0]["descriptor_hash"], permit)
+
+        tasks = [asyncio.create_task(invoke()) for _ in range(5)]
+        try:
+            # 全部请求进入上游后才放行，防止快速假响应掩盖串行执行。
+            await asyncio.wait_for(all_entered.wait(), timeout=2)
+            if cancel_first:
+                tasks[0].cancel()
+            release.set()
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            if cancel_first:
+                assert isinstance(results.pop(0), asyncio.CancelledError)
+            assert all(status == "success" for _, _, status in results)
+        finally:
+            release.set()
+            for task in tasks:
+                if not task.done():
+                    task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+    api_client.portal.call(scenario)
+    if cancel_first:
+        # 取消不能撤销已经发出的请求；其余四个请求必须独立完成。
+        assert server.business_calls in {4, 5}
+    else:
+        assert server.business_calls == 5
+    assert server.refresh_count == int(expired)
+    assert server.registration_count == 1
+    current = api_client.get("/api/tool-connections").json()[0]
+    assert current["oauth_status"] == "connected"
+    assert current["credential_revision"] == saved["credential_revision"]
+
+
+def test_late_authentication_failure_does_not_invalidate_refreshed_credentials(api_client):
+    server, connection = setup_oauth(api_client)
+    saved, _ = authorize(api_client, server, connection)
+    oauth = api_client.app.state.tool_oauth
+    with api_client.app.state.database.transaction() as db:
+        row = db.get(ToolConnection, saved["id"])
+
+    async def scenario():
+        with pytest.raises(InvalidInputError, match="旧请求认证失败"):
+            async with oauth.access(row):
+                await asyncio.to_thread(expire, api_client, saved)
+                async with oauth.access(row):
+                    pass
+                raise InvalidInputError("tool_auth_required", "旧请求认证失败")
+
+    async def bounded():
+        await asyncio.wait_for(scenario(), timeout=2)
+
+    api_client.portal.call(bounded)
+    current = api_client.get("/api/tool-connections").json()[0]
+    assert server.refresh_count == 1
+    assert current["oauth_status"] == "connected"
+    assert current["credential_revision"] == saved["credential_revision"]
+
+
 def test_wrong_state_changed_login_and_cancelled_callback(api_client):
     _, connection = setup_oauth(api_client)
     session = begin_authorization(api_client, connection)
@@ -585,6 +684,37 @@ def test_refresh_storage_failure_blocks_further_network_requests(api_client, mon
     again = api_client.post(f"/api/tool-connections/{saved['id']}/discover")
     assert again.status_code == 422
     assert len(server.requests) == count and server.refresh_count == 1
+
+
+def test_refresh_storage_failure_also_blocks_requests_already_waiting(api_client, monkeypatch):
+    from app.resources.mcp.adapters.oauth_storage import OAuthStorage
+
+    server, connection = setup_oauth(api_client)
+    saved, _ = authorize(api_client, server, connection)
+    expire(api_client, saved)
+    oauth = api_client.app.state.tool_oauth
+    with api_client.app.state.database.transaction() as db:
+        row = db.get(ToolConnection, saved["id"])
+
+    async def fail(*args, **kwargs):
+        raise RuntimeError("disk unavailable")
+
+    monkeypatch.setattr(OAuthStorage, "set_tokens", fail)
+
+    async def scenario():
+        async def read():
+            async with oauth.access(row):
+                pytest.fail("续期未保存，不得取得业务凭据")
+
+        results = await asyncio.gather(*(read() for _ in range(5)), return_exceptions=True)
+        assert isinstance(results[0], RuntimeError)
+        assert all(
+            isinstance(error, InvalidInputError) and error.code == "tool_auth_required"
+            for error in results[1:]
+        )
+
+    api_client.portal.call(scenario)
+    assert server.refresh_count == 1 and server.business_calls == 0
 
 
 def test_downgrade_refuses_to_discard_oauth_accounts(historical_api_client):
