@@ -165,6 +165,7 @@ def build_services(app, settings, cleanup):
         app.state.knowledge_processing,
         settings.runner_lock_file.with_name(settings.runner_lock_file.name + ".knowledge"),
         reconcile=app.state.knowledge_vectors.reconcile,
+        vectors=app.state.knowledge_vectors,
     )
 
     def retained_files(session, candidates):

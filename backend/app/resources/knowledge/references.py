@@ -3,13 +3,19 @@ from sqlalchemy.orm import Session
 
 from app.common.errors import ConflictError
 from app.resources.files.contracts import FileRetentionCandidate
-from app.resources.knowledge.models import LibraryDocument, LibraryVectorIndex
+from app.resources.knowledge.models import LibraryDocument, LibraryVectorIndex, VectorJob
 
 
 def assert_model_unused(db: Session, connection_id: str) -> None:
     if db.scalar(
         select(LibraryVectorIndex.knowledge_base_id)
         .where(LibraryVectorIndex.connection_id == connection_id)
+        .limit(1)
+    ) or db.scalar(
+        select(VectorJob.id)
+        .where(
+            VectorJob.connection_id == connection_id, VectorJob.status.in_(("queued", "running"))
+        )
         .limit(1)
     ):
         raise ConflictError(

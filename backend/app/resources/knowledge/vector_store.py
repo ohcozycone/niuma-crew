@@ -14,6 +14,7 @@ from chromadb.config import Settings
 from chromadb.errors import NotFoundError
 
 from app.common.errors import ServiceUnavailableError
+from app.infrastructure.llm.embeddings import normalized_vector
 from app.resources.knowledge.contracts import Chunk
 
 logger = logging.getLogger(__name__)
@@ -94,6 +95,23 @@ class KnowledgeVectorStore:
             raise ServiceUnavailableError(
                 "knowledge_index_incomplete", "向量索引写入不完整，请重新构建。"
             )
+
+    def embeddings(self, name: str, ids: list[str]) -> dict[str, list[float]]:
+        """Read compatible published embeddings to seed checkpoints after an upgrade."""
+        try:
+            collection = self.client.get_collection(name, embedding_function=None)
+        except NotFoundError:
+            return {}
+        result = {}
+        for start in range(0, len(ids), 256):
+            rows = collection.get(ids=ids[start : start + 256], include=["embeddings"])
+            if rows["embeddings"] is not None:
+                for id, vector in zip(rows["ids"], rows["embeddings"], strict=True):
+                    try:
+                        result[id] = normalized_vector(vector.tolist())
+                    except ValueError:
+                        pass
+        return result
 
     def query(
         self, name: str, vector: list[float], ids: list[str], limit: int

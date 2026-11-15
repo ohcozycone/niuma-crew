@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from datetime import timedelta
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import select
@@ -9,6 +10,7 @@ from test_knowledge_vectors import build, connection, upload
 from test_knowledge_vectors import upstream as upstream
 
 from app.auth.actor import Actor
+from app.auth.models import AuthSession
 from app.common.errors import ConflictError
 from app.common.values import utc_now
 from app.resources.knowledge.models import LibraryVectorIndex, LibraryVectorMembership
@@ -27,6 +29,10 @@ def indexed(api_client, upstream):
     actor = Actor(
         "user", "", library_creator(service, kb), "admin", "admin", utc_now() + timedelta(hours=1)
     )
+    with service.database.transaction() as db:
+        actor = service.auth.validate_session(
+            db, db.scalar(select(AuthSession.id).where(AuthSession.user_id == actor.user_id))
+        )
     return service, actor, kb, model["id"], hotel, train
 
 
@@ -106,8 +112,9 @@ def test_incomplete_collection_never_replaces_published_index(indexed, upstream,
         raise RuntimeError("injected write failure")
 
     monkeypatch.setattr(store, "build", fail)
-    with pytest.raises(RuntimeError, match="injected"):
-        service.knowledge_vectors.build(actor, kb, model)
+    job = service.knowledge_vectors.build(actor, kb, model, str(uuid4()))
+    service.knowledge_vectors.run_next()
+    assert service.knowledge_vectors.get_job(actor, kb, job.id).status == "failed"
     assert current_name(service, kb) == old
     assert store.names() == {old}
     assert service.knowledge_search.search_library(
@@ -139,8 +146,9 @@ def test_commit_failure_removes_unpublished_collection(indexed, monkeypatch):
 
     monkeypatch.setattr(store, "build", stage)
     monkeypatch.setattr(service.database, "transaction", rejecting_transaction)
-    with pytest.raises(RuntimeError, match="commit failure"):
-        service.knowledge_vectors.build(actor, kb, model)
+    job = service.knowledge_vectors.build(actor, kb, model, str(uuid4()))
+    service.knowledge_vectors.run_next()
+    assert service.knowledge_vectors.get_job(actor, kb, job.id).status == "failed"
     assert current_name(service, kb) == old
     assert store.names() == {old}
 
@@ -151,7 +159,8 @@ def test_rebuild_keeps_collection_pinned_until_old_query_finishes(indexed, upstr
 
     def rebuild():
         upstream["after"] = None
-        service.knowledge_vectors.build(actor, kb, model)
+        service.knowledge_vectors.build(actor, kb, model, str(uuid4()))
+        service.knowledge_vectors.run_next()
         assert current_name(service, kb) != old
         assert old in service.knowledge_vectors.store.names()
 

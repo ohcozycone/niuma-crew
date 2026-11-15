@@ -37,6 +37,7 @@ from app.resources.knowledge.schemas import (
     SearchRequest,
     SearchResult,
     VectorBuild,
+    VectorJobRead,
 )
 
 router = APIRouter(prefix="/api/knowledge-bases", tags=["knowledge"])
@@ -47,7 +48,7 @@ def embedding_connections(actor: ActorDependency, knowledge: KnowledgeVectorsDep
     return knowledge.options(actor)
 
 
-@router.post("/{kb_id}/vector-index", response_model=LibraryRead)
+@router.post("/{kb_id}/vector-index", status_code=202, response_model=VectorJobRead)
 def build_vector_index(
     kb_id: UUID,
     data: VectorBuild,
@@ -56,7 +57,28 @@ def build_vector_index(
     limiter: LimiterDependency,
 ):
     limiter.consume(f"knowledge-vector-build:{actor.user_id}", 3, 60)
-    return knowledge.build(actor, str(kb_id), str(data.model_connection_id))
+    return knowledge.build(
+        actor, str(kb_id), str(data.model_connection_id), str(data.client_request_id)
+    )
+
+
+@router.get("/{kb_id}/vector-jobs", response_model=list[VectorJobRead])
+def list_vector_jobs(kb_id: UUID, actor: ActorDependency, knowledge: KnowledgeVectorsDependency):
+    return knowledge.jobs(actor, str(kb_id))
+
+
+@router.get("/{kb_id}/vector-jobs/{job_id}", response_model=VectorJobRead)
+def get_vector_job(
+    kb_id: UUID, job_id: UUID, actor: ActorDependency, knowledge: KnowledgeVectorsDependency
+):
+    return knowledge.get_job(actor, str(kb_id), str(job_id))
+
+
+@router.post("/{kb_id}/vector-jobs/{job_id}/cancel", response_model=VectorJobRead)
+def cancel_vector_job(
+    kb_id: UUID, job_id: UUID, actor: ActorDependency, knowledge: KnowledgeVectorsDependency
+):
+    return knowledge.cancel(actor, str(kb_id), str(job_id))
 
 
 @router.delete("/{kb_id}/vector-index", status_code=204, response_class=Response)

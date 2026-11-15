@@ -14,7 +14,7 @@ from test_knowledge_library import upload as stage_upload
 from app.auth.actor import Actor
 from app.common.errors import NotFoundError, PermissionDeniedError
 from app.common.values import utc_now
-from app.resources.knowledge.models import LibraryVectorIndex
+from app.resources.knowledge.models import LibraryVectorIndex, VectorEmbedding
 from app.resources.knowledge.schemas import SearchRequest
 
 KEY = "test-siliconflow-key"
@@ -81,10 +81,32 @@ def upstream(monkeypatch):
     return state
 
 
-def build(client, kb, connection_id):
+def submit(client, kb, connection_id, request_id=None):
     return client.post(
-        f"/api/knowledge-bases/{kb}/vector-index", json={"model_connection_id": connection_id}
+        f"/api/knowledge-bases/{kb}/vector-index",
+        json={
+            "model_connection_id": connection_id,
+            "client_request_id": request_id or str(uuid4()),
+        },
     )
+
+
+def build(client, kb, connection_id):
+    """Drive the durable worker explicitly in offline tests; production POST only enqueues."""
+    response = submit(client, kb, connection_id)
+    if response.status_code != 202:
+        return response
+    client.app.state.knowledge_vectors.run_next()
+    job = client.get(f"/api/knowledge-bases/{kb}/vector-jobs/{response.json()['id']}")
+    return client.get(f"/api/knowledge-bases/{kb}") if job.json()["status"] == "succeeded" else job
+
+
+def force_reembedding(client, monkeypatch):
+    from sqlalchemy import delete
+
+    with client.app.state.database.transaction() as db:
+        db.execute(delete(VectorEmbedding))
+    monkeypatch.setattr(client.app.state.knowledge_vectors.store, "embeddings", lambda *args: {})
 
 
 def search(client, kb):
@@ -164,18 +186,25 @@ def test_embedding_connection_and_real_sdk_product_roundtrip(api_client, upstrea
 
 @pytest.mark.parametrize(
     "status,dimension,expected",
-    [(401, 1024, 503), (429, 1024, 429), (200, 3, 503), (504, 1024, 503)],
+    [
+        (401, 1024, "embedding_unavailable"),
+        (429, 1024, "embedding_rate_limited"),
+        (200, 3, "embedding_response_invalid"),
+        (504, 1024, "embedding_unavailable"),
+    ],
 )
 def test_failed_rebuild_keeps_published_index_without_leaking_provider_body(
-    api_client, upstream, status, dimension, expected
+    api_client, upstream, status, dimension, expected, monkeypatch
 ):
     model = connection(api_client)
     kb = create(api_client)["id"]
     upload(api_client, kb)
     assert build(api_client, kb, model["id"]).status_code == 200
+    force_reembedding(api_client, monkeypatch)
     upstream.update(status=status, dimension=dimension)
     result = build(api_client, kb, model["id"])
-    assert result.status_code == expected, result.text
+    assert result.json()["status"] == "failed", result.text
+    assert result.json()["error_code"] == expected
     assert KEY not in result.text
     assert api_client.get(f"/api/knowledge-bases/{kb}").json()["vector_status"] == "ready"
     upstream.update(status=200, dimension=1024)
@@ -183,7 +212,7 @@ def test_failed_rebuild_keeps_published_index_without_leaking_provider_body(
 
 
 @pytest.mark.parametrize("change", ["documents", "credentials", "disable", "clear"])
-def test_publish_rechecks_source_and_model_revisions(api_client, upstream, change):
+def test_publish_rechecks_source_and_model_revisions(api_client, upstream, change, monkeypatch):
     model = connection(api_client)
     kb = create(api_client)["id"]
     upload(api_client, kb)
@@ -205,9 +234,10 @@ def test_publish_rechecks_source_and_model_revisions(api_client, upstream, chang
                 json={"api_key": "new-key"} if change == "credentials" else {"enabled": False},
             )
 
+    force_reembedding(api_client, monkeypatch)
     upstream["after"] = mutate
     result = build(api_client, kb, model["id"])
-    assert result.status_code == 409, result.text
+    assert result.json()["status"] == ("cancelled" if change == "clear" else "failed"), result.text
     with service.database.transaction() as db:
         current = db.get(LibraryVectorIndex, kb)
         assert current is None if change == "clear" else current.generation == generation
@@ -227,14 +257,13 @@ def test_owner_permissions_and_build_concurrency_are_enforced_before_upstream(ap
         replace(actor, role="guest"),
     ]:
         with pytest.raises((NotFoundError, PermissionDeniedError)):
-            service.knowledge_vectors.build(stranger, kb, model["id"])
+            service.knowledge_vectors.build(stranger, kb, model["id"], str(uuid4()))
     assert upstream["requests"] == []
-    assert service.knowledge_vectors.build_slot.acquire(blocking=False)
-    try:
-        assert build(api_client, kb, model["id"]).status_code == 409
-    finally:
-        service.knowledge_vectors.build_slot.release()
-    assert service.knowledge_vectors.build(actor, kb, model["id"]).vector_status == "ready"
+    submitted = submit(api_client, kb, model["id"])
+    assert submitted.status_code == 202
+    assert submit(api_client, kb, model["id"]).status_code == 409
+    assert service.knowledge_vectors.run_next()
+    assert service.knowledge_libraries.get(actor, kb).vector_status == "ready"
     assert service.knowledge_search.search_library(
         actor, kb, SearchRequest(question="查询", strategy="vector")
     ).hits

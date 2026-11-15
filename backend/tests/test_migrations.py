@@ -44,6 +44,8 @@ TABLES = {
     "knowledge_documents",
     "knowledge_chunks",
     "knowledge_vector_indexes",
+    "knowledge_vector_jobs",
+    "knowledge_vector_embeddings",
     "knowledge_vector_memberships",
     "knowledge_processing_batches",
     "knowledge_processing_items",
@@ -90,9 +92,9 @@ def test_initial_migration_cli_is_repeatable_and_cwd_independent(tmp_path):
     run("upgrade", "head")
     run("upgrade", "head")
     run("check")
-    assert "0028" in run("current").stdout
+    assert "0029" in run("current").stdout
     with closing(sqlite3.connect(path)) as db:
-        assert db.execute("SELECT version_num FROM alembic_version").fetchall() == [("0028",)]
+        assert db.execute("SELECT version_num FROM alembic_version").fetchall() == [("0029",)]
         assert {"thread_id", "base_checkpoint_id", "base_run_id"} <= {
             column[1] for column in db.execute("PRAGMA table_info(runs)")
         }
@@ -115,7 +117,7 @@ def test_initial_migration_cli_is_repeatable_and_cwd_independent(tmp_path):
     rejected = run("downgrade", "base", expected_success=False)
     assert "组织资源与个人配置已合并" in rejected.stderr
     with closing(sqlite3.connect(path)) as db:
-        assert db.execute("SELECT version_num FROM alembic_version").fetchone() == ("0028",)
+        assert db.execute("SELECT version_num FROM alembic_version").fetchone() == ("0029",)
         assert {
             row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")
         } == TABLES | FTS_TABLES | {"alembic_version"}

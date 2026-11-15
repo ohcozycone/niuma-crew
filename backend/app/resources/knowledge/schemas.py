@@ -171,6 +171,21 @@ class DemoImport(RequestModel):
 
 class VectorBuild(RequestModel):
     model_connection_id: UUID
+    client_request_id: UUID
+
+
+class VectorJobRead(BaseModel):
+    model_config = {"from_attributes": True}
+    id: str
+    status: Literal["queued", "running", "succeeded", "failed", "cancelled", "interrupted"]
+    connection_id: str
+    chunk_count: int
+    completed_count: int
+    reused_count: int
+    error: str | None
+    error_code: str | None
+    created_at: datetime
+    updated_at: datetime
 
 
 class EmbeddingConnectionRead(BaseModel):

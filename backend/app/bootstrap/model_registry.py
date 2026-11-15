@@ -22,6 +22,8 @@ from app.resources.knowledge.models import (
     LibraryVectorMembership,
     ProcessingBatch,
     ProcessingItem,
+    VectorEmbedding,
+    VectorJob,
 )
 from app.resources.mcp.models import McpService, ToolConnection
 from app.resources.model_connections.models import ModelConnection
@@ -44,6 +46,8 @@ __all__ = [
     "LibraryVectorIndex",
     "ProcessingBatch",
     "ProcessingItem",
+    "VectorEmbedding",
+    "VectorJob",
     "Conversation",
     "Run",
     "RunAction",

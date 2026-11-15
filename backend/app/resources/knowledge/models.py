@@ -1,4 +1,13 @@
-from sqlalchemy import JSON, CheckConstraint, ForeignKey, Integer, Text, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    Integer,
+    Text,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database.base import Base
@@ -115,3 +124,46 @@ class LibraryVectorMembership(Base):
     generation: Mapped[str] = mapped_column(UUIDText())
     document_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("knowledge_documents.id"))
     document_version: Mapped[str] = mapped_column(Text)
+
+
+class VectorJob(IdentityTimestamps, Base):
+    __tablename__ = "knowledge_vector_jobs"
+    __table_args__ = (
+        UniqueConstraint("knowledge_base_id", "client_request_id"),
+        Index(
+            "uq_knowledge_vector_jobs_active",
+            "knowledge_base_id",
+            unique=True,
+            sqlite_where=text("status IN ('queued', 'running')"),
+        ),
+    )
+    knowledge_base_id: Mapped[str] = mapped_column(
+        UUIDText(), ForeignKey("knowledge_bases.id"), index=True
+    )
+    client_request_id: Mapped[str] = mapped_column(UUIDText())
+    user_id: Mapped[str] = mapped_column(UUIDText(), ForeignKey("users.id"))
+    session_id: Mapped[str] = mapped_column(UUIDText())
+    connection_id: Mapped[str] = mapped_column(UUIDText())
+    config_revision: Mapped[int] = mapped_column(Integer)
+    credential_revision: Mapped[int] = mapped_column(Integer)
+    source_digest: Mapped[str] = mapped_column(Text)
+    previous_generation: Mapped[str | None] = mapped_column(UUIDText())
+    embedding_fingerprint: Mapped[str] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(Text, default="queued", index=True)
+    chunk_count: Mapped[int] = mapped_column(Integer)
+    completed_count: Mapped[int] = mapped_column(Integer, default=0)
+    reused_count: Mapped[int] = mapped_column(Integer, default=0)
+    error: Mapped[str | None] = mapped_column(Text)
+    error_code: Mapped[str | None] = mapped_column(Text)
+
+
+class VectorEmbedding(Base):
+    """Per-library checkpoints; never re-use across model spaces or retain original text."""
+
+    __tablename__ = "knowledge_vector_embeddings"
+    knowledge_base_id: Mapped[str] = mapped_column(
+        UUIDText(), ForeignKey("knowledge_bases.id"), primary_key=True
+    )
+    embedding_fingerprint: Mapped[str] = mapped_column(Text, primary_key=True)
+    content_hash: Mapped[str] = mapped_column(Text, primary_key=True)
+    vector: Mapped[list[float]] = mapped_column(JSON)

@@ -300,7 +300,7 @@ print(json.dumps({'tables': sorted(Base.metadata.tables), 'modules': sorted(sys.
         [sys.executable, "-c", code], check=True, capture_output=True, text=True
     )
     data = json.loads(result.stdout)
-    assert len(data["tables"]) == 31
+    assert len(data["tables"]) == 33
     assert not any(
         under(name, p)
         for name in data["modules"]

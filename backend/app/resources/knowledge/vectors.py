@@ -1,22 +1,28 @@
 from __future__ import annotations
 
 import logging
-import time
 from collections.abc import Callable
 from contextlib import ExitStack
 from pathlib import Path
-from threading import BoundedSemaphore
+from threading import BoundedSemaphore, Event
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
 from app.auth.permissions import require_permission
-from app.common.errors import ConflictError, InvalidInputError, ServiceUnavailableError
+from app.auth.work_authorizations import authorize_work
+from app.common.errors import ConflictError, InvalidInputError, NotFoundError, ServiceError
 from app.common.values import digest, new_uuid, utc_now
 from app.infrastructure.database.session import Database
 from app.infrastructure.database.transactions import reserve_writer
-from app.infrastructure.llm.embeddings import VECTOR_DIMENSIONS, embed_texts
+from app.infrastructure.llm.embeddings import (
+    BATCH_SIZE,
+    VECTOR_DIMENSIONS,
+    EmbeddingConfig,
+    embed_texts,
+    normalized_vector,
+)
 from app.resources.knowledge.contracts import Chunk
 from app.resources.knowledge.lexical import lexical_search
 from app.resources.knowledge.libraries import KnowledgeLibraries
@@ -26,14 +32,16 @@ from app.resources.knowledge.models import (
     LibraryDocument,
     LibraryVectorIndex,
     LibraryVectorMembership,
+    VectorEmbedding,
+    VectorJob,
 )
 from app.resources.knowledge.retrieval import fuse_rankings
 from app.resources.knowledge.schemas import (
     EmbeddingConnectionRead,
-    LibraryRead,
     SearchHit,
     SearchRequest,
     SearchResult,
+    VectorJobRead,
 )
 from app.resources.knowledge.sources import source_digest
 from app.resources.knowledge.vector_store import PREFIX, KnowledgeVectorStore
@@ -41,6 +49,11 @@ from app.resources.model_connections.references import embedding_connections
 from app.resources.model_connections.service import ModelConnectionService
 
 logger = logging.getLogger(__name__)
+ACTIVE = ("queued", "running")
+
+
+def embedding_fingerprint(config: EmbeddingConfig) -> str:
+    return digest([config.base_url, config.model_id, VECTOR_DIMENSIONS, "cosine"])
 
 
 class KnowledgeVectorService:
@@ -55,6 +68,7 @@ class KnowledgeVectorService:
         self.store = KnowledgeVectorStore(directory)
         # 每进程只构建一项，限制资源及重复向量请求费用。
         self.build_slot = BoundedSemaphore(1)
+        self.stopping = Event()
 
     def options(self, actor: Actor) -> list[EmbeddingConnectionRead]:
         if actor.kind == "guest":
@@ -67,25 +81,180 @@ class KnowledgeVectorService:
                 for row in embedding_connections(session)
             ]
 
-    def build(self, actor: Actor, kb: str, connection_id: str) -> LibraryRead:
+    def build(
+        self, actor: Actor, kb: str, connection_id: str, client_request_id: str
+    ) -> VectorJobRead:
+        """Acknowledge only after a durable, idempotent enqueue; no provider I/O."""
+        owner = self.libraries.manager(actor)
+        with self.database.transaction() as session:
+            reserve_writer(session, KnowledgeBase.__table__)
+            self.libraries.require_base(session, kb, actor)
+            previous = session.scalar(
+                select(VectorJob).where(
+                    VectorJob.knowledge_base_id == kb,
+                    VectorJob.client_request_id == client_request_id,
+                )
+            )
+            if previous:
+                if previous.connection_id != connection_id:
+                    raise ConflictError(
+                        "knowledge_request_conflict", "该提交标识已用于其他向量模型。"
+                    )
+                return VectorJobRead.model_validate(previous)
+            if session.scalar(
+                select(VectorJob.id).where(
+                    VectorJob.knowledge_base_id == kb, VectorJob.status.in_(ACTIVE)
+                )
+            ):
+                raise ConflictError("knowledge_build_busy", "本库已有向量任务，请等待或取消。")
+            config = self.connections.resolve_embedding(connection_id, db=session)
+            count = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(LibraryChunk)
+                    .join(LibraryDocument)
+                    .where(LibraryDocument.knowledge_base_id == kb)
+                )
+                or 0
+            )
+            if not count:
+                raise InvalidInputError(
+                    "knowledge_empty", "请先处理文档生成关键词索引，再建立向量索引。"
+                )
+            current = session.get(LibraryVectorIndex, kb)
+            job = VectorJob(
+                knowledge_base_id=kb,
+                client_request_id=client_request_id,
+                user_id=owner,
+                session_id=actor.session_id,
+                connection_id=connection_id,
+                config_revision=config.config_revision,
+                credential_revision=config.credential_revision,
+                source_digest=source_digest(session, kb),
+                previous_generation=current.generation if current else None,
+                embedding_fingerprint=embedding_fingerprint(config),
+                chunk_count=count,
+            )
+            session.add(job)
+            session.flush()
+            return VectorJobRead.model_validate(job)
+
+    def jobs(self, actor: Actor, kb: str) -> list[VectorJobRead]:
+        with self.database.transaction() as session:
+            self.libraries.require_base(session, kb, actor)
+            return [
+                VectorJobRead.model_validate(job)
+                for job in session.scalars(
+                    select(VectorJob)
+                    .where(VectorJob.knowledge_base_id == kb)
+                    .order_by(VectorJob.created_at.desc(), VectorJob.id)
+                    .limit(20)
+                )
+            ]
+
+    def get_job(self, actor: Actor, kb: str, id: str) -> VectorJobRead:
+        with self.database.transaction() as session:
+            self.libraries.require_base(session, kb, actor)
+            return VectorJobRead.model_validate(self.require_job(session, kb, id))
+
+    @staticmethod
+    def require_job(session: Session, kb: str, id: str) -> VectorJob:
+        job = session.get(VectorJob, id)
+        if job is None or job.knowledge_base_id != kb:
+            raise NotFoundError("knowledge_job_not_found", "向量任务不存在。")
+        return job
+
+    def cancel(self, actor: Actor, kb: str, id: str) -> VectorJobRead:
         self.libraries.manager(actor)
-        self.libraries.get(actor, kb)
+        with self.database.transaction() as session:
+            reserve_writer(session, KnowledgeBase.__table__)
+            self.libraries.require_base(session, kb, actor)
+            job = self.require_job(session, kb, id)
+            if job.status in ACTIVE:
+                job.status, job.error = "cancelled", "任务已取消，原索引保留。"
+            session.flush()
+            return VectorJobRead.model_validate(job)
+
+    def recover(self) -> None:
+        """Retain queued jobs and paid checkpoints; never silently retry unknown calls."""
+        self.stopping.clear()
+        with self.database.transaction() as session:
+            reserve_writer(session, KnowledgeBase.__table__)
+            for job in session.scalars(select(VectorJob).where(VectorJob.status == "running")):
+                job.status, job.error = (
+                    "interrupted",
+                    "服务重启，任务已中断；请重试，已完成向量会复用。",
+                )
+
+    def run_next(self) -> bool:
         if not self.build_slot.acquire(blocking=False):
-            raise ConflictError("knowledge_build_busy", "正在建立向量索引，请稍后重试。")
+            return False
         try:
-            self.store.client  # 发起计费请求前先排除另一构建进程。
-            return self._build(actor, kb, connection_id)
+            with self.database.transaction() as session:
+                reserve_writer(session, KnowledgeBase.__table__)
+                job = session.scalar(
+                    select(VectorJob)
+                    .where(VectorJob.status == "queued")
+                    .order_by(VectorJob.created_at, VectorJob.id)
+                    .limit(1)
+                )
+                if job is None:
+                    return False
+                id = job.id
+                job.status = "running"
+            try:
+                self._build(id)
+            except Exception as error:
+                logger.warning(
+                    "Knowledge vector job failed id=%s type=%s", id, type(error).__name__
+                )
+                with self.database.transaction() as session:
+                    reserve_writer(session, KnowledgeBase.__table__)
+                    job = session.get(VectorJob, id)
+                    if job and job.status == "running":
+                        job.status = "interrupted" if self.stopping.is_set() else "failed"
+                        job.error = (
+                            error.message
+                            if isinstance(error, ServiceError)
+                            else "向量构建失败，请重试；原索引保留。"
+                        )
+                        job.error_code = (
+                            error.code
+                            if isinstance(error, ServiceError)
+                            else "knowledge_build_failed"
+                        )
+            return True
         finally:
             self.build_slot.release()
 
-    def _build(self, actor: Actor, kb: str, connection_id: str) -> LibraryRead:
-        deadline = time.monotonic() + 120
+    def guard(self, session: Session, id: str) -> tuple[VectorJob, EmbeddingConfig]:
+        job = session.get(VectorJob, id)
+        if self.stopping.is_set():
+            raise ConflictError(
+                "knowledge_build_interrupted", "服务正在停止，请稍后重试；已完成向量保留。"
+            )
+        if job is None or job.status != "running":
+            raise ConflictError("knowledge_build_cancelled", "任务已取消，原索引保留。")
+        actor = authorize_work(session, job.user_id, job.session_id, permission="knowledge:manage")
+        self.libraries.require_base(session, job.knowledge_base_id, actor)
+        current = session.get(LibraryVectorIndex, job.knowledge_base_id)
+        if (
+            source_digest(session, job.knowledge_base_id) != job.source_digest
+            or (current.generation if current else None) != job.previous_generation
+        ):
+            raise ConflictError(
+                "knowledge_build_changed", "构建期间资料或索引已变化，请重新建立索引。"
+            )
+        config = self.connections.resolve_embedding(
+            job.connection_id, job.config_revision, job.credential_revision, db=session
+        )
+        return job, config
+
+    def _build(self, id: str) -> None:
+        self.store.client  # Acquire the process lock before any charged request.
         with self.database.transaction() as session:
-            base_revision = self.libraries.require_base(session, kb, actor).updated_at
-            config = self.connections.resolve_embedding(connection_id, db=session)
-            old = session.get(LibraryVectorIndex, kb)
-            generation = old.generation if old else None
-            source = source_digest(session, kb)
+            job, config = self.guard(session, id)
+            kb, fingerprint = job.knowledge_base_id, job.embedding_fingerprint
             chunks = [
                 Chunk.model_validate(row.snapshot)
                 for row in session.scalars(
@@ -95,49 +264,82 @@ class KnowledgeVectorService:
                     .order_by(LibraryChunk.id)
                 )
             ]
-        if not chunks:
-            raise InvalidInputError(
-                "knowledge_empty", "请先处理文档生成关键词索引，再建立向量索引。"
+            cached = {
+                row.content_hash: row.vector
+                for row in session.scalars(
+                    select(VectorEmbedding).where(
+                        VectorEmbedding.knowledge_base_id == kb,
+                        VectorEmbedding.embedding_fingerprint == fingerprint,
+                    )
+                )
+            }
+            old = session.get(LibraryVectorIndex, kb)
+            old_name = (
+                old.collection_name if old and old.embedding_fingerprint == fingerprint else None
             )
+        hashes = [digest(chunk.text) for chunk in chunks]
+        needed = dict(zip(hashes, [chunk.text for chunk in chunks], strict=True))
+        vectors: dict[str, list[float]] = {}
+        for key, vector in cached.items():
+            if key in needed:
+                try:
+                    vectors[key] = normalized_vector(vector)
+                except ValueError:
+                    pass
+        # Existing installations can reuse the live Chroma generation without another charge.
+        if old_name:
+            with self.store.use(old_name):
+                legacy = self.store.embeddings(old_name, [chunk.id for chunk in chunks])
+            for chunk, key in zip(chunks, hashes, strict=True):
+                if key not in vectors and chunk.id in legacy:
+                    vectors[key] = legacy[chunk.id]
+        reused = sum(key in vectors for key in hashes)
 
         def guard() -> None:
-            if time.monotonic() > deadline:
-                raise ServiceUnavailableError(
-                    "knowledge_build_timeout", "向量构建超时，原索引保留，请稍后重试。"
-                )
-            self.connections.resolve_embedding(
-                connection_id, config.config_revision, config.credential_revision
-            )
+            with self.database.transaction() as session:
+                self.guard(session, id)
 
-        vectors = embed_texts(config, [chunk.text for chunk in chunks], guard)
-        new_generation = new_uuid()
-        name = PREFIX + digest([kb, new_generation])[:48]
+        def checkpoint(batch: dict[str, list[float]]) -> None:
+            with self.database.transaction() as session:
+                reserve_writer(session, KnowledgeBase.__table__)
+                job, _ = self.guard(session, id)
+                for key, vector in batch.items():
+                    row = session.get(VectorEmbedding, (kb, fingerprint, key))
+                    if row is None:
+                        session.add(
+                            VectorEmbedding(
+                                knowledge_base_id=kb,
+                                embedding_fingerprint=fingerprint,
+                                content_hash=key,
+                                vector=vector,
+                            )
+                        )
+                    else:
+                        row.vector = vector
+                job.completed_count = sum(key in vectors for key in hashes)
+                job.reused_count = reused
+
+        checkpoint(vectors)
+        pending = [key for key in needed if key not in vectors]
+        for start in range(0, len(pending), BATCH_SIZE):
+            keys = pending[start : start + BATCH_SIZE]
+            guard()
+            embedded = embed_texts(config, [needed[key] for key in keys], guard)
+            batch = dict(zip(keys, embedded, strict=True))
+            vectors.update(batch)
+            checkpoint(batch)
+        generation = new_uuid()
+        name = PREFIX + digest([kb, generation])[:48]
         published = False
-        old_name = None
+        retired = None
         with self.store.use(name):
             try:
-                self.store.build(name, chunks, vectors)
-                guard()
-                # 仅在获取或退役索引指针时持锁，网络请求和索引构建不占用 SQLite 写锁。
+                self.store.build(name, chunks, [vectors[key] for key in hashes])
                 with self.store.lock, self.database.transaction() as session:
                     reserve_writer(session, KnowledgeBase.__table__)
-                    base = self.libraries.require_base(session, kb, actor)
-                    self.connections.resolve_embedding(
-                        connection_id,
-                        config.config_revision,
-                        config.credential_revision,
-                        db=session,
-                    )
+                    job, _ = self.guard(session, id)
                     current = session.get(LibraryVectorIndex, kb)
-                    if (
-                        base.updated_at != base_revision
-                        or source_digest(session, kb) != source
-                        or (current.generation if current else None) != generation
-                    ):
-                        raise ConflictError(
-                            "knowledge_build_changed", "构建期间资料或索引已变化，请重新建立索引。"
-                        )
-                    old_name = current.collection_name if current else None
+                    retired = current.collection_name if current else None
                     session.execute(
                         delete(LibraryVectorMembership).where(
                             LibraryVectorMembership.knowledge_base_id == kb
@@ -146,36 +348,42 @@ class KnowledgeVectorService:
                     if current is None:
                         current = LibraryVectorIndex(knowledge_base_id=kb)
                         session.add(current)
-                    current.connection_id = connection_id
-                    current.config_revision = config.config_revision
-                    current.source_digest = source
-                    current.chunk_count = len(chunks)
-                    current.generation = new_generation
-                    current.collection_name = name
-                    current.embedding_fingerprint = digest(
-                        [config.base_url, config.model_id, VECTOR_DIMENSIONS, "cosine"]
+                    current.connection_id, current.config_revision = (
+                        config.connection_id,
+                        config.config_revision,
                     )
+                    current.source_digest, current.chunk_count = job.source_digest, len(chunks)
+                    current.generation, current.collection_name = generation, name
+                    current.embedding_fingerprint = fingerprint
                     session.add_all(
                         [
                             LibraryVectorMembership(
                                 chunk_id=chunk.id,
                                 knowledge_base_id=kb,
-                                generation=new_generation,
+                                generation=generation,
                                 document_id=chunk.document_id,
                                 document_version=chunk.document_version,
                             )
                             for chunk in chunks
                         ]
                     )
-                    session.flush()
-                    result = self.libraries.base_read(session, base)
+                    job.status = "succeeded"
+                    # Bound checkpoints to the published source and model after success.
+                    session.execute(
+                        delete(VectorEmbedding).where(
+                            VectorEmbedding.knowledge_base_id == kb,
+                            or_(
+                                VectorEmbedding.embedding_fingerprint != fingerprint,
+                                VectorEmbedding.content_hash.not_in(list(needed)),
+                            ),
+                        )
+                    )
                 published = True
             finally:
                 if not published:
                     self.store.retire(name)
-        if old_name:
-            self.store.retire(old_name)
-        return result
+        if retired:
+            self.store.retire(retired)
 
     def clear(self, actor: Actor, kb: str) -> None:
         self.libraries.manager(actor)
@@ -183,6 +391,15 @@ class KnowledgeVectorService:
             with self.database.transaction() as session:
                 reserve_writer(session, KnowledgeBase.__table__)
                 self.libraries.require_base(session, kb, actor).updated_at = utc_now()
+                for job in session.scalars(
+                    select(VectorJob).where(
+                        VectorJob.knowledge_base_id == kb, VectorJob.status.in_(ACTIVE)
+                    )
+                ):
+                    job.status, job.error = "cancelled", "向量索引已移除，任务已取消。"
+                session.execute(
+                    delete(VectorEmbedding).where(VectorEmbedding.knowledge_base_id == kb)
+                )
                 current = session.get(LibraryVectorIndex, kb)
                 name = current.collection_name if current else None
                 session.execute(
@@ -285,6 +502,21 @@ class KnowledgeVectorService:
         """立即移除可见关系，物理清理失败可重试。"""
         with self.store.lock:
             with self.database.transaction() as db:
+                reserve_writer(db, KnowledgeBase.__table__)
+                snapshots: list[dict] = list(
+                    db.scalars(
+                        select(LibraryChunk.snapshot)
+                        .join(LibraryDocument)
+                        .where(LibraryDocument.knowledge_base_id == kb)
+                    )
+                )
+                content_hashes = [digest(snapshot["text"]) for snapshot in snapshots]
+                db.execute(
+                    delete(VectorEmbedding).where(
+                        VectorEmbedding.knowledge_base_id == kb,
+                        VectorEmbedding.content_hash.not_in(content_hashes),
+                    )
+                )
                 index = db.get(LibraryVectorIndex, kb)
                 if index is None:
                     return
