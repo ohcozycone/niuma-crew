@@ -1,7 +1,6 @@
 import { FailureNotice } from "@/components/failure/FailureNotice";
-import { toFailure, mutationOutcome } from "@/lib/failures/resolve";
-import type { Failure } from "@/lib/failures/types";
-import { useRef, useState } from "react";
+import { mutationOutcome } from "@/lib/failures/resolve";
+import { useEffect, useState } from "react";
 import { Database, Settings2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
 import { ConfirmActionDialog } from "@/components/common/ConfirmActionDialog";
@@ -18,8 +17,7 @@ import { FormField } from "@/components/common/FormField";
 import { SelectField } from "@/components/ui/SelectField";
 import { useIdentity } from "@/state/auth/useIdentity";
 import { useWorkspaceData } from "@/state/workspace/useWorkspaceData";
-import { useResource } from "@/state/shared/useResource";
-import { useEditingRegistration } from "@/state/editing/useEditing";
+import { useAtom, useResource } from "@/state/shared/useResource";
 import { KnowledgeFeedback } from "./KnowledgeLibraries";
 
 export const vectorStatusLabels = {
@@ -30,17 +28,35 @@ export const vectorStatusLabels = {
   unavailable: "向量连接已停用，请检查连接或更换模型",
 };
 
-export function KnowledgeVectors({
-  id,
-  onBusyChange,
-}: {
-  id: string;
-  onBusyChange: (busy: boolean) => void;
-}) {
+const vectorJobLabels = {
+  queued: "排队中",
+  running: "构建中",
+  succeeded: "已完成",
+  failed: "失败",
+  cancelled: "已取消",
+  interrupted: "已中断",
+};
+
+export function KnowledgeVectors({ id }: { id: string }) {
   const [params] = useSearchParams();
   const store = useWorkspaceData().knowledge;
   const library = useResource(store.library(id));
   const documents = useResource(store.documents(id));
+  const jobsResource = store.vectorJobs(id);
+  const jobs = useResource(jobsResource);
+  const operation = useAtom(store.vectorOperations)[id];
+  const busy = operation?.busy ?? false;
+  const failure = operation?.failure ?? null;
+  const activeJob = jobs.data?.find((job) => job.status === "queued" || job.status === "running");
+  const latest = activeJob ?? jobs.data?.[0];
+  const retryable = latest && ["failed", "cancelled", "interrupted"].includes(latest.status);
+  // The server owns execution. Re-entering this page rechecks jobs even after an inactive cache hit.
+  useEffect(() => jobsResource.invalidate(), [jobsResource]);
+  useEffect(() => {
+    if (!activeJob || jobs.loading) return;
+    const timer = window.setTimeout(() => jobsResource.invalidate(), 1500);
+    return () => window.clearTimeout(timer);
+  }, [activeJob, jobs.loading, jobsResource]);
   const eligible = (documents.data ?? []).filter(
     (doc) => doc.chunk_count > 0 && doc.keyword_ready !== false,
   ).length;
@@ -52,43 +68,29 @@ export function KnowledgeVectors({
   const [managing, setManaging] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [selected, setSelected] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [failure, setFailure] = useState<Failure | null>(null);
   const [message, setMessage] = useState("");
-  const lock = useRef(false);
   const choices = options.data ?? [];
-  const preferred = selected || library.data?.vector_connection_id;
+  const preferred =
+    operation?.request?.connectionId ||
+    selected ||
+    latest?.connection_id ||
+    library.data?.vector_connection_id;
   const connectionId = choices.find((item) => item.id === preferred)?.id ?? choices[0]?.id ?? "";
-  useEditingRegistration({
-    dirty: false,
-    saving: busy,
-    isSaving: () => lock.current,
-    discard: () => {},
-  });
-  async function run(clear: boolean) {
-    if (!writable || lock.current) return;
-    lock.current = true;
-    setBusy(true);
-    onBusyChange(true);
-    setFailure(null);
+  async function run(action: "build" | "clear" | "cancel") {
+    if (!writable || busy) return;
     setMessage("");
     try {
-      if (clear) await store.clearVectors(id);
-      else await store.buildVectors(id, connectionId);
-      if (clear) setClearing(false);
-      setMessage(
-        clear
-          ? "向量索引已移除，文档和关键词索引保留。"
-          : "向量索引已建立，检索测试将自动使用关键词＋语义混合检索。",
-      );
-    } catch (error) {
-      setFailure(toFailure(error));
-    } finally {
-      lock.current = false;
-      setBusy(false);
-      onBusyChange(false);
-      // A lost response does not prove the server failed to publish the index.
-      store.refresh();
+      if (action === "clear") {
+        await store.clearVectors(id);
+        setClearing(false);
+        setMessage("向量索引已移除，文档和关键词索引保留。");
+      } else if (action === "cancel" && activeJob) {
+        await store.cancelVectors(id, activeJob.id);
+      } else if (action === "build") {
+        await store.buildVectors(id, connectionId);
+      }
+    } catch {
+      // The identity-scoped store keeps submission failures and retry keys when this page unmounts.
     }
   }
   return (
@@ -123,6 +125,12 @@ export function KnowledgeVectors({
           retry={() => store.documents(id).invalidate()}
         />
         <KnowledgeFeedback
+          loading={jobs.loading}
+          failure={jobs.failure}
+          hasUsableData={jobs.data !== undefined}
+          retry={() => jobsResource.invalidate()}
+        />
+        <KnowledgeFeedback
           loading={options.loading}
           failure={options.failure}
           hasUsableData={options.data !== undefined}
@@ -149,26 +157,41 @@ export function KnowledgeVectors({
                   displayValue={choices.find((item) => item.id === connectionId)?.name}
                   value={connectionId}
                   onValueChange={setSelected}
-                  disabled={!writable || busy}
+                  disabled={!writable || busy || !!activeJob || !!operation?.request}
                   id="knowledge-embedding"
                   className="w-full"
                 />
               </FormField>
               <Button
                 disabled={
-                  !writable || busy || !library.data?.chunk_count || !eligible || !connectionId
+                  !writable ||
+                  busy ||
+                  !!activeJob ||
+                  !!operation?.request ||
+                  jobs.loading ||
+                  jobs.data === undefined ||
+                  !!jobs.failure ||
+                  !library.data?.chunk_count ||
+                  !eligible ||
+                  !connectionId
                 }
-                onClick={() => void run(false)}
+                onClick={() => void run("build")}
               >
                 {busy
-                  ? "正在处理索引…"
-                  : library.data?.vector_connection_id
-                    ? `更新向量索引（${eligible}篇）`
-                    : `建立向量索引（${eligible}篇）`}
+                  ? "正在提交…"
+                  : activeJob
+                    ? "向量任务进行中"
+                    : operation?.request
+                      ? "等待确认上次提交"
+                      : retryable
+                        ? `重试向量构建（${eligible}篇）`
+                        : library.data?.vector_connection_id
+                          ? `更新向量索引（${eligible}篇）`
+                          : `建立向量索引（${eligible}篇）`}
               </Button>
             </div>
             <p className="mt-2 text-xs leading-6 text-text-muted">
-              每次建立或更新会将全部现有片段发送给向量模型重新编码，包括上次已处理的片段。构建失败时保留原索引，期间请保持页面打开。
+              任务在后台执行，可离开页面。相同模型配置与内容的已完成片段会复用缓存，只为未缓存片段调用向量服务；新索引全部成功后替换原索引。失败或中断后可手动重试。
             </p>
           </>
         )}
@@ -194,7 +217,7 @@ export function KnowledgeVectors({
           <Button variant="ghost" size="sm" disabled={busy} onClick={() => store.refresh()}>
             刷新连接与索引状态
           </Button>
-          {library.data?.vector_connection_id && (
+          {(library.data?.vector_connection_id || latest) && (
             <Button
               variant="ghost"
               size="sm"
@@ -205,10 +228,87 @@ export function KnowledgeVectors({
             </Button>
           )}
         </div>
-        {busy && (
-          <p className="mt-2 text-sm text-text-muted" role="status">
-            正在调用向量服务，文档较多时需要等待；原索引会在全部成功后替换。
-          </p>
+        {operation?.request && !busy && (
+          <div className="mt-3 space-y-2">
+            <p className="text-sm text-text-muted" role="status">
+              提交结果尚未确认，再次提交会沿用原标识与模型，不会重复创建同一任务。
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!writable}
+              onClick={() => void run("build")}
+            >
+              确认上次提交
+            </Button>
+          </div>
+        )}
+        {latest && (
+          <section aria-label="最近向量任务" className="mt-6 space-y-3 border-t border-border pt-4">
+            <p className="text-sm font-medium" role="status">
+              向量任务：{vectorJobLabels[latest.status]}
+            </p>
+            <div
+              role="progressbar"
+              aria-label="向量构建进度"
+              aria-valuemin={0}
+              aria-valuemax={Math.max(latest.chunk_count, 1)}
+              aria-valuenow={latest.completed_count}
+              aria-valuetext={`已完成 ${latest.completed_count} / ${latest.chunk_count} 个片段，其中复用 ${latest.reused_count} 个`}
+              className="h-2 overflow-hidden rounded-full bg-border"
+            >
+              <div
+                className="h-full bg-text-muted"
+                style={{
+                  width: `${Math.min(100, (latest.completed_count / Math.max(latest.chunk_count, 1)) * 100)}%`,
+                }}
+              />
+            </div>
+            <p className="text-xs text-text-muted tabular-nums">
+              已完成 {latest.completed_count} / {latest.chunk_count} 个片段，其中复用{" "}
+              {latest.reused_count} 个
+            </p>
+            {latest.error && <p className="break-words text-sm text-text-muted">{latest.error}</p>}
+            {activeJob ? (
+              <>
+                <p className="text-xs text-text-muted">
+                  后台处理会继续，可切换页面；现有有效索引仍可检索。
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!writable || busy}
+                  onClick={() => void run("cancel")}
+                >
+                  取消向量任务
+                </Button>
+              </>
+            ) : retryable ? (
+              <p className="text-xs text-text-muted">
+                原索引不受影响。重试会提交新任务，并复用已完成且仍有效的缓存。
+              </p>
+            ) : (
+              <p className="text-xs text-text-muted">
+                任务已完成，当前索引可用情况以上方索引状态为准。
+              </p>
+            )}
+          </section>
+        )}
+        {(jobs.data?.length ?? 0) > 1 && (
+          <details className="mt-4 text-sm">
+            <summary className="cursor-pointer">
+              向量任务记录（最近 {jobs.data!.length} 次）
+            </summary>
+            <ul className="mt-3 space-y-2 text-xs text-text-muted">
+              {jobs.data!.map((job) => (
+                <li key={job.id} className="break-words">
+                  {new Date(job.created_at).toLocaleString("zh-CN")} · {vectorJobLabels[job.status]}{" "}
+                  · 已完成 {job.completed_count}/{job.chunk_count}，复用 {job.reused_count}
+                  {job.error && ` · ${job.error}`}
+                </li>
+              ))}
+            </ul>
+          </details>
         )}
         <FailureNotice
           failure={failure}
@@ -230,7 +330,6 @@ export function KnowledgeVectors({
           variant="outline"
           nativeButton={false}
           role="link"
-          disabled={busy}
           render={
             <Link
               to={`/knowledge/${id}?${new URLSearchParams({ ...Object.fromEntries(params), view: "search" })}`}
@@ -257,10 +356,10 @@ export function KnowledgeVectors({
         open={clearing}
         onOpenChange={setClearing}
         title="移除当前知识库的向量索引？"
-        description="确认后立即移除向量索引；文档原件与关键词索引继续保留，需要时可以重新建立。"
+        description="确认后取消未完成的向量任务，并移除向量索引与片段向量缓存；文档原件与关键词索引继续保留，需要时可以重新建立。"
         confirmLabel="确认移除索引"
         busy={busy}
-        onConfirm={() => void run(true)}
+        onConfirm={() => void run("clear")}
       >
         <FailureNotice
           failure={failure}

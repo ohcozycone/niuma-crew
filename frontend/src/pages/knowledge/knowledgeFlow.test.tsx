@@ -43,6 +43,8 @@ vi.mock("@/lib/api/knowledge", () => ({
   listEmbeddingConnections: vi.fn(),
   buildKnowledgeVectors: vi.fn(),
   clearKnowledgeVectors: vi.fn(),
+  listKnowledgeVectorJobs: vi.fn(),
+  cancelKnowledgeVectorJob: vi.fn(),
   listKnowledgeProcessing: vi.fn(),
   processKnowledgeDocuments: vi.fn(),
   cancelKnowledgeProcessing: vi.fn(),
@@ -61,6 +63,17 @@ const kb = {
   vector_connection_id: null,
   vector_connection_name: null,
   vector_chunk_count: 0,
+};
+const vectorJob: api.VectorJob = {
+  id: "vector-job",
+  status: "queued",
+  connection_id: "embedding",
+  chunk_count: 1,
+  completed_count: 0,
+  reused_count: 0,
+  error: null,
+  created_at: kb.updated_at,
+  updated_at: kb.updated_at,
 };
 const doc = {
   id: "doc",
@@ -155,6 +168,7 @@ beforeEach(() => {
   vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([]);
   vi.mocked(api.listEmbeddingConnections).mockResolvedValue([]);
   vi.mocked(api.listKnowledgeProcessing).mockResolvedValue([]);
+  vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([]);
 });
 it("lists actual libraries and navigates through creation into the new library", async () => {
   vi.mocked(api.createKnowledgeBase).mockResolvedValue({ ...kb, name: "研发资料" });
@@ -432,13 +446,9 @@ it("builds vectors with the selected shared connection and retains an error for 
     .mockRejectedValueOnce(
       new ApiError("硅基流动请求限流，请稍后重试。", 429, "embedding_rate_limited"),
     )
-    .mockResolvedValueOnce({
-      ...kb,
-      chunk_count: 1,
-      vector_status: "ready",
-      vector_connection_id: "embedding",
-      vector_connection_name: "硅基流动向量",
-      vector_chunk_count: 1,
+    .mockImplementationOnce(async () => {
+      vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([vectorJob]);
+      return vectorJob;
     });
   open("/knowledge/kb?view=search");
   expect(screen.queryByRole("button", { name: /建立向量索引/ })).toBeNull();
@@ -448,8 +458,8 @@ it("builds vectors with the selected shared connection and retains an error for 
     "硅基流动请求限流，请稍后重试。",
   );
   fireEvent.click(screen.getByRole("button", { name: /建立向量索引/ }));
-  await screen.findByText("向量索引已建立，检索测试将自动使用关键词＋语义混合检索。");
-  expect(api.buildKnowledgeVectors).toHaveBeenCalledWith("kb", "embedding");
+  await screen.findByText("向量任务：排队中");
+  expect(api.buildKnowledgeVectors).toHaveBeenCalledWith("kb", "embedding", expect.any(String));
 });
 
 it.each(["ready", "partial"] as const)(
@@ -566,37 +576,47 @@ it("disables an empty library query and links to document processing", async () 
   );
 });
 
-it("protects index navigation until construction finishes", async () => {
+it("allows navigation during submission and reloads a background job when returning", async () => {
   vi.mocked(api.getKnowledgeBase).mockResolvedValue({ ...kb, chunk_count: 1 });
   vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([doc]);
   vi.mocked(api.listEmbeddingConnections).mockResolvedValue([
     { id: "embedding", name: "向量模型", model_id: "BAAI/bge-m3" },
   ]);
-  let finish!: (value: api.KnowledgeBase) => void;
+  let finish!: (value: api.VectorJob) => void;
   vi.mocked(api.buildKnowledgeVectors).mockImplementation(
     () =>
       new Promise((resolve) => {
         finish = resolve;
       }),
   );
-  open("/knowledge/kb?view=search");
-  fireEvent.click(await screen.findByRole("tab", { name: "检索设置" }));
-  fireEvent.click(await screen.findByRole("button", { name: /建立向量索引/ }));
-  expect(screen.getByRole("tab", { name: "文档" }).getAttribute("aria-disabled")).toBe("true");
-  expect(screen.getByRole("tab", { name: "检索测试" }).getAttribute("aria-disabled")).toBe("true");
-  expect(screen.getByRole("button", { name: "上传文件" })).toHaveProperty("disabled", true);
-  expect(screen.getByRole("button", { name: "刷新连接与索引状态" })).toHaveProperty(
-    "disabled",
-    true,
+  open("/knowledge/kb?view=settings");
+  const build = await screen.findByRole("button", { name: /建立向量索引/ });
+  await waitFor(() => expect(build).toHaveProperty("disabled", false));
+  fireEvent.click(build);
+  fireEvent.click(build);
+  expect(api.buildKnowledgeVectors).toHaveBeenCalledTimes(1);
+  expect(screen.getByRole("tab", { name: "文档" }).getAttribute("aria-disabled")).not.toBe("true");
+  expect(screen.getByRole("tab", { name: "检索测试" }).getAttribute("aria-disabled")).not.toBe(
+    "true",
   );
-  await act(async () => finish({ ...kb, vector_status: "ready" }));
-  await waitFor(() =>
-    expect(screen.getByRole("tab", { name: "文档" }).getAttribute("aria-disabled")).not.toBe(
-      "true",
-    ),
-  );
+  expect(screen.getByRole("button", { name: "上传文件" })).toHaveProperty("disabled", false);
   fireEvent.click(screen.getByRole("tab", { name: "检索测试" }));
   expect(await screen.findByRole("textbox", { name: "检索问题" })).toBeTruthy();
+  vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([vectorJob]);
+  await act(async () => finish(vectorJob));
+  fireEvent.click(screen.getByRole("tab", { name: "检索设置" }));
+  await screen.findByText("向量任务：排队中");
+  expect(screen.getByRole("button", { name: "向量任务进行中" })).toHaveProperty("disabled", true);
+  expect(screen.getByRole("button", { name: "取消向量任务" })).toHaveProperty("disabled", false);
+  fireEvent.click(screen.getByRole("link", { name: "全部知识库" }));
+  await screen.findByRole("heading", { name: "知识库" });
+  vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([
+    { ...vectorJob, status: "succeeded", completed_count: 1, reused_count: 1 },
+  ]);
+  fireEvent.click(screen.getByRole("link", { name: /项目资料/ }));
+  fireEvent.click(await screen.findByRole("tab", { name: "检索设置" }));
+  await screen.findByText("向量任务：已完成");
+  expect(screen.getByRole("progressbar").getAttribute("aria-valuetext")).toContain("其中复用 1 个");
 });
 
 it("selects only available filtered documents and preserves selections outside the search", async () => {
@@ -818,7 +838,7 @@ it("builds all existing chunks even when some uploaded documents are pending, in
   vi.mocked(api.listEmbeddingConnections).mockResolvedValue([
     { id: "embedding", name: "向量模型", model_id: "BAAI/bge-m3" },
   ]);
-  vi.mocked(api.buildKnowledgeVectors).mockResolvedValue({ ...kb, vector_status: "ready" });
+  vi.mocked(api.buildKnowledgeVectors).mockResolvedValue(vectorJob);
   open("/knowledge/kb");
   fireEvent.click(await screen.findByRole("checkbox", { name: "全选当前结果" }));
   fireEvent.click(screen.getByRole("tab", { name: "检索设置" }));
@@ -826,6 +846,115 @@ it("builds all existing chunks even when some uploaded documents are pending, in
     await screen.findByText("本次处理 1 篇已分片文档；另有 1 篇待分片，暂不参与。"),
   ).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "建立向量索引（1篇）" }));
-  await waitFor(() => expect(api.buildKnowledgeVectors).toHaveBeenCalledWith("kb", "embedding"));
+  await waitFor(() =>
+    expect(api.buildKnowledgeVectors).toHaveBeenCalledWith("kb", "embedding", expect.any(String)),
+  );
   expect(api.processKnowledgeDocuments).not.toHaveBeenCalled();
+});
+
+it("keeps an uncertain vector submission key and original model across navigation", async () => {
+  vi.mocked(api.getKnowledgeBase).mockResolvedValue({ ...kb, chunk_count: 1 });
+  vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([doc]);
+  vi.mocked(api.listEmbeddingConnections).mockResolvedValue([
+    { id: "embedding", name: "向量模型", model_id: "BAAI/bge-m3" },
+  ]);
+  vi.mocked(api.buildKnowledgeVectors)
+    .mockRejectedValueOnce(new ApiError("网络中断，请重试。", 0, "client_connection_failed"))
+    .mockImplementationOnce(async () => {
+      vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([vectorJob]);
+      return vectorJob;
+    });
+  open("/knowledge/kb?view=settings");
+  const build = await screen.findByRole("button", { name: /建立向量索引/ });
+  await waitFor(() => expect(build).toHaveProperty("disabled", false));
+  fireEvent.click(build);
+  await screen.findByText("提交结果尚未确认，再次提交会沿用原标识与模型，不会重复创建同一任务。");
+  fireEvent.click(screen.getByRole("tab", { name: "文档" }));
+  vi.mocked(api.listEmbeddingConnections).mockResolvedValue([]);
+  fireEvent.click(screen.getByRole("tab", { name: "检索设置" }));
+  fireEvent.click(await screen.findByRole("button", { name: "刷新连接与索引状态" }));
+  await screen.findByText(/还没有可用的向量连接/);
+  const confirm = await screen.findByRole("button", { name: "确认上次提交" });
+  await waitFor(() => expect(confirm).toHaveProperty("disabled", false));
+  fireEvent.click(confirm);
+  await screen.findByText("向量任务：排队中");
+  const calls = vi.mocked(api.buildKnowledgeVectors).mock.calls;
+  expect(calls).toHaveLength(2);
+  expect(calls[0]).toEqual(calls[1]);
+});
+
+it("cancels an active vector job and retries interrupted work with a new submission", async () => {
+  vi.mocked(api.getKnowledgeBase).mockResolvedValue({
+    ...kb,
+    chunk_count: 1,
+    vector_status: "ready",
+    vector_connection_id: "embedding",
+  });
+  vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([doc]);
+  vi.mocked(api.listEmbeddingConnections).mockResolvedValue([
+    { id: "embedding", name: "向量模型", model_id: "BAAI/bge-m3" },
+  ]);
+  vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([{ ...vectorJob, status: "running" }]);
+  vi.mocked(api.cancelKnowledgeVectorJob).mockImplementationOnce(async () => {
+    const cancelled = { ...vectorJob, status: "cancelled" as const };
+    vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([cancelled]);
+    return cancelled;
+  });
+  vi.mocked(api.buildKnowledgeVectors).mockImplementationOnce(async () => {
+    const retried = { ...vectorJob, id: "second" };
+    vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([retried]);
+    return retried;
+  });
+  open("/knowledge/kb?view=settings");
+  fireEvent.click(await screen.findByRole("button", { name: "取消向量任务" }));
+  await screen.findByText("向量任务：已取消");
+  expect(api.cancelKnowledgeVectorJob).toHaveBeenCalledExactlyOnceWith("kb", "vector-job");
+  expect(screen.getByRole("link", { name: "前往检索测试" })).toBeTruthy();
+  vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([
+    { ...vectorJob, status: "interrupted", error: "服务重启，任务已中断。" },
+  ]);
+  fireEvent.click(screen.getByRole("button", { name: "刷新连接与索引状态" }));
+  await screen.findByText("向量任务：已中断");
+  expect(screen.getByText("服务重启，任务已中断。")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "重试向量构建（1篇）" }));
+  await screen.findByText("向量任务：排队中");
+  expect(api.buildKnowledgeVectors).toHaveBeenCalledExactlyOnceWith(
+    "kb",
+    "embedding",
+    expect.any(String),
+  );
+});
+
+it("polls vector progress and stops after the job finishes", async () => {
+  vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([{ ...vectorJob, status: "running" }]);
+  open("/knowledge/kb?view=settings");
+  await screen.findByText("向量任务：构建中");
+  vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([
+    { ...vectorJob, status: "succeeded", completed_count: 1, reused_count: 1 },
+  ]);
+  await screen.findByText("向量任务：已完成", {}, { timeout: 2500 });
+  expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("1");
+  const calls = vi.mocked(api.listKnowledgeVectorJobs).mock.calls.length;
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1600));
+  });
+  expect(api.listKnowledgeVectorJobs).toHaveBeenCalledTimes(calls);
+});
+
+it("keeps vector cancellation and build disabled for read-only visitors", async () => {
+  readOnly = true;
+  vi.mocked(api.getKnowledgeBase).mockResolvedValue({ ...kb, chunk_count: 1 });
+  vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([vectorJob]);
+  vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([doc]);
+  vi.mocked(api.listEmbeddingConnections).mockResolvedValue([
+    { id: "embedding", name: "向量模型", model_id: "model" },
+  ]);
+  open("/knowledge/kb?view=settings");
+  expect(await screen.findByRole("button", { name: "取消向量任务" })).toHaveProperty(
+    "disabled",
+    true,
+  );
+  expect(screen.getByRole("button", { name: "向量任务进行中" })).toHaveProperty("disabled", true);
+  expect(api.cancelKnowledgeVectorJob).not.toHaveBeenCalled();
+  expect(api.buildKnowledgeVectors).not.toHaveBeenCalled();
 });

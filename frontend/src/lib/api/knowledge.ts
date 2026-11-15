@@ -108,10 +108,30 @@ export const searchKnowledge = (
 export type EmbeddingConnection = { id: string; name: string; model_id: string };
 export const listEmbeddingConnections = (signal?: AbortSignal) =>
   request<EmbeddingConnection[]>("knowledge-bases/embedding-connections", { signal });
-export const buildKnowledgeVectors = (kb: string, connectionId: string) =>
-  request<KnowledgeBase>(`knowledge-bases/${kb}/vector-index`, {
+export type VectorJob = {
+  id: string;
+  status: "queued" | "running" | "succeeded" | "failed" | "cancelled" | "interrupted";
+  connection_id: string;
+  chunk_count: number;
+  completed_count: number;
+  reused_count: number;
+  error: string | null;
+  created_at: string;
+  updated_at: string;
+};
+export const listKnowledgeVectorJobs = (kb: string, signal?: AbortSignal) =>
+  request<VectorJob[]>(`knowledge-bases/${kb}/vector-jobs`, { signal });
+export const getKnowledgeVectorJob = (kb: string, job: string, signal?: AbortSignal) =>
+  request<VectorJob>(`knowledge-bases/${kb}/vector-jobs/${job}`, { signal });
+export const cancelKnowledgeVectorJob = (kb: string, job: string) =>
+  request<VectorJob>(`knowledge-bases/${kb}/vector-jobs/${job}/cancel`, {
     method: "POST",
-    body: JSON.stringify({ model_connection_id: connectionId }),
+    body: "{}",
+  });
+export const buildKnowledgeVectors = (kb: string, connectionId: string, clientRequestId: string) =>
+  request<VectorJob>(`knowledge-bases/${kb}/vector-index`, {
+    method: "POST",
+    body: JSON.stringify({ model_connection_id: connectionId, client_request_id: clientRequestId }),
   });
 export const clearKnowledgeVectors = (kb: string) =>
   request<void>(`knowledge-bases/${kb}/vector-index`, { method: "DELETE" });

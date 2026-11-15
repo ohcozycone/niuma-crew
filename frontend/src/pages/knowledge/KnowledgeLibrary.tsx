@@ -34,7 +34,6 @@ export function KnowledgeLibrary({ id }: { id: string }) {
   const jobs = useResource(store.processing(id));
   const uploads = useAtom(store.uploads.state);
   const [adding, setAdding] = useState(false);
-  const [buildingVectors, setBuildingVectors] = useState(false);
   const [params, setParams] = useSearchParams();
   const requestedView = params.get("view");
   const view =
@@ -77,7 +76,7 @@ export function KnowledgeLibrary({ id }: { id: string }) {
                 </Button>
                 {writable && <KnowledgeSettings library={state.data} />}
                 <Button
-                  disabled={!writable || buildingVectors}
+                  disabled={!writable}
                   aria-expanded={adding && view === "documents"}
                   aria-controls="knowledge-add-documents"
                   onClick={() => {
@@ -101,13 +100,12 @@ export function KnowledgeLibrary({ id }: { id: string }) {
           <PageTabs
             label="库内功能"
             items={[
-              { value: "documents", label: "文档", disabled: buildingVectors },
+              { value: "documents", label: "文档" },
               { value: "settings", label: "检索设置" },
-              { value: "search", label: "检索测试", disabled: buildingVectors },
+              { value: "search", label: "检索测试" },
             ]}
             value={view}
             onValueChange={(next) => {
-              if (buildingVectors) return;
               setParams((current) => {
                 const copy = new URLSearchParams(current);
                 copy.set("view", next);
@@ -119,7 +117,7 @@ export function KnowledgeLibrary({ id }: { id: string }) {
               <LibraryDocuments id={id} name={state.data.name} adding={adding} />
             </TabsContent>
             <TabsContent value="settings">
-              <KnowledgeVectors id={id} onBusyChange={setBuildingVectors} />
+              <KnowledgeVectors id={id} />
             </TabsContent>
             <TabsContent value="search">
               <KnowledgeSearch key={params.get("question") || ""} id={id} />
