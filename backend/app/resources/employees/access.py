@@ -27,6 +27,7 @@ def configured_agent(db: Session, agent_id: str) -> AgentConfiguration:
         agent.updated_at,
         agent.system_prompt,
         agent.model_connection_id,
+        agent.allow_web_access,
     )
 
 
@@ -53,6 +54,15 @@ def authorize_execution(
             or relation.created_at.isoformat() != item["assignment_created_at"]
         ):
             raise ConflictError("skill_access_revoked", "技能装配或启用状态已改变，执行已停止。")
+
+
+def assert_web_access(db: Session, snapshot: Mapping[str, Any]) -> None:
+    """网页动作和证据读取同时受冻结许可与当前员工许可约束。"""
+    agent = db.get(Agent, snapshot["agent_id"])
+    if snapshot.get("allow_web_access") is not True or not agent or not agent.allow_web_access:
+        raise ConflictError("web_access_revoked", "员工的网页访问许可已关闭，请重新发送任务。")
+    if not agent.is_active:
+        raise ConflictError("agent_inactive", "员工已停用。")
 
 
 def assert_binding(db, snapshot, binding):

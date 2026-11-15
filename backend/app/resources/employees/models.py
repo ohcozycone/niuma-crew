@@ -60,6 +60,11 @@ class Agent(IdentityTimestamps, Base):
         default=6,
         server_default="6",
     )
+    allow_web_access: Mapped[bool] = mapped_column(
+        Boolean(create_constraint=True, name="allow_web_access_boolean"),
+        default=False,
+        server_default=text("0"),
+    )
     is_active: Mapped[bool] = mapped_column(
         Boolean(create_constraint=True, name="is_active_boolean"), server_default=text("1")
     )

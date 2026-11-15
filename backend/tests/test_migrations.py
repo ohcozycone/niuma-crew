@@ -92,9 +92,9 @@ def test_initial_migration_cli_is_repeatable_and_cwd_independent(tmp_path):
     run("upgrade", "head")
     run("upgrade", "head")
     run("check")
-    assert "0029" in run("current").stdout
+    assert "0030" in run("current").stdout
     with closing(sqlite3.connect(path)) as db:
-        assert db.execute("SELECT version_num FROM alembic_version").fetchall() == [("0029",)]
+        assert db.execute("SELECT version_num FROM alembic_version").fetchall() == [("0030",)]
         assert {"thread_id", "base_checkpoint_id", "base_run_id"} <= {
             column[1] for column in db.execute("PRAGMA table_info(runs)")
         }
@@ -117,7 +117,7 @@ def test_initial_migration_cli_is_repeatable_and_cwd_independent(tmp_path):
     rejected = run("downgrade", "base", expected_success=False)
     assert "组织资源与个人配置已合并" in rejected.stderr
     with closing(sqlite3.connect(path)) as db:
-        assert db.execute("SELECT version_num FROM alembic_version").fetchone() == ("0029",)
+        assert db.execute("SELECT version_num FROM alembic_version").fetchone() == ("0030",)
         assert {
             row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")
         } == TABLES | FTS_TABLES | {"alembic_version"}

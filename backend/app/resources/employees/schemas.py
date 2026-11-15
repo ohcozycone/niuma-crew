@@ -49,6 +49,7 @@ class AgentCreate(RequestModel):
     role_label: OptionalText = None
     system_prompt: StrictStr = ""
     model_connection_id: UUID | None = None
+    allow_web_access: StrictBool = False
     is_active: StrictBool = True
     is_favorite: StrictBool = False
     example_tasks: list[StrictStr] = Field(default_factory=list)
@@ -68,6 +69,7 @@ class AgentPatch(RequestModel):
     role_label: OptionalText = None
     system_prompt: StrictStr = omitted_field()
     model_connection_id: UUID | None = None
+    allow_web_access: StrictBool = omitted_field()
     is_active: StrictBool = omitted_field()
     is_favorite: StrictBool = omitted_field()
     example_tasks: list[StrictStr] = omitted_field()
@@ -108,6 +110,7 @@ class PublicAgent(BaseModel):
     category: str
     description: str
     role_label: str | None
+    allow_web_access: bool
     is_active: bool
     is_favorite: bool
     example_tasks: list[str]
@@ -135,6 +138,7 @@ class AgentSummary(BaseModel):
     description: str
     role_label: str | None
     avatar_id: str
+    allow_web_access: bool
     is_active: bool
     is_favorite: bool
     model_connection_id: UUID | None
@@ -159,6 +163,7 @@ class AgentUsage(BaseModel):
     name: str
     description: str
     avatar_id: str
+    allow_web_access: bool
     is_active: bool
     example_tasks: list[str]
     model_configured: bool
@@ -175,3 +180,4 @@ class AgentConfiguration:
     updated_at: datetime
     system_prompt: str
     model_connection_id: str
+    allow_web_access: bool = False

@@ -283,6 +283,7 @@ class AgentService:
                             "name",
                             "description",
                             "avatar_id",
+                            "allow_web_access",
                             "is_active",
                             "example_tasks",
                         )
