@@ -210,7 +210,7 @@ def test_additive_migration_preserves_existing_documents_and_live_index(api_clie
     names = state.knowledge_vectors.store.names()
     config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     command.downgrade(config, "0028")
-    command.upgrade(config, "0029")
+    command.upgrade(config, "head")
     command.check(config)
     with state.database.transaction() as db:
         assert db.get(LibraryVectorIndex, kb).generation == generation
