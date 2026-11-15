@@ -22,6 +22,7 @@ const agent: AgentDTO = {
   revision: 1,
   model_connection_id: null,
   is_active: true,
+  allow_web_access: false,
   is_favorite: false,
   example_tasks: ["任务"],
   deliverables: ["报告"],
@@ -227,3 +228,13 @@ it("prevents a directory summary from overwriting full agent configuration", asy
   ).rejects.toThrow("详情");
   expect(fetcher).not.toHaveBeenCalled();
 });
+
+it.each([false, true])(
+  "round trips the shared web permission %s without tool grants",
+  (allowed) => {
+    const data = fromAgent({ ...agent, allow_web_access: allowed });
+    expect(data.allowWebAccess).toBe(allowed);
+    expect(agentInput(data).allow_web_access).toBe(allowed);
+    expect(agentInput(data).tool_grants).toEqual([]);
+  },
+);

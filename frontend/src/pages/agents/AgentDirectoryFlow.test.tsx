@@ -47,6 +47,7 @@ function employee(id: string, configured = true): AgentSummaryDTO {
     role_label: null,
     model_connection_id: configured ? "brain" : null,
     is_active: true,
+    allow_web_access: false,
     is_favorite: true,
     resource_counts: { skills: 0, tools: 0, knowledge_bases: 0 },
     skill_summaries: [],

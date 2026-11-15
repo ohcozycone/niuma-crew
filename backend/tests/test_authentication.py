@@ -114,6 +114,7 @@ def test_guest_reads_same_records_without_private_configuration(api_client, migr
         public = response.json()["items"][0]
         assert public["id"] == agent["id"] and public["model_configured"] is False
         assert public["is_favorite"] is True
+        assert public["allow_web_access"] is False
         assert public["skill_ids"] == [skill["id"]]
         assert (
             public["resource_counts"]
@@ -128,6 +129,7 @@ def test_guest_reads_same_records_without_private_configuration(api_client, migr
             "category",
             "description",
             "role_label",
+            "allow_web_access",
             "is_active",
             "is_favorite",
             "example_tasks",

@@ -23,6 +23,7 @@ export type AgentDTO = {
   system_prompt: string;
   revision: number;
   model_connection_id: string | null;
+  allow_web_access: boolean;
   is_active: boolean;
   is_favorite: boolean;
   example_tasks: string[];
@@ -75,6 +76,7 @@ export function fromAgent(data: AgentDTO): Agent {
       readinessReason: a.readiness_reason,
     })),
     modelConnectionId: data.model_connection_id,
+    allowWebAccess: data.allow_web_access,
     active: data.is_active,
     favorite: data.is_favorite,
     exampleTasks: data.example_tasks,
@@ -108,6 +110,7 @@ export function agentInput(data: Agent, create = false) {
     system_prompt: data.systemPrompt,
     ...(!create ? { expected_revision: data.revision } : {}),
     model_connection_id: data.modelConnectionId ?? null,
+    allow_web_access: data.allowWebAccess,
     is_active: data.active,
     is_favorite: data.favorite,
     example_tasks: data.exampleTasks,
@@ -156,6 +159,7 @@ export type AgentSummaryDTO = Pick<
   | "description"
   | "role_label"
   | "model_connection_id"
+  | "allow_web_access"
   | "is_active"
   | "is_favorite"
   | "resource_counts"
@@ -175,6 +179,7 @@ export function fromAgentSummary(data: AgentSummaryDTO): AgentSummary {
     description: data.description,
     role: data.role_label ?? "",
     modelConnectionId: data.model_connection_id,
+    allowWebAccess: data.allow_web_access,
     active: data.is_active,
     favorite: data.is_favorite,
     skills: data.skill_summaries.filter((a) => a.enabled).map((a) => a.skill_id),
@@ -197,6 +202,7 @@ export type PublicAgent = {
   category: string;
   description: string;
   role_label: string | null;
+  allow_web_access: boolean;
   is_active: boolean;
   is_favorite: boolean;
   example_tasks: string[];
@@ -208,7 +214,7 @@ export type PublicAgent = {
 
 export type AgentUsageDTO = Pick<
   AgentDTO,
-  "id" | "name" | "description" | "avatar_id" | "is_active" | "example_tasks"
+  "id" | "name" | "description" | "avatar_id" | "allow_web_access" | "is_active" | "example_tasks"
 > & {
   knowledge?: {
     libraries: { id: string; name: string; description: string }[];

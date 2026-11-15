@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Plus, Check, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Switch } from "@/components/ui/Switch";
 import { Card } from "@/components/ui/Card";
 import {
   Dialog,
@@ -80,10 +81,14 @@ function TypeFilters({
 
 export function AgentCapabilityAssembly({
   readOnly = false,
+  allowWebAccess,
+  onWebAccessChange,
   tools: toolProps,
   skills: skillProps,
 }: {
   readOnly?: boolean;
+  allowWebAccess: boolean;
+  onWebAccessChange: (allowed: boolean) => void;
   tools: Parameters<typeof useToolAssembly>[0];
   skills: Parameters<typeof useSkillAssembly>[0];
 }) {
@@ -120,6 +125,24 @@ export function AgentCapabilityAssembly({
     <section aria-label="员工能力装配" className="min-w-0">
       <div className="space-y-5 pb-5">
         <WorkspaceCapabilities />
+        <div className="flex items-start justify-between gap-4 rounded-panel border border-border bg-raised p-4">
+          <div className="min-w-0">
+            <label htmlFor="agent-web-access" className="type-title">
+              允许访问网页
+            </label>
+            <p id="agent-web-access-description" className="type-description mt-1">
+              同时允许 Web Search（网页搜索）和 Web Fetch（网页读取），保存配置后生效。
+              服务端配置就绪后才可使用，与外部工具的连接和授权分开管理。
+            </p>
+          </div>
+          <Switch
+            id="agent-web-access"
+            checked={allowWebAccess}
+            onCheckedChange={onWebAccessChange}
+            disabled={readOnly}
+            aria-describedby="agent-web-access-description"
+          />
+        </div>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="type-section">

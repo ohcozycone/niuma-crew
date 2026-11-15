@@ -22,6 +22,7 @@ function dto(id: string, favorite = false, revision = 1): api.AgentSummaryDTO {
     role_label: null,
     model_connection_id: "brain",
     is_active: true,
+    allow_web_access: false,
     is_favorite: favorite,
     resource_counts: { skills: 0, tools: 0, knowledge_bases: 0 },
     skill_summaries: [],

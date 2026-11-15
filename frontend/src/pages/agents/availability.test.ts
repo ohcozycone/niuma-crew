@@ -19,6 +19,7 @@ const initialAgents = [
     exampleTasks: [],
     deliverables: [],
     active: true,
+    allowWebAccess: false,
     favorite: false,
   },
 ];

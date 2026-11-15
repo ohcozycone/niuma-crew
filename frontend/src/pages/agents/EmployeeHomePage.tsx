@@ -98,6 +98,9 @@ function EmployeeHome({ id }: { id: string }) {
                   <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
                   {agent.is_active ? "在岗" : "已暂停接单"}
                 </span>
+                <span className="text-xs text-text-muted">
+                  网页访问：{agent.allow_web_access ? "已允许" : "未允许"}
+                </span>
               </div>
             </div>
             <p className="col-start-2 row-start-2 min-w-0 max-w-prose text-sm leading-relaxed text-text-muted [overflow-wrap:anywhere] max-sm:col-span-3 max-sm:col-start-1">

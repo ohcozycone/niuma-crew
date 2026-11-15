@@ -18,6 +18,7 @@ const agent: Agent = {
   deliverables: [],
   exampleTasks: [],
   active: true,
+  allowWebAccess: false,
   favorite: false,
 };
 describe("agent resource summary", () => {

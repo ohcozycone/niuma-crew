@@ -53,7 +53,8 @@ const initial: ToolGrantInput[] = connections.slice(0, 10).map((item) => ({
   enabled: true,
 }));
 const changed = vi.fn();
-function Harness() {
+function Harness({ readOnly = false }: { readOnly?: boolean } = {}) {
+  const [allowWebAccess, setAllowWebAccess] = useState(false);
   const [tools, setTools] = useState(initial);
   const [ids, setIds] = useState(["research"]);
   const [settings, setSettings] = useState<
@@ -62,6 +63,9 @@ function Harness() {
   return (
     <MemoryRouter>
       <AgentCapabilityAssembly
+        readOnly={readOnly}
+        allowWebAccess={allowWebAccess}
+        onWebAccessChange={setAllowWebAccess}
         tools={{
           value: tools,
           onChange: (next) => {
@@ -266,4 +270,24 @@ it("shows platform workspace state without adding an employee grant", async () =
   render(<Harness />);
   await screen.findByText(/平台直接提供文件读写，无需装配。代码执行：未配置或未通过验收/);
   expect(changed).not.toHaveBeenCalled();
+});
+
+it("uses one independent web permission without creating third-party grants", async () => {
+  render(<Harness />);
+  const permission = screen.getByRole("switch", { name: "允许访问网页" });
+  expect(permission.getAttribute("aria-checked")).toBe("false");
+  expect(screen.getByText(/同时允许 Web Search.*Web Fetch/)).toBeTruthy();
+  fireEvent.click(permission);
+  expect(permission.getAttribute("aria-checked")).toBe("true");
+  expect(changed).not.toHaveBeenCalled();
+  fireEvent.click(permission);
+  expect(permission.getAttribute("aria-checked")).toBe("false");
+});
+
+it("shows the single web permission read-only to non-editors", () => {
+  render(<Harness readOnly />);
+  const permission = screen.getByRole("switch", { name: "允许访问网页" });
+  expect((permission as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.click(permission);
+  expect(permission.getAttribute("aria-checked")).toBe("false");
 });

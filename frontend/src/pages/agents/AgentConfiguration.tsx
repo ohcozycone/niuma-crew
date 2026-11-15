@@ -40,6 +40,7 @@ function initialDraft(value: Agent | "new") {
   const agent = value === "new" ? null : value;
   return {
     revision: agent?.revision ?? 0,
+    allowWebAccess: agent?.allowWebAccess ?? false,
     toolGrants: agent?.toolGrants ?? [],
     knowledge: agent?.knowledge ?? { knowledge_base_ids: [], mode: "on_demand" as const, top_k: 6 },
     name: agent?.name || "",
@@ -124,6 +125,7 @@ export function AgentConfiguration({
     deliverables: editing?.deliverables ?? [],
     exampleTasks: editing?.exampleTasks ?? [],
     ...draft,
+    allowWebAccess: draft.allowWebAccess ?? baseline.allowWebAccess,
     toolGrants: draft.toolGrants ?? baseline.toolGrants,
     knowledge: draft.knowledge ?? baseline.knowledge,
     revision: draft.revision,
@@ -456,6 +458,8 @@ export function AgentConfiguration({
             <TabsContent value="capabilities" className="m-0 pt-2">
               <AgentCapabilityAssembly
                 readOnly={readOnly}
+                allowWebAccess={draft.allowWebAccess ?? baseline.allowWebAccess}
+                onWebAccessChange={(allowed) => update("allowWebAccess", allowed)}
                 tools={{
                   value: draft.toolGrants ?? baseline.toolGrants,
                   onChange: (grants) => update("toolGrants", grants),

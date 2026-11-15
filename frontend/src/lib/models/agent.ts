@@ -34,6 +34,7 @@ export type Agent = {
   toolCount: number;
   knowledgeBaseCount: number;
   deliverables: string[];
+  allowWebAccess: boolean;
   favorite: boolean;
   active: boolean;
   exampleTasks: string[];

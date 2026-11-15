@@ -65,6 +65,7 @@ function employee(): Agent {
     deliverables: ["报告"],
     exampleTasks: ["示例"],
     active: true,
+    allowWebAccess: false,
     favorite: false,
   };
 }
@@ -127,6 +128,7 @@ beforeEach(() => {
         avatar_id: persisted.avatarId,
         model_connection_id: null,
         is_active: true,
+        allow_web_access: false,
         is_favorite: false,
         revision: persisted.revision!,
         resource_counts: { skills: 0, tools: 0, knowledge_bases: 0 },
@@ -337,4 +339,33 @@ it("locks repeated submissions and keeps navigation protected only until confirm
   await waitFor(() => expect(router.state.location.pathname).toBe("/agents"));
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(api.saveAgent).toHaveBeenCalledTimes(1);
+});
+
+it("saves one web permission with the employee draft and restores it on reopen", async () => {
+  const router = editor("/agents/employee-a?tab=capabilities");
+  const permission = await screen.findByRole("switch", { name: "允许访问网页" });
+  expect(permission.getAttribute("aria-checked")).toBe("false");
+  fireEvent.click(permission);
+  expect(api.saveAgent).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "返回" }));
+  await screen.findByRole("dialog", { name: "放弃未保存的修改？" });
+  fireEvent.click(screen.getByRole("button", { name: "继续编辑" }));
+  expect(permission.getAttribute("aria-checked")).toBe("true");
+  fireEvent.click(screen.getByRole("button", { name: "保存配置" }));
+  await waitFor(() => expect(router.state.location.pathname).toBe("/agents"));
+  expect(api.saveAgent).toHaveBeenCalledTimes(1);
+  expect(api.saveAgent).toHaveBeenCalledWith(
+    expect.objectContaining({ allowWebAccess: true, toolGrants: [] }),
+    false,
+  );
+  await act(async () => {
+    await router.navigate("/agents/employee-a?tab=capabilities");
+  });
+  expect(
+    (await screen.findByRole("switch", { name: "允许访问网页" })).getAttribute("aria-checked"),
+  ).toBe("true");
+  fireEvent.click(screen.getByRole("switch", { name: "允许访问网页" }));
+  fireEvent.click(screen.getByRole("button", { name: "保存配置" }));
+  await waitFor(() => expect(router.state.location.pathname).toBe("/agents"));
+  expect(persisted.allowWebAccess).toBe(false);
 });

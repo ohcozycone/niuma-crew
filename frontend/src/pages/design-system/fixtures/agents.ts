@@ -17,6 +17,7 @@ export const initialAgents: Agent[] = [
     knowledgeBaseCount: 0,
     skills: ["policy", "expense", "evidence", "checklist"],
     deliverables: ["逐晚报销金额明细", "报销材料清单", "附制度依据的问题解答"],
+    allowWebAccess: false,
     favorite: true,
     active: true,
     exampleTasks: [
@@ -41,6 +42,7 @@ export const initialAgents: Agent[] = [
     knowledgeBaseCount: 0,
     skills: ["search", "summary", "evidence"],
     deliverables: ["相关文档目录", "制度要点摘要", "原文引用与出处"],
+    allowWebAccess: false,
     favorite: true,
     active: true,
     exampleTasks: [
@@ -65,6 +67,7 @@ export const initialAgents: Agent[] = [
     knowledgeBaseCount: 0,
     skills: ["writing", "rewrite", "report"],
     deliverables: ["通知与邮件草稿", "润色后的文案", "结构化工作周报"],
+    allowWebAccess: false,
     favorite: false,
     active: true,
     exampleTasks: [
@@ -89,6 +92,7 @@ export const initialAgents: Agent[] = [
     knowledgeBaseCount: 0,
     skills: ["analysis", "summary", "report"],
     deliverables: ["指标变化分析", "关键发现与假设", "分析报告"],
+    allowWebAccess: false,
     favorite: false,
     active: true,
     exampleTasks: ["展示一份费用数据的分析示例。", "给我一份数据分析报告模板。"],
@@ -109,6 +113,7 @@ export const initialAgents: Agent[] = [
     knowledgeBaseCount: 0,
     skills: ["support", "search", "rewrite"],
     deliverables: ["客户答复草稿", "待补充信息清单", "知识条目索引"],
+    allowWebAccess: false,
     favorite: false,
     active: true,
     exampleTasks: ["客户问退款什么时候到账，帮我写一段稳妥的回复。", "把一段客服回复写得更简洁。"],
@@ -129,6 +134,7 @@ export const initialAgents: Agent[] = [
     knowledgeBaseCount: 0,
     skills: ["code", "summary", "report"],
     deliverables: ["源码阅读笔记", "模块职责说明", "实现核对清单"],
+    allowWebAccess: false,
     favorite: false,
     active: false,
     exampleTasks: ["展示一份 API 请求处理流程的源码阅读笔记。", "帮我整理一份代码评审清单。"],

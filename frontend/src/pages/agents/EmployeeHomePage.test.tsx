@@ -14,6 +14,7 @@ const employee = {
   avatar_id: "admin",
   description: "负责行政支持",
   is_active: false,
+  allow_web_access: false,
   model_configured: false,
   resource_counts: { skills: 8, tools: 4, knowledge_bases: 3 },
 };
@@ -206,3 +207,19 @@ it("discards the prior identity's late statistics", async () => {
   expect(metric("轮对话").getByText("9")).toBeTruthy();
   expect(metric("轮对话").queryByText("128")).toBeNull();
 });
+
+it.each([false, true])(
+  "displays web permission %s without claiming server readiness",
+  async (allowed) => {
+    vi.mocked(request).mockImplementation(async (path) => {
+      if (path.startsWith("public/agents/"))
+        return { ...employee, allow_web_access: allowed } as never;
+      if (path.startsWith("conversations/stats?")) return { completed_rounds: 0 } as never;
+      throw new Error(`Unexpected request: ${path}`);
+    });
+    render(<Page />);
+    expect(await screen.findByText(`网页访问：${allowed ? "已允许" : "未允许"}`)).toBeTruthy();
+    expect(screen.queryByRole("switch")).toBeNull();
+    expect(screen.queryByText(/网页.*已就绪/)).toBeNull();
+  },
+);

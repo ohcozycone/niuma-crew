@@ -15,6 +15,7 @@ it("uses display endpoints without fabricating editable configuration fields", a
     description: "简介",
     role_label: null,
     is_active: true,
+    allow_web_access: false,
     is_favorite: false,
     model_configured: true,
     example_tasks: [],
