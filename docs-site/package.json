@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "sync": "node scripts/sync-content.mjs",
-    "build": "pnpm sync && pnpm examples && next build --webpack",
+    "build": "pnpm sync && pnpm examples && next build --webpack && node scripts/check-export.mjs",
     "examples": "node scripts/build-design-examples.mjs",
     "preview": "serve out --listen tcp://127.0.0.1:3001",
     "typecheck": "pnpm sync && next typegen && tsc --noEmit",

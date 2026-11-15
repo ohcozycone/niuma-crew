@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { publicPath } from '@/lib/public-path';
 import { ArrowRight, ArrowUpRight, BookOpen } from 'lucide-react';
 import pageIndex from '@generated/page-index.json';
 import { PlatformEntry } from '@/components/platform-entry';
@@ -51,7 +52,7 @@ export default function HomePage() {
         </div>
         <aside className="start-guide" aria-labelledby="start-guide-title">
           <div className="start-guide-heading">
-            <img src="/brand/mark.svg" width={44} height={44} alt="" />
+            <img src={publicPath('/brand/mark.svg')} width={44} height={44} alt="" />
             <h2 id="start-guide-title">从个人积累到共同复用</h2>
           </div>
           <ol>
