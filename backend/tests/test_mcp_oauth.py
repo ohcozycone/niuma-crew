@@ -5,7 +5,7 @@ import json
 import logging
 import time
 from dataclasses import replace
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 import httpx
 import pytest
@@ -243,6 +243,41 @@ def test_standard_authorization_catalog_and_refresh_preserve_grant(api_client):
         follow_redirects=False,
     )
     assert "oauth_error" in replay.headers["location"]
+
+
+def test_token_exchange_and_refresh_request_json_responses(api_client):
+    server, connection = setup_oauth(api_client)
+    token_accepts = []
+
+    def request(value):
+        response = server.request(value)
+        if value.url.path == "/token":
+            accept = value.headers.get("accept", "")
+            token_accepts.append(accept)
+            if "application/json" not in accept:
+                return httpx.Response(
+                    response.status_code,
+                    content=urlencode(response.json()),
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                )
+        return response
+
+    def factory():
+        return httpx.MockTransport(request)
+
+    api_client.app.state.tool_oauth.transport_factory = factory
+    api_client.app.state.tool_invocation.client_factory = (
+        lambda endpoint, headers, config, **kwargs: MCPClient(
+            endpoint, headers, config, transport_factory=factory, **kwargs
+        )
+    )
+    saved, _ = authorize(api_client, server, connection)
+    expire(api_client, saved)
+    result = api_client.post(f"/api/tool-connections/{saved['id']}/discover")
+    assert result.status_code == 200, result.text
+    assert server.refresh_count == 1
+    assert token_accepts == ["application/json", "application/json"]
+    assert server.business_calls == 0
 
 
 @pytest.mark.parametrize(

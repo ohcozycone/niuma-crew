@@ -62,12 +62,21 @@ class SDKTransport(httpx2.AsyncBaseTransport):
                 if self.transport_factory
                 else PinnedTransport(key, self.config)
             )
+        headers = httpx.Headers(request.headers.multi_items())
+        if (
+            self.oauth
+            and request.method == "POST"
+            and headers.get("content-type", "").split(";", 1)[0].strip().lower()
+            == "application/x-www-form-urlencoded"
+        ):
+            # SDK 只解析 JSON Token；部分授权服务器默认返回表单格式。
+            headers["Accept"] = "application/json"
         try:
             response = await self.transports[key].handle_async_request(
                 httpx.Request(
                     request.method,
                     target,
-                    headers=list(request.headers.multi_items()),
+                    headers=headers,
                     content=await request.aread(),
                     extensions=request.extensions,
                 )
