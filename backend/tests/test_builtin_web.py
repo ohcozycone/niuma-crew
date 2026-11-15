@@ -340,9 +340,40 @@ def test_builtin_bindings_are_not_fake_mcp_connections():
         "HtTpS://example.com/path#private",
         "HTTP://127.0.0.1/path",
         "HTTPS://user:pass@example.com/path",
+        "FTP://user:pass@private.local/path",
+        "file:///private/notes",
     ],
 )
 def test_mixed_case_url_in_search_never_bypasses_privacy_policy(query):
     calls = []
     result = run(service(lambda request: calls.append(request)), "web_search", {"query": query})
     assert result.status == "failed" and not calls
+
+
+def test_search_marks_policy_filtered_results_distinct_from_no_matches():
+    result = run(
+        service(
+            lambda request: httpx.Response(
+                200,
+                json={
+                    "code": 200,
+                    "data": {
+                        "webPages": {
+                            "value": [
+                                {
+                                    "name": "private link",
+                                    "url": "https://example.com/report?code=private",
+                                    "snippet": "not delivered",
+                                }
+                            ]
+                        }
+                    },
+                },
+            )
+        ),
+        "web_search",
+        {"query": "public"},
+    )
+    payload = json.loads(result.content)
+    assert payload["results"] == [] and payload["filtered_count"] == 1
+    assert "private" not in result.content

@@ -2,7 +2,6 @@
 
 import asyncio
 import json
-import re
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict
 from datetime import datetime, timezone
@@ -22,6 +21,7 @@ from app.runtime.tools.web_policy import (
     checked_url,
     public_query,
     public_url,
+    query_urls,
     resolve_public,
 )
 
@@ -159,7 +159,7 @@ class WebService:
     async def search(self, arguments: dict, guard: Callable[[], Awaitable[None]]) -> dict:
         request = WebSearchInput.model_validate(arguments)
         query = public_query(request.query)
-        for target in re.findall(r"https?://\S+", query, flags=re.IGNORECASE):
+        for target in query_urls(query):
             await checked_url(target, self.resolve)
         await guard()
         response = await self._request(
@@ -173,12 +173,14 @@ class WebService:
         if not isinstance(pages, dict) or not isinstance(pages.get("value"), list):
             raise WebFailure("web_invalid_response")
         results = []
+        filtered_count = 0
         for item in pages["value"][: request.count]:
             if not isinstance(item, dict):
                 raise WebFailure("web_invalid_response")
             try:
                 url = public_url(item.get("url"))
             except WebFailure:
+                filtered_count += 1
                 continue
             if not isinstance(item.get("name"), str) or not isinstance(item.get("snippet"), str):
                 raise WebFailure("web_invalid_response")
@@ -191,6 +193,7 @@ class WebService:
             "untrusted": True,
             "fetched_at": datetime.now(timezone.utc).isoformat(),
             "results": results,
+            "filtered_count": filtered_count,
             "sources": [{"url": item["url"], "title": item["title"]} for item in results],
         }
 

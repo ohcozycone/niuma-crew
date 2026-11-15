@@ -78,6 +78,10 @@ async def checked_url(
     return value
 
 
+def query_urls(value: str) -> list[str]:
+    return re.findall(r"[a-z][a-z0-9+.-]*://\S+", value, flags=re.IGNORECASE)
+
+
 def public_query(value: str) -> str:
     if not isinstance(value, str) or not value.strip() or len(value) > 500:
         raise WebFailure("tool_arguments_invalid")
@@ -85,6 +89,6 @@ def public_query(value: str) -> str:
         r"(?i)(?:bearer\s+|sk-[a-z0-9]|(?:api[_-]?key|password|token|secret)\s*[=:])", value
     ):
         raise WebFailure("web_query_denied")
-    for match in re.findall(r"https?://\S+", value, flags=re.IGNORECASE):
+    for match in query_urls(value):
         public_url(match)
     return value.strip()
