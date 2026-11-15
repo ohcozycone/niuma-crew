@@ -20,6 +20,7 @@ from app.resources.mcp.config import ToolConfig
 from app.resources.skills.config import SkillConfig
 from app.runtime.agent.config import AgentConfig, load_agent_config
 from app.runtime.execution.config import RuntimeConfig, load_runtime_config
+from app.runtime.tools.web_config import WebConfig, load_web_config
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 
@@ -36,6 +37,7 @@ class AppConfig:
     agent: AgentConfig = AgentConfig()
     stream: StreamConfig = StreamConfig()
     tools: ToolConfig = ToolConfig()
+    web: WebConfig = WebConfig()
     files: FileConfig = FileConfig()
     skills: SkillConfig = SkillConfig()
     sandbox: SandboxConfig = SandboxConfig()
@@ -108,6 +110,7 @@ def load_config(backend_dir: Path = BACKEND_DIR) -> AppConfig:
         model_encryption_key=values.get("MODEL_CONNECTIONS_ENCRYPTION_KEY"),
         runtime=load_runtime_config(values),
         agent=load_agent_config(values),
+        web=load_web_config(values),
         stream=load_stream_config(values),
         knowledge_vector_dir=_resolve_path(values["KNOWLEDGE_VECTOR_DIR"], data_dir)
         if values.get("KNOWLEDGE_VECTOR_DIR")

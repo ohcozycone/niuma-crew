@@ -30,6 +30,7 @@ from app.runtime.tools.results import (
     tool_message,
 )
 from app.runtime.tools.tool_search import SEARCH_TOOLS, search_tool
+from app.runtime.tools.web import web_tool
 from app.runtime.tools.workspace import normalize_workspace
 
 
@@ -298,6 +299,8 @@ def prepare_agent_tools(
         prepared = None
         if binding["kind"] in ("mcp_http", "mcp_stdio"):
             prepared = mcp_tool(binding)
+        elif binding["kind"] == "web":
+            prepared = web_tool(binding, context.web_call)
         elif binding["kind"] == "knowledge":
             prepared = knowledge_tool(binding, context.knowledge_call)
         elif binding["tool_name"] == RESULT_READER:

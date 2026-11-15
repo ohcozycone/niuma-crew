@@ -13,6 +13,7 @@ from app.runtime.contracts.tools import (
     ToolInvocation,
     ToolOutcome,
     ToolPermit,
+    WebCaller,
 )
 from app.runtime.execution.errors import (
     ExecutionFailure,
@@ -62,11 +63,13 @@ class RunContext:
         knowledge: RunKnowledgeSearch,
         tools: ToolCaller | None,
         sandbox: SandboxAccess | None,
+        web: WebCaller | None = None,
     ) -> None:
         self.row, self.run_id = row, row.id
         self._store, self._runs = store, runs
         self._files, self._skills, self._knowledge = files, skills, knowledge
         self._tools, self.sandbox = tools, sandbox
+        self._web = web
         self.progress = _ProgressBuffer()
         self.action_skills: dict[str, tuple[str, str | None]] = {}
         self.active_skills: set[str] = set()
@@ -129,6 +132,14 @@ class RunContext:
 
     def knowledge_call(self, name: str, arguments: dict) -> KnowledgeResult:
         return cast(KnowledgeResult, self._knowledge.call(self.run_id, name, arguments))
+
+    async def web_call(self, invocation: ToolInvocation) -> ToolOutcome:
+        await self.guard_tool(invocation)
+        if self._web is None:
+            raise ExecutionFailure("web_not_configured")
+        return await self._web.call(
+            invocation.name, invocation.arguments, lambda: self.guard_tool(invocation)
+        )
 
     async def preserve_tool_result(
         self, invocation: ToolInvocation, data: dict, status: str

@@ -16,6 +16,8 @@ from app.runtime.tools.knowledge import knowledge_instructions
 from app.runtime.tools.knowledge import tool_bindings as knowledge_bindings
 from app.runtime.tools.results import result_reader_binding
 from app.runtime.tools.tool_search import search_binding
+from app.runtime.tools.web import WebService, web_bindings
+from app.runtime.tools.web_config import WebConfig
 from app.runtime.tools.workspace import workspace_tools
 
 
@@ -33,6 +35,7 @@ def build_execution(
     knowledge_search: Any,
     tools: Any,
     sandboxes: Any,
+    web_config: WebConfig = WebConfig(),
 ) -> tuple[RunService, RunWorker]:
     status = ExecutionStatus("starting" if runtime.enabled else "ready")
     store = RunStore(database, files=files)
@@ -41,6 +44,7 @@ def build_execution(
         runtime,
         SimpleNamespace(
             workspace_tools=workspace_tools,
+            web_bindings=web_bindings,
             knowledge_bindings=knowledge_bindings,
             knowledge_instructions=knowledge_instructions,
             result_reader_binding=result_reader_binding,
@@ -51,6 +55,7 @@ def build_execution(
         files=files,
         sandboxes=sandboxes,
         knowledge=knowledge_evidence,
+        web_ready=web_config.ready,
     )
 
     def finalize_content(db: Any, row: Any, text: Any) -> Any:
@@ -83,6 +88,7 @@ def build_execution(
         sandboxes=sandboxes,
         skills=skills,
         knowledge=knowledge_search,
+        web=WebService(web_config),
     )
     worker = RunWorker(
         store,

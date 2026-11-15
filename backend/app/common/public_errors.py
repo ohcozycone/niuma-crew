@@ -1,4 +1,6 @@
 ERROR_MESSAGES = {
+    "web_access_revoked": "员工网页访问已关闭，请重新发送任务。",
+    "web_not_configured": "内置网页服务未配置，请联系管理员。",
     "sandbox_configuration_changed": "代码执行环境已变更，请重新提交。",
     "sandbox_materialization_failed": "无法准备沙箱只读资料。",
     "upstream_timeout": "模型服务响应超时，请稍后重试。",

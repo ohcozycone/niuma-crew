@@ -380,7 +380,7 @@ def test_mcp_account_upgrade_preserves_secrets_and_defaults_legacy_mcp_to_person
         )
         db.execute(
             "INSERT INTO tool_connections (id,name,kind,auth_type,public_config,encrypted_credentials,approved_catalog,enabled,config_revision,credential_revision,catalog_revision,created_by_user_id) VALUES (?, 'legacy','mcp_http','bearer',?, 'opaque-preserved-ciphertext','[]',1,1,1,1,?)",
-            (connection_id, '{"url":"https://mcp.tavily.com/mcp"}', user_id),
+            (connection_id, '{"url":"https://mcp.example.com/mcp"}', user_id),
         )
         db.execute(
             "INSERT INTO agent_tool_grants (id,agent_id,tool_connection_id,tools,scope_policy,enabled,revision) VALUES (?,?,?,'[]','{}',1,1)",

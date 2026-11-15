@@ -12,6 +12,7 @@ from app.runtime.contracts.tools import (
     ToolActions,
     ToolCaller,
     ToolInvocation,
+    ToolOutcome,
 )
 
 
@@ -42,6 +43,7 @@ class AgentSnapshot(TypedDict):
     summary_keep_tokens: NotRequired[int]
     memory_scope: NotRequired[str]
     memory_reset: NotRequired[bool]
+    allow_web_access: NotRequired[bool]
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,6 +88,7 @@ class AgentContext(ToolActions, Protocol):
     def save_output(self, name: str, data: bytes) -> dict: ...
     def read_skill_blob(self, content_hash: str) -> bytes: ...
     def knowledge_call(self, name: str, arguments: dict) -> KnowledgeResult: ...
+    async def web_call(self, invocation: ToolInvocation) -> ToolOutcome: ...
     async def preserve_tool_result(
         self, invocation: ToolInvocation, data: dict, status: str
     ) -> tuple: ...

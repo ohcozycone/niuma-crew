@@ -44,7 +44,7 @@ def response(text="完成", tool_calls=None):
     )
 
 
-def discovery_response(query="tavily search 查询", identifier="discover"):
+def discovery_response(query="catalog search 查询", identifier="discover"):
     return response("", [{"name": "search_tools", "id": identifier, "args": {"query": query}}])
 
 

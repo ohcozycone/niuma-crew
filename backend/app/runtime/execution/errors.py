@@ -13,6 +13,8 @@ EXECUTION_ERROR_KINDS = {
     "knowledge_owner_mismatch": FailureKind.AUTHORIZATION,
     "skill_access_revoked": FailureKind.AUTHORIZATION,
     "tool_access_revoked": FailureKind.AUTHORIZATION,
+    "web_access_revoked": FailureKind.AUTHORIZATION,
+    "web_not_configured": FailureKind.CONFIGURATION,
     "file_path_denied": FailureKind.AUTHORIZATION,
     "file_readonly": FailureKind.AUTHORIZATION,
     "actor_session_invalid": FailureKind.AUTHORIZATION,

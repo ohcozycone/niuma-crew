@@ -21,7 +21,7 @@ def search_setup(client, *, skills=False):
 
 def test_mcp_and_base_file_tools_preserve_downloadable_sources(api_client, monkeypatch):
     _, conversation, connection = search_setup(api_client)
-    name = exposed_name(connection["id"], "tavily_search")
+    name = exposed_name(connection["id"], "catalog_search")
     accepted = send(api_client, conversation)
     model = ScriptedModel(
         responses=[
@@ -61,7 +61,7 @@ def test_source_reader_rejects_unknown_source_without_reporting_a_skill_failure(
                 "",
                 [
                     {
-                        "name": exposed_name(connection["id"], "tavily_search"),
+                        "name": exposed_name(connection["id"], "catalog_search"),
                         "id": "search",
                         "args": {"query": "网页"},
                     }
@@ -121,7 +121,7 @@ def test_base_source_reader_reads_mcp_results_without_any_workspace_assignment(
                 "",
                 [
                     {
-                        "name": exposed_name(connection["id"], "tavily_search"),
+                        "name": exposed_name(connection["id"], "catalog_search"),
                         "id": "search",
                         "args": {"query": "网页"},
                     }

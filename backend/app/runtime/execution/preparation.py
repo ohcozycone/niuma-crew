@@ -20,6 +20,7 @@ class PreparationHost(Protocol):
     _files: Any
     _skills: Any
     _knowledge: Any
+    _web: Any
     _runs: Any
     _tools: Any
     sandbox: Any
@@ -59,6 +60,7 @@ def prepare_run(host: PreparationHost) -> None:
         knowledge=host._knowledge,
         tools=host._tools,
         sandbox=host.sandbox,
+        web=getattr(host, "_web", None),
     )
     host.context.restore(host._store.restore_control(row.id))
     host.request = AgentRequest(

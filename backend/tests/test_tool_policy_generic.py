@@ -14,7 +14,7 @@ from app.runtime.execution.tool_results import ToolResults
 def test_url_named_parameters_are_generic():
     binding = {
         "kind": "mcp_http",
-        "tool_name": "tavily_search",
+        "tool_name": "catalog_search",
         "input_schema": {"type": "object"},
         "scope_policy": {"mode": "provider", "arguments": {"max_results": {"maximum": 20}}},
     }

@@ -32,12 +32,12 @@ export type DemoConnection = ToolConnection & {
 };
 export const demoSearchCatalog: ToolDescriptor[] = [
   {
-    name: "tavily_search",
+    name: "catalog_search",
     description: "Search the web for relevant pages.",
     descriptor_hash: "demo-search-v1",
   },
   {
-    name: "tavily_extract",
+    name: "catalog_extract",
     description: "Extract text from the supplied URLs.",
     descriptor_hash: "demo-extract-v1",
   },
@@ -69,14 +69,14 @@ export const initialCapabilities: DemoCapability[] = [
     tools: [],
   })),
   {
-    id: "demo-tavily",
+    id: "demo-catalog",
     name: "网页搜索与读取",
     kind: "mcp",
-    description: "沿用工具连接页的 Tavily 示例，分别批准操作，再授予员工许可。",
-    url: "https://mcp.tavily.com/mcp",
+    description: "沿用工具连接页的 示例检索服务 示例，分别批准操作，再授予员工许可。",
+    url: "https://mcp.example.com/mcp",
     tools: [
-      { name: "tavily_search", label: "搜索网页" },
-      { name: "tavily_extract", label: "读取网页" },
+      { name: "catalog_search", label: "搜索网页" },
+      { name: "catalog_extract", label: "读取网页" },
     ],
   },
   {
@@ -124,10 +124,10 @@ export function createDemoEmployees(): DemoEmployee[] {
       assignments: [
         assignmentFor(skillId),
         {
-          ...assignmentFor("demo-tavily"),
+          ...assignmentFor("demo-catalog"),
           connectionId: index === 0 ? "demo-search-team" : "demo-search-dev",
-          tools: ["tavily_search"],
-          toolHashes: { tavily_search: "demo-search-v1" },
+          tools: ["catalog_search"],
+          toolHashes: { catalog_search: "demo-search-v1" },
           maxCalls: index === 0 ? 5 : 3,
         },
       ],
@@ -137,7 +137,7 @@ export function createDemoEmployees(): DemoEmployee[] {
 export function createDemoConnections(): DemoConnection[] {
   return ["demo-search-team", "demo-search-dev"].map((id, index) => ({
     id,
-    capabilityId: "demo-tavily",
+    capabilityId: "demo-catalog",
     name: index === 0 ? "团队检索连接" : "研发检索连接",
     kind: "mcp_http",
     service_id: null,
@@ -146,7 +146,7 @@ export function createDemoConnections(): DemoConnection[] {
     annotations_revision: 1,
     provider_key: null,
     auth_type: "bearer",
-    public_config: { url: "https://mcp.tavily.com/mcp" },
+    public_config: { url: "https://mcp.example.com/mcp" },
     enabled: true,
     has_credential: true,
     config_revision: 1,
@@ -155,8 +155,8 @@ export function createDemoConnections(): DemoConnection[] {
     approved_catalog: structuredClone(demoSearchCatalog),
     remoteCatalog: structuredClone(demoSearchCatalog),
     aliases: {
-      tavily_search: { name: "搜索网页", description: "搜索公开网页中的相关资料。" },
-      tavily_extract: { name: "读取网页", description: "提取指定网页的正文。" },
+      catalog_search: { name: "搜索网页", description: "搜索公开网页中的相关资料。" },
+      catalog_extract: { name: "读取网页", description: "提取指定网页的正文。" },
     },
     discovery_candidate: null,
   }));

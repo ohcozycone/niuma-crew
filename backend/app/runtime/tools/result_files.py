@@ -34,11 +34,11 @@ def result_read_hint(scope: ResultScope, bindings: Iterable[dict]) -> str:
     bindings = list(bindings)
     if not any(binding["exposed_name"] == RESULT_READER for binding in bindings):
         return ""
-    # 现有字符读取许可仅支持 MCP 来源；不向知识或工作区结果承诺额外能力。
+    # 字符读取许可支持 MCP 与内置网页来源；不向知识或工作区结果承诺额外能力。
     readable = {
         binding["binding_id"]
         for binding in bindings
-        if binding["kind"] in {"mcp_http", "mcp_stdio"}
+        if binding["kind"] in {"mcp_http", "mcp_stdio", "web"}
     }
     ids = dict.fromkeys(
         entry["content_ref"]

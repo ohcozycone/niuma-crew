@@ -37,7 +37,7 @@ def search_model(connection, *after):
                 "",
                 [
                     {
-                        "name": exposed_name(connection["id"], "tavily_search"),
+                        "name": exposed_name(connection["id"], "catalog_search"),
                         "id": "search",
                         "args": {"query": "test"},
                     }
@@ -542,7 +542,7 @@ def test_parallel_large_results_keep_separate_origins_and_single_archives(api_cl
 
     monkeypatch.setattr(SearchClient, "invoke", invoke)
     accepted = submit(api_client, conversation).json()["response"]
-    name = exposed_name(connection["id"], "tavily_search")
+    name = exposed_name(connection["id"], "catalog_search")
     model = ScriptedModel(
         responses=[
             discovery_response(),

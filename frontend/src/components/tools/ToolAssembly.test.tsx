@@ -24,7 +24,7 @@ const connection: ToolConnection = {
   annotations_revision: 1,
   provider_key: null,
   auth_type: "bearer",
-  public_config: { url: "https://mcp.tavily.com/mcp/" },
+  public_config: { url: "https://mcp.example.com/mcp/" },
   enabled: true,
   has_credential: true,
   config_revision: 1,
@@ -36,8 +36,8 @@ const connection: ToolConnection = {
 const onChange = vi.fn();
 const grant: ToolGrantInput = {
   connection_id: "search",
-  tools: ["tavily_search"],
-  expected_descriptors: { tavily_search: "hash" },
+  tools: ["catalog_search"],
+  expected_descriptors: { catalog_search: "hash" },
   scope_policy: { mode: "provider", max_calls: 3 },
   enabled: true,
 };
@@ -60,7 +60,7 @@ it("refreshes approved tools after catalog management without replacing the empl
       {
         ...connection,
         approved_catalog: [
-          { name: "tavily_search", description: "搜索网页", descriptor_hash: "hash" },
+          { name: "catalog_search", description: "搜索网页", descriptor_hash: "hash" },
         ],
       },
     ]);
@@ -69,7 +69,7 @@ it("refreshes approved tools after catalog management without replacing the empl
   fireEvent.click(screen.getByRole("button", { name: "刷新连接列表" }));
   await screen.findByRole("button", { name: "配置" });
   fireEvent.click(screen.getByRole("button", { name: "配置" }));
-  await screen.findByText("tavily_search");
+  await screen.findByText("catalog_search");
   const manage = screen.getByRole("link", { name: "管理账号与目录（新标签页）" });
   expect(manage.getAttribute("target")).toBe("_blank");
   expect(screen.getAllByRole("checkbox")[0]).toHaveProperty("checked", true);
@@ -99,7 +99,7 @@ it("only applies panel changes after completion and discards cancelled selection
     {
       ...connection,
       approved_catalog: [
-        { name: "tavily_search", description: "搜索网页", descriptor_hash: "hash" },
+        { name: "catalog_search", description: "搜索网页", descriptor_hash: "hash" },
       ],
     },
   ]);
@@ -119,8 +119,8 @@ it("only applies panel changes after completion and discards cancelled selection
   expect(onChange).toHaveBeenCalledTimes(1);
   expect(onChange.mock.calls[0][0][0]).toMatchObject({
     connection_id: "search",
-    tools: ["tavily_search"],
-    expected_descriptors: { tavily_search: "hash" },
+    tools: ["catalog_search"],
+    expected_descriptors: { catalog_search: "hash" },
   });
 });
 
@@ -156,7 +156,7 @@ it("keeps malformed local scope input visible without losing its validation mess
     {
       ...connection,
       approved_catalog: [
-        { name: "tavily_search", description: "搜索网页", descriptor_hash: "hash" },
+        { name: "catalog_search", description: "搜索网页", descriptor_hash: "hash" },
       ],
     },
   ]);

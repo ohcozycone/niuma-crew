@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.auth.work_authorizations import authorize_work
 from app.common.errors import AuthenticationError, ConflictError, PermissionDeniedError
 from app.common.values import digest
-from app.resources.employees.access import assert_binding, authorize_execution
+from app.resources.employees.access import assert_binding, assert_web_access, authorize_execution
 from app.resources.environments.policy import authorize_workspace_arguments
 from app.resources.knowledge.sources import context_revision
 from app.resources.mcp.policy import authorize_arguments
@@ -80,6 +80,10 @@ def authorize_run(
     used_tools.update(binding["binding_id"] for binding in inherited.get("tools", []))
     used_tools.update(exposed_tool_ids)
     for binding in snapshot.get("tools", []):
+        if binding["kind"] == "web":
+            if binding["binding_id"] in used_tools:
+                assert_web_access(db, snapshot)
+            continue
         if binding["binding_id"] in used_tools and binding["kind"] not in {
             "knowledge",
             "workspace",
@@ -136,6 +140,9 @@ def authorize_tool(db: Session, snapshot: dict, invocation: ToolInvocation) -> d
         raise ConflictError("tool_not_allowed")
     if binding["kind"] == "workspace":
         authorize_workspace_arguments(binding, invocation.arguments)
+        return cast(dict, binding)
+    if binding["kind"] == "web":
+        assert_web_access(db, snapshot)
         return cast(dict, binding)
     assert_binding(db, snapshot, binding)
     if result_read:

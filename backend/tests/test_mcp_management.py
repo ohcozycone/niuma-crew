@@ -102,7 +102,7 @@ def test_http_auth_can_change_from_anonymous_to_key_and_back(api_client):
             "name": "HTTP",
             "kind": "mcp_http",
             "auth_type": "none",
-            "public_config": {"url": "https://mcp.tavily.com/mcp"},
+            "public_config": {"url": "https://mcp.example.com/mcp"},
         },
     )
     assert created.status_code == 201, created.text
@@ -129,7 +129,7 @@ def test_duplicate_service_definition_and_casefolded_name_are_rejected(api_clien
     assert duplicate.status_code == 409
     same_name = api_client.post(
         "/api/mcp-services",
-        json={"name": " context7 ", "transport": "http", "url": "https://mcp.tavily.com/mcp"},
+        json={"name": " context7 ", "transport": "http", "url": "https://mcp.example.com/mcp"},
     )
     assert same_name.status_code == 409
     assert len(api_client.get("/api/mcp-services").json()) == 1
@@ -148,7 +148,7 @@ def test_concurrent_service_creation_has_one_winner(api_client):
             McpDefinitionService(
                 database, config, check_references=assert_connections_unused
             ).create(
-                actor, McpServiceCreate(name=f"HTTP {index}", url="https://mcp.tavily.com/mcp")
+                actor, McpServiceCreate(name=f"HTTP {index}", url="https://mcp.example.com/mcp")
             )
             return "created"
         except ConflictError as error:

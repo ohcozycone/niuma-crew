@@ -60,7 +60,7 @@ export function McpCatalogManager({
       )
     : [];
   const baseline: ToolDescriptor[] =
-    capability.id === "demo-tavily"
+    capability.id === "demo-catalog"
       ? structuredClone(demoSearchCatalog)
       : [
           {

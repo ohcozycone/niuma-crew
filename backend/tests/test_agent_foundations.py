@@ -200,7 +200,7 @@ class SearchClient:
     before_guard = None
     catalog = [
         {
-            "name": "tavily_search",
+            "name": "catalog_search",
             "description": "Search current official sources",
             "input_schema": {
                 "type": "object",
@@ -249,7 +249,7 @@ def search_grant(client, agent):
             "kind": "mcp_http",
             "auth_type": "bearer",
             "credential": "fixture-tool-secret",
-            "public_config": {"url": "https://mcp.tavily.com/mcp"},
+            "public_config": {"url": "https://mcp.example.com/mcp"},
         },
     ).json()
     candidate = client.post(f"/api/tool-connections/{connection['id']}/discover").json()
@@ -269,9 +269,9 @@ def search_grant(client, agent):
             "tool_grants": [
                 {
                     "connection_id": connection["id"],
-                    "tools": ["tavily_search"],
+                    "tools": ["catalog_search"],
                     "expected_descriptors": {
-                        "tavily_search": approved.json()["approved_catalog"][0]["descriptor_hash"]
+                        "catalog_search": approved.json()["approved_catalog"][0]["descriptor_hash"]
                     },
                     "scope_policy": {"mode": "provider", "max_calls": 5},
                 }
@@ -320,7 +320,7 @@ def test_mcp_explicit_and_default_limits_survive_shared_budget_cleanup(
             ToolInvocation(
                 f"tool:{i}",
                 binding["binding_id"],
-                exposed_name(connection["id"], "tavily_search"),
+                exposed_name(connection["id"], "catalog_search"),
                 {"query": "test"},
             )
             for i in range(effective_limit + 1)
@@ -351,7 +351,7 @@ def test_search_model_call_records_sources_and_long_result(api_client, monkeypat
                 "",
                 [
                     {
-                        "name": exposed_name(connection["id"], "tavily_search"),
+                        "name": exposed_name(connection["id"], "catalog_search"),
                         "id": "search",
                         "args": {"query": "当前说明"},
                     }
@@ -391,7 +391,7 @@ def test_current_tools_reach_http_model_with_old_unavailable_history(api_client,
     )
     assert result["status"] == "succeeded"
     connection = search_grant(api_client, agent)
-    name = exposed_name(connection["id"], "tavily_search")
+    name = exposed_name(connection["id"], "catalog_search")
     SearchClient.calls = 0
     requests = []
 
@@ -412,7 +412,7 @@ def test_current_tools_reach_http_model_with_old_unavailable_history(api_client,
                         "function": {
                             "name": "search_tools" if len(requests) == 1 else name,
                             "arguments": json.dumps(
-                                {"query": "tavily search" if len(requests) == 1 else "文档"}
+                                {"query": "catalog search" if len(requests) == 1 else "文档"}
                             ),
                         },
                     }
@@ -463,7 +463,7 @@ def test_current_tools_reach_http_model_with_old_unavailable_history(api_client,
         system = json.dumps(request["messages"][0]["content"], ensure_ascii=False)
         assert "本轮工具状态" in system
         if index:
-            assert name in system and "tavily_search" in system
+            assert name in system and "catalog_search" in system
         assert any(
             message["role"] == "assistant" and "没有联网" in str(message["content"])
             for message in request["messages"]
@@ -496,7 +496,7 @@ def test_revocation_during_mcp_preflight_blocks_actual_request(api_client, monke
                         "",
                         [
                             {
-                                "name": exposed_name(connection["id"], "tavily_search"),
+                                "name": exposed_name(connection["id"], "catalog_search"),
                                 "id": "revoke",
                                 "args": {"query": "x"},
                             }
@@ -631,14 +631,14 @@ def test_default_https_port_dns_pin_and_tls_name_are_preserved(monkeypatch):
         def upstream(request):
             seen.append(request)
             assert request.url.host == "1.1.1.1"
-            assert request.headers["host"] == "mcp.tavily.com"
-            assert request.extensions["sni_hostname"] == "mcp.tavily.com"
+            assert request.headers["host"] == "mcp.example.com"
+            assert request.extensions["sni_hostname"] == "mcp.example.com"
             return httpx.Response(401, content=b"unauthorized")
 
-        transport = PinnedTransport("https://mcp.tavily.com/mcp", ToolConfig())
+        transport = PinnedTransport("https://mcp.example.com/mcp", ToolConfig())
         transport.inner = httpx.MockTransport(upstream)
         async with httpx.AsyncClient(transport=transport) as client:
-            assert (await client.get("https://mcp.tavily.com/mcp")).status_code == 401
+            assert (await client.get("https://mcp.example.com/mcp")).status_code == 401
         assert len(seen) == 1
 
     asyncio.run(scenario())

@@ -96,7 +96,7 @@ export function CapabilityDemoPage() {
   const [message, setMessage] = useState("");
   const [dialog, setDialog] = useState<"config" | "picker" | "new" | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [managedId, setManagedId] = useState("demo-tavily");
+  const [managedId, setManagedId] = useState("demo-catalog");
   const [resumeConfiguration, setResumeConfiguration] = useState(false);
   const [testOpen, setTestOpen] = useState(false);
   const [assignment, setAssignment] = useState<DemoAssignment | null>(null);

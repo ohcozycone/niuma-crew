@@ -118,7 +118,7 @@ def test_added_mcp_is_registered_and_callable_next_turn_with_memory(api_client, 
     )
     SearchClient.calls, SearchClient.before_guard = 0, None
     connection = search_grant(api_client, agent)
-    name = exposed_name(connection["id"], "tavily_search")
+    name = exposed_name(connection["id"], "catalog_search")
     second = submit(api_client, conversation, content="现在用新增工具搜索").json()["response"]
     model = ScriptedModel(
         responses=[
@@ -202,7 +202,7 @@ def test_revoking_inherited_mcp_blocks_memory_before_next_model(api_client, monk
     skill, _, agent, conversation = setup(api_client)
     SearchClient.calls, SearchClient.before_guard = 0, None
     connection = search_grant(api_client, agent)
-    name = exposed_name(connection["id"], "tavily_search")
+    name = exposed_name(connection["id"], "catalog_search")
     first = submit(api_client, conversation).json()["response"]
     model = ScriptedModel(
         responses=[

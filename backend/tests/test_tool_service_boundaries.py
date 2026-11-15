@@ -88,7 +88,7 @@ def create_http(services):
             kind="mcp_http",
             auth_type="bearer",
             credential="fixture-token",
-            public_config={"url": "https://mcp.tavily.com/mcp"},
+            public_config={"url": "https://mcp.example.com/mcp"},
         ),
     )
 
@@ -137,7 +137,7 @@ def test_public_operations_reject_guest_before_accessing_storage_or_secrets(
                 kind="mcp_http",
                 auth_type="bearer",
                 credential="must-never-be-encrypted",
-                public_config={"url": "https://mcp.tavily.com/mcp"},
+                public_config={"url": "https://mcp.example.com/mcp"},
             ),
         ),
         "update_connection": lambda: services.connections.update(
@@ -154,7 +154,7 @@ def test_public_operations_reject_guest_before_accessing_storage_or_secrets(
         "discard_catalog": lambda: services.catalogs.discard(guest, missing_id, approval),
         "list_definitions": lambda: services.definitions.list(guest),
         "create_definition": lambda: services.definitions.create(
-            guest, McpServiceCreate(name="Denied", url="https://mcp.tavily.com/mcp")
+            guest, McpServiceCreate(name="Denied", url="https://mcp.example.com/mcp")
         ),
         "update_definition": lambda: services.definitions.update(
             guest, missing_id, McpServicePatch(expected_revision=1, enabled=False)
@@ -271,7 +271,7 @@ def test_all_tool_secret_paths_map_neutral_vault_failure_to_tool_error(tool_serv
     row = SimpleNamespace(
         kind="mcp_stdio" if path == "stdio_transport" else "mcp_http",
         auth_type="env" if path == "stdio_transport" else "bearer",
-        public_config={"url": "https://mcp.tavily.com/mcp"},
+        public_config={"url": "https://mcp.example.com/mcp"},
         encrypted_credentials="old-encrypted-value",
     )
     with pytest.raises(ServiceUnavailableError) as failure:

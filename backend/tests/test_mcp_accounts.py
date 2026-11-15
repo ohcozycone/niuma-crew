@@ -115,7 +115,7 @@ def test_catalog_annotations_and_stale_grant_do_not_change_authority(api_client)
         f"/api/tool-connections/{connection['id']}/annotations",
         json={
             "expected_annotations_revision": 1,
-            "annotations": {"tavily_search": {"display_name": "搜索网页", "note": "展示说明"}},
+            "annotations": {"catalog_search": {"display_name": "搜索网页", "note": "展示说明"}},
         },
     )
     assert changed.status_code == 200, changed.text
@@ -130,8 +130,8 @@ def test_catalog_annotations_and_stale_grant_do_not_change_authority(api_client)
             "tool_grants": [
                 {
                     "connection_id": connection["id"],
-                    "tools": ["tavily_search"],
-                    "expected_descriptors": {"tavily_search": "old"},
+                    "tools": ["catalog_search"],
+                    "expected_descriptors": {"catalog_search": "old"},
                     "scope_policy": {"mode": "provider"},
                 }
             ],
@@ -145,7 +145,7 @@ def test_config_import_is_inert_and_never_echoes_secrets(api_client):
     value = {
         "mcpServers": {
             "search": {
-                "url": "https://mcp.tavily.com/mcp",
+                "url": "https://mcp.example.com/mcp",
                 "headers": {"Authorization": "Bearer secret-import-value"},
             }
         }
@@ -158,8 +158,8 @@ def test_config_import_is_inert_and_never_echoes_secrets(api_client):
     assert api_client.get("/api/mcp-services").json() == []
     for unsupported in (
         {"command": "node", "args": ["server.js"]},
-        {"url": "https://mcp.tavily.com/mcp", "auth": "oauth"},
-        {"url": "https://mcp.tavily.com/mcp", "transport": "sse"},
+        {"url": "https://mcp.example.com/mcp", "auth": "oauth"},
+        {"url": "https://mcp.example.com/mcp", "transport": "sse"},
     ):
         assert (
             api_client.post(
@@ -227,7 +227,7 @@ def test_protocol_preserves_local_network_failures_without_sending_credentials(
         monkeypatch.setattr(asyncio.get_running_loop(), "getaddrinfo", resolve)
 
         def transport():
-            inner = PinnedTransport("https://mcp.tavily.com/mcp/", ToolConfig())
+            inner = PinnedTransport("https://mcp.example.com/mcp/", ToolConfig())
 
             def upstream(request):
                 calls.append(request)
@@ -237,7 +237,7 @@ def test_protocol_preserves_local_network_failures_without_sending_credentials(
             return inner
 
         client = MCPClient(
-            "https://mcp.tavily.com/mcp/",
+            "https://mcp.example.com/mcp/",
             {"Authorization": "Bearer private-token"},
             ToolConfig(),
             transport_factory=transport,
@@ -320,8 +320,8 @@ def test_other_admin_can_maintain_shared_employee_and_atomic_save_rolls_back(api
             "tool_grants": [
                 {
                     "connection_id": connection["id"],
-                    "tools": ["tavily_search"],
-                    "expected_descriptors": {"tavily_search": "stale"},
+                    "tools": ["catalog_search"],
+                    "expected_descriptors": {"catalog_search": "stale"},
                     "scope_policy": {"mode": "provider"},
                 }
             ],
@@ -360,7 +360,7 @@ def test_other_admin_can_maintain_shared_employee_and_atomic_save_rolls_back(api
 def test_capability_list_is_globally_paginated_without_remote_discovery(api_client):
     api_client.post("/api/skills", json={"name": "同一搜索词 Skill"})
     created = api_client.post(
-        "/api/mcp-services", json={"name": "同一搜索词 MCP", "url": "https://mcp.tavily.com/mcp"}
+        "/api/mcp-services", json={"name": "同一搜索词 MCP", "url": "https://mcp.example.com/mcp"}
     )
     assert created.status_code == 201
     page = api_client.get("/api/capabilities?q=同一搜索词&limit=1&offset=0").json()
@@ -378,7 +378,7 @@ def test_malformed_binding_identifiers_are_rejected_as_input(api_client):
             "name": "invalid",
             "kind": "mcp_http",
             "service_id": "not-a-uuid",
-            "public_config": {"url": "https://mcp.tavily.com/mcp"},
+            "public_config": {"url": "https://mcp.example.com/mcp"},
         },
     )
     assert invalid.status_code == 422

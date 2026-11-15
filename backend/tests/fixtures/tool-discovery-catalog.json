@@ -3,11 +3,11 @@
   "origin": "组织资源切换前已确认 MCP 工具目录，只保留供应商元数据，不含账号和凭据。",
   "sources": [
     {
-      "source": "tavily",
+      "source": "catalog",
       "tools": [
         {
-          "name": "tavily_search",
-          "description": "Search the web for current information on any topic. Use for news, facts, or data beyond your knowledge cutoff, and before answering any question about specific facts, figures or recent events. Returns snippets and source URLs. Results are short excerpts; read a page with tavily_extract to confirm what it says.",
+          "name": "catalog_search",
+          "description": "Search the web for current information on any topic. Use for news, facts, or data beyond your knowledge cutoff, and before answering any question about specific facts, figures or recent events. Returns snippets and source URLs. Results are short excerpts; read a page with catalog_extract to confirm what it says.",
           "input_schema": {
             "type": "object",
             "additionalProperties": false,
@@ -114,7 +114,7 @@
                   }
                 ],
                 "default": null,
-                "description": "Include the cleaned and parsed HTML content of each search result. Whole pages can make the response too large to read; to read one page, use tavily_extract with a query instead."
+                "description": "Include the cleaned and parsed HTML content of each search result. Whole pages can make the response too large to read; to read one page, use catalog_extract with a query instead."
               },
               "include_domains": {
                 "anyOf": [
@@ -156,7 +156,7 @@
                   }
                 ],
                 "default": null,
-                "description": "Boost search results from a specific country. Must be a full country name (e.g., 'United States', 'Japan', 'Germany'). ISO country codes (e.g., 'us', 'jp') are not supported. Available only if topic is general. See https://docs.tavily.com/documentation/api-reference/search for the full list of supported countries."
+                "description": "Boost search results from a specific country. Must be a full country name (e.g., 'United States', 'Japan', 'Germany'). ISO country codes (e.g., 'us', 'jp') are not supported. Available only if topic is general. See https://docs.catalog.com/documentation/api-reference/search for the full list of supported countries."
               },
               "include_favicon": {
                 "anyOf": [
@@ -237,7 +237,7 @@
           }
         },
         {
-          "name": "tavily_extract",
+          "name": "catalog_extract",
           "description": "Extract content from URLs. Returns raw page content in markdown or text format. Use it to read a page in full or to confirm a fact found in search results. Pages that could not be read are listed in failed_results; retry a timeout once, then try another source.",
           "input_schema": {
             "type": "object",
@@ -302,7 +302,7 @@
           }
         },
         {
-          "name": "tavily_crawl",
+          "name": "catalog_crawl",
           "description": "Crawl a website starting from a URL. Extracts content from pages with configurable depth and breadth.",
           "input_schema": {
             "type": "object",
@@ -412,7 +412,7 @@
           }
         },
         {
-          "name": "tavily_map",
+          "name": "catalog_map",
           "description": "Map a website's structure. Returns a list of URLs found starting from the base URL.",
           "input_schema": {
             "type": "object",
@@ -485,7 +485,7 @@
           }
         },
         {
-          "name": "tavily_research",
+          "name": "catalog_research",
           "description": "Perform comprehensive research on a given topic or question. Use this tool when you need to gather information from multiple sources, including web pages, documents, and other resources, to answer a question or complete a task. Returns a detailed response based on the research findings. Rate limit: 20 requests per minute.",
           "input_schema": {
             "type": "object",

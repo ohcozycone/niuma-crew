@@ -26,7 +26,7 @@ def descriptor():
         "remotes": [
             {
                 "type": "streamable-http",
-                "url": "https://mcp.tavily.com/mcp",
+                "url": "https://mcp.example.com/mcp",
                 "headers": [{"name": "Authorization", "isRequired": False, "isSecret": True}],
             }
         ],
@@ -85,7 +85,7 @@ def test_client_type_and_secret_placeholders_can_be_imported_without_echoing_key
             "mcpServers": {
                 "docs": {
                     "type": "http",
-                    "url": "https://mcp.tavily.com/mcp",
+                    "url": "https://mcp.example.com/mcp",
                     "headers": {"Authorization": "Bearer ${DOCS_KEY}"},
                 }
             }

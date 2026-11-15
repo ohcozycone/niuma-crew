@@ -173,7 +173,7 @@ def test_display_and_usage_reuse_configured_services_without_management_reads(
 def test_catalog_visibility_applies_before_global_count_and_pagination(api_client):
     create_skill(api_client, name="目录 Skill")
     api_client.post(
-        "/api/mcp-services", json={"name": "目录 MCP", "url": "https://mcp.tavily.com/mcp"}
+        "/api/mcp-services", json={"name": "目录 MCP", "url": "https://mcp.example.com/mcp"}
     )
     database = api_client.app.state.database
     admin = current_actor(api_client)

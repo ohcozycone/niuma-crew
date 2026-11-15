@@ -15,7 +15,7 @@ from app.infrastructure.concurrency import run_sync, settle
 from app.infrastructure.observability import correlate_run, failure_frames
 from app.runtime.contracts.agent import AgentContext, AgentOutput, AgentRequest, CheckpointReader
 from app.runtime.contracts.runs import SUPPORTED_SNAPSHOT_VERSIONS, Completion
-from app.runtime.contracts.tools import SandboxAccess, ToolCaller
+from app.runtime.contracts.tools import SandboxAccess, ToolCaller, WebCaller
 from app.runtime.execution.config import RuntimeConfig
 from app.runtime.execution.context import RunContext
 from app.runtime.execution.errors import (
@@ -61,6 +61,7 @@ class RunTask:
         sandboxes: SandboxService,
         skills: SkillService,
         knowledge: RunKnowledgeSearch,
+        web: WebCaller | None = None,
     ) -> None:
         self.run_id, self._store, self._runs = run_id, store, runs
         self.row: Run | None = None
@@ -68,6 +69,7 @@ class RunTask:
         self._connections, self._checkpoints = connections, checkpoints
         self._tool_service, self._files, self._sandboxes = tools, files, sandboxes
         self._skills, self._knowledge = skills, knowledge
+        self._web = web
         self._tools: ToolCaller | None = None
         self.sandbox: SandboxAccess | None = None
         self.context: RunContext | None = None

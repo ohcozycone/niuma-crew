@@ -38,7 +38,7 @@ const connection: api.ToolConnection = {
   annotations_revision: 1,
   provider_key: null,
   auth_type: "bearer",
-  public_config: { url: "https://mcp.tavily.com/mcp" },
+  public_config: { url: "https://mcp.example.com/mcp" },
   enabled: true,
   has_credential: true,
   config_revision: 1,
@@ -64,7 +64,7 @@ beforeEach(() => {
       id: "service",
       name: "搜索服务",
       description: "搜索",
-      url: "https://mcp.tavily.com/mcp",
+      url: "https://mcp.example.com/mcp",
       transport: "http",
       command: null,
       args: [],
@@ -139,13 +139,13 @@ it("keeps discovery and catalog approval as distinct operations", async () => {
     ...connection,
     discovery_candidate: {
       hash: "candidate",
-      tools: [{ name: "tavily_search", description: "互联网搜索", descriptor_hash: "tool-hash" }],
+      tools: [{ name: "catalog_search", description: "互联网搜索", descriptor_hash: "tool-hash" }],
     },
   });
   vi.mocked(api.approveTools).mockResolvedValue({
     ...connection,
     approved_catalog: [
-      { name: "tavily_search", description: "互联网搜索", descriptor_hash: "tool-hash" },
+      { name: "catalog_search", description: "互联网搜索", descriptor_hash: "tool-hash" },
     ],
   });
   render(
@@ -156,7 +156,7 @@ it("keeps discovery and catalog approval as distinct operations", async () => {
     </MemoryRouter>,
   );
   fireEvent.click(await screen.findByRole("button", { name: "读取工具列表" }));
-  await screen.findByText("tavily_search");
+  await screen.findByText("catalog_search");
   expect(api.approveTools).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: "确认工具列表" }));
   await waitFor(() => expect(api.approveTools).toHaveBeenCalledTimes(1));

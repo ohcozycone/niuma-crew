@@ -2912,7 +2912,10 @@
     "runtime/tools/sandbox_backend.py",
     "runtime/tools/tool_search.py",
     "runtime/tools/workspace.py",
-    "runtime/usage.py"
+    "runtime/usage.py",
+    "runtime/tools/web.py",
+    "runtime/tools/web_config.py",
+    "runtime/tools/web_policy.py"
   ],
   "allowed_top_level_packages": [
     "api",

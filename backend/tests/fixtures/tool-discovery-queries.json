@@ -94,27 +94,27 @@
     {
       "request": "搜索最新行业新闻",
       "query": "search web latest news",
-      "expected": "tavily_search"
+      "expected": "catalog_search"
     },
     {
       "request": "读取指定网页全文",
       "query": "extract url web content",
-      "expected": "tavily_extract"
+      "expected": "catalog_extract"
     },
     {
       "request": "遍历站点抓取页面",
       "query": "crawl website pages",
-      "expected": "tavily_crawl"
+      "expected": "catalog_crawl"
     },
     {
       "request": "列出站点所有链接",
       "query": "map website urls",
-      "expected": "tavily_map"
+      "expected": "catalog_map"
     },
     {
       "request": "深入研究市场竞争",
       "query": "research detailed report",
-      "expected": "tavily_research"
+      "expected": "catalog_research"
     }
   ]
 }

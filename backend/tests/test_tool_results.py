@@ -94,7 +94,7 @@ def test_real_loop_pages_result_without_host_file_grant(api_client, monkeypatch)
                 "",
                 [
                     {
-                        "name": exposed_name(connection["id"], "tavily_search"),
+                        "name": exposed_name(connection["id"], "catalog_search"),
                         "id": "search",
                         "args": {"query": "web"},
                     }
@@ -112,7 +112,7 @@ def test_real_loop_pages_result_without_host_file_grant(api_client, monkeypatch)
         item["safe_details"].get("model_tool")
         for item in result["steps"]
         if item["kind"] == "tool_call"
-    ] == ["search_tools", exposed_name(connection["id"], "tavily_search"), "read_tool_result"]
+    ] == ["search_tools", exposed_name(connection["id"], "catalog_search"), "read_tool_result"]
 
 
 def test_provider_payload_is_saved_without_inferred_page_semantics(api_client, monkeypatch):
@@ -145,7 +145,7 @@ def test_provider_payload_is_saved_without_inferred_page_semantics(api_client, m
                 "",
                 [
                     {
-                        "name": exposed_name(connection["id"], "tavily_search"),
+                        "name": exposed_name(connection["id"], "catalog_search"),
                         "id": "retrieve",
                         "args": {"query": "target"},
                     }

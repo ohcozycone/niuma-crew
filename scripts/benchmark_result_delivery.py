@@ -259,11 +259,8 @@ def configure(client, credentials, tools):
     grants = []
     for entries in grouped.values():
         source = entries[0]["source"]
-        url = (
-            "https://mcp.notion.com/mcp"
-            if entries[0]["tool_name"].startswith("notion-")
-            else "https://mcp.tavily.com/mcp"
-        )
+        # This benchmark replays historical provider fixtures through FixedClient only.
+        url = "https://fixture.example.com/mcp/" + entries[0]["source_id"]
         catalog = [
             {
                 "name": b["tool_name"],

@@ -13,7 +13,7 @@ from app.runtime.tools.tool_search import search_binding, search_tool
 def test_search_expands_next_request_and_saves_exact_parent_exposure(api_client, monkeypatch):
     _, _, employee, conversation = setup(api_client)
     connection = search_grant(api_client, employee)
-    name = exposed_name(connection["id"], "tavily_search")
+    name = exposed_name(connection["id"], "catalog_search")
     accepted = send(api_client, conversation)
     model = ScriptedModel(
         responses=[
@@ -42,7 +42,7 @@ def test_search_expands_next_request_and_saves_exact_parent_exposure(api_client,
 def test_parallel_search_cannot_authorize_same_response_guess(api_client, monkeypatch):
     _, _, employee, conversation = setup(api_client)
     connection = search_grant(api_client, employee)
-    name = exposed_name(connection["id"], "tavily_search")
+    name = exposed_name(connection["id"], "catalog_search")
     accepted = send(api_client, conversation)
     SearchClient.calls = 0
     model = ScriptedModel(
@@ -50,7 +50,7 @@ def test_parallel_search_cannot_authorize_same_response_guess(api_client, monkey
             response(
                 "",
                 [
-                    {"name": "search_tools", "id": "discover", "args": {"query": "tavily"}},
+                    {"name": "search_tools", "id": "discover", "args": {"query": "catalog"}},
                     {"name": name, "id": "guessed", "args": {"query": "网页"}},
                 ],
             )
@@ -115,7 +115,7 @@ def test_cached_discovery_feedback_rebuilds_command_with_current_call_id():
 def test_new_run_clears_discovery_without_deleting_conversation_history(api_client, monkeypatch):
     _, _, employee, conversation = setup(api_client)
     connection = search_grant(api_client, employee)
-    name = exposed_name(connection["id"], "tavily_search")
+    name = exposed_name(connection["id"], "catalog_search")
     first = send(api_client, conversation)
     model = ScriptedModel(responses=[discovery_response(), response("第一轮完成")])
     assert execute(api_client, monkeypatch, model, first)["status"] == "succeeded"
@@ -200,7 +200,7 @@ def test_model_exposure_cannot_be_overwritten_or_reused_for_hidden_tool(api_clie
     store = api_client.app.state.run_worker.store
     assert store.claim(accepted["id"])
     row, _ = store.load(accepted["id"])
-    name = exposed_name(connection["id"], "tavily_search")
+    name = exposed_name(connection["id"], "catalog_search")
     tool = next(item for item in row.config_snapshot["tools"] if item["exposed_name"] == name)
     _, key = store.start_model(
         row.id,

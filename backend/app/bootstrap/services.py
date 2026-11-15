@@ -183,6 +183,7 @@ def build_services(app, settings, cleanup):
         database=database,
         runtime=settings.runtime,
         agent_settings=settings.agent,
+        web_config=settings.web,
         lock_file=settings.runner_lock_file,
         model_connections=app.state.model_connections,
         files=app.state.files,
