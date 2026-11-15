@@ -442,6 +442,9 @@ def test_native_alias_recreated_from_durable_action_and_rechecks_permission(
     assert "ROW-0150" in model.prompts[-1]
     backend = ToolResultBackend(contexts[-1])
     assert backend.download_files(["/search"])[0].content.decode() == raw
+    downloaded = backend.download_files(["/missing", "/search"])
+    assert len(downloaded) == 2 and downloaded[0].error == "file_not_found"
+    assert downloaded[1].content.decode() == raw
     refs = api_client.app.state.files.sources(accepted["id"])
     assert len(refs) == 1
     with api_client.app.state.database.transaction() as db:
@@ -713,3 +716,42 @@ def test_sandbox_materializes_native_result_path_as_frozen_text():
     assert saved == [("/sources/large_tool_results/source", text.encode())]
     workspace.execute("read again")
     assert len(saved) == 1
+
+
+@pytest.mark.parametrize("kind", ["source", "workspace"])
+def test_followup_missing_file_is_feedback_and_does_not_abort_run(api_client, monkeypatch, kind):
+    _, conversation, connection = search_setup(api_client)
+    provider(monkeypatch, "ARCHIVED_CONTENT " * 2000)
+    path = "/sources/large_tool_results/search" if kind == "source" else "/workspace/draft.txt"
+    first = submit(api_client, conversation).json()["response"]
+    create = (
+        search_model(connection, response("资料已保存"))
+        if kind == "source"
+        else ScriptedModel(
+            responses=[
+                response(
+                    "",
+                    [
+                        {
+                            "name": "write_file",
+                            "id": "save",
+                            "args": {"file_path": path, "content": "DRAFT_CONTENT"},
+                        }
+                    ],
+                ),
+                response("草稿已保存"),
+            ]
+        )
+    )
+    assert execute(api_client, monkeypatch, create, first)["status"] == "succeeded"
+    second = submit(api_client, conversation, content="继续读取刚才的资料").json()["response"]
+    model = ScriptedModel(
+        responses=[
+            response("", [{"name": "read_file", "id": "reread", "args": {"file_path": path}}]),
+            response("旧临时资料当前不可读取，需要重新取得。"),
+        ]
+    )
+    done = execute(api_client, monkeypatch, model, second)
+    assert done["status"] == "succeeded", done
+    assert "not found" in model.prompts[-1].lower()
+    assert len(model.prompts) == 2

@@ -117,6 +117,10 @@ class ToolResultBackend(BackendProtocol):
         return WriteResult(path=file_path)
 
     def read(self, file_path, offset=0, limit=2000):
+        file_path = checked_path(file_path)
+        if file_path not in self._aliases():
+            # 路由范围已经过文件工具校验；范围内不存在的临时结果按官方缺失文件返回，不回读历史归档。
+            return self.reader.read(file_path, offset, limit)
         entry, _ = self._entry(file_path)
         scope = result_scope.get()
         if scope is not None:
@@ -140,7 +144,10 @@ class ToolResultBackend(BackendProtocol):
 
     def download_files(self, paths):
         return [
-            FileDownloadResponse(path=path, content=self._entry(path)[1].encode()) for path in paths
+            FileDownloadResponse(path=path, content=self._entry(path)[1].encode())
+            if checked_path(path) in self._aliases()
+            else FileDownloadResponse(path=path, error="file_not_found")
+            for path in paths
         ]
 
     def sources(self):
