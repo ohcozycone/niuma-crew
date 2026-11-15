@@ -1,6 +1,6 @@
 import { FailureNotice } from "@/components/failure/FailureNotice";
 import { mutationOutcome } from "@/lib/failures/resolve";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Database, Settings2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
 import { ConfirmActionDialog } from "@/components/common/ConfirmActionDialog";
@@ -50,13 +50,6 @@ export function KnowledgeVectors({ id }: { id: string }) {
   const activeJob = jobs.data?.find((job) => job.status === "queued" || job.status === "running");
   const latest = activeJob ?? jobs.data?.[0];
   const retryable = latest && ["failed", "cancelled", "interrupted"].includes(latest.status);
-  // The server owns execution. Re-entering this page rechecks jobs even after an inactive cache hit.
-  useEffect(() => jobsResource.invalidate(), [jobsResource]);
-  useEffect(() => {
-    if (!activeJob || jobs.loading) return;
-    const timer = window.setTimeout(() => jobsResource.invalidate(), 1500);
-    return () => window.clearTimeout(timer);
-  }, [activeJob, jobs.loading, jobsResource]);
   const eligible = (documents.data ?? []).filter(
     (doc) => doc.chunk_count > 0 && doc.keyword_ready !== false,
   ).length;

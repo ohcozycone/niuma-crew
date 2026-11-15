@@ -32,6 +32,18 @@ export function KnowledgeLibrary({ id }: { id: string }) {
   const state = useResource(resource);
   const documents = useResource(store.documents(id));
   const jobs = useResource(store.processing(id));
+  const vectorJobsResource = store.vectorJobs(id);
+  const vectorJobs = useResource(vectorJobsResource);
+  const activeVectorJob = vectorJobs.data?.find(
+    (job) => job.status === "queued" || job.status === "running",
+  );
+  // Keep observing background completion across library tabs; leaving the library stops polling.
+  useEffect(() => vectorJobsResource.invalidate(), [vectorJobsResource]);
+  useEffect(() => {
+    if (!activeVectorJob || vectorJobs.loading) return;
+    const timer = window.setTimeout(() => vectorJobsResource.invalidate(), 1500);
+    return () => window.clearTimeout(timer);
+  }, [activeVectorJob, vectorJobs.loading, vectorJobsResource]);
   const uploads = useAtom(store.uploads.state);
   const [adding, setAdding] = useState(false);
   const [params, setParams] = useSearchParams();

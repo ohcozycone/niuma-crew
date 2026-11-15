@@ -958,3 +958,55 @@ it("keeps vector cancellation and build disabled for read-only visitors", async 
   expect(api.cancelKnowledgeVectorJob).not.toHaveBeenCalled();
   expect(api.buildKnowledgeVectors).not.toHaveBeenCalled();
 });
+
+it.each(["文档", "检索测试"])(
+  "refreshes document and search vector state when a job finishes on the %s tab",
+  async (tab) => {
+    vi.mocked(api.getKnowledgeBase).mockResolvedValue({ ...kb, chunk_count: 1 });
+    vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([
+      { ...doc, keyword_ready: true, vector_ready: false },
+    ]);
+    vi.mocked(api.listEmbeddingConnections).mockResolvedValue([
+      { id: "embedding", name: "向量模型", model_id: "model" },
+    ]);
+    vi.mocked(api.buildKnowledgeVectors).mockImplementationOnce(async () => {
+      vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([vectorJob]);
+      return vectorJob;
+    });
+    open("/knowledge/kb?view=settings");
+    const build = await screen.findByRole("button", { name: /建立向量索引/ });
+    await waitFor(() => expect(build).toHaveProperty("disabled", false));
+    fireEvent.click(build);
+    await screen.findByText("向量任务：排队中");
+    fireEvent.click(screen.getByRole("tab", { name: tab }));
+    expect(screen.queryByRole("region", { name: "知识库向量索引" })).toBeNull();
+    if (tab === "文档") await screen.findAllByText("待向量化");
+    else await screen.findByText("当前使用：关键词检索");
+
+    vi.mocked(api.getKnowledgeBase).mockResolvedValue({
+      ...kb,
+      chunk_count: 1,
+      vector_status: "ready",
+      vector_connection_id: "embedding",
+      vector_chunk_count: 1,
+    });
+    vi.mocked(api.listKnowledgeDocuments).mockResolvedValue([
+      { ...doc, keyword_ready: true, vector_ready: true },
+    ]);
+    vi.mocked(api.listKnowledgeVectorJobs).mockResolvedValue([
+      { ...vectorJob, status: "succeeded", completed_count: 1 },
+    ]);
+    if (tab === "文档") {
+      await screen.findAllByText("向量可用", {}, { timeout: 2500 });
+      expect(screen.queryByText("待向量化")).toBeNull();
+      fireEvent.click(screen.getByRole("tab", { name: "检索测试" }));
+      await screen.findByText("当前使用：关键词＋语义混合检索");
+    } else {
+      await screen.findByText("当前使用：关键词＋语义混合检索", {}, { timeout: 2500 });
+      fireEvent.click(screen.getByRole("tab", { name: "文档" }));
+      await screen.findAllByText("向量可用");
+      expect(screen.queryByText("待向量化")).toBeNull();
+    }
+    expect(api.buildKnowledgeVectors).toHaveBeenCalledTimes(1);
+  },
+);
