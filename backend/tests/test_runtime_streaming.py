@@ -361,3 +361,46 @@ def test_extension_reasoning_reaches_progress_evidence_and_checkpoint_without_pr
         and message.additional_kwargs.get("reasoning_content") == "先核对再回答"
         for message in saved
     )
+
+
+@pytest.mark.parametrize("content", ["", "  \n", [{"type": "reasoning", "reasoning": "过程摘要"}]])
+def test_empty_final_response_fails_model_action_and_keeps_usage(api_client, monkeypatch, content):
+    _, _, _, conversation = setup(api_client)
+    run = submit(api_client, conversation).json()["response"]
+    model = ScriptedModel(
+        responses=[
+            AIMessage(
+                content=content,
+                response_metadata={"finish_reason": "stop"},
+                usage_metadata={"input_tokens": 10, "output_tokens": 5, "total_tokens": 15},
+            )
+        ]
+    )
+    result = execute(api_client, monkeypatch, model, run)
+    step = read_reply(api_client, run["id"])["steps"][0]
+    assert result["status"] == "failed" and result["error"]["code"] == "empty_response"
+    assert step["status"] == "failed" and step["error_code"] == "empty_response"
+    assert result["usage"]["total_tokens"] == 15 and model._index == 1
+
+
+def test_empty_text_with_valid_tool_call_still_executes(api_client, monkeypatch):
+    skill, _, _, conversation = setup(api_client)
+    run = submit(api_client, conversation).json()["response"]
+    model = ScriptedModel(
+        responses=[
+            response(
+                "",
+                [
+                    {
+                        "name": "read_file",
+                        "id": "read",
+                        "args": {"file_path": f"/skills/s-{skill['id']}/SKILL.md"},
+                    }
+                ],
+            ),
+            response("读取完成"),
+        ]
+    )
+    result = execute(api_client, monkeypatch, model, run)
+    assert result["status"] == "succeeded" and result["content"] == "读取完成"
+    assert len(model.prompts) == 2 and "BODY_MARKER_P1" in model.prompts[-1]

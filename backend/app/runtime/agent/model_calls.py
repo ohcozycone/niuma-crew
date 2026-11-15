@@ -189,6 +189,8 @@ class ModelExecutionMiddleware(AgentMiddleware[AgentRunState]):
                 or (reason == "tool_calls" and not message.tool_calls)
             ):
                 raise RuntimeFailure("upstream_stream_error")
+            if not message.tool_calls and not message.text.strip():
+                raise RuntimeFailure("empty_response")
             if len(message.text.encode()) > self.input.snapshot["max_output_bytes"]:
                 raise RuntimeFailure(
                     "output_limit_exceeded",
