@@ -48,12 +48,12 @@
 
 正文解释机制与取舍，源码旁说明维护内部协调，不要求每个目录都有说明文件。
 
-| 范围               | 实现入口                                                                                                                                                    |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 技能发布与工具接入 | [技能](../backend/app/resources/skills/README.md)、[工具](../backend/app/resources/mcp/README.md)                                                                               |
-| 检索与模型         | [知识](../backend/app/resources/knowledge/README.md)、[模型客户端](../backend/app/infrastructure/llm/README.md)                                                                      |
-| 执行与资源         | [执行](../backend/app/runtime/execution/README.md)、[文件](../backend/app/resources/files/README.md)、[环境](../backend/app/resources/environments/README.md)                           |
-| 事务与前端数据     | [基础设施](../backend/app/infrastructure/README.md)、[共享数据](../frontend/src/state/README.md)、[对话交互](../frontend/src/pages/conversations/README.md) |
+| 范围               | 实现入口                                                                                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 技能发布与工具接入 | [技能](../backend/app/resources/skills/README.md)、[工具](../backend/app/resources/mcp/README.md)                                                             |
+| 检索与模型         | [知识](../backend/app/resources/knowledge/README.md)、[模型客户端](../backend/app/infrastructure/llm/README.md)                                               |
+| 执行与资源         | [执行](../backend/app/runtime/execution/README.md)、[文件](../backend/app/resources/files/README.md)、[环境](../backend/app/resources/environments/README.md) |
+| 事务与前端数据     | [基础设施](../backend/app/infrastructure/README.md)、[共享数据](../frontend/src/state/README.md)、[对话交互](../frontend/src/pages/conversations/README.md)   |
 
 ## 方案、记录与学习
 
@@ -66,3 +66,5 @@
 [回答证据边界复验](records/回答证据边界复验.md)记录后续两版说明未通过验收并撤回的依据，不能当作整体质量已通过。
 
 [学习路线](learning/roadmap.md)管理练习与掌握判据，[运行观察](learning/observing-runtime.md)提供实际请求的观察方法。文档职责及更新关系见[文档规范](documentation.md)，站点发布与构建见[站点说明](../docs-site/README.md)。
+
+[提交历史重建验收](records/提交历史重建验收.md)记录隔离分支的实际提交顺序、树一致性和离线回归结果；原始历史与未提交内容保留，main 尚未覆盖或推送。
